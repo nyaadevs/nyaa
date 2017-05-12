@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block title %}{{ torrent.display_name }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+<div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
+	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
+		<h3 class="panel-title">
+			{% if can_edit %}
+			<a href="{{ request.url }}/edit"><i class="fa fa-fw fa-pencil"></i></a>
+			{% endif %}
+			{{ torrent.display_name }}
+		</h3>
+	</div>
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-md-1">Category:</div>
+			<div class="col-md-5">{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}</div>
+
+			<div class="col-md-1">Date:</div>
+			<div class="col-md-5">{{ torrent.created_time.strftime('%Y-%m-%d, %H:%M UTC') }}</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-1">Submitter:</div>
+			<div class="col-md-5">{% if not torrent.anonymous and torrent.user %}<a href="{{ url_for('view_user', user_name=torrent.user.username) }}">{{ torrent.user.username }}</a>{% else %}Anonymous{% endif %}</div>
+
+			<div class="col-md-1">Seeders:</div>
+			<div class="col-md-5"><span style="color: green;">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.seed_count }}{% else %}Coming soon{% endif %}</span></div>
+
+		</div>
+
+		<div class="row">
+			<div class="col-md-1">Information:</div>
+			<div class="col-md-5">
+				{% if torrent.information %}
+				{{ torrent.information | escape }}
+				{% else %}
+				No information.
+				{% endif%}
+			</div>
+
+			<div class="col-md-1">Leechers:</div>
+			<div class="col-md-5"><span style="color: red;">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.leech_count }}{% else %}Coming soon{% endif %}</span></div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-1">File size:</div>
+			<div class="col-md-5">{{ torrent.filesize | filesizeformat(True) }}</div>
+
+			<div class="col-md-1">Downloads:</div>
+			<div class="col-md-5">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.download_count }}{% else %}Coming soon{% endif %}</div>
+		</div>
+	</div>
+	<div class="panel-footer">
+		{% if torrent.has_torrent %}<a href="/view/{{ torrent.id }}/torrent"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-body" id="torrent-description">
+		{% if torrent.description %}
+		{{ torrent.description | escape }}
+		{% else %}
+		#### No description.
+		{% endif%}
+	</div>
+</div>
+
+{% if files and files.__len__() <= config.MAX_FILES_VIEW %}
+<div class="panel panel-default">
+	<div class="panel-heading panel-heading-collapse">
+		<h3 class="panel-title">
+			<div class="row">
+				<a class="collapsed col-md-12" data-target="#collapseFileList" data-toggle="collapse" style="color:inherit;text-decoration:none;">File list</a>
+			</div>
+		</h3>
+	</div>
+
+	<div class="panel-collapse collapse" id="collapseFileList">
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <th style="width:auto;">Path</th>
+                <th style="width:auto;">Size</th>
+            </thead>
+            <tbody>
+                {%- for key, value in files.items() %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td class="col-md-2">{{ value | filesizeformat(True) }}</td>
+                </tr>
+                {%- endfor %}
+            <tbody>
+        </table>
+	</div>
+</div>
+{% elif files %}
+<div class="panel panel-default">
+	<div class="panel-heading panel-heading-collapse">
+		<h3 class="panel-title">
+			<div class="row"><div class="col-md-12">Too many files to display.</div></div>
+		</h3>
+	</div>
+</div>
+{% else %}
+<div class="panel panel-default">
+	<div class="panel-heading panel-heading-collapse">
+		<h3 class="panel-title">
+			<div class="row"><div class="col-md-12">File list is not available for this torrent.</div></div>
+		</h3>
+	</div>
+</div>
+{% endif %}
+
+<script>
+	var target = document.getElementById('torrent-description');
+	var text = target.innerHTML;
+	var html = marked(text.trim(), { sanitize: true });
+	target.innerHTML = html;
+</script>
+
+{% endblock %}

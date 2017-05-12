@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+<h3>
+	Browsing {{user.username}}'s torrents
+</h3>
+
+{% include "search_results.html" %}
+
+{% endblock %}

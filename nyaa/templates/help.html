@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block title %}Help :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+
+<h1>Coming soon (tm)</h1>
+{# <div class="content">
+	<h1>Help</h1>
+	<p><b>The search engine</b> is located at the top right, and it allows users to search through the torrent titles available on the site. Results matching either word A or B can be included by typing a vertical bar between them (|). Results matching a certain word can be excluded by prefixing that word with a hyphen-minus (-). Phrases can be matched by surrounding them with double-quotes (). Search results can be filtered by category, remake, trusted, and/or A+ status, and then narrowed down further by age and size ranges as well as excluding specific users. Sorting can be done in ascending or descending order by date, amount of seeders/leechers/downloads, size, or name. The search engine adapts to the current view and makes it possible to search for specific torrents in a specific subcategory from a specific user.</p>
+	<p><b>Blue entries:</b></p>
+	<ul>
+		<li>
+			<p>Torrents marked as A+ quality are blue in the torrent lists.</p>
+		</li>
+		<li>
+			<p>These are exclusive torrents picked by us.</p>
+		</li>
+		<li>
+			<p>They represent the best available version of this content.</p>
+		</li>
+		<li>
+			<p>There will be no duplicates.</p>
+		</li>
+		<li>
+			<p>Only versions that we actually consider worthy of a seal of approval will be listed.</p>
+		</li>
+	</ul>
+	<p>Uploaders are encouraged to leave a complete description of the release on the torrent information page. This is especially true for batches.<br></p>
+	<p><b>Green entries:</b> Torrents uploaded by trusted users are green in the torrent lists.<br></p>
+	<p><b>Orange entries:</b> Torrents must be marked as remakes if any of the following applies to the release:</p>
+	<ul>
+		<li>
+			<p>Reencode of original release.</p>
+		</li>
+		<li>
+			<p>Remux of another uploader's original release for hardsubbing and/or fixing purposes.</p>
+		</li><!--<li>Non-v2 (or non-v3, etc.) remux of original release using a similar source.</li>-->
+		<li>
+			<p>Reupload of original release using non-original file names.</p>
+		</li>
+		<li>
+			<p>Reupload of original release with missing and/or unrelated additional files.</p>
+		</li>
+	</ul>
+	<p><b>Red entries:</b> Torrents containing completed series or other complete sets are red.<br></p>
+	<p><b>Grey entries:</b> Hidden torrents are grey.<br></p>
+	<p><b>The tools to manage your torrents</b> are located right above the torrent's details on the information page. Editable fields are the torrent's title, category, description, information link, metadata, and the alias and key fields which are explained on the page. It is also possible to hide the torrent which prevents it from being displayed in lists or even delete it altogether.<br></p>
+	<p><b>Pseudo-anonymous uploads</b> are torrents that will appear to be anonymous, but you can still manage them through your account.<br></p>
+	<p><b>Flagging torrents</b> points them out for moderator review. Torrents can be flagged by clicking on the link located in the upper right corner of their information pages.<br></p>
+	<p><b>RSS</b> is a useful Web feed that automatically updates when a torrent is added by a user. Many programs such as popular BitTorrent clients, which can be set up for automatic downloading, can make use of RSS feeds. The RSS feed link is dynamic which means that it will - like the search function - adapt to the current view, search results included.<br></p>
+	<p><b>BBCode user input</b> is parsed by the torrent descriptions, information links, and torrent comments, and they all support basic BBCode like [b], [i], [s], [u], [left], [center], [right], [code], [email], [img], [url], [color], [font], [size], [quote], and [spoiler].<br></p>
+	<p><b>The upload page</b> returns various HTTP status codes in order to simplify automated uploads. The following details the custom codes used:</p>
+	<ul>
+		<li>
+			<p>200: The ID of the uploaded torrent can be found in the Record-ID header.</p>
+		</li>
+		<li>
+			<p>418: You're doing it wrong.</p>
+		</li>
+		<li>
+			<p>460: You forgot to include a valid announce URL. Torrents using only DHT are not allowed, because this is most often just a mistake on behalf of the uploader.</p>
+		</li>
+		<li>
+			<p>461: This torrent already exists in the database.</p>
+		</li>
+		<li>
+			<p>462: The file you uploaded or linked to does not seem to be a torrent.</p>
+		</li>
+		<li>
+			<p>463: The form is missing required data like the category and/or the checkbox which confirms that you have read the rules.</p>
+		</li>
+		<li>
+			<p>520: Server-side error. Wait for a few minutes, and then notify Nyaa if the problem did not go away.</p>
+		</li>
+	</ul>
+	<h1>IRC help channel</h1><a href="irc://irc-server:port/channel?key">
+	<h1>NyaaV2 IRC</h1></a>
+	<p>The IRC channel is only for site support.<br></p>
+	<p><b>Read this to avoid getting banned:</b></p>
+	<ul>
+		<li>
+			<p>Do not sit around if you do not need site support unless you have voice/+ access.</p>
+		</li>
+		<li>
+			<p>Requests are not allowed. We only manage the site; we do not necessarily have the material you want on hand.</p>
+		</li>
+		<li>
+			<p>We do not know when A or B will be released, if it's authentic, or anything about a particular release. Do not ask.</p>
+		</li>
+		<li>
+			<p>XDCC, similar services, and their triggers are not allowed.</p>
+		</li>
+		<li>
+			<p>Use English only. Even though we aren't all from English-speaking countries, we need level ground to communicate on.</p>
+		</li>
+		<li>
+			<p>Do not send private messages to the staff. Ask your question in the channel on joining and wait; a staff member will respond in due time.</p>
+		</li>
+	</ul>
+	<p><b>Keep these things in mind when asking for help:</b></p>
+	<ul>
+		<li>
+			<p>We are not interested in your user name. Paste a link to your account if you want us to do something with it.</p>
+		</li>
+		<li>
+			<p>Provide as many details as possible. If you are having trouble submitting any kind of entry, we want to know everything about you and what (except any passwords) you supply to the form in question.</p>
+		</li>
+	</ul>
+</div> #}
+{% endblock %}

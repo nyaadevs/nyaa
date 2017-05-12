@@ -1,0 +1,59 @@
+{% macro render_field(field) %}
+{% if field.errors %}
+	<div class="form-group has-error">
+{% else %}
+	<div class="form-group">
+{% endif %}
+		{{ field.label(class='control-label') }}
+		{{ field(title=field.description,**kwargs) | safe }}
+		{% if field.errors %}
+			<div class="help-block">
+				{% if field.errors|length < 2 %}
+					{% for error in field.errors %}
+						{{ error }}
+					{% endfor %}
+				{% else %}
+					<ul>
+						{% for error in field.errors %}
+							<li>{{ error }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+{% endmacro %}
+
+{% macro render_upload(field) %}
+{% if field.errors %}
+	<div class="form-group has-error">
+{% else %}
+	<div class="form-group">
+{% endif %}
+		<label class="control-label" for="torrent_file">Torrent file</label>
+		<div class="input-group">
+			<label for="{{ field.id }}" class="input-group-btn">
+				<span class="btn btn-default">Browse&hellip;</span>
+			</label>
+			<input type="text" class="form-control" readonly>
+		</div>
+		<div class="sr-only">
+			{{ field(title=field.description,**kwargs) | safe }}
+		</div>
+		{% if field.errors %}
+			<div class="help-block">
+				{% if field.errors|length < 2 %}
+					{% for error in field.errors %}
+						{{ error }}
+					{% endfor %}
+				{% else %}
+					<ul>
+						{% for error in field.errors %}
+							<li>{{ error }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+{% endmacro %}

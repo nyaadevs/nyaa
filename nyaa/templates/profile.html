@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Edit Profile :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Edit Profile</h1>
+	<form method="POST">
+		{{ form.csrf_token }}
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.email, class_='form-control', placeholder='New email address') }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.current_password, class_='form-control', placeholder='Current password') }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.new_password, class_='form-control', placeholder='New password') }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.password_confirm, class_='form-control', placeholder='New password (confirm)') }}
+			</div>
+		</div>
+
+		<br>
+
+		<div class="row">
+			<div class="col-md-4">
+				<input type="submit" value="Update" class="btn btn-primary">
+			</div>
+		</div>
+	</form>
+{% endblock %}
+

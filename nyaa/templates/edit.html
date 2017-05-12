@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}Edit {{ torrent.display_name }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Edit Torrent</h1>
+
+<form method="POST" enctype="multipart/form-data">
+	{{ form.csrf_token }}
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.category, class_='form-control')}}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.display_name, class_='form-control', placeholder='Display name') }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.information, class_='form-control', placeholder='Your website or IRC channel') }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.description, class_='form-control') }}
+		</div>
+	</div>
+
+	{% if admin %}
+		<div class="row">
+	 		<div class="form-group col-md-6">
+				<label>
+					{{ form.is_deleted }}
+					Deleted
+				</label>
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_hidden }}
+				Hidden
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_remake }}
+				Remake
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_complete }}
+				Complete
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_anonymous }}
+				Anonymous
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<input type="submit" value="Edit" class="btn btn-primary">
+		</div>
+	</div>
+</form>
+{% endblock %}

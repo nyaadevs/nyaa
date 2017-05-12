@@ -1,0 +1,48 @@
+# NyaaV2
+
+## Setup:
+
+- Create your virtualenv, for example with `pyvenv venv`
+- Enter your virtualenv with `source venv/bin/activate`
+- Install dependencies with `pip install -r requirements.txt`
+- Run `python db_create.py` to create the database
+- Start the dev server with `python run.py`
+
+## Updated Setup (python 3.6.1):
+
+- Install dependencies https://github.com/pyenv/pyenv/wiki/Common-build-problems
+- Install `pyenv` https://github.com/pyenv/pyenv/blob/master/README.md#installation
+- Install `pyenv-virtualenv` https://github.com/pyenv/pyenv-virtualenv/blob/master/README.md
+- `pyenv install 3.6.1`
+- `pyenv virtualenv 3.6.1 nyaa`
+- `pyenv activate nyaa`
+- Install dependencies with `pip install -r requirements.txt`
+- Copy `config.example.py` into `config.py`
+- Change TALBE_PREFIX to `nyaa_` or `sukebei_` depending on the site
+
+## Setting up MySQL/MariaDB database for advanced functionality
+- Enable `USE_MYSQL` flag in config.py
+- Install latest mariadb by following instructions here https://downloads.mariadb.org/mariadb/repositories/
+    - Tested versions: `mysql  Ver 15.1 Distrib 10.0.30-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2`
+- Run the following commands logged in as your root db user:
+    - `CREATE USER 'test'@'localhost' IDENTIFIED BY 'test123';`
+    - `GRANT ALL PRIVILEGES ON * . * TO 'test'@'localhost';`
+    - `FLUSH PRIVILEGES;`
+    - `CREATE DATABASE nyaav2 DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;`
+- To setup and import nyaa_maria_vx.sql:
+    - `mysql -u <user> -p nyaav2`
+    - `DROP DATABASE nyaav2;`
+    - `CREATE DATABASE nyaav2 DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;`
+    - `SOURCE ~/path/to/database/nyaa_maria_vx.sql`
+
+## Finishing up
+- Run `python db_create.py` to create the database
+- Load the .sql file
+    - `mysql -u user -p nyaav2`
+    - `SOURCE cocks.sql`
+    - Remember to change the default user password to an empty string to disable logging in
+- Start the dev server with `python run.py`
+- Deactivate `source deactivate`
+
+## Code Quality:
+- Remember to follow PEP8 style guidelines and run `./lint.sh` before committing.

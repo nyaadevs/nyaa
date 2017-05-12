@@ -1,0 +1,22 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+	<channel>
+		<title>{{ config.SITE_NAME }} Torrent File RSS (No magnets)</title>
+		<description>
+			RSS Feed for {{ term }}
+		</description>
+		<link>{{ site_url }}</link>
+		<atom:link href="{{ site_url }}rss" rel="self" type="application/rss+xml" />
+		{% for torrent in query %}
+		{% if torrent.has_torrent %}
+		<item>
+			<title>{{ torrent.display_name }}</title>
+			<link>
+				{{ site_url }}view/{{ torrent.id }}/torrent
+			</link>
+			<guid isPermaLink="true">{{ site_url }}view/{{ torrent.id }}</guid>
+			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+		</item>
+		{% endif %}
+		{% endfor %}
+	</channel>
+</rss>

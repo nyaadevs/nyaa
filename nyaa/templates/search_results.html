@@ -1,0 +1,70 @@
+{% if torrent_query.items %}
+<div class="table-responsive">
+	<table class="table table-bordered table-hover table-striped torrent-list">
+		<thead>
+			<tr>
+				<th style="width:80px;text-align:center;">Category</th>
+				<th class="sorting{% if search["sort"] == "name" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %}" style="width:auto;">
+				<a href="{% if search["sort"] == "name" and search["order"] == "desc" %}{{ modify_query(s="name", o="asc") }}{% else %}{{ modify_query(s="name", o="desc") }}{% endif %}"></a>
+					Name
+				</th>
+				<th style="width:0;text-align:center;">Link</th>
+				<th class="sorting{% if search["sort"] == "size" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %}" style="width:100px;text-align:center;">
+					<a href="{% if search["sort"] == "size" and search["order"] == "desc" %}{{ modify_query(s="size", o="asc") }}{% else %}{{ modify_query(s="size", o="desc") }}{% endif %}"></a>
+					Size
+				</th>
+				{# <th style="width:170px;text-align:center;">Date Uploaded</th> #}
+				{% if config.ENABLE_SHOW_STATS %}
+				<th class="sorting{% if search["sort"] == "seeders" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %} text-center" style="width:65px;">
+					<a href="{% if search["sort"] == "seeders" and search["order"] == "desc" %}{{ modify_query(s="seeders", o="asc") }}{% else %}{{ modify_query(s="seeders", o="desc") }}{% endif %}"></a>
+					<i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+				</th>
+				<th class="sorting{% if search["sort"] == "leechers" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %} text-center" style="width:65px;">
+					<a href="{% if search["sort"] == "leechers" and search["order"] == "desc" %}{{ modify_query(s="leechers", o="asc") }}{% else %}{{ modify_query(s="leechers", o="desc") }}{% endif %}"></a>
+					<i class="fa fa-arrow-down" aria-hidden="true"></i>
+				</th>
+				<th class="sorting{% if search["sort"] == "downloads" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %} text-center" style="width:65px;">
+					<a href="{% if search["sort"] == "downloads" and search["order"] == "desc" %}{{ modify_query(s="downloads", o="asc") }}{% else %}{{ modify_query(s="downloads", o="desc") }}{% endif %}"></a>
+					<i class="fa fa-check" aria-hidden="true"></i>
+				</th>
+				{% endif %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for torrent in torrent_query.items %}
+			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
+				{% if config.TABLE_PREFIX == 'nyaa_' %}
+				<td style="padding:0 4px;">
+                	<a href="/?c={{ torrent.main_category.id }}_{{ torrent.sub_category.id }}">
+                    	<img src="/static/img/icons/nyaa/{{ torrent.main_category.id }}_{{ torrent.sub_category.id }}.png">
+                   	</a>
+               	</td>
+				{% elif config.TABLE_PREFIX == 'sukebei_' %}
+				<td style="padding:0 4px;">
+                   	<a href="/?c={{ torrent.main_category.id }}_{{ torrent.sub_category.id }}">
+                    	<img src="/static/img/icons/sukebei/{{ torrent.main_category.id }}_{{ torrent.sub_category.id }}.png">
+                	</a>
+               	</td>
+				{% endif %}
+				<td><a href="/view/{{ torrent.id }}">{{ torrent.display_name | escape }}</a></td>
+				<td style="white-space: nowrap;text-align: center;">{% if torrent.has_torrent %}<a href="/view/{{ torrent.id }}/torrent"><i class="fa fa-fw fa-download"></i></a> {% endif %}<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a></td>
+				<td>{{ torrent.filesize | filesizeformat(True) }}</td>
+				{# <td>{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td> #}
+				{% if config.ENABLE_SHOW_STATS %}
+				<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
+				<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
+				<td class="text-center">{{ torrent.stats.download_count }}</td>
+				{% endif %}
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% else %}
+<h3>No results found</h3>
+{% endif %}
+
+<center>
+	{% from "bootstrap/pagination.html" import render_pagination %}
+	{{ render_pagination(torrent_query) }}
+</center>

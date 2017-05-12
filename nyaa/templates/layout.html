@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>{% block title %}{{ config.SITE_NAME }}{% endblock %}</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
+		<link rel="icon" type="image/png" href="/static/favicon.png">
+
+		<!-- Bootstrap core CSS -->
+		<!--
+			Note: This has been customized at http://getbootstrap.com/customize/ to
+			set the column breakpoint to tablet mode, instead of mobile. This is to
+			make the navbar not look awful on tablets.
+		-->
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet" id="bsThemeLink">
+		<!-- 
+			This theme changer script needs to be inline and right under the above stylesheet link to prevent FOUC (Flash Of Unstyled Content)
+			Development version is commented out in static/js/main.js at the bottom of the file
+		-->
+		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="/static/css/bootstrap-dark.min.css",localStorage.setItem("theme","dark")}function setThemeLight(){bsThemeLink.href="/static/css/bootstrap.min.css",localStorage.setItem("theme","light")}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
+		<link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+		<link href="/static/css/font-awesome.min.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link href="/static/css/main.css" rel="stylesheet">
+
+		<!-- Bootstrap core JavaScript -->
+		<script src="/static/js/jquery.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
+		<script src="/static/js/bootstrap-select.js"></script>
+		<script src="/static/js/main.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+
+		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-default navbar-static-top navbar-inverse">
+			<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">{{ config.SITE_NAME }}</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li {% if request.path == "/upload" %} class="active"{% endif %}><a href="/upload">Upload</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							About
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li {% if request.path == "/rules" %} class="active"{% endif %}><a href="/rules">Rules</a></li>
+							<li {% if request.path == "/help" %} class="active"{% endif %}><a href="/help">Help</a></li>
+						</ul>
+					</li>
+					<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
+					{% if config.TABLE_PREFIX == 'nyaa_' %}
+					<li><a href="https://sukebei.nyaa.si/">R-18</a></li>
+					{% elif config.TABLE_PREFIX == 'sukebei_' %}
+					<li><a href="https://nyaa.si/">SFW</a></li>
+					{% endif %}
+				</ul>
+
+				<ul class="nav navbar-nav navbar-right">
+					{% if g.user %}
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle visible-lg visible-sm visible-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							<i class="fa fa-user fa-fw"></i>
+							{{g.user.username}}
+							<span class="caret"></span>
+						</a>
+						<a href="#" class="dropdown-toggle hidden-lg hidden-sm hidden-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							<i class="fa fa-user fa-fw"></i>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li class="hidden-lg hidden-sm hidden-xs">
+								<a><i class="fa fa-user fa-fw"></i>Logged in as {{ g.user.username }}</a>
+							</li>
+							<li class="hidden-lg hidden-sm hidden-xs divider" role="separator">
+
+							</li>
+							<li>
+								<a href="{{ url_for('view_user', user_name=g.user.username) }}">
+									<i class="fa fa-user fa-fw"></i>
+									Torrents
+								</a>
+							</li>
+							<li>
+								<a href="/profile">
+									<i class="fa fa-gear fa-fw"></i>
+									Profile
+								</a>
+							</li>
+							<li>
+								<a href="/logout">
+									<i class="fa fa-times fa-fw"></i>
+									Logout
+								</a>
+							</li>
+						</ul>
+					</li>
+					{% else %}
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							<i class="fa fa-user-times fa-fw"></i>
+							Guest
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/login">
+									<i class="fa fa-sign-in fa-fw"></i>
+									Login
+								</a>
+							</li>
+							<li>
+								<a href="/register">
+									<i class="fa fa-pencil fa-fw"></i>
+									Register
+								</a>
+							</li>
+						</ul>
+					</li>
+					{% endif %}
+				</ul>
+				{% if user_page %}
+				<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
+				{% else %}
+				<form class="navbar-form navbar-right form" action="/" method="get">
+				{% endif %}
+					<div class="input-group">
+						<input type="text" class="form-control" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
+						<div class="input-group-btn" id="navFilter">
+							<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
+								<option value="0" title="Show all" {% if search is defined and search["filter"] == "0" %}selected{% else %}selected{% endif %}>Show all</option>
+								<option value="1" title="No remakes" {% if search is defined and search["filter"] == "1" %}selected{% endif %}>No remakes</option>
+								<option value="2" title="Trusted only" {% if search is defined and search["filter"] == "2" %}selected{% endif %}>Trusted only</option>
+							</select>
+						</div>
+						<div class="input-group-btn" id="navFilter">
+							{% if config.TABLE_PREFIX == 'nyaa_' %}
+							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
+								<option value="0_0" title="Show all" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
+									Show all
+								</option>
+								<option value="1_0" title="Anime" {% if search is defined and search["category"] == "1_0" %}selected{% endif %}>
+									Anime
+								</option>
+								<option value="1_1" title="Anime - AMV" {% if search is defined and search["category"] == "1_1" %}selected{% endif %}>
+									- Anime Music Video
+								</option>
+								<option value="1_2" title="Anime - English" {% if search is defined and search["category"] == "1_2" %}selected{% endif %}>
+									- English-translated
+								</option>
+								<option value="1_3" title="Anime - Non-English" {% if search is defined and search["category"] == "1_3" %}selected{% endif %}>
+									- Non-English-translated
+								</option>
+								<option value="1_4" title="Anime - Raw" {% if search is defined and search["category"] == "1_4" %}selected{% endif %}>
+									- Raw
+								</option>
+								<option value="2_0" title="Audio" {% if search is defined and search["category"] == "2_0" %}selected{% endif %}>
+									Audio
+								</option>
+								<option value="2_1" title="Audio - Lossless" {% if search is defined and search["category"] == "2_1" %}selected{% endif %}>
+									- Lossless
+								</option>
+								<option value="2_2" title="Audio - Lossy" {% if search is defined and search["category"] == "2_2" %}selected{% endif %}>
+									- Lossy
+								</option>
+								<option value="3_0" title="Literature" {% if search is defined and search["category"] == "3_0" %}selected{% endif %}>
+									Literature
+								</option>
+								<option value="3_1" title="Literature - English" {% if search is defined and search["category"] == "3_1" %}selected{% endif %}>
+									- English-translated
+								</option>
+								<option value="3_2" title="Literature - Non-English" {% if search is defined and search["category"] == "3_2" %}selected{% endif %}>
+									- Non-English-translated
+								</option>
+								<option value="3_3" title="Literature - Raw" {% if search is defined and search["category"] == "3_3" %}selected{% endif %}>
+									- Raw
+								</option>
+								<option value="4_0" title="Live Action" {% if search is defined and search["category"] == "4_0" %}selected{% endif %}>
+									Live Action
+								</option>
+								<option value="4_1" title="Live Action - English" {% if search is defined and search["category"] == "4_1" %}selected{% endif %}>
+									- English-translated
+								</option>
+								<option value="4_2" title="Live Action - Idol/PV" {% if search is defined and search["category"] == "4_2" %}selected{% endif %}>
+									- Idol/Promotional Video
+								</option>
+								<option value="4_3" title="Live Action - Non-English" {% if search is defined and search["category"] == "4_3" %}selected{% endif %}>
+									- Non-English-translated
+								</option>
+								<option value="4_4" title="Live Action - Raw" {% if search is defined and search["category"] == "4_4" %}selected{% endif %}>
+									- Raw
+								</option>
+								<option value="5_0" title="Pictures" {% if search is defined and search["category"] == "5_0" %}selected{% endif %}>
+									Pictures
+								</option>
+								<option value="5_1" title="Pictures - Graphics" {% if search is defined and search["category"] == "5_1" %}selected{% endif %}>
+									- Graphics
+								</option>
+								<option value="5_2" title="Pictures - Photos" {% if search is defined and search["category"] == "5_2" %}selected{% endif %}>
+									- Photos
+								</option>
+								<option value="6_0" title="Software" {% if search is defined and search["category"] == "6_0" %}selected{% endif %}>
+									Software
+								</option>
+								<option value="6_1" title="Software - Apps" {% if search is defined and search["category"] == "6_1" %}selected{% endif %}>
+									- Applications
+								</option>
+								<option value="6_2" title="Software - Games" {% if search is defined and search["category"] == "6_2" %}selected{% endif %}>
+									- Games
+								</option>
+							</select>
+							{% elif config.TABLE_PREFIX == 'sukebei_' %}
+							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
+								<option value="0_0" title="Show all" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
+									Show all
+								</option>
+								<option value="1_0" title="Art" {% if search is defined and search["category"] == "1_0" %}selected{% endif %}>
+									Art
+								</option>
+								<option value="1_1" title="Art - Anime" {% if search is defined and search["category"] == "1_1" %}selected{% endif %}>
+									- Anime
+								</option>
+								<option value="1_2" title="Art - Doujinshi" {% if search is defined and search["category"] == "1_2" %}selected{% endif %}>
+									- Doujinshi
+								</option>
+								<option value="1_3" title="Art - Games" {% if search is defined and search["category"] == "1_3" %}selected{% endif %}>
+									- Games
+								</option>
+								<option value="1_4" title="Art - Manga" {% if search is defined and search["category"] == "1_4" %}selected{% endif %}>
+									- Manga
+								</option>
+								<option value="1_5" title="Art - Pictures" {% if search is defined and search["category"] == "1_5" %}selected{% endif %}>
+									- Pictures
+								</option>
+								<option value="2_0" title="Real Life" {% if search is defined and search["category"] == "2_0" %}selected{% endif %}>
+									Real Life
+								</option>
+								<option value="2_1" title="Real Life - Pictures" {% if search is defined and search["category"] == "2_1" %}selected{% endif %}>
+									- Photobooks and Pictures
+								</option>
+								<option value="2_2" title="Real Life - Videos" {% if search is defined and search["category"] == "2_2" %}selected{% endif %}>
+									- Videos
+								</option>
+							</select>
+							{% endif %}
+						</div>
+						<div class="input-group-btn">
+							<button class="btn btn-primary" type="submit">
+								<i class="fa fa-search fa-fw"></i>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div><!--/.nav-collapse -->
+			</div>
+		</nav>
+
+		<div class="container">
+			{% include "flashes.html" %}
+
+			{% block body %}{% endblock %}
+		</div> <!-- /container -->
+
+		<footer style="text-align: center;">
+			<p>Dark Mode: <a href="#" id="themeToggle">Toggle</a></p>
+		</footer>
+	</body>
+</html>
+
+

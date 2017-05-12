@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}Upload Torrent :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_upload %}
+
+<h1>Upload Torrent</h1>
+
+{% if not user %}
+<p>You are not logged in, and are uploading anonymously.</p>
+{% endif %}
+
+
+<form method="POST" enctype="multipart/form-data">
+	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please put <i>{{config.MAIN_ANNOUNCE_URL}}</i> as your first tracker</p>{% endif %}
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_upload(form.torrent_file, accept=".torrent") }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.category, class_='form-control')}}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.display_name, class_='form-control', placeholder='Display name') }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.information, class_='form-control', placeholder='Your website or IRC channel') }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			{{ render_field(form.description, class_='form-control') }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_hidden }}
+				Hidden
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_remake }}
+				Remake
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_complete }}
+				Complete
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<label>
+				{{ form.is_anonymous }}
+				Anonymous
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="form-group col-md-6">
+			<input type="submit" value="Upload" class="btn btn-primary">
+		</div>
+	</div>
+</form>
+{% endblock %}

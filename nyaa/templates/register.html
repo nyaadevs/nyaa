@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}Register :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Register</h1>
+	<form method="POST">
+		{{ form.csrf_token }}
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.username, class_='form-control', placeholder='Username') }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.email, class_='form-control', placeholder='Email address') }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.password, class_='form-control', placeholder='Password') }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				{{ render_field(form.password_confirm, class_='form-control', placeholder='Password (confirm)') }}
+			</div>
+		</div>
+
+		{% if config.USE_RECAPTCHA %}
+		<div class="row">
+			<div class="col-md-4">
+				{% for error in form.recaptcha.errors %}
+				{{ error }}
+				{% endfor %}
+				{{ form.recaptcha }}
+			</div>
+		</div>
+		{% endif %}
+
+		<br>
+
+		<div class="row">
+			<div class="col-md-4">
+				<input type="submit" value="Register" class="btn btn-primary">
+			</div>
+		</div>
+	</form>
+{% endblock %}
+

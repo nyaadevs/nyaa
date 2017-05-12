@@ -1,0 +1,85 @@
+.panel-heading-collapse a:after {
+	font-family:'Glyphicons Halflings';
+	content:"\e114";
+	float: right;
+	color: grey;
+}
+
+.panel-heading-collapse a.collapsed:after {
+	content:"\e080";
+}
+
+.torrent-list > tbody > tr > td {
+	vertical-align: middle;
+}
+
+table.torrent-list thead th {
+	position: relative;
+	background-image: none !important;
+}
+
+table.torrent-list thead th a {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	text-decoration: none;
+	z-index: 10;
+	/* IE Workaround */
+	background-color: white;
+	opacity: 0;
+	filter: alpha(opacity=1);
+}
+
+table.torrent-list thead th.sorting:after,
+table.torrent-list thead th.sorting_asc:after,
+table.torrent-list thead th.sorting_desc:after {
+	position: absolute;
+	top: 12px;
+	right: 8px;
+	display: block;
+	font-family: FontAwesome;
+}
+
+table.torrent-list thead th.sorting:after {
+	content: "\f0dc";
+	color: #808080;
+	font-size: 0.85em;
+}
+table.torrent-list thead th.sorting_asc:after {
+	content: "\f0de";
+}
+table.torrent-list thead th.sorting_desc:after {
+	content: "\f0dd";
+}
+
+#torrent-description img {
+	max-width: 100%;
+}
+
+.table > tbody > tr.deleted > td, .table > tbody > tr.deleted > th, .table > tbody > tr > td.deleted, .table > tbody > tr > th.deleted, .table > tfoot > tr.deleted > td, .table > tfoot > tr.deleted > th, .table > tfoot > tr > td.deleted, .table > tfoot > tr > th.deleted, .table > thead > tr.deleted > td, .table > thead > tr.deleted > th, .table > thead > tr > td.deleted, .table > thead > tr > th.deleted {
+	background-color:#9e9e9e;
+}
+
+.table-hover > tbody > tr.deleted:hover > td, .table-hover > tbody > tr.deleted:hover > th, .table-hover > tbody > tr:hover > .deleted, .table-hover > tbody > tr > td.deleted:hover, .table-hover > tbody > tr > th.deleted:hover {
+	background-color:#bdbdbd;
+}
+.panel-deleted {
+	border-color:#757575;
+}
+.panel-deleted > .panel-heading {
+	color:#212121;
+	background-color:#9e9e9e;
+	border-color:#757575;
+}
+.panel-deleted > .panel-heading + .panel-collapse > .panel-body {
+	border-top-color:#757575;
+}
+.panel-deleted > .panel-heading .badge {
+	color:#9e9e9e;
+	background-color:#212121;
+}
+.panel-deleted > .panel-footer + .panel-collapse > .panel-body {
+	border-bottom-color:#757575;
+}
