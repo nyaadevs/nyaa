@@ -1,0 +1,11 @@
+*.sql
+/.vscode
+/venv
+*.swp
+__pycache__
+/nyaa/static/.webassets-cache
+test.db
+install/*
+uwsgi.sock
+/test_torrent_batch
+config.py
