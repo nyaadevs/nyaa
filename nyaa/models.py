@@ -1,5 +1,5 @@
 from enum import Enum, IntEnum
-from datetime import datetime
+from datetime import datetime, timezone
 from nyaa import app, db
 from nyaa.torrents import create_magnet
 from sqlalchemy import func, ForeignKeyConstraint, Index
@@ -22,6 +22,10 @@ else:
     COL_UTF8_GENERAL_CI = 'NOCASE'
     COL_UTF8MB4_BIN = None
     COL_ASCII_GENERAL_CI = 'NOCASE'
+
+
+# For property timestamps
+UTC_EPOCH = datetime.utcfromtimestamp(0)
 
 
 class TorrentFlags(IntEnum):
@@ -84,6 +88,11 @@ class Torrent(db.Model):
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
 
     @property
     def magnet_uri(self):

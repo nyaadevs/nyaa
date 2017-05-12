@@ -16,7 +16,7 @@
 			<div class="col-md-5">{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}</div>
 
 			<div class="col-md-1">Date:</div>
-			<div class="col-md-5">{{ torrent.created_time.strftime('%Y-%m-%d, %H:%M UTC') }}</div>
+			<div class="col-md-5" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d, %H:%M UTC') }}</div>
 		</div>
 
 		<div class="row">
