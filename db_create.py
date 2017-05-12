@@ -7,7 +7,7 @@ db.create_all()
 
 # Insert categories
 
-if app.config['TABLE_PREFIX'] == 'nyaa_':
+if app.config['SITE_FLAVOR'] == 'nyaa':
     CATEGORIES = [
         ('Anime', ['Anime Music Video', 'English-translated', 'Non-English-translated', 'Raw']),
         ('Audio', ['Lossless', 'Lossy']),
@@ -16,7 +16,7 @@ if app.config['TABLE_PREFIX'] == 'nyaa_':
         ('Pictures', ['Graphics', 'Photos']),
         ('Software', ['Applications', 'Games']),
     ]
-elif app.config['TABLE_PREFIX'] == 'sukebei_':
+elif app.config['SITE_FLAVOR'] == 'sukebei':
     CATEGORIES = [
         ('Art', ['Anime', 'Doujinshi', 'Games', 'Manga', 'Pictures']),
         ('Real Life', ['Photobooks / Pictures', 'Videos']),

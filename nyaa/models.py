@@ -33,9 +33,10 @@ class TorrentFlags(IntEnum):
     COMPLETE = 16
     DELETED = 32
 
+DB_TABLE_PREFIX = app.config['TABLE_PREFIX']
 
 class Torrent(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'torrents'
+    __tablename__ = DB_TABLE_PREFIX + 'torrents'
 
     id = db.Column(db.Integer, primary_key=True)
     info_hash = db.Column(BinaryType(length=20), unique=True, nullable=False, index=True)
@@ -56,17 +57,17 @@ class Torrent(db.Model):
                              default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     main_category_id = db.Column(db.Integer, db.ForeignKey(
-        app.config['TABLE_PREFIX'] + 'main_categories.id'), nullable=False)
+        DB_TABLE_PREFIX + 'main_categories.id'), nullable=False)
     sub_category_id = db.Column(db.Integer, nullable=False)
     redirect = db.Column(db.Integer, db.ForeignKey(
-        app.config['TABLE_PREFIX'] + 'torrents.id'), nullable=True)
+        DB_TABLE_PREFIX + 'torrents.id'), nullable=True)
 
     __table_args__ = (
         Index('uploader_flag_idx', 'uploader_id', 'flags'),
         ForeignKeyConstraint(
             ['main_category_id', 'sub_category_id'],
-            [app.config['TABLE_PREFIX'] + 'sub_categories.main_category_id',
-                app.config['TABLE_PREFIX'] + 'sub_categories.id']
+            [DB_TABLE_PREFIX + 'sub_categories.main_category_id',
+                DB_TABLE_PREFIX + 'sub_categories.id']
         ), {}
     )
 
@@ -150,32 +151,32 @@ class TorrentNameSearch(FullText, Torrent):
 
 
 class TorrentFilelist(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'torrents_filelist'
+    __tablename__ = DB_TABLE_PREFIX + 'torrents_filelist'
     __table_args__ = {'mysql_row_format': 'COMPRESSED'}
 
     torrent_id = db.Column(db.Integer, db.ForeignKey(
-        app.config['TABLE_PREFIX'] + 'torrents.id', ondelete="CASCADE"), primary_key=True)
+        DB_TABLE_PREFIX + 'torrents.id', ondelete="CASCADE"), primary_key=True)
     filelist_blob = db.Column(MediumBlobType, nullable=True)
 
     torrent = db.relationship('Torrent', uselist=False, back_populates='filelist')
 
 
 class TorrentInfo(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'torrents_info'
+    __tablename__ = DB_TABLE_PREFIX + 'torrents_info'
     __table_args__ = {'mysql_row_format': 'COMPRESSED'}
 
     torrent_id = db.Column(db.Integer, db.ForeignKey(
-        app.config['TABLE_PREFIX'] + 'torrents.id', ondelete="CASCADE"), primary_key=True)
+        DB_TABLE_PREFIX + 'torrents.id', ondelete="CASCADE"), primary_key=True)
     info_dict = db.Column(MediumBlobType, nullable=True)
 
     torrent = db.relationship('Torrent', uselist=False, back_populates='info')
 
 
 class Statistic(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'statistics'
+    __tablename__ = DB_TABLE_PREFIX + 'statistics'
 
     torrent_id = db.Column(db.Integer, db.ForeignKey(
-        app.config['TABLE_PREFIX'] + 'torrents.id', ondelete="CASCADE"), primary_key=True)
+        DB_TABLE_PREFIX + 'torrents.id', ondelete="CASCADE"), primary_key=True)
 
     seed_count = db.Column(db.Integer, default=0, nullable=False, index=True)
     leech_count = db.Column(db.Integer, default=0, nullable=False, index=True)
@@ -198,9 +199,9 @@ class Trackers(db.Model):
 
 
 class TorrentTrackers(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'torrent_trackers'
+    __tablename__ = DB_TABLE_PREFIX + 'torrent_trackers'
 
-    torrent_id = db.Column(db.Integer, db.ForeignKey(app.config['TABLE_PREFIX'] + 'torrents.id', ondelete="CASCADE"), primary_key=True)
+    torrent_id = db.Column(db.Integer, db.ForeignKey(DB_TABLE_PREFIX + 'torrents.id', ondelete="CASCADE"), primary_key=True)
     tracker_id = db.Column(db.Integer, db.ForeignKey('trackers.id', ondelete="CASCADE"), primary_key=True)
     order = db.Column(db.Integer, nullable=False, index=True)
 
@@ -212,7 +213,7 @@ class TorrentTrackers(db.Model):
 
 
 class MainCategory(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'main_categories'
+    __tablename__ = DB_TABLE_PREFIX + 'main_categories'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=64), nullable=False)
@@ -233,11 +234,11 @@ class MainCategory(db.Model):
 
 
 class SubCategory(db.Model):
-    __tablename__ = app.config['TABLE_PREFIX'] + 'sub_categories'
+    __tablename__ = DB_TABLE_PREFIX + 'sub_categories'
 
     id = db.Column(db.Integer, primary_key=True)
     main_category_id = db.Column(db.Integer, db.ForeignKey(
-        app.config['TABLE_PREFIX'] + 'main_categories.id'), primary_key=True)
+        DB_TABLE_PREFIX + 'main_categories.id'), primary_key=True)
     name = db.Column(db.String(length=64), nullable=False)
 
     main_category = db.relationship('MainCategory', uselist=False, back_populates='sub_categories')

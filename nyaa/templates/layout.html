@@ -68,9 +68,9 @@
 						</ul>
 					</li>
 					<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
-					{% if config.TABLE_PREFIX == 'nyaa_' %}
+					{% if config.SITE_FLAVOR == 'nyaa' %}
 					<li><a href="https://sukebei.nyaa.si/">R-18</a></li>
-					{% elif config.TABLE_PREFIX == 'sukebei_' %}
+					{% elif config.SITE_FLAVOR == 'sukebei' %}
 					<li><a href="https://nyaa.si/">SFW</a></li>
 					{% endif %}
 				</ul>
@@ -153,115 +153,53 @@
 							</select>
 						</div>
 						<div class="input-group-btn" id="navFilter">
-							{% if config.TABLE_PREFIX == 'nyaa_' %}
-							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
-								<option value="0_0" title="Show all" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
-									Show all
-								</option>
-								<option value="1_0" title="Anime" {% if search is defined and search["category"] == "1_0" %}selected{% endif %}>
-									Anime
-								</option>
-								<option value="1_1" title="Anime - AMV" {% if search is defined and search["category"] == "1_1" %}selected{% endif %}>
-									- Anime Music Video
-								</option>
-								<option value="1_2" title="Anime - English" {% if search is defined and search["category"] == "1_2" %}selected{% endif %}>
-									- English-translated
-								</option>
-								<option value="1_3" title="Anime - Non-English" {% if search is defined and search["category"] == "1_3" %}selected{% endif %}>
-									- Non-English-translated
-								</option>
-								<option value="1_4" title="Anime - Raw" {% if search is defined and search["category"] == "1_4" %}selected{% endif %}>
-									- Raw
-								</option>
-								<option value="2_0" title="Audio" {% if search is defined and search["category"] == "2_0" %}selected{% endif %}>
-									Audio
-								</option>
-								<option value="2_1" title="Audio - Lossless" {% if search is defined and search["category"] == "2_1" %}selected{% endif %}>
-									- Lossless
-								</option>
-								<option value="2_2" title="Audio - Lossy" {% if search is defined and search["category"] == "2_2" %}selected{% endif %}>
-									- Lossy
-								</option>
-								<option value="3_0" title="Literature" {% if search is defined and search["category"] == "3_0" %}selected{% endif %}>
-									Literature
-								</option>
-								<option value="3_1" title="Literature - English" {% if search is defined and search["category"] == "3_1" %}selected{% endif %}>
-									- English-translated
-								</option>
-								<option value="3_2" title="Literature - Non-English" {% if search is defined and search["category"] == "3_2" %}selected{% endif %}>
-									- Non-English-translated
-								</option>
-								<option value="3_3" title="Literature - Raw" {% if search is defined and search["category"] == "3_3" %}selected{% endif %}>
-									- Raw
-								</option>
-								<option value="4_0" title="Live Action" {% if search is defined and search["category"] == "4_0" %}selected{% endif %}>
-									Live Action
-								</option>
-								<option value="4_1" title="Live Action - English" {% if search is defined and search["category"] == "4_1" %}selected{% endif %}>
-									- English-translated
-								</option>
-								<option value="4_2" title="Live Action - Idol/PV" {% if search is defined and search["category"] == "4_2" %}selected{% endif %}>
-									- Idol/Promotional Video
-								</option>
-								<option value="4_3" title="Live Action - Non-English" {% if search is defined and search["category"] == "4_3" %}selected{% endif %}>
-									- Non-English-translated
-								</option>
-								<option value="4_4" title="Live Action - Raw" {% if search is defined and search["category"] == "4_4" %}selected{% endif %}>
-									- Raw
-								</option>
-								<option value="5_0" title="Pictures" {% if search is defined and search["category"] == "5_0" %}selected{% endif %}>
-									Pictures
-								</option>
-								<option value="5_1" title="Pictures - Graphics" {% if search is defined and search["category"] == "5_1" %}selected{% endif %}>
-									- Graphics
-								</option>
-								<option value="5_2" title="Pictures - Photos" {% if search is defined and search["category"] == "5_2" %}selected{% endif %}>
-									- Photos
-								</option>
-								<option value="6_0" title="Software" {% if search is defined and search["category"] == "6_0" %}selected{% endif %}>
-									Software
-								</option>
-								<option value="6_1" title="Software - Apps" {% if search is defined and search["category"] == "6_1" %}selected{% endif %}>
-									- Applications
-								</option>
-								<option value="6_2" title="Software - Games" {% if search is defined and search["category"] == "6_2" %}selected{% endif %}>
-									- Games
-								</option>
-							</select>
-							{% elif config.TABLE_PREFIX == 'sukebei_' %}
-							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
-								<option value="0_0" title="Show all" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
-									Show all
-								</option>
-								<option value="1_0" title="Art" {% if search is defined and search["category"] == "1_0" %}selected{% endif %}>
-									Art
-								</option>
-								<option value="1_1" title="Art - Anime" {% if search is defined and search["category"] == "1_1" %}selected{% endif %}>
-									- Anime
-								</option>
-								<option value="1_2" title="Art - Doujinshi" {% if search is defined and search["category"] == "1_2" %}selected{% endif %}>
-									- Doujinshi
-								</option>
-								<option value="1_3" title="Art - Games" {% if search is defined and search["category"] == "1_3" %}selected{% endif %}>
-									- Games
-								</option>
-								<option value="1_4" title="Art - Manga" {% if search is defined and search["category"] == "1_4" %}selected{% endif %}>
-									- Manga
-								</option>
-								<option value="1_5" title="Art - Pictures" {% if search is defined and search["category"] == "1_5" %}selected{% endif %}>
-									- Pictures
-								</option>
-								<option value="2_0" title="Real Life" {% if search is defined and search["category"] == "2_0" %}selected{% endif %}>
-									Real Life
-								</option>
-								<option value="2_1" title="Real Life - Pictures" {% if search is defined and search["category"] == "2_1" %}selected{% endif %}>
-									- Photobooks and Pictures
-								</option>
-								<option value="2_2" title="Real Life - Videos" {% if search is defined and search["category"] == "2_2" %}selected{% endif %}>
-									- Videos
-								</option>
-							</select>
+							{% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
+												('1_1', '- Anime Music Video', 'Anime - AMV'),
+												('1_2', '- English-translated', 'Anime - English'),
+												('1_3', '- Non-English-translated', 'Anime - Non-English'),
+												('1_4', '- Raw', 'Anime - Raw'),
+												('2_0', 'Audio', 'Audio'),
+												('2_1', '- Lossless', 'Audio - Lossless'),
+												('2_2', '- Lossy', 'Audio - Lossy'),
+												('3_0', 'Literature', 'Literature'),
+												('3_1', '- English-translated', 'Literature - English'),
+												('3_2', '- Non-English-translated', 'Literature - Non-English'),
+												('3_3', '- Raw', 'Literature - Raw'),
+												('4_0', 'Live Action', 'Live Action'),
+												('4_1', '- English-translated', 'Live Action - English'),
+												('4_2', '- Idol/Promotional Video', 'Live Action - Idol/PV'),
+												('4_3', '- Non-English-translated', 'Live Action - Non-English'),
+												('4_4', '- Raw', 'Live Action - Raw'),
+												('5_0', 'Pictures', 'Pictures'),
+												('5_1', '- Graphics', 'Pictures - Graphics'),
+												('5_2', '- Photos', 'Pictures - Photos'),
+												('6_0', 'Software', 'Software'),
+												('6_1', '- Applications', 'Software - Apps'),
+												('6_2', '- Games', 'Software - Games')] %}
+							{% set suke_cats = [('1_0', 'Art', 'Art'),
+												('1_1', '- Anime', 'Art - Anime'),
+												('1_2', '- Doujinshi', 'Art - Doujinshi'),
+												('1_3', '- Games', 'Art - Games'),
+												('1_4', '- Manga', 'Art - Manga'),
+												('1_5', '- Pictures', 'Art - Pictures'),
+												('2_0', 'Real Life', 'Real Life'),
+												('2_1', '- Photobooks and Pictures', 'Real Life - Pictures'),
+												('2_2', '- Videos', 'Real Life - Videos')] %}
+							{% if config.SITE_FLAVOR == 'nyaa' %}
+								{% set used_cats = nyaa_cats %}
+							{% elif config.SITE_FLAVOR == 'sukebei' %}
+								{% set used_cats = suke_cats %}
 							{% endif %}
+							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
+								<option value="0_0" title="Show all" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
+									Show all
+								</option>
+								{% for cat_id, cat_name, cat_title in used_cats %}
+								<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
+									{{ cat_name }}
+								</option>
+								{% endfor %}
+							</select>
 						</div>
 						<div class="input-group-btn">
 							<button class="btn btn-primary" type="submit">

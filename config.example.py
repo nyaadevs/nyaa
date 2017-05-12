@@ -20,8 +20,8 @@ CSRF_SESSION_KEY = '***'
 SECRET_KEY = '***'
 
 # Prefix for running multiple sites, user table will not be prefixed.
-# For sukebei, change 'nyaa_' to 'sukebei_'
-TABLE_PREFIX = 'nyaa_'
+SITE_FLAVOR = 'nyaa' # 'nyaa' or 'sukebei'
+TABLE_PREFIX = SITE_FLAVOR + '_'
 
 # for recaptcha and email verification:
 # keys for localhost. Change as appropriate when actual domain is registered.
