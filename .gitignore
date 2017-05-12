@@ -9,3 +9,4 @@ install/*
 uwsgi.sock
 /test_torrent_batch
 config.py
+torrents

@@ -599,10 +599,16 @@ def upload():
 
         db.session.commit()
 
+        # Store the actual torrent file as well
         torrent_file = form.torrent_file.data
         if app.config.get('BACKUP_TORRENT_FOLDER'):
             torrent_file.seek(0, 0)
-            torrent_path = os.path.join(app.config['BACKUP_TORRENT_FOLDER'], '{}.{}'.format(torrent.id, secure_filename(torrent_file.filename)))
+
+            torrent_dir = app.config['BACKUP_TORRENT_FOLDER']
+            if not os.path.exists(torrent_dir):
+                os.makedirs(torrent_dir)
+
+            torrent_path = os.path.join(torrent_dir, '{}.{}'.format(torrent.id, secure_filename(torrent_file.filename)))
             torrent_file.save(torrent_path)
         torrent_file.close()
 
