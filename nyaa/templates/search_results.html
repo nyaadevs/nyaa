@@ -1,7 +1,7 @@
 {% macro render_column_header(header_style, center_text=False, sort_key=None, header_title=None) %}
 {% set class_suffix = (search.sort == sort_key) and ("_" + search.order) or "" %}
 {% set th_classes = filter_truthy([sort_key and "sorting" + class_suffix, center_text and "text-center"]) %}
-<th {% if th_classes %} class="{{ ' '.join(th_classes) }}"{% endif %} {% if header_title %}title="{{header_title}}"{% endif %} style="{{header_style}}">
+<th {% if th_classes %} class="{{ ' '.join(th_classes) }}"{% endif %} {% if header_title %}title="{{header_title}}"{% endif %} style="{{ header_style }}">
 	{% if sort_key %}
 	<a href="{% if class_suffix == '_desc' %}{{ modify_query(s=sort_key, o="asc") }}{% else %}{{ modify_query(s=sort_key, o="desc") }}{% endif %}"></a>
 	{% endif %}
@@ -28,19 +28,19 @@
 				{% call render_column_header("width:140px;", center_text=True, sort_key="id", header_title="In UTC") %}
 					<div>Date</div>
 				{% endcall %}
-				
+
 				{% if config.ENABLE_SHOW_STATS %}
 				{% call render_column_header("width:50px;", center_text=True, sort_key="seeders", header_title="Seeds") %}
 					<i class="fa fa-arrow-up" aria-hidden="true"></i>
 				{% endcall %}
 				{% call render_column_header("width:50px;", center_text=True, sort_key="leechers", header_title="Leeches") %}
 					<i class="fa fa-arrow-down" aria-hidden="true"></i>
-					
+
 				{% endcall %}
 				{% call render_column_header("width:50px;", center_text=True, sort_key="downloads", header_title="Completed downloads") %}
 					<i class="fa fa-check" aria-hidden="true"></i>
 				{% endcall %}
-				
+
 				{% endif %}
 			</tr>
 		</thead>
@@ -54,9 +54,9 @@
 					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
 					</a>
 				</td>
-				<td><a href="/view/{{ torrent.id }}">{{ torrent.display_name | escape }}</a></td>
+				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}">{{ torrent.display_name | escape }}</a></td>
 				<td style="white-space: nowrap;text-align: center;">
-					{% if torrent.has_torrent %}<a href="/view/{{ torrent.id }}/torrent"><i class="fa fa-fw fa-download"></i></a>{% endif %}
+					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
 				</td>
 				<td class="text-center">{{ torrent.filesize | filesizeformat(True) }}</td>

@@ -312,7 +312,6 @@ def _jinja2_filter_rfc822(date, fmt=None):
 def render_rss(label, query):
     rss_xml = flask.render_template('rss.xml',
                                     term=label,
-                                    site_url=flask.request.url_root,
                                     query=query)
     response = flask.make_response(rss_xml)
     response.headers['Content-Type'] = 'application/xml'
