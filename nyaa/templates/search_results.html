@@ -1,32 +1,43 @@
+{% macro render_column_header(header_style, center_text=False, sort_key=None, header_title=None) %}
+{% set class_suffix = (search.sort == sort_key) and ("_" + search.order) or "" %}
+{% set th_classes = filter_truthy([sort_key and "sorting" + class_suffix, center_text and "text-center"]) %}
+<th {% if th_classes %} class="{{ ' '.join(th_classes) }}"{% endif %} {% if header_title %}title="{{header_title}}"{% endif %} style="{{header_style}}">
+	{% if sort_key %}
+	<a href="{% if class_suffix == '_desc' %}{{ modify_query(s=sort_key, o="asc") }}{% else %}{{ modify_query(s=sort_key, o="desc") }}{% endif %}"></a>
+	{% endif %}
+	{{ caller() }}
+</th>
+{% endmacro %}
 {% if torrent_query.items %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
 			<tr>
-				<th style="width:80px;text-align:center;">Category</th>
-				<th class="sorting{% if search["sort"] == "name" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %}" style="width:auto;">
-				<a href="{% if search["sort"] == "name" and search["order"] == "desc" %}{{ modify_query(s="name", o="asc") }}{% else %}{{ modify_query(s="name", o="desc") }}{% endif %}"></a>
-					Name
-				</th>
-				<th style="width:0;text-align:center;">Link</th>
-				<th class="sorting{% if search["sort"] == "size" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %}" style="width:100px;text-align:center;">
-					<a href="{% if search["sort"] == "size" and search["order"] == "desc" %}{{ modify_query(s="size", o="asc") }}{% else %}{{ modify_query(s="size", o="desc") }}{% endif %}"></a>
-					Size
-				</th>
-				{# <th style="width:170px;text-align:center;">Date Uploaded</th> #}
+				{% call render_column_header("width:80px;", center_text=True) %}
+					<div>Category</div>
+				{% endcall %}
+				{% call render_column_header("width:auto;", sort_key="name") %}
+					<div>Name</div>
+				{% endcall %}
+				{% call render_column_header("width:0;", center_text=True) %}
+					<div>Link</div>
+				{% endcall %}
+				{% call render_column_header("width:100px;", center_text=True, sort_key="size") %}
+					<div>Size</div>
+				{% endcall %}
+				
 				{% if config.ENABLE_SHOW_STATS %}
-				<th class="sorting{% if search["sort"] == "seeders" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %} text-center" style="width:65px;">
-					<a href="{% if search["sort"] == "seeders" and search["order"] == "desc" %}{{ modify_query(s="seeders", o="asc") }}{% else %}{{ modify_query(s="seeders", o="desc") }}{% endif %}"></a>
-					<i class="fa fa-arrow-up" aria-hidden="true"></i></a>
-				</th>
-				<th class="sorting{% if search["sort"] == "leechers" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %} text-center" style="width:65px;">
-					<a href="{% if search["sort"] == "leechers" and search["order"] == "desc" %}{{ modify_query(s="leechers", o="asc") }}{% else %}{{ modify_query(s="leechers", o="desc") }}{% endif %}"></a>
+				{% call render_column_header("width:65px;", center_text=True, sort_key="seeders", header_title="Seeds") %}
+					<i class="fa fa-arrow-up" aria-hidden="true"></i>
+				{% endcall %}
+				{% call render_column_header("width:65px;", center_text=True, sort_key="leechers", header_title="Leeches") %}
 					<i class="fa fa-arrow-down" aria-hidden="true"></i>
-				</th>
-				<th class="sorting{% if search["sort"] == "downloads" %}{% if search["order"] == "desc" %}_desc{% else %}_asc{% endif %}{% endif %} text-center" style="width:65px;">
-					<a href="{% if search["sort"] == "downloads" and search["order"] == "desc" %}{{ modify_query(s="downloads", o="asc") }}{% else %}{{ modify_query(s="downloads", o="desc") }}{% endif %}"></a>
+					
+				{% endcall %}
+				{% call render_column_header("width:65px;", center_text=True, sort_key="downloads", header_title="Completed downloads") %}
 					<i class="fa fa-check" aria-hidden="true"></i>
-				</th>
+				{% endcall %}
+				
 				{% endif %}
 			</tr>
 		</thead>

@@ -49,6 +49,11 @@ def modify_query(**new_values):
 
     return '{}?{}'.format(flask.request.path, url_encode(args))
 
+@app.template_global()
+def filter_truthy(input_list):
+    ''' Jinja2 can't into list comprehension so this is for
+        the search_results.html template '''
+    return [item for item in input_list if item]
 
 def search(term='', user=None, sort='id', order='desc', category='0_0', filter='0', page=1, rss=False, admin=False):
     sort_keys = {
