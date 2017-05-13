@@ -54,7 +54,7 @@ def filter_truthy(input_list):
         the search_results.html template '''
     return [item for item in input_list if item]
 
-def search(term='', user=None, sort='id', order='desc', category='0_0', filter='0', page=1, rss=False, admin=False):
+def search(term='', user=None, sort='id', order='desc', category='0_0', quality_filter='0', page=1, rss=False, admin=False):
     sort_keys = {
         'id': models.Torrent.id,
         'size': models.Torrent.filesize,
@@ -85,10 +85,10 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', filter='
         '3': (models.TorrentFlags.COMPLETE, True)
     }
 
-    filter_ = filter.lower()
-    if filter_ not in filter_keys:
+    sentinel = object()
+    filter_tuple = filter_keys.get(quality_filter.lower(), sentinel)
+    if filter_tuple is sentinel:
         flask.abort(400)
-    filter = filter_keys[filter_]
 
     if user:
         user = models.User.by_id(user)
@@ -149,8 +149,8 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', filter='
         query = query.filter((models.Torrent.main_category_id == main_cat_id) &
                              (models.Torrent.sub_category_id == sub_cat_id))
 
-    if filter:
-        query = query.filter(models.Torrent.flags.op('&')(int(filter[0])).is_(filter[1]))
+    if filter_tuple:
+        query = query.filter(models.Torrent.flags.op('&')(int(filter_tuple[0])).is_(filter_tuple[1]))
 
     # If admin, show everything
     if not admin:
@@ -221,7 +221,7 @@ def home(rss):
     sort = flask.request.args.get('s')
     order = flask.request.args.get('o')
     category = flask.request.args.get('c')
-    filter = flask.request.args.get('f')
+    quality_filter = flask.request.args.get('f')
     user_name = flask.request.args.get('u')
     page = flask.request.args.get('p')
     if page:
@@ -240,7 +240,7 @@ def home(rss):
         'sort': sort or 'id',
         'order': order or 'desc',
         'category': category or '0_0',
-        'filter': filter or '0',
+        'quality_filter': quality_filter or '0',
         'page': page or 1,
         'rss': rss
     }
@@ -254,7 +254,7 @@ def home(rss):
     if rss:
         return render_rss('/', query)
     else:
-        rss_query_string = _generate_query_string(term, category, filter, user_name)
+        rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
         return flask.render_template('home.html',
                                      torrent_query=query,
                                      search=query_args,
@@ -272,7 +272,7 @@ def view_user(user_name):
     sort = flask.request.args.get('s')
     order = flask.request.args.get('o')
     category = flask.request.args.get('c')
-    filter = flask.request.args.get('f')
+    quality_filter = flask.request.args.get('f')
     page = flask.request.args.get('p')
     if page:
         page = int(page)
@@ -283,7 +283,7 @@ def view_user(user_name):
         'sort': sort or 'id',
         'order': order or 'desc',
         'category': category or '0_0',
-        'filter': filter or '0',
+        'quality_filter': quality_filter or '0',
         'page': page or 1,
         'rss': False
     }
@@ -294,7 +294,7 @@ def view_user(user_name):
 
     query = search(**query_args)
 
-    rss_query_string = _generate_query_string(term, category, filter, user_name)
+    rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
     return flask.render_template('user.html',
                                  torrent_query=query,
                                  search=query_args,
