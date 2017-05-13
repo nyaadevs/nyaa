@@ -10,7 +10,7 @@ import config
 
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import ipaddress
 import os.path
 import base64
@@ -190,8 +190,12 @@ def before_request():
             return logout()
 
         flask.g.user = user
-        flask.session.permanent = True
-        flask.session.modified = True
+
+        if not 'timeout' in flask.session or flask.session['timeout'] < datetime.now():
+            print("hio")
+            flask.session['timeout'] = datetime.now() + timedelta(days=7)
+            flask.session.permanent = True
+            flask.session.modified = True
 
         if flask.g.user.status == models.UserStatusType.BANNED:
             return 'You are banned.', 403
@@ -348,6 +352,8 @@ def login():
 
         flask.g.user = user
         flask.session['user_id'] = user.id
+        flask.session.permanent = True
+        flask.session.modified = True
 
         return flask.redirect(redirect_url())
 
@@ -388,6 +394,8 @@ def register():
             db.session.commit()
             flask.g.user = user
             flask.session['user_id'] = user.id
+            flask.session.permanent = True
+            flask.session.modified = True
             return flask.redirect(redirect_url())
 
     return flask.render_template('register.html', form=form)
@@ -418,7 +426,6 @@ def profile():
         db.session.commit()
 
         flask.g.user = user
-        flask.session['user_id'] = user.id
 
     return flask.render_template('profile.html', form=form)
 

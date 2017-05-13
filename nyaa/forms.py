@@ -124,9 +124,9 @@ class DisabledSelectField(SelectField):
 
 
 class EditForm(FlaskForm):
-    display_name = TextField('Display name', [
+    display_name = TextField('Torrent display name', [
         Length(min=3, max=255,
-               message='Torrent name must be at least %(min)d characters and %(max)d at most.')
+               message='Torrent display name must be at least %(min)d characters long and %(max)d at most.')
     ])
 
     category = DisabledSelectField('Category')
@@ -134,7 +134,7 @@ class EditForm(FlaskForm):
     def validate_category(form, field):
         cat_match = re.match(r'^(\d+)_(\d+)$', field.data)
         if not cat_match:
-            raise ValidationError('You must select a category')
+            raise ValidationError('Please select a category')
 
         main_cat_id = int(cat_match.group(1))
         sub_cat_id = int(cat_match.group(2))
@@ -142,7 +142,7 @@ class EditForm(FlaskForm):
         cat = models.SubCategory.by_category_ids(main_cat_id, sub_cat_id)
 
         if not cat:
-            raise ValidationError('You must select a proper category')
+            raise ValidationError('Please select a proper category')
 
         field.parsed_data = cat
 
@@ -169,10 +169,10 @@ class UploadForm(FlaskForm):
         FileRequired()
     ])
 
-    display_name = TextField('Display name (optional)', [
+    display_name = TextField('Torrent display name (optional)', [
         Optional(),
         Length(min=3, max=255,
-               message='Torrent name must be at least %(min)d characters long and %(max)d at most.')
+               message='Torrent display name must be at least %(min)d characters long and %(max)d at most.')
     ])
 
     # category = SelectField('Category')
@@ -181,7 +181,7 @@ class UploadForm(FlaskForm):
     def validate_category(form, field):
         cat_match = re.match(r'^(\d+)_(\d+)$', field.data)
         if not cat_match:
-            raise ValidationError('You must select a category')
+            raise ValidationError('Please select a category')
 
         main_cat_id = int(cat_match.group(1))
         sub_cat_id = int(cat_match.group(2))
@@ -189,7 +189,7 @@ class UploadForm(FlaskForm):
         cat = models.SubCategory.by_category_ids(main_cat_id, sub_cat_id)
 
         if not cat:
-            raise ValidationError('You must select a proper category')
+            raise ValidationError('Please select a proper category')
 
         field.parsed_data = cat
 

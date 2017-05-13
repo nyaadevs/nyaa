@@ -13,6 +13,9 @@ app.config.from_object('config')
 # Database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Don't refresh cookie each request
+app.config['SESSION_REFRESH_EACH_REQUEST'] = False
+
 # Debugging
 if app.config['DEBUG']:
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
