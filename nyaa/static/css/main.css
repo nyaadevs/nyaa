@@ -93,6 +93,3 @@ table.torrent-list thead th.sorting_desc:after {
 	    margin-bottom: 10px;
 	}
 }
-.table-striped>tbody>tr:nth-of-type(odd) {
-    background-color: white;
-}
