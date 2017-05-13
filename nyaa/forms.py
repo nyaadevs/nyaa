@@ -169,7 +169,7 @@ class UploadForm(FlaskForm):
         FileRequired()
     ])
 
-    display_name = TextField('Display name (optional)', [
+    display_name = TextField('Torrent name (optional)', [
         Optional(),
         Length(min=3, max=255,
                message='Torrent name must be at least %(min)d characters long and %(max)d at most.')
