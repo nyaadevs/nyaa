@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}{{ torrent.display_name }} :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
+{% from "_formhelpers.html" import render_field %}
 <div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
@@ -128,6 +129,56 @@
 	</div>
 </div>
 {% endif %}
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			Comments - {{ comment_count }}
+		</h3>
+	</div>
+	<div class="panel-collapse">
+        <table class="table table-bordered table-striped">
+            <thead>
+				{% if g.user.is_admin %}
+				<th style="width:auto;">Delete</th>
+				{% endif %}
+                <th style="width:auto;">User</th>
+                <th style="width:100%;">Comment</th>
+            </thead>
+            <tbody>
+				{% for comment in comments %}
+				<tr>
+					{% if g.user.is_admin %}
+					<td class="col-md-1">
+						{% if not comment.deleted %}
+						<a href="/"><i class="fa fa-ban"></i></a>
+						{% else %}
+						<a href="/"><i class="fa fa-circle-o"></i></a>
+						{% endif %}
+					</td>
+					{% endif %}
+					<td class="col-md-1">
+						{% if comment.user %}
+						<a href="{{ url_for('view_user', user_name=comment.user.username) }}">
+							{{ comment.user.username }}
+						</a>
+						{% else %}
+						<span>Anonymous</span>
+						{% endif %}
+					</td>
+					<td class="col-md-10">{{ comment.text }}</td>
+				</tr>
+				{% endfor %}
+            <tbody>
+        </table>
+	</div>
+</div>
+
+<form method="POST" action="{{ request.url }}/submit_comment">
+	{{ form.csrf_token }}
+	{{ render_field(form.comment, class_='form-control') }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+</form>
 
 <script>
 	var target = document.getElementById('torrent-description');

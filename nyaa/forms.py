@@ -126,6 +126,13 @@ class DisabledSelectField(SelectField):
             raise ValueError(self.gettext('Not a valid choice'))
 
 
+class CommentForm(FlaskForm):
+    comment = TextAreaField('Make a comment', [
+        Length(max=255, message='Comment must be at most %(max)d characters long.'),
+        Required()
+    ])
+
+
 class EditForm(FlaskForm):
     display_name = StringField('Torrent display name', [
         Length(min=3, max=255,

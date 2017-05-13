@@ -573,6 +573,7 @@ def upload():
 @app.route('/view/<int:torrent_id>')
 def view_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
+    form = forms.CommentForm()
 
     viewer = flask.g.user
 
@@ -590,10 +591,41 @@ def view_torrent(torrent_id):
     if torrent.filelist:
         files = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
+    if flask.g.user is not None and flask.g.user.is_admin:
+        comments = models.Comment.query.filter(models.Comment.torrent == torrent_id)
+    else:
+        comments = models.Comment.query.filter(models.Comment.torrent == torrent_id,
+                                               models.Comment.deleted == False)
+
+    comment_count = comments.count()
+
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
                                  viewer=viewer,
+                                 form=form,
+                                 comments=comments,
+                                 comment_count=comment_count,
                                  can_edit=can_edit)
+
+
+@app.route('/view/<int:torrent_id>/submit_comment', methods=['POST'])
+def submit_comment(torrent_id):
+    form = forms.CommentForm(flask.request.form)
+
+    if flask.request.method == 'POST' and form.validate():
+        comment_text = (form.comment.data or '').strip()
+
+        # Null entry for User just means Anonymous
+        current_user_id = flask.g.user.id if flask.g.user else None
+        comment = models.Comment(
+            torrent=torrent_id,
+            user_id=current_user_id,
+            text=comment_text)
+
+        db.session.add(comment)
+        db.session.commit()
+
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])

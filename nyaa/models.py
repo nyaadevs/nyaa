@@ -317,6 +317,22 @@ class SubCategory(db.Model):
         return cls.query.get((sub_cat_id, main_cat_id))
 
 
+class Comment(db.Model):
+    __tablename__ = DB_TABLE_PREFIX + 'comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    torrent = db.Column(db.Integer, db.ForeignKey(
+        DB_TABLE_PREFIX + 'torrents.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='CASCADE'))
+    text = db.Column(db.String(length=255), nullable=False)
+
+    user = db.relationship('User', uselist=False, back_populates='comments')
+
+    def __repr__(self):
+        return '<Comment %r>' % self.id
+
+
 class UserLevelType(IntEnum):
     REGULAR = 0
     TRUSTED = 1
@@ -346,7 +362,8 @@ class User(db.Model):
     last_login_date = db.Column(db.DateTime(timezone=False), default=None, nullable=True)
     last_login_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
 
-    torrents = db.relationship('Torrent', back_populates='user', lazy="dynamic")
+    torrents = db.relationship('Torrent', back_populates='user', lazy='dynamic')
+    comments = db.relationship('Comment', back_populates='user', lazy='dynamic')
     # session = db.relationship('Session', uselist=False, back_populates='user')
 
     def __init__(self, username, email, password):
