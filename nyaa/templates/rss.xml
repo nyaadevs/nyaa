@@ -12,6 +12,13 @@
 			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
 			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
 		</item>
+		{% else %}
+		<item>
+			<title>{{ torrent.display_name }}</title>
+			<link>{{ torrent.magnet_uri }}</link>
+			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
+			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+		</item>
 		{% endif %}
 		{% endfor %}
 	</channel>

@@ -121,7 +121,6 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     if rss:
         sort = sort_keys['id']
         order = 'desc'
-        page = 1
 
     same_user = False
     if flask.g.user:
