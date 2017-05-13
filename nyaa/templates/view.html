@@ -34,7 +34,7 @@
 			<div class="col-md-1">Information:</div>
 			<div class="col-md-5">
 				{% if torrent.information %}
-				{{ torrent.information | escape }}
+                    <a href="{{ torrent.information | escape }}">{{ torrent.information | escape }}</a>
 				{% else %}
 				No information.
 				{% endif%}
