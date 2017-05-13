@@ -252,7 +252,7 @@ def home(rss):
         query_args['admin'] = True
 
     query = search(**query_args)
-
+    
     if rss:
         return render_rss('/', query)
     else:
@@ -492,12 +492,7 @@ def view_torrent(torrent_id):
     if torrent.filelist:
         files = utils.flattenDict(json.loads(torrent.filelist.filelist_blob.decode('utf-8')))
 
-    if flask.g.user is not None and flask.g.user.is_admin:
-        comments = models.Comment.query.filter(models.Comment.torrent == torrent_id)
-    else:
-        comments = models.Comment.query.filter(models.Comment.torrent == torrent_id,
-                                               models.Comment.deleted == False)
-
+    comments = models.Comment.query.filter_by(torrent=torrent_id)
     comment_count = comments.count()
 
     return flask.render_template('view.html', torrent=torrent,
@@ -526,6 +521,16 @@ def submit_comment(torrent_id):
         db.session.commit()
 
     return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+
+@app.route('/view/<int:torrent_id>/delete_comment/<int:comment_id>')
+def delete_comment(torrent_id, comment_id):
+    if flask.g.user is not None and flask.g.user.is_admin:
+        models.Comment.query.filter_by(id=comment_id).delete()
+        db.session.commit()
+    else:
+        flask.abort(403)
+    
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))     
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
