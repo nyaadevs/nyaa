@@ -7,6 +7,10 @@ from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_fulltext import FullText
 
+import re
+from markupsafe import escape as escape_markup
+from urllib.parse import unquote as unquote_url
+
 if app.config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql
     BinaryType = mysql.BINARY
@@ -93,6 +97,27 @@ class Torrent(db.Model):
     def created_utc_timestamp(self):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @property
+    def information_as_link(self):
+        ''' Formats the .information into an IRC or HTTP(S) <a> if possible,
+            otherwise escapes it. '''
+        irc_match = re.match(r'^#([a-zA-Z0-9-_]+)@([a-zA-Z0-9-_.:]+)$', self.information)
+        if irc_match:
+            # Return a formatted IRC uri
+            return '<a href="irc://{1}/{0}">#{0}@{1}</a>'.format(*irc_match.groups())
+
+        url_match = re.match(r'^(https?:\/\/.+?)$', self.information)
+        if url_match:
+            url = url_match.group(1)
+
+            invalid_url_characters = '<>"'
+            # Check if url contains invalid characters
+            if not any(c in url for c in invalid_url_characters):
+                return '<a href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url)))
+        # Escaped
+        return escape_markup(self.information)
+
 
     @property
     def magnet_uri(self):
