@@ -148,9 +148,9 @@
 						<input type="text" class="form-control" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
 						<div class="input-group-btn" id="navFilter">
 							<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
-								<option value="0" title="Show all" {% if search is defined and search["filter"] == "0" %}selected{% else %}selected{% endif %}>Show all</option>
-								<option value="1" title="No remakes" {% if search is defined and search["filter"] == "1" %}selected{% endif %}>No remakes</option>
-								<option value="2" title="Trusted only" {% if search is defined and search["filter"] == "2" %}selected{% endif %}>Trusted only</option>
+								<option value="0" title="Show all" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>Show all</option>
+								<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
+								<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
 							</select>
 						</div>
 						<div class="input-group-btn" id="navFilter">
