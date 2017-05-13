@@ -1,7 +1,7 @@
 {% macro render_column_header(header_style, center_text=False, sort_key=None, header_title=None) %}
 {% set class_suffix = (search.sort == sort_key) and ("_" + search.order) or "" %}
 {% set th_classes = filter_truthy([sort_key and "sorting" + class_suffix, center_text and "text-center"]) %}
-<th {% if th_classes %} class="{{ ' '.join(th_classes) }}"{% endif %} {% if header_title %}title="{{header_title}}"{% endif %} style="{{ header_style }}">
+<th {% if th_classes %} class="{{ ' '.join(th_classes) }}"{% endif %} {% if header_title %}title="{{ header_title }}"{% endif %} style="{{ header_style }}">
 	{% if sort_key %}
 	<a href="{% if class_suffix == '_desc' %}{{ modify_query(s=sort_key, o="asc") }}{% else %}{{ modify_query(s=sort_key, o="desc") }}{% endif %}"></a>
 	{% endif %}
@@ -50,9 +50,9 @@
 				{% set cat_id = (torrent.main_category.id|string) + '_' + (torrent.sub_category.id|string) %}
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
-				<a href="/?c={{ cat_id }}">
+				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
-					</a>
+				</a>
 				</td>
 				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}">{{ torrent.display_name | escape }}</a></td>
 				<td style="white-space: nowrap;text-align: center;">
