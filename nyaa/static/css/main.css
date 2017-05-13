@@ -11,6 +11,10 @@
 
 .torrent-list > tbody > tr > td {
 	vertical-align: middle;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 603px;	/*Will this break something?*/
 }
 
 table.torrent-list thead th {
