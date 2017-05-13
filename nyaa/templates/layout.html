@@ -69,9 +69,9 @@
 					</li>
 					<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
 					{% if config.SITE_FLAVOR == 'nyaa' %}
-					<li><a href="https://sukebei.nyaa.si/">R-18</a></li>
+					<li><a href="{{ site_url }}">R-18</a></li>
 					{% elif config.SITE_FLAVOR == 'sukebei' %}
-					<li><a href="https://nyaa.si/">SFW</a></li>
+					<li><a href="{{ site_url }}">SFW</a></li>
 					{% endif %}
 				</ul>
 
