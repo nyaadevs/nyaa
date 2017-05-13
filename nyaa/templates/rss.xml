@@ -1,9 +1,7 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
 	<channel>
 		<title>{{ config.SITE_NAME }} Torrent File RSS (No magnets)</title>
-		<description>
-			RSS Feed for {{ term }}
-		</description>
+		<description>RSS Feed for {{ term }}</description>
 		<link>{{ url_for('home', _external=True) }}</link>
 		<atom:link href="{{ url_for('home', page='rss', _external=True) }}" rel="self" type="application/rss+xml" />
 		{% for torrent in query %}
