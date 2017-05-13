@@ -123,6 +123,13 @@ class DisabledSelectField(SelectField):
             raise ValueError(self.gettext('Not a valid choice'))
 
 
+class CommentForm(FlaskForm):
+    comment = TextAreaField('Make a comment', [
+        Length(max=255, message='Comment must be at most %(max)d characters long.'),
+        Required()
+    ])
+
+
 class EditForm(FlaskForm):
     display_name = TextField('Display name', [
         Length(min=3, max=255,
@@ -209,7 +216,7 @@ class UploadForm(FlaskForm):
         # Decode and ensure data is bencoded data
         try:
             torrent_dict = bencode.decode(field.data)
-            #field.data.close()
+            # field.data.close()
         except (bencode.MalformedBencodeException, UnicodeError):
             raise ValidationError('Malformed torrent file')
 
@@ -261,6 +268,7 @@ class TorrentFileData(object):
             setattr(self, k, v)
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
+
 
 def _validate_trackers(torrent_dict):
     announce = torrent_dict.get('announce')

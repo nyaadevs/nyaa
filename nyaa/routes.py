@@ -48,11 +48,13 @@ def modify_query(**new_values):
 
     return '{}?{}'.format(flask.request.path, url_encode(args))
 
+
 @app.template_global()
 def filter_truthy(input_list):
     ''' Jinja2 can't into list comprehension so this is for
         the search_results.html template '''
     return [item for item in input_list if item]
+
 
 def search(term='', user=None, sort='id', order='desc', category='0_0', quality_filter='0', page=1, rss=False, admin=False):
     sort_keys = {
@@ -473,6 +475,7 @@ def upload():
 @app.route('/view/<int:torrent_id>')
 def view_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
+    form = forms.CommentForm()
 
     if not torrent:
         flask.abort(404)
@@ -489,9 +492,40 @@ def view_torrent(torrent_id):
     if torrent.filelist:
         files = utils.flattenDict(json.loads(torrent.filelist.filelist_blob.decode('utf-8')))
 
+    if flask.g.user is not None and flask.g.user.is_admin:
+        comments = models.Comment.query.filter(models.Comment.torrent == torrent_id)
+    else:
+        comments = models.Comment.query.filter(models.Comment.torrent == torrent_id,
+                                               models.Comment.deleted == False)
+
+    comment_count = comments.count()
+
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
+                                 form=form,
+                                 comments=comments,
+                                 comment_count=comment_count,
                                  can_edit=can_edit)
+
+
+@app.route('/view/<int:torrent_id>/submit_comment', methods=['POST'])
+def submit_comment(torrent_id):
+    form = forms.CommentForm(flask.request.form)
+
+    if flask.request.method == 'POST' and form.validate():
+        comment_text = (form.comment.data or '').strip()
+
+        # Null entry for User just means Anonymous
+        current_user_id = flask.g.user.id if flask.g.user else None
+        comment = models.Comment(
+            torrent=torrent_id,
+            user_id=current_user_id,
+            text=comment_text)
+
+        db.session.add(comment)
+        db.session.commit()
+
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
@@ -625,7 +659,7 @@ def site_help():
 
 #################################### API ROUTES ####################################
 # DISABLED FOR NOW
-@app.route('/api/upload', methods = ['POST'])
+@app.route('/api/upload', methods=['POST'])
 def api_upload():
     api_response = api_handler.api_upload(flask.request)
     return api_response
