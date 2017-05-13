@@ -36,11 +36,20 @@ def default_trackers():
 
 
 def get_trackers(torrent):
-    trackers = default_trackers()
-    torrent_trackers = torrent.trackers
+    trackers = OrderedSet()
 
+    # Our main one first
+    main_announce_url = app.config.get('MAIN_ANNOUNCE_URL')
+    if main_announce_url:
+        trackers.add(main_announce_url)
+
+    # then the user ones
+    torrent_trackers = torrent.trackers
     for torrent_tracker in torrent_trackers:
         trackers.add(torrent_tracker.tracker.uri)
+
+    # and finally our tracker list
+    trackers.update(default_trackers())
 
     return list(trackers)
 
