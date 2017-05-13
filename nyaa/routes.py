@@ -613,7 +613,9 @@ def upload():
 
         return flask.redirect('/view/' + str(torrent.id))
     else:
-        return flask.render_template('upload.html', form=form, user=flask.g.user)
+        # If we get here with a POST, it means the form data was invalid: return a non-okay status
+        status_code = 400 if flask.request.method == 'POST' else 200
+        return flask.render_template('upload.html', form=form, user=flask.g.user), status_code
 
 
 @app.route('/view/<int:torrent_id>')
