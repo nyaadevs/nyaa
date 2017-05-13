@@ -150,11 +150,7 @@
 				<tr>
 					{% if g.user.is_admin %}
 					<td class="col-md-1">
-						{% if not comment.deleted %}
-						<a href="/"><i class="fa fa-ban"></i></a>
-						{% else %}
-						<a href="/"><i class="fa fa-circle-o"></i></a>
-						{% endif %}
+						<a href="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id )}}"><i class="fa fa-ban"></i></a>
 					</td>
 					{% endif %}
 					<td class="col-md-1">
