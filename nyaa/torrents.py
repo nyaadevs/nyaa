@@ -106,6 +106,6 @@ def create_bencoded_torrent(torrent, metadata_base=None):
     suffix = bencode.encode(suffixed_dict)
 
     bencoded_info = torrent.info.info_dict
-    bencoded_torrent = prefix[:-1] + b'4:info' + bencoded_info + b'e' + suffix[1:]
+    bencoded_torrent = prefix[:-1] + b'4:info' + bencoded_info + suffix[1:]
 
     return bencoded_torrent
