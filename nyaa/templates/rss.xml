@@ -26,7 +26,7 @@
 				<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
 			{% endif %}
 			<category>{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}</category>
-			<size>{{ torrent.filesize }}</size>
+			<size>{{ torrent.filesize | filesizeformat(True) }}</size>
 			<seeders>{{ torrent.stats.seed_count }}</seeders>
 			<leechers>{{ torrent.stats.leech_count }}</leechers>
 			<downloads>{{ torrent.stats.download_count }}</downloads>
