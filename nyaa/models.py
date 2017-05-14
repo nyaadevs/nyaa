@@ -41,7 +41,9 @@ class TorrentFlags(IntEnum):
     COMPLETE = 16
     DELETED = 32
 
+
 DB_TABLE_PREFIX = app.config['TABLE_PREFIX']
+
 
 class Torrent(db.Model):
     __tablename__ = DB_TABLE_PREFIX + 'torrents'
@@ -117,7 +119,6 @@ class Torrent(db.Model):
                 return '<a href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url)))
         # Escaped
         return escape_markup(self.information)
-
 
     @property
     def magnet_uri(self):
@@ -224,7 +225,8 @@ class Trackers(db.Model):
     __tablename__ = 'trackers'
 
     id = db.Column(db.Integer, primary_key=True)
-    uri = db.Column(db.String(length=255, collation=COL_UTF8_GENERAL_CI), nullable=False, unique=True)
+    uri = db.Column(db.String(length=255, collation=COL_UTF8_GENERAL_CI),
+                    nullable=False, unique=True)
     disabled = db.Column(db.Boolean, nullable=False, default=False)
 
     @classmethod
@@ -235,8 +237,10 @@ class Trackers(db.Model):
 class TorrentTrackers(db.Model):
     __tablename__ = DB_TABLE_PREFIX + 'torrent_trackers'
 
-    torrent_id = db.Column(db.Integer, db.ForeignKey(DB_TABLE_PREFIX + 'torrents.id', ondelete="CASCADE"), primary_key=True)
-    tracker_id = db.Column(db.Integer, db.ForeignKey('trackers.id', ondelete="CASCADE"), primary_key=True)
+    torrent_id = db.Column(db.Integer, db.ForeignKey(
+        DB_TABLE_PREFIX + 'torrents.id', ondelete="CASCADE"), primary_key=True)
+    tracker_id = db.Column(db.Integer, db.ForeignKey(
+        'trackers.id', ondelete="CASCADE"), primary_key=True)
     order = db.Column(db.Integer, nullable=False, index=True)
 
     tracker = db.relationship('Trackers', uselist=False, lazy='joined')

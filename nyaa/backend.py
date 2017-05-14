@@ -142,7 +142,7 @@ def handle_torrent_upload(upload_form, uploading_user=None):
     # Store tracker refs in DB
     for order, tracker in enumerate(db_trackers):
         torrent_tracker = models.TorrentTrackers(torrent_id=torrent.id,
-            tracker_id=tracker.id, order=order)
+                                                 tracker_id=tracker.id, order=order)
         db.session.add(torrent_tracker)
 
     db.session.commit()
@@ -156,7 +156,8 @@ def handle_torrent_upload(upload_form, uploading_user=None):
         if not os.path.exists(torrent_dir):
             os.makedirs(torrent_dir)
 
-        torrent_path = os.path.join(torrent_dir, '{}.{}'.format(torrent.id, secure_filename(torrent_file.filename)))
+        torrent_path = os.path.join(torrent_dir, '{}.{}'.format(
+            torrent.id, secure_filename(torrent_file.filename)))
         torrent_file.save(torrent_path)
     torrent_file.close()
 

@@ -297,14 +297,15 @@ def api_upload(upload_request):
             # Store tracker refs in DB
             for order, tracker in enumerate(db_trackers):
                 torrent_tracker = models.TorrentTrackers(torrent_id=torrent.id,
-                    tracker_id=tracker.id, order=order)
+                                                         tracker_id=tracker.id, order=order)
                 db.session.add(torrent_tracker)
 
             db.session.commit()
 
             if app.config.get('BACKUP_TORRENT_FOLDER'):
                 torrent_file.seek(0, 0)
-                torrent_path = os.path.join(app.config['BACKUP_TORRENT_FOLDER'], '{}.{}'.format(torrent.id, secure_filename(torrent_file.filename)))
+                torrent_path = os.path.join(app.config['BACKUP_TORRENT_FOLDER'], '{}.{}'.format(
+                    torrent.id, secure_filename(torrent_file.filename)))
                 torrent_file.save(torrent_path)
             torrent_file.close()
 

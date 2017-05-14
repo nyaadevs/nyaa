@@ -60,7 +60,6 @@ def filter_truthy(input_list):
         the search_results.html template '''
     return [item for item in input_list if item]
 
-
 @app.errorhandler(404)
 def not_found(error):
     return flask.render_template('404.html'), 404
@@ -619,7 +618,7 @@ def site_help():
 
 #################################### API ROUTES ####################################
 # DISABLED FOR NOW
-@app.route('/api/upload', methods = ['POST'])
+@app.route('/api/upload', methods=['POST'])
 def api_upload():
     api_response = api_handler.api_upload(flask.request)
     return api_response
