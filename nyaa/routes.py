@@ -131,16 +131,32 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     else:
         query = models.Torrent.query
 
-    # Filter by user
+    # User view (/user/username)
     if user:
         query = query.filter(models.Torrent.uploader_id == user)
-        # If admin, show everything
+
         if not admin:
-            # If user is not logged in or the accessed feed doesn't belong to user,
-            # hide anonymous torrents belonging to the queried user
-            if not same_user:
-                query = query.filter(models.Torrent.flags.op('&')(
-                    int(models.TorrentFlags.ANONYMOUS | models.TorrentFlags.DELETED)).is_(False))
+            # Hide all DELETED torrents if regular user
+            query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.DELETED)).is_(False))
+            # If logged in user is not the same as the user being viewed, show only torrents that aren't hidden or anonymous
+            # If logged in user is the same as the user being viewed, show all torrents including hidden and anonymous ones
+            # On RSS pages in user view, show only torrents that aren't hidden or anonymous no matter what
+            if not same_user or rss:
+                query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN |
+                                                                      models.TorrentFlags.ANONYMOUS)).is_(False))
+    # General view (homepage, general search view)
+    else:
+        if not admin:
+            # Hide all DELETED torrents if regular user
+            query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.DELETED)).is_(False))
+            # If logged in, show all torrents that aren't hidden unless they belong to you
+            # On RSS pages, show all public torrents and nothing more.
+            if flask.g.user and not rss:
+                query = query.filter((models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False)) |
+                                     (models.Torrent.uploader_id == flask.g.user.id))
+            # Otherwise, show all torrents that aren't hidden
+            else:
+                query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False))
 
     if main_category:
         query = query.filter(models.Torrent.main_category_id == main_cat_id)
@@ -150,11 +166,6 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
 
     if filter_tuple:
         query = query.filter(models.Torrent.flags.op('&')(int(filter_tuple[0])).is_(filter_tuple[1]))
-
-    # If admin, show everything
-    if not admin:
-        query = query.filter(models.Torrent.flags.op('&')(
-            int(models.TorrentFlags.HIDDEN | models.TorrentFlags.DELETED)).is_(False))
 
     if term:
         for item in shlex.split(term, posix=False):
