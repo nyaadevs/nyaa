@@ -1,6 +1,6 @@
-{% macro render_column_header(header_style, center_text=False, sort_key=None, header_title=None) %}
+{% macro render_column_header(header_class, header_style, center_text=False, sort_key=None, header_title=None) %}
 {% set class_suffix = (search.sort == sort_key) and ("_" + search.order) or "" %}
-{% set th_classes = filter_truthy([sort_key and "sorting" + class_suffix, center_text and "text-center"]) %}
+{% set th_classes = filter_truthy([header_class, sort_key and "sorting" + class_suffix, center_text and "text-center"]) %}
 <th {% if th_classes %} class="{{ ' '.join(th_classes) }}"{% endif %} {% if header_title %}title="{{ header_title }}"{% endif %} style="{{ header_style }}">
 	{% if sort_key %}
 	<a href="{% if class_suffix == '_desc' %}{{ modify_query(s=sort_key, o="asc") }}{% else %}{{ modify_query(s=sort_key, o="desc") }}{% endif %}"></a>
@@ -13,31 +13,31 @@
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
 			<tr>
-				{% call render_column_header("width:80px;", center_text=True) %}
+				{% call render_column_header("hdr-category", "width:80px;", center_text=True) %}
 					<div>Category</div>
 				{% endcall %}
-				{% call render_column_header("width:auto;", sort_key="name") %}
+				{% call render_column_header("hdr-name", "width:auto;", sort_key="name") %}
 					<div>Name</div>
 				{% endcall %}
-				{% call render_column_header("width:0;", center_text=True) %}
+				{% call render_column_header("hdr-link", "width:0;", center_text=True) %}
 					<div>Link</div>
 				{% endcall %}
-				{% call render_column_header("width:100px;", center_text=True, sort_key="size") %}
+				{% call render_column_header("hdr-size", "width:100px;", center_text=True, sort_key="size") %}
 					<div>Size</div>
 				{% endcall %}
-				{% call render_column_header("width:140px;", center_text=True, sort_key="id", header_title="In UTC") %}
+				{% call render_column_header("hdr-date", "width:140px;", center_text=True, sort_key="id", header_title="In UTC") %}
 					<div>Date</div>
 				{% endcall %}
 
 				{% if config.ENABLE_SHOW_STATS %}
-				{% call render_column_header("width:50px;", center_text=True, sort_key="seeders", header_title="Seeds") %}
+				{% call render_column_header("hdr-seeders", "width:50px;", center_text=True, sort_key="seeders", header_title="Seeds") %}
 					<i class="fa fa-arrow-up" aria-hidden="true"></i>
 				{% endcall %}
-				{% call render_column_header("width:50px;", center_text=True, sort_key="leechers", header_title="Leeches") %}
+				{% call render_column_header("hdr-leechers", "width:50px;", center_text=True, sort_key="leechers", header_title="Leeches") %}
 					<i class="fa fa-arrow-down" aria-hidden="true"></i>
 
 				{% endcall %}
-				{% call render_column_header("width:50px;", center_text=True, sort_key="downloads", header_title="Completed downloads") %}
+				{% call render_column_header("hdr-downloads", "width:50px;", center_text=True, sort_key="downloads", header_title="Completed downloads") %}
 					<i class="fa fa-check" aria-hidden="true"></i>
 				{% endcall %}
 

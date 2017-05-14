@@ -62,7 +62,14 @@ function _format_time_difference(seconds) {
 	}
 	return prefix + parts.join(" ") + suffix;
 }
+function _format_date(date) {
+	var pad = function (n) { return ("00" + n).slice(-2); }
+	var ymd = date.getFullYear() + "-" + pad(date.getMonth()+1) + "-" + pad(date.getDate());
+	var hm = pad(date.getHours()) + ":" + pad(date.getMinutes());
+	return ymd + " " + hm;
+}
 
+// Add title text to elements with data-timestamp attribute
 document.addEventListener("DOMContentLoaded", function(event) {
 	var now_timestamp = (Date.now() / 1000) | 0; // UTC timestamp in seconds
 
@@ -73,8 +80,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		if (torrent_timestamp) {
 			var timedelta = now_timestamp - torrent_timestamp;
 			target.setAttribute('title', _format_time_difference(timedelta));
+
+			target.innerText = _format_date(new Date(torrent_timestamp*1000));
 		}
 	};
+
+	var header_date = document.querySelector('.hdr-date');
+	if (header_date) {
+		header_date.setAttribute('title', 'In local time');
+	}
 });
 
 // Initialise markdown editors on page
