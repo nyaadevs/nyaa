@@ -25,6 +25,7 @@
 				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
 				<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
 			{% endif %}
+			<category>{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}</category>
 			<size>{{ torrent.filesize }}</size>
 			<seeders>{{ torrent.stats.seed_count }}</seeders>
 			<leechers>{{ torrent.stats.leech_count }}</leechers>
