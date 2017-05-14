@@ -76,7 +76,7 @@ def before_request():
 
         flask.g.user = user
 
-        if not 'timeout' in flask.session or flask.session['timeout'] < datetime.now():
+        if not 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
             flask.session['timeout'] = datetime.now() + timedelta(days=7)
             flask.session.permanent = True
             flask.session.modified = True
@@ -311,7 +311,7 @@ def render_rss(label, query, use_elastic):
 
 # @app.route('/about', methods=['GET'])
 # def about():
-#    return flask.render_template('about.html')
+    # return flask.render_template('about.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -613,7 +613,7 @@ def send_verification_email(to_address, activ_link):
     server.quit()
 
 
-#################################### STATIC PAGES ####################################
+# #################################### STATIC PAGES ####################################
 @app.route('/rules', methods=['GET'])
 def site_rules():
     return flask.render_template('rules.html')
@@ -624,7 +624,7 @@ def site_help():
     return flask.render_template('help.html')
 
 
-#################################### API ROUTES ####################################
+# #################################### API ROUTES ####################################
 # DISABLED FOR NOW
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
