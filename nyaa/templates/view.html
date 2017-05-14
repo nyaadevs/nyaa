@@ -60,7 +60,8 @@
 <div class="panel panel-default">
 	<div class="panel-body" id="torrent-description">
 		{% if torrent.description %}
-		{{ torrent.description | escape }}
+		{# Escape newlines into html entities because CF strips blank newlines #}
+		{{ torrent.description | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) }}
 		{% else %}
 		#### No description.
 		{% endif%}
