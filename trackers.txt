@@ -1,8 +1,6 @@
 udp://tracker.internetwarriors.net:1337/announce
 udp://tracker.leechers-paradise.org:6969/announce
 udp://tracker.coppersurfer.tk:6969/announce
-udp://exodus.desync.com:6969/announce
-udp://tracker.sktorrent.net:6969/announce
 udp://tracker.zer0day.to:1337/announce
 udp://tracker.pirateparty.gr:6969/announce
 udp://oscar.reyesleon.xyz:6969/announce
