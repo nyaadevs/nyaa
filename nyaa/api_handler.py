@@ -10,7 +10,7 @@ from orderedset import OrderedSet
 from werkzeug import secure_filename
 
 DEBUG_API = False
-#################################### API ROUTES ####################################
+# #################################### API ROUTES ####################################
 CATEGORIES = [
     ('Anime', ['Anime Music Video', 'English-translated', 'Non-English-translated', 'Raw']),
     ('Audio', ['Lossless', 'Lossy']),
@@ -30,7 +30,7 @@ def validate_main_sub_cat(main_cat_name, sub_cat_name):
                     cat_id = main_cat.id_as_string
                     sub_cat_id = sub_cat.id_as_string
                     cat_sub_cat = sub_cat_id.split('_')
-                    #print('cat: {0} sub_cat: {1}'.format(cat_sub_cat[0], cat_sub_cat[1]))
+                    # print('cat: {0} sub_cat: {1}'.format(cat_sub_cat[0], cat_sub_cat[1]))
 
                     return True, cat_sub_cat[0], cat_sub_cat[1]
 
@@ -309,7 +309,7 @@ def api_upload(upload_request):
                 torrent_file.save(torrent_path)
             torrent_file.close()
 
-            #print('Success? {0}'.format(torrent.id))
+            # print('Success? {0}'.format(torrent.id))
             return flask.make_response(flask.jsonify({"Success": "Request was processed {0}".format(torrent.id)}), 200)
         except Exception as e:
             print('Exception: {0}'.format(e))
