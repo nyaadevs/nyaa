@@ -29,6 +29,7 @@
 			<seeders>{{ torrent.stats.seed_count }}</seeders>
 			<leechers>{{ torrent.stats.leech_count }}</leechers>
 			<downloads>{{ torrent.stats.download_count }}</downloads>
+			<infoHash>{{ compute_hash(torrent.info_hash) }}</infoHash>
 		</item>
 		{% endfor %}
 	</channel>

@@ -303,6 +303,7 @@ def render_rss(label, query, use_elastic):
                                     use_elastic=use_elastic,
                                     term=label,
                                     site_url=flask.request.url_root,
+                                    compute_hash=lambda x: base64.b32encode(x).decode('utf-8'),
                                     torrent_query=query)
     response = flask.make_response(rss_xml)
     response.headers['Content-Type'] = 'application/xml'
