@@ -3,6 +3,7 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 {% from "_formhelpers.html" import render_upload %}
+{% from "_formhelpers.html" import render_markdown_editor %}
 
 <h1>Upload Torrent</h1>
 
@@ -37,11 +38,11 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.description, class_='form-control') }}
-		</div>
-	</div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            {{ render_markdown_editor(form.description, field_name='description') }}
+        </div>
+    </div>
 
 	<div class="row">
 		<div class="form-group col-md-6">

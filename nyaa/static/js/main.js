@@ -77,6 +77,26 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	};
 });
 
+// Initialise markdown editors on page
+document.addEventListener("DOMContentLoaded", function() {
+  var markdownEditors = Array.prototype.slice.call(document.querySelectorAll('.markdown-editor'));
+
+  markdownEditors.forEach(function (markdownEditor) {
+    var fieldName = markdownEditor.getAttribute('data-field-name');
+
+    var previewTabSelector = '#' + fieldName + '-preview-tab';
+    var targetSelector = '#' + fieldName + '-markdown-target';
+    var sourceSelector = markdownEditor.querySelector('.markdown-source');
+
+    var previewTabEl = markdownEditor.querySelector(previewTabSelector);
+    var targetEl = markdownEditor.querySelector(targetSelector);
+
+    previewTabEl.addEventListener('click', function () {
+      targetEl.innerHTML = marked(sourceSelector.value.trim());
+    });
+  });
+});
+
 // 
 // This is the unminified version of the theme changer script in the layout.html @ line: 21
 // ===========================================================
