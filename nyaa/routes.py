@@ -60,6 +60,7 @@ def filter_truthy(input_list):
         the search_results.html template '''
     return [item for item in input_list if item]
 
+
 @app.errorhandler(404)
 def not_found(error):
     return flask.render_template('404.html'), 404
@@ -327,7 +328,8 @@ def login():
         if not user:
             user = models.User.by_email(username)
 
-        if not user or password != user.password_hash or user.status == models.UserStatusType.INACTIVE:
+        if (not user or password != user.password_hash
+                or user.status == models.UserStatusType.INACTIVE):
             flask.flash(flask.Markup(
                 '<strong>Login failed!</strong> Incorrect username or password.'), 'danger')
             return flask.redirect(flask.url_for('login'))
@@ -505,7 +507,8 @@ def edit_torrent(torrent_id):
 
     if flask.request.method == 'POST' and form.validate():
         # Form has been sent, edit torrent with data.
-        torrent.main_category_id, torrent.sub_category_id = form.category.parsed_data.get_category_ids()
+        torrent.main_category_id, torrent.sub_category_id = \
+            form.category.parsed_data.get_category_ids()
         torrent.display_name = (form.display_name.data or '').strip()
         torrent.information = (form.information.data or '').strip()
         torrent.description = (form.description.data or '').strip()
@@ -532,7 +535,10 @@ def edit_torrent(torrent_id):
         form.is_complete.data = torrent.complete
         form.is_anonymous.data = torrent.anonymous
 
-        return flask.render_template('edit.html', form=form, torrent=torrent, admin=flask.g.user.is_admin)
+        return flask.render_template('edit.html',
+                                     form=form,
+                                     torrent=torrent,
+                                     admin=flask.g.user.is_admin)
 
 
 @app.route('/view/<int:torrent_id>/magnet')
@@ -584,8 +590,10 @@ def get_activation_link(user):
 
 
 def send_verification_email(to_address, activ_link):
-    ''' this is until we have our own mail server, obviously. This can be greatly cut down if on same machine.
-     probably can get rid of all but msg formatting/building, init line and sendmail line if local SMTP server '''
+    ''' this is until we have our own mail server, obviously.
+     This can be greatly cut down if on same machine.
+     probably can get rid of all but msg formatting/building,
+     init line and sendmail line if local SMTP server '''
 
     msg_body = 'Please click on: ' + activ_link + ' to activate your account.\n\n\nUnsubscribe:'
 
