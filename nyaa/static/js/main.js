@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var targetEl = markdownEditor.querySelector(targetSelector);
 
     previewTabEl.addEventListener('click', function () {
-      targetEl.innerHTML = marked(sourceSelector.value.trim());
+      targetEl.innerHTML = marked(sourceSelector.value.trim(), { sanitize: true, breaks:true });
     });
   });
 });
