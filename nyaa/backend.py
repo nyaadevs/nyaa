@@ -72,7 +72,8 @@ def handle_torrent_upload(upload_form, uploading_user=None):
                        models.UserLevelType.TRUSTED) if uploading_user else False
 
     # Set category ids
-    torrent.main_category_id, torrent.sub_category_id = upload_form.category.parsed_data.get_category_ids()
+    torrent.main_category_id, torrent.sub_category_id = \
+        upload_form.category.parsed_data.get_category_ids()
     # print('Main cat id: {0}, Sub cat id: {1}'.format(
     #    torrent.main_category_id, torrent.sub_category_id))
 

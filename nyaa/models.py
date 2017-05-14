@@ -85,8 +85,9 @@ class Torrent(db.Model):
     main_category = db.relationship('MainCategory', uselist=False,
                                     back_populates='torrents', lazy="joined")
     sub_category = db.relationship('SubCategory', uselist=False, backref='torrents', lazy="joined",
-                                   primaryjoin="and_(SubCategory.id == foreign(Torrent.sub_category_id), "
-                                   "SubCategory.main_category_id == Torrent.main_category_id)")
+                                   primaryjoin=(
+                                       "and_(SubCategory.id == foreign(Torrent.sub_category_id), "
+                                       "SubCategory.main_category_id == Torrent.main_category_id)"))
     info = db.relationship('TorrentInfo', uselist=False, back_populates='torrent')
     filelist = db.relationship('TorrentFilelist', uselist=False, back_populates='torrent')
     stats = db.relationship('Statistic', uselist=False, back_populates='torrent', lazy='joined')

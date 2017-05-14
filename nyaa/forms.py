@@ -126,7 +126,8 @@ class DisabledSelectField(SelectField):
 class EditForm(FlaskForm):
     display_name = TextField('Torrent display name', [
         Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long and %(max)d at most.')
+               message='Torrent display name must be at least %(min)d characters long '
+                       'and %(max)d at most.')
     ])
 
     category = DisabledSelectField('Category')
@@ -172,7 +173,8 @@ class UploadForm(FlaskForm):
     display_name = TextField('Torrent display name (optional)', [
         Optional(),
         Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long and %(max)d at most.')
+               message='Torrent display name must be at least %(min)d characters long and '
+                       '%(max)d at most.')
     ])
 
     # category = SelectField('Category')
