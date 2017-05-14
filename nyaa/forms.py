@@ -268,12 +268,8 @@ class TorrentFileData(object):
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 
-<<<<<<< master
-def _validate_trackers(torrent_dict, tracker_to_check_for=None):
-=======
 
-def _validate_trackers(torrent_dict):
->>>>>>> PEP8 (a run of lint.sh)
+def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
     announce_string = _validate_bytes(announce, 'announce', 'utf-8')
 
