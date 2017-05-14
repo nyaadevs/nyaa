@@ -35,6 +35,10 @@ def mk_es(t):
         "_type": "torrent",
         "_index": "nyaav2",
         "_source": {
+            # we're also indexing the id as a number so you can
+            # order by it. seems like this is just equivalent to
+            # order by created_time, but oh well
+            "id": t.id,
             "display_name": t.display_name,
             "created_time": t.created_time,
             "updated_time": t.updated_time,

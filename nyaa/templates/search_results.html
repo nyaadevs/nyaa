@@ -8,7 +8,7 @@
 	{{ caller() }}
 </th>
 {% endmacro %}
-{% if torrent_query.items %}
+{% if torrent_query.hits.total > 0 %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
@@ -45,26 +45,26 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for torrent in torrent_query.items %}
+			{% for torrent in torrent_query %}
 			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
-				{% set cat_id = (torrent.main_category.id|string) + '_' + (torrent.sub_category.id|string) %}
+				{% set cat_id = (torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string) %}
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
-				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
+				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category_id }} - {{ torrent.sub_category_id }}">
 					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
 				</a>
 				</td>
-				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}">{{ torrent.display_name | escape }}</a></td>
+				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.meta.id) }}">{{ torrent.display_name | escape }}</a></td>
 				<td style="white-space: nowrap;text-align: center;">
 					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
 				</td>
 				<td class="text-center">{{ torrent.filesize | filesizeformat(True) }}</td>
-				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="text-center" {#data-timestamp="{{ torrent.created_time|int }}"#}>{{ torrent.created_time }}</td>
 				{% if config.ENABLE_SHOW_STATS %}
-				<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
-				<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
-				<td class="text-center">{{ torrent.stats.download_count }}</td>
+				<td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
+				<td class="text-center" style="color: red;">{{ torrent.leech_count }}</td>
+				<td class="text-center">{{ torrent.download_count }}</td>
 				{% endif %}
 			</tr>
 			{% endfor %}
@@ -75,7 +75,9 @@
 <h3>No results found</h3>
 {% endif %}
 
+{#
 <center>
 	{% from "bootstrap/pagination.html" import render_pagination %}
 	{{ render_pagination(torrent_query) }}
 </center>
+#}
