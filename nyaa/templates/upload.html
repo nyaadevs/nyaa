@@ -38,11 +38,11 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.description, class_='form-control') }}
-		</div>
-	</div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            {{ render_markdown_editor(form.description, field_name='description') }}
+        </div>
+    </div>
 
 	<div class="row">
 		<div class="form-group col-md-6">
