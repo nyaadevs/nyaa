@@ -207,6 +207,9 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
         s = s[(page-1)*per:page*per]
         #query = query.paginate_faste(page, per_page=app.config['RESULTS_PER_PAGE'], step=5)
 
+    s = s.highlight_options(tags_schema='styled')
+    s = s.highlight("display_name")
+
     #return query
     from pprint import pprint
     print(json.dumps(s.to_dict()))
