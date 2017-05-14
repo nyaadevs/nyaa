@@ -81,9 +81,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			var timedelta = now_timestamp - torrent_timestamp;
 			target.setAttribute('title', _format_time_difference(timedelta));
 
-			var asd = new Date(torrent_timestamp*1000);
-			console.log(torrent_timestamp, asd);
-			target.innerText = _format_date(asd);
+			target.innerText = _format_date(new Date(torrent_timestamp*1000));
 		}
 	};
 
