@@ -5,7 +5,6 @@ http://tracker.baka-sub.cf:80/announce
 udp://tracker.coppersurfer.tk:6969/announce
 udp://tracker.torrent.eu.org:451
 udp://tracker.opentrackr.org:1337/announce
-udp://explodie.org:6969
 udp://tracker.zer0day.to:1337/announce
 http://t.nyaatracker.com:80/announce
 https://open.kickasstracker.com:443/announce
