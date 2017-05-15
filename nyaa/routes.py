@@ -504,7 +504,7 @@ def view_torrent(torrent_id):
 
     files = None
     if torrent.filelist:
-        files = utils.flattenDict(json.loads(torrent.filelist.filelist_blob.decode('utf-8')))
+        files = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,

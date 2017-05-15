@@ -79,20 +79,26 @@
 	</div>
 
 	<div class="panel-collapse collapse" id="collapseFileList">
-        <table class="table table-bordered table-hover table-striped">
-            <thead>
-                <th style="width:auto;">Path</th>
-                <th style="width:auto;">Size</th>
-            </thead>
-            <tbody>
-                {%- for key, value in files.items() %}
-                <tr>
-                    <td>{{ key }}</td>
-                    <td class="col-md-2">{{ value | filesizeformat(True) }}</td>
-                </tr>
-                {%- endfor %}
-            <tbody>
-        </table>
+		<table class="table table-bordered table-hover table-striped">
+			<thead>
+				<th style="width:auto;">Path</th>
+				<th style="width:auto;">Size</th>
+			</thead>
+			<tbody>
+				{%- for key, value in files.items() recursive %}
+				<tr>
+					{%- if value is iterable %}
+					<td colspan="2" {% if loop.depth0 is greaterthan 0 %}style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
+						<i class="glyphicon glyphicon-folder-open"></i> <b>{{ key }}</b></td>
+					{{ loop(value.items()) }}
+					{%- else %}
+					<td style="padding-left: {{ loop.depth0 * 20 }}px">
+						<i class="glyphicon glyphicon-file"></i> {{ key }}</td>
+					<td class="col-md-2">{{ value | filesizeformat(True) }}</td>
+					{%- endif %}
+				</tr>
+				{%- endfor %}
+		</table>
 	</div>
 </div>
 {% elif files %}
