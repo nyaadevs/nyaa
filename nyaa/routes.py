@@ -27,6 +27,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search, Q
+
+es_client = Elasticsearch()
+
 DEBUG_API = False
 
 
@@ -67,6 +72,16 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     sort_ = sort.lower()
     if sort_ not in sort_keys:
         flask.abort(400)
+
+    # XXX gross why are all the names subtly different
+    es_sort = ({
+        'id': 'id',
+        'size': 'filesize',
+        'name': 'display_name',
+        'seeders': 'seed_count',
+        'leechers': 'leech_count',
+        'downloads': 'download_count'
+    })[sort]
     sort = sort_keys[sort]
 
     order_keys = {
@@ -77,6 +92,10 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     order_ = order.lower()
     if order_ not in order_keys:
         flask.abort(400)
+
+    # funky, es sort is default asc, prefixed by '-' if desc
+    if "desc" == order:
+        es_sort = "-" + es_sort
 
     filter_keys = {
         '0': None,
@@ -126,28 +145,37 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     if flask.g.user:
         same_user = flask.g.user.id == user
 
+    s = Search(using=es_client, index='nyaav2')
     if term:
         query = db.session.query(models.TorrentNameSearch)
+        s = s.query("query_string", default_field="display_name", default_operator="AND", query=term)
     else:
         query = models.Torrent.query
 
     # Filter by user
     if user:
+        s = s.filter("term", uploader_id=user)
+
         query = query.filter(models.Torrent.uploader_id == user)
         # If admin, show everything
         if not admin:
             # If user is not logged in or the accessed feed doesn't belong to user,
             # hide anonymous torrents belonging to the queried user
             if not same_user:
+                # TODO adapt to es syntax
                 query = query.filter(models.Torrent.flags.op('&')(
                     int(models.TorrentFlags.ANONYMOUS | models.TorrentFlags.DELETED)).is_(False))
 
     if main_category:
+        s = s.filter("term", main_category_id=main_cat_id)
         query = query.filter(models.Torrent.main_category_id == main_cat_id)
     elif sub_category:
+        s = s.filter("term", main_category_id=main_cat_id)
+        s = s.filter("term", sub_category_id=sub_cat_id)
         query = query.filter((models.Torrent.main_category_id == main_cat_id) &
                              (models.Torrent.sub_category_id == sub_cat_id))
 
+    # TODO i dunno what this means in es
     if filter_tuple:
         query = query.filter(models.Torrent.flags.op('&')(int(filter_tuple[0])).is_(filter_tuple[1]))
 
@@ -157,6 +185,7 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
             int(models.TorrentFlags.HIDDEN | models.TorrentFlags.DELETED)).is_(False))
 
     if term:
+        # note already handled in es
         for item in shlex.split(term, posix=False):
             if len(item) >= 2:
                 query = query.filter(FullTextSearch(
@@ -166,14 +195,25 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     if sort.class_ != models.Torrent:
         query = query.join(sort.class_)
 
+    s = s.sort(es_sort)
     query = query.order_by(getattr(sort, order)())
 
+    per = app.config['RESULTS_PER_PAGE']
     if rss:
-        query = query.limit(app.config['RESULTS_PER_PAGE'])
+        pass
+        #query = query.limit(app.config['RESULTS_PER_PAGE'])
     else:
-        query = query.paginate_faste(page, per_page=app.config['RESULTS_PER_PAGE'], step=5)
+        # page is 1-based?
+        s = s[(page-1)*per:page*per]
+        #query = query.paginate_faste(page, per_page=app.config['RESULTS_PER_PAGE'], step=5)
 
-    return query
+    s = s.highlight_options(tags_schema='styled')
+    s = s.highlight("display_name")
+
+    #return query
+    from pprint import pprint
+    print(json.dumps(s.to_dict()))
+    return s.execute()
 
 
 @app.errorhandler(404)
@@ -444,6 +484,7 @@ def activate_user(payload):
         flask.abort(404)
 
     user.status = models.UserStatusType.ACTIVE
+
 
     db.session.add(user)
     db.session.commit()
