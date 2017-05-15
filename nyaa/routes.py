@@ -611,7 +611,11 @@ def submit_comment(torrent_id):
         comment_text = (form.comment.data or '').strip()
 
         # Null entry for User just means Anonymous
-        current_user_id = flask.g.user.id if flask.g.user else None
+        if flask.g.user is None or form.is_anonymous.data:
+            current_user_id = None
+        else:
+            current_user_id = flask.g.user.id
+            
         comment = models.Comment(
             torrent=torrent_id,
             user_id=current_user_id,

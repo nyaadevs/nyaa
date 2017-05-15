@@ -132,6 +132,8 @@ class CommentForm(FlaskForm):
         Required()
     ])
 
+    is_anonymous = BooleanField('Anonymous')
+
 
 class EditForm(FlaskForm):
     display_name = StringField('Torrent display name', [

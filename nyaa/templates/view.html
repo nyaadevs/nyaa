@@ -173,6 +173,7 @@
 <form method="POST" action="{{ request.url }}/submit_comment">
 	{{ form.csrf_token }}
 	{{ render_field(form.comment, class_='form-control') }}
+	{{ render_field(form.is_anonymous) }}
 	<input type="submit" value="Submit" class="btn btn-primary">
 </form>
 
