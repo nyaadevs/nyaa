@@ -356,6 +356,15 @@ class User(db.Model):
     def is_admin(self):
         return self.level is UserLevelType.ADMIN or self.level is UserLevelType.SUPERADMIN
 
+    @property
+    def is_superadmin(self):
+        return self.level is UserLevelType.SUPERADMIN
+
+    @property
+    def is_trusted(self):
+        return self.level is UserLevelType.TRUSTED
+
+
 # class Session(db.Model):
 #    __tablename__ = 'sessions'
 #

@@ -3,7 +3,17 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 
-<h1>Edit Profile</h1>
+{% if g.user %}
+	<h1>My Account</h1>
+	<div class="content">
+		<p>ID: {{g.user.id}}</p>
+		<p>Account created on: {{g.user.created_time}}</p>
+		<p>Email address: {{g.user.email}}</p>
+		<p>User class: {{level}}</p>
+	</div>
+{% endif %}
+
+<h2>Edit Profile</h2>
 	<form method="POST">
 		{{ form.csrf_token }}
 

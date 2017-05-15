@@ -275,12 +275,41 @@ def home(rss):
                                      rss_filter=rss_query_string)
 
 
-@app.route('/user/<user_name>')
+@app.route('/user/<user_name>', methods=['GET', 'POST'])
 def view_user(user_name):
     user = models.User.by_username(user_name)
 
     if not user:
         flask.abort(404)
+
+    if flask.g.user:
+        admin = flask.g.user.is_admin
+        superadmin = flask.g.user.is_superadmin
+    else:
+        admin = False
+        superadmin = False
+
+    form = forms.UserForm()
+    form.user_class.choices = _create_user_class_choices()
+    if flask.request.method == 'POST' and form.validate():
+        selection = form.user_class.data
+
+        if selection == 'regular':
+            user.level = models.UserLevelType.REGULAR
+        elif selection == 'trusted':
+            user.level = models.UserLevelType.TRUSTED
+        db.session.add(user)
+        db.session.commit()
+
+        return flask.redirect('/user/' + user.username)
+
+    level = 'Regular'
+    if user.is_admin:
+        level = 'Moderator'
+    if user.is_superadmin:  # check this second because user can be admin AND superadmin
+        level = 'Administrator'
+    elif user.is_trusted:
+        level = 'Trusted'
 
     term = flask.request.args.get('q')
     sort = flask.request.args.get('s')
@@ -309,12 +338,17 @@ def view_user(user_name):
     query = search(**query_args)
 
     rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+
     return flask.render_template('user.html',
+                                 form=form,
                                  torrent_query=query,
                                  search=query_args,
                                  user=user,
                                  user_page=True,
-                                 rss_filter=rss_query_string)
+                                 rss_filter=rss_query_string,
+                                 level=level,
+                                 admin=admin,
+                                 superadmin=superadmin)
 
 
 @app.template_filter('rfc822')
@@ -627,6 +661,13 @@ def send_verification_email(to_address, activ_link):
     server.login(config.SMTP_USERNAME, config.SMTP_PASSWORD)
     server.sendmail(config.SMTP_USERNAME, to_address, msg.as_string())
     server.quit()
+
+
+def _create_user_class_choices():
+    choices = [('regular', 'Regular')]
+    if flask.g.user and flask.g.user.is_superadmin:
+        choices.append(('trusted', 'Trusted'))
+    return choices
 
 
 #################################### STATIC PAGES ####################################

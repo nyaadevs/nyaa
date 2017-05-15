@@ -1,6 +1,28 @@
 {% extends "layout.html" %}
 {% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
+{% from "_formhelpers.html" import render_field %}
+
+{% if superadmin %}
+	<h1>User Information</h1>
+	<p>ID: {{user.id}}</p>
+	<p>Account created on: {{user.created_time}}</p>
+	<p>Email address: {{user.email}}</p>
+	<p>User class: {{level}}</p>
+	<form method="POST">
+		{{ form.csrf_token }}
+		<div class="row">
+			<div class="form-group col-md-6">
+				{{ render_field(form.user_class, class_='form-control')}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-6">
+				<input type="submit" value="Apply" class="btn btn-primary">
+			</div>
+		</div>
+	</form>
+{% endif %}
 <h3>
 	Browsing {{user.username}}'s torrents
 </h3>
