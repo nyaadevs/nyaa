@@ -1,0 +1,91 @@
+---
+# CREATE DTABASE/TABLE equivalent for elasticsearch, in yaml
+# fo inline comments.
+settings:
+  analysis:
+    analyzer:
+      my_search_analyzer:
+        type: custom
+        tokenizer: standard
+        char_filter:
+          - my_char_filter
+        filter:
+          - standard
+          - lowercase
+      my_index_analyzer:
+        type: custom
+        tokenizer: standard
+        char_filter:
+          - my_char_filter
+        filter:
+          - lowercase
+          - my_ngram
+    filter:
+      my_ngram:
+        type: edgeNGram
+        min_gram: 1
+        max_gram: 15
+    char_filter:
+      my_char_filter:
+        type: mapping
+        mappings: ["-=>_", "!=>_"]
+  index:
+    # we're running a single es node, so no sharding necessary,
+    # plus replicas don't really help either.
+    number_of_shards: 1
+    number_of_replicas : 0
+    mapper:
+      # disable elasticsearch's "helpful" autoschema
+      dynamic: false
+    # since we disabled the _all field, default query the
+    # name of the torrent.
+    query:
+      default_field: display_name
+mappings:
+  torrent:
+    # don't want everything concatenated
+    _all:
+      enabled: false
+    properties:
+      id:
+        type: long
+      display_name:
+        # TODO could do a fancier tokenizer here to parse out the
+        # the scene convention of stuff in brackets, plus stuff like k-on
+        type: text
+        analyzer: my_index_analyzer
+        fielddata: true
+      created_time:
+        type: date
+        # Only in the ES index for generating magnet links
+      info_hash:
+        enabled: false
+      filesize:
+        type: long
+      anonymous:
+        type: boolean
+      trusted:
+        type: boolean
+      remake:
+        type: boolean
+      complete:
+        type: boolean
+      hidden:
+        type: boolean
+      deleted:
+        type: boolean
+      has_torrent:
+        type: boolean
+      download_count:
+        type: long
+      leech_count:
+        type: long
+      seed_count:
+        type: long
+      # these ids are really only for filtering, thus keyword
+      uploader_id:
+        type: keyword
+      main_category_id:
+        type: keyword
+      sub_category_id:
+        type: keyword

@@ -33,24 +33,6 @@ webassets==0.12.1
 Werkzeug==0.12.1
 WTForms==2.1
 ## The following requirements were added by pip freeze:
-decorator==4.0.11
 elasticsearch==5.3.0
 elasticsearch-dsl==5.2.0
-ipython==6.0.0
-ipython-genutils==0.2.0
-jedi==0.10.2
-mysql-replication==0.13
-pexpect==4.2.1
-pickleshare==0.7.4
-pkg-resources==0.0.0
 progressbar2==3.20.0
-prompt-toolkit==1.0.14
-ptyprocess==0.5.1
-Pygments==2.2.0
-PyMySQL==0.7.11
-python-dateutil==2.6.0
-python-utils==2.1.0
-simplegeneric==0.8.1
-traitlets==4.3.2
-urllib3==1.21.1
-wcwidth==0.1.7

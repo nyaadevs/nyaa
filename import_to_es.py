@@ -41,8 +41,6 @@ def mk_es(t):
             "id": t.id,
             "display_name": t.display_name,
             "created_time": t.created_time,
-            "updated_time": t.updated_time,
-            "description": t.description,
             # not analyzed but included so we can render magnet links
             # without querying sql again.
             "info_hash": t.info_hash.hex(),
@@ -61,8 +59,7 @@ def mk_es(t):
             "hidden": bool(t.hidden),
             "deleted": bool(t.deleted),
             "has_torrent": t.has_torrent,
-            # XXX last_updated isn't initialized
-            "stats_last_updated": t.stats.last_updated or t.created_time,
+            # Stats
             "download_count": t.stats.download_count,
             "leech_count": t.stats.leech_count,
             "seed_count": t.stats.seed_count,

@@ -148,7 +148,7 @@ def search(term='', user=None, sort='id', order='desc', category='0_0', quality_
     s = Search(using=es_client, index='nyaav2')
     if term:
         query = db.session.query(models.TorrentNameSearch)
-        s = s.query("query_string", default_field="display_name", default_operator="AND", query=term)
+        s = s.query("simple_query_string", analyzer="my_search_analyzer", default_operator="AND", query=term)
     else:
         query = models.Torrent.query
 
