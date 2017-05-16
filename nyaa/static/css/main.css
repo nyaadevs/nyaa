@@ -106,7 +106,8 @@ table.torrent-list thead th.sorting_desc:after {
 
 .form-control.search-bar {
     order: 1;
-    width: 88%;
+    width: 99%;
+    padding-right: 4em; // Ensure text can not flow under button
 }
 
 .search-btn {
@@ -115,6 +116,7 @@ table.torrent-list thead th.sorting_desc:after {
 	top: -34px;
 	height: 0;
     width: auto;
+	z-index: 3;
 }
 
 #navFilter-criteria {
@@ -125,7 +127,26 @@ table.torrent-list thead th.sorting_desc:after {
 	order: 4;
 }
 
-@media (min-width: 768px) {
+.nav-filter {
+	width: 100%;
+    padding: 1em 0;
+}
+
+.nav-filter .bootstrap-select {
+	width: 100% !important;
+}
+
+.bootstrap-select > button {
+    margin-top: 1em;
+}
+
+/* Allows the bootstrap selects on nav show outside the
+ collapsible section of the navigation */
+.navbar-collapse.in {
+	overflow-y: visible;
+}
+
+@media (min-width: 991px) {
 	.search-btn {
 		top: 0;
 		width: auto;
