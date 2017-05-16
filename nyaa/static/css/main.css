@@ -100,18 +100,28 @@ table.torrent-list thead th.sorting_desc:after {
 }
 
 .search-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
 	flex-direction: column;
 }
 
 .form-control.search-bar {
+	-webkit-box-ordinal-group: 2;
+	-ms-flex-order: 1;
 	order: 1;
 	width: 99%;
-	padding-right: 4em; // Ensure text can not flow under button
+	padding-right: 4em;
 }
 
 .search-btn {
+	-webkit-box-ordinal-group: 3;
+	-ms-flex-order: 2;
 	order: 2;
+	-ms-flex-item-align: end;
 	align-self: flex-end;
 	top: -34px;
 	height: 0;
@@ -120,10 +130,14 @@ table.torrent-list thead th.sorting_desc:after {
 }
 
 #navFilter-criteria {
+	-webkit-box-ordinal-group: 4;
+	-ms-flex-order: 3;
 	order: 3;
 }
 
 #navFilter-category {
+	-webkit-box-ordinal-group: 5;
+	-ms-flex-order: 4;
 	order: 4;
 }
 
