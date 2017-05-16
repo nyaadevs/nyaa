@@ -66,7 +66,11 @@
 				{% endif %}
 				<td style="white-space: nowrap;text-align: center;">
 					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
+					{% if use_elastic %}
+					<a href="{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}"><i class="fa fa-fw fa-magnet"></i></a>
+					{% else %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
+					{% endif %}
 				</td>
 				<td class="text-center">{{ torrent.filesize | filesizeformat(True) }}</td>
 				{% if use_elastic %}

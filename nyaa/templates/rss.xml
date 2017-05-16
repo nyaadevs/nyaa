@@ -22,7 +22,7 @@
 		<item>
 			<title>{{ torrent.display_name }}</title>
 			{% if use_elastic %}
-			<link>{{ torrent.info_hash }}</link>
+			<link>{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}</link>
 			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.meta.id, _external=True) }}</guid>
 			<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>
 			{% else %}

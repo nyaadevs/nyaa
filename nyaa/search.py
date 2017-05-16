@@ -177,8 +177,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         s = s.highlight("display_name")
 
     # Return query, uncomment print line to debug query
-    from pprint import pprint
-    print(json.dumps(s.to_dict()))
+    # from pprint import pprint
+    # print(json.dumps(s.to_dict()))
     return s.execute()
 
 

@@ -178,7 +178,7 @@ def home(rss):
             query_args['term'] = ''
         else: # Otherwise, use db search for everything
             query_args['term'] = term or ''
-        print(query_args)
+
         query = search_db(**query_args)
         if rss:
             return render_rss('/', query, use_elastic=False)
@@ -287,7 +287,6 @@ def _jinja2_filter_rfc822(datestr, fmt=None):
 
 
 def render_rss(label, query, use_elastic):
-    print(query)
     rss_xml = flask.render_template('rss.xml',
                                     use_elastic=use_elastic,
                                     term=label,
