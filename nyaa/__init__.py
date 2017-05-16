@@ -40,6 +40,13 @@ if not app.config['DEBUG']:
             '<strong>An error occured!</strong> Debugging information has been logged.'), 'danger')
         return flask.redirect('/')
 
+# Get git commit hash
+app.config['COMMIT_HASH'] = None
+master_head = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.git/refs/heads/master'))
+if os.path.isfile(master_head):
+    with open(master_head, 'r') as head:
+        app.config['COMMIT_HASH'] = head.readline().strip()
+
 # Enable the jinja2 do extension.
 app.jinja_env.add_extension('jinja2.ext.do')
 app.jinja_env.lstrip_blocks = True

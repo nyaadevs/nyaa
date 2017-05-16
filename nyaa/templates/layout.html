@@ -70,9 +70,9 @@
 					</li>
 					<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
 					{% if config.SITE_FLAVOR == 'nyaa' %}
-					<li><a href="https://sukebei.nyaa.si/">R-18</a></li>
+					<li><a href="https://sukebei.nyaa.si/">Fap</a></li>
 					{% elif config.SITE_FLAVOR == 'sukebei' %}
-					<li><a href="https://nyaa.si/">SFW</a></li>
+					<li><a href="https://nyaa.si/">Fun</a></li>
 					{% endif %}
 				</ul>
 
@@ -221,6 +221,9 @@
 
 		<footer style="text-align: center;">
 			<p>Dark Mode: <a href="#" id="themeToggle">Toggle</a></p>
+			{% if config.COMMIT_HASH %}
+			<p>Commit: <a href="https://github.com/nyaadevs/nyaa/tree/{{ config.COMMIT_HASH }}">{{ config.COMMIT_HASH[:7] }}</a></p>
+			{% endif %}
 		</footer>
 	</body>
 </html>

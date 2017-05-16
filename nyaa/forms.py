@@ -221,19 +221,23 @@ class UploadForm(FlaskForm):
         except AssertionError as e:
             raise ValidationError('Malformed torrent metadata ({})'.format(e.args[0]))
 
+
+        site_tracker = app.config.get('MAIN_ANNOUNCE_URL')
+        ensure_tracker = app.config.get('ENFORCE_MAIN_ANNOUNCE_URL')
+
         try:
-            _validate_trackers(torrent_dict)
+            tracker_found = _validate_trackers(torrent_dict, site_tracker)
         except AssertionError as e:
             raise ValidationError('Malformed torrent trackers ({})'.format(e.args[0]))
 
-        if app.config.get('ENFORCE_MAIN_ANNOUNCE_URL'):
-            main_announce_url = app.config.get('MAIN_ANNOUNCE_URL')
-            if not main_announce_url:
-                raise Exception('Config MAIN_ANNOUNCE_URL not set!')
+        # Ensure private torrents are using our tracker
+        if torrent_dict['info'].get('private') == 1:
+            if torrent_dict['announce'].decode('utf-8') != site_tracker:
+                raise ValidationError('Private torrent: please set {} as the main tracker'.format(site_tracker))
 
-            announce = torrent_dict.get('announce', b'').decode('utf-8')
-            if announce != main_announce_url:
-                raise ValidationError('Please set {} as the first tracker in the torrent'.format(main_announce_url))
+        elif ensure_tracker and not tracker_found:
+            raise ValidationError('Please include {} in the trackers of the torrent'.format(site_tracker))
+
 
         # Note! bencode will sort dict keys, as per the spec
         # This may result in a different hash if the uploaded torrent does not match the
@@ -262,9 +266,11 @@ class TorrentFileData(object):
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 
-def _validate_trackers(torrent_dict):
+def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
-    _validate_bytes(announce)
+    announce_string = _validate_bytes(announce, 'announce', 'utf-8')
+
+    tracker_found = tracker_to_check_for and (announce_string.lower() == tracker_to_check_for.lower()) or False
 
     announce_list = torrent_dict.get('announce-list')
     if announce_list is not None:
@@ -273,7 +279,11 @@ def _validate_trackers(torrent_dict):
         for announce in announce_list:
             _validate_list(announce, 'announce-list item')
 
-            _validate_bytes(announce[0], 'announce-list item item')
+            announce_string = _validate_bytes(announce[0], 'announce-list item url', 'utf-8')
+            if tracker_to_check_for and announce_string.lower() == tracker_to_check_for.lower():
+                tracker_found = True
+
+    return tracker_found
 
 
 def _validate_torrent_metadata(torrent_dict):

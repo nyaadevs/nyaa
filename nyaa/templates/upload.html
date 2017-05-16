@@ -3,6 +3,7 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 {% from "_formhelpers.html" import render_upload %}
+{% from "_formhelpers.html" import render_markdown_editor %}
 
 <h1>Upload Torrent</h1>
 
@@ -12,7 +13,7 @@
 
 
 <form method="POST" enctype="multipart/form-data">
-	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please put <i>{{config.MAIN_ANNOUNCE_URL}}</i> as your first tracker</p>{% endif %}
+	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <i>{{config.MAIN_ANNOUNCE_URL}}</i> in your trackers</p>{% endif %}
 	<div class="row">
 		<div class="form-group col-md-6">
 			{{ render_upload(form.torrent_file, accept=".torrent") }}
@@ -37,11 +38,11 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.description, class_='form-control') }}
-		</div>
-	</div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            {{ render_markdown_editor(form.description, field_name='description') }}
+        </div>
+    </div>
 
 	<div class="row">
 		<div class="form-group col-md-6">

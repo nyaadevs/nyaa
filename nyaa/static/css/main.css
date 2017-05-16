@@ -87,6 +87,11 @@ table.torrent-list thead th.sorting_desc:after {
 .panel-deleted > .panel-footer + .panel-collapse > .panel-body {
 	border-bottom-color:#757575;
 }
+
+.markdown-editor label {
+	padding: 1em 0;
+}
+
 @media (max-width: 991px){
 	.col-md-5 {
 	    margin-left: 20px;
