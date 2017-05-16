@@ -8,7 +8,7 @@
 	{{ caller() }}
 </th>
 {% endmacro %}
-{% if torrent_query.items %}
+{% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
@@ -16,7 +16,7 @@
 				{% call render_column_header("hdr-category", "width:80px;", center_text=True) %}
 					<div>Category</div>
 				{% endcall %}
-				{% call render_column_header("hdr-name", "width:auto;", sort_key="name") %}
+				{% call render_column_header("hdr-name", "width:auto;") %}
 					<div>Name</div>
 				{% endcall %}
 				{% call render_column_header("hdr-link", "width:70px;", center_text=True) %}
@@ -45,26 +45,50 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for torrent in torrent_query.items %}
+			{% set torrents = torrent_query if use_elastic else torrent_query.items %}
+			{% for torrent in torrents %}
 			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
-				{% set cat_id = (torrent.main_category.id|string) + '_' + (torrent.sub_category.id|string) %}
+				{% set cat_id = (torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string) if use_elastic else (torrent.main_category.id|string) + '_' + (torrent.sub_category.id|string) %}
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
+				{% if use_elastic %}
+				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category_id }} - {{ torrent.sub_category_id }}">
+				{% else %}
 				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
+				{% endif %}
 					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
 				</a>
 				</td>
+				{% if use_elastic %}
+                <td><a href="{{ url_for('view_torrent', torrent_id=torrent.meta.id) }}">{%if "highlight" in torrent.meta %}{{ torrent.meta.highlight.display_name[0] | safe }}{% else %}{{torrent.display_name}}{%endif%}</a></td>
+				{% else %}
 				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}">{{ torrent.display_name | escape }}</a></td>
+				{% endif %}
 				<td style="white-space: nowrap;text-align: center;">
 					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
+					{% if use_elastic %}
+					<a href="{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}"><i class="fa fa-fw fa-magnet"></i></a>
+					{% else %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
+					{% endif %}
 				</td>
 				<td class="text-center">{{ torrent.filesize | filesizeformat(True) }}</td>
+				{% if use_elastic %}
+                <td class="text-center" data-timestamp="{{ torrent.created_time | utc_time }}">{{ torrent.created_time | display_time }}</td>
+				{% else %}
 				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
+				{% endif %}
+				
 				{% if config.ENABLE_SHOW_STATS %}
+				{% if use_elastic %}
+				<td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
+				<td class="text-center" style="color: red;">{{ torrent.leech_count }}</td>
+				<td class="text-center">{{ torrent.download_count }}</td>
+				{% else %}
 				<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
 				<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
 				<td class="text-center">{{ torrent.stats.download_count }}</td>
+				{% endif %}
 				{% endif %}
 			</tr>
 			{% endfor %}
@@ -76,6 +100,11 @@
 {% endif %}
 
 <center>
+	{% if use_elastic %}
+	{{ pagination.info }}
+	{{ pagination.links }}
+	{% else %}
 	{% from "bootstrap/pagination.html" import render_pagination %}
 	{{ render_pagination(torrent_query) }}
+	{% endif %}
 </center>

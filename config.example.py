@@ -33,8 +33,6 @@ MAIL_FROM_ADDRESS = '***'
 SMTP_USERNAME = '***'
 SMTP_PASSWORD = '***'
 
-RESULTS_PER_PAGE = 75
-
 # What the site identifies itself as.
 SITE_NAME = 'Nyaa'
 
@@ -49,3 +47,14 @@ ENFORCE_MAIN_ANNOUNCE_URL = False
 MAIN_ANNOUNCE_URL = ''
 
 BACKUP_TORRENT_FOLDER = 'torrents'
+
+#
+# Search Options
+#
+# Max ES search results, do not set over 10000
+RESULTS_PER_PAGE = 75
+
+USE_ELASTIC_SEARCH = False
+ENABLE_ELASTIC_SEARCH_HIGHLIGHT = False
+ES_MAX_SEARCH_RESULT = 1000
+ES_INDEX_NAME = SITE_FLAVOR  # we create indicies named nyaa or sukebei

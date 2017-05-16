@@ -98,3 +98,13 @@ table.torrent-list thead th.sorting_desc:after {
 	    margin-bottom: 10px;
 	}
 }
+
+/* elasticsearch term highlight */
+.hlt1 {
+    font-style: normal;
+    display: inline-block;
+    padding: 0 3px;
+    border-radius: 3px;
+    border: 1px solid rgba(100, 56, 0, 0.8);
+    background: rgba(200,127,0,0.3);
+}

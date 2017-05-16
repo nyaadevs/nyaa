@@ -3,6 +3,7 @@ import base64
 import time
 from urllib.parse import urlencode
 from orderedset import OrderedSet
+from nyaa import app
 
 from nyaa import bencode
 from nyaa import app
@@ -53,10 +54,23 @@ def get_trackers(torrent):
 
     return list(trackers)
 
+def get_trackers_magnet():
+    trackers = OrderedSet()
+
+    # Our main one first
+    main_announce_url = app.config.get('MAIN_ANNOUNCE_URL')
+    if main_announce_url:
+        trackers.add(main_announce_url)
+
+    # and finally our tracker list
+    trackers.update(default_trackers())
+
+    return list(trackers)
+
 
 def create_magnet(torrent, max_trackers=5, trackers=None):
     if trackers is None:
-        trackers = get_trackers(torrent)
+        trackers = get_trackers_magnet()
 
     magnet_parts = [
         ('dn', torrent.display_name)
@@ -66,6 +80,24 @@ def create_magnet(torrent, max_trackers=5, trackers=None):
 
     b32_info_hash = base64.b32encode(torrent.info_hash).decode('utf-8')
     return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
+
+
+# For processing ES links
+@app.context_processor
+def create_magnet_from_info():
+    def _create_magnet_from_info(display_name, info_hash, max_trackers=5, trackers=None):
+        if trackers is None:
+            trackers = get_trackers_magnet()
+
+        magnet_parts = [
+            ('dn', display_name)
+        ]
+        for tracker in trackers[:max_trackers]:
+            magnet_parts.append(('tr', tracker))
+
+        b32_info_hash = base64.b32encode(bytes.fromhex(info_hash)).decode('utf-8')
+        return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
+    return dict(create_magnet_from_info=_create_magnet_from_info)
 
 
 def create_default_metadata_base(torrent, trackers=None):
