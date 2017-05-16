@@ -54,7 +54,7 @@
 					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
 				</a>
 				</td>
-				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}">{{ torrent.display_name | escape }}</a></td>
+				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}" title="{{ torrent.display_name }}">{{ torrent.display_name | escape }}</a></td>
 				<td style="white-space: nowrap;text-align: center;">
 					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
