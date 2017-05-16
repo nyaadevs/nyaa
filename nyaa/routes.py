@@ -306,6 +306,8 @@ def render_rss(label, query, use_elastic):
                                     torrent_query=query)
     response = flask.make_response(rss_xml)
     response.headers['Content-Type'] = 'application/xml'
+    # Cache for an hour
+    response.headers['Cache-Control'] = 'max-age={}'.format(1*60*60)
     return response
 
 
