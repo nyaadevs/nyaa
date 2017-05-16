@@ -452,6 +452,15 @@ def profile():
         return flask.redirect('/')  # so we dont get stuck in infinite loop when signing out
 
     form = forms.ProfileForm(flask.request.form)
+
+    level = 'Regular'
+    if flask.g.user.is_admin:
+        level = 'Moderator'
+    if flask.g.user.is_superadmin:  # check this second because we can be admin AND superadmin
+        level = 'Administrator'
+    elif flask.g.user.is_trusted:
+        level = 'Trusted'
+
     if flask.request.method == 'POST' and form.validate():
         user = flask.g.user
         new_email = form.email.data
@@ -472,7 +481,7 @@ def profile():
 
         flask.g.user = user
 
-    return flask.render_template('profile.html', form=form)
+    return flask.render_template('profile.html', form=form, level=level)
 
 
 @app.route('/user/activate/<payload>')

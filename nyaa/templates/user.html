@@ -4,27 +4,34 @@
 {% from "_formhelpers.html" import render_field %}
 
 {% if superadmin %}
-	<h1>User Information</h1>
-	<p>ID: {{user.id}}</p>
-	<p>Account created on: {{user.created_time}}</p>
-	<p>Email address: {{user.email}}</p>
-	<p>User class: {{level}}</p>
-	<form method="POST">
-		{{ form.csrf_token }}
-		<div class="row">
-			<div class="form-group col-md-6">
-				{{ render_field(form.user_class, class_='form-control')}}
-			</div>
-		</div>
-		<div class="row">
-			<div class="form-group col-md-6">
-				<input type="submit" value="Apply" class="btn btn-primary">
-			</div>
-		</div>
-	</form>
+    <h2>User Information</h2><br>
+    <dl class="dl-horizontal">
+        <dt>User ID:</dt>
+        <dd>{{user.id}}</dd>
+        <dt>Account created on:</dt>
+        <dd>{{user.created_time}}</dd>
+        <dt>Email address:</dt>
+        <dd>{{user.email}}</dd>
+        <dt>User class:</dt>
+        <dd>{{level}}</dd><br>
+    </dl>
+    <form method="POST">
+        {{ form.csrf_token }}
+
+        <div class="form-group row">
+            <div class="col-md-6">
+                {{ render_field(form.user_class, class_='form-control')}}
+            </div>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+    </form>
+    <br>
 {% endif %}
+
 <h3>
-	Browsing {{user.username}}'s torrents
+    Browsing {{user.username}}'s torrents
 </h3>
 
 {% include "search_results.html" %}
