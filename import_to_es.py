@@ -5,6 +5,7 @@ which is assumed to already exist.
 This is a one-shot deal, so you'd either need to complement it
 with a cron job or some binlog-reading thing (TODO)
 """
+from nyaa import app
 from nyaa.models import Torrent
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
@@ -33,7 +34,7 @@ def mk_es(t):
     return {
         "_id": t.id,
         "_type": "torrent",
-        "_index": "nyaav2",
+        "_index": app.config['ES_INDEX_NAME'],
         "_source": {
             # we're also indexing the id as a number so you can
             # order by it. seems like this is just equivalent to
