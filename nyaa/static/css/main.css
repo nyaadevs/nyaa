@@ -117,12 +117,12 @@ table.torrent-list thead th.sorting_desc:after {
     width: auto;
 }
 
-#navFilter-category {
+#navFilter-criteria {
     order: 3;
 }
 
-#navFilter-criteria {
-    order: 4;
+#navFilter-category {
+	order: 4;
 }
 
 @media (min-width: 768px) {
