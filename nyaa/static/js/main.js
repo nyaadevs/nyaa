@@ -105,8 +105,13 @@ document.addEventListener("DOMContentLoaded", function() {
     var previewTabEl = markdownEditor.querySelector(previewTabSelector);
     var targetEl = markdownEditor.querySelector(targetSelector);
 
+		var reader = new commonmark.Parser({safe: true});
+		var writer = new commonmark.HtmlRenderer({safe: true});
+		writer.softbreak = '<br />';
+
     previewTabEl.addEventListener('click', function () {
-      targetEl.innerHTML = marked(sourceSelector.value.trim(), { sanitize: true, breaks:true });
+			var parsed = reader.parse(sourceSelector.value.trim());
+			targetEl.innerHTML = writer.render(parsed);
     });
   });
 });
