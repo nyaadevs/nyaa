@@ -60,7 +60,7 @@
 				</a>
 				</td>
 				{% if use_elastic %}
-                <td><a href="{{ url_for('view_torrent', torrent_id=torrent.meta.id) }}">{%if "highlight" in torrent.meta %}{{ torrent.meta.highlight.display_name[0] | safe }}{% else %}{{torrent.display_name}}{%endif%}</a></td>
+                <td><a href="{{ url_for('view_torrent', torrent_id=torrent.meta.id) }}" title="{{ torrent.display_name | escape }}"">{%if "highlight" in torrent.meta %}{{ torrent.meta.highlight.display_name[0] | safe }}{% else %}{{torrent.display_name}}{%endif%}</a></td>
 				{% else %}
 				<td><a href="{{ url_for('view_torrent', torrent_id=torrent.id) }}" title="{{ torrent.display_name | escape }}">{{ torrent.display_name | escape }}</a></td>
 				{% endif %}
