@@ -91,3 +91,30 @@
 		{% endif %}
 	</div>
 {% endmacro %}
+
+{% macro render_menu_with_button(field) %}
+{% if field.errors %}
+	<div class="form-group has-error">
+{% else %}
+	<div class="form-group">
+{% endif %}
+		{{ field.label(class='control-label') }}
+		{{ field(title=field.description,**kwargs) | safe }}
+		<button type="submit" class="btn btn-primary">Apply</button>
+		{% if field.errors %}
+			<div class="help-block">
+				{% if field.errors|length < 2 %}
+					{% for error in field.errors %}
+						{{ error }}
+					{% endfor %}
+				{% else %}
+					<ul>
+						{% for error in field.errors %}
+							<li>{{ error }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+{% endmacro %}

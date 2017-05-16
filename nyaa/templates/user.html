@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_menu_with_button %}
 
 {% if superadmin %}
     <h2>User Information</h2><br>
@@ -20,11 +20,8 @@
 
         <div class="form-group row">
             <div class="col-md-6">
-                {{ render_field(form.user_class, class_='form-control')}}
+                {{ render_menu_with_button(form.user_class)}}
             </div>
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Apply</button>
         </div>
     </form>
     <br>
