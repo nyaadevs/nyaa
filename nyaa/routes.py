@@ -31,8 +31,9 @@ from flask_paginate import Pagination
 DEBUG_API = False
 DEFAULT_MAX_SEARCH_RESULT = 1000
 DEFAULT_PER_PAGE = 75
-SERACH_PAGINATE_DISPLAY_MSG = '''Displaying results {start}-{end} out of {total} results.<br>
-                                 Please refine your search results if you can't find what you were looking for.'''
+SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} results.<br>\n'
+                               'Please refine your search results if you can\'t find '
+                               'what you were looking for.')
 
 
 def redirect_url():
