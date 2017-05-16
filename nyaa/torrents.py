@@ -54,6 +54,7 @@ def get_trackers(torrent):
 
     return list(trackers)
 
+
 def get_trackers_magnet():
     trackers = OrderedSet()
 

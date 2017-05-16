@@ -167,8 +167,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         s = s[0:per_page]
     else:
         max_page = min(page, int(math.ceil(max_search_results / float(per_page))))
-        from_idx = (max_page-1)*per_page
-        to_idx = min(max_search_results, max_page*per_page)
+        from_idx = (max_page - 1) * per_page
+        to_idx = min(max_search_results, max_page * per_page)
         s = s[from_idx:to_idx]
 
     highlight = app.config.get('ENABLE_ELASTIC_SEARCH_HIGHLIGHT')
@@ -267,10 +267,12 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
         if not admin:
             # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.DELETED)).is_(False))
+            query = query.filter(models.Torrent.flags.op('&')(
+                int(models.TorrentFlags.DELETED)).is_(False))
             # If logged in user is not the same as the user being viewed, show only torrents that aren't hidden or anonymous
             # If logged in user is the same as the user being viewed, show all torrents including hidden and anonymous ones
-            # On RSS pages in user view, show only torrents that aren't hidden or anonymous no matter what
+            # On RSS pages in user view, show only torrents that aren't hidden or
+            # anonymous no matter what
             if not same_user or rss:
                 query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN |
                                                                       models.TorrentFlags.ANONYMOUS)).is_(False))
@@ -278,7 +280,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     else:
         if not admin:
             # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.DELETED)).is_(False))
+            query = query.filter(models.Torrent.flags.op('&')(
+                int(models.TorrentFlags.DELETED)).is_(False))
             # If logged in, show all torrents that aren't hidden unless they belong to you
             # On RSS pages, show all public torrents and nothing more.
             if logged_in_user and not rss:
@@ -286,7 +289,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
                                      (models.Torrent.uploader_id == logged_in_user.id))
             # Otherwise, show all torrents that aren't hidden
             else:
-                query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False))
+                query = query.filter(models.Torrent.flags.op('&')(
+                    int(models.TorrentFlags.HIDDEN)).is_(False))
 
     if main_category:
         query = query.filter(models.Torrent.main_category_id == main_cat_id)
@@ -295,7 +299,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
                              (models.Torrent.sub_category_id == sub_cat_id))
 
     if filter_tuple:
-        query = query.filter(models.Torrent.flags.op('&')(int(filter_tuple[0])).is_(filter_tuple[1]))
+        query = query.filter(models.Torrent.flags.op('&')(
+            int(filter_tuple[0])).is_(filter_tuple[1]))
 
     if term:
         for item in shlex.split(term, posix=False):

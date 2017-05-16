@@ -162,7 +162,8 @@ def home(rss):
         if not max_search_results:
             max_search_results = DEFAULT_MAX_SEARCH_RESULT
 
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page)))) # Only allow up to (max_search_results / page) pages 
+        # Only allow up to (max_search_results / page) pages
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
 
         query_args['page'] = max_page
         query_args['max_search_results'] = max_search_results
@@ -188,7 +189,7 @@ def home(rss):
         # If ES is enabled, default to db search for browsing
         if use_elastic:
             query_args['term'] = ''
-        else: # Otherwise, use db search for everything
+        else:  # Otherwise, use db search for everything
             query_args['term'] = term or ''
 
         query = search_db(**query_args)
@@ -253,7 +254,8 @@ def view_user(user_name):
         if not max_search_results:
             max_search_results = DEFAULT_MAX_SEARCH_RESULT
 
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page)))) # Only allow up to (max_search_results / page) pages 
+        # Only allow up to (max_search_results / page) pages
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
 
         query_args['page'] = max_page
         query_args['max_search_results'] = max_search_results
@@ -292,6 +294,7 @@ def view_user(user_name):
 @app.template_filter('rfc822')
 def _jinja2_filter_rfc822(date, fmt=None):
     return formatdate(float(date.strftime('%s')))
+
 
 @app.template_filter('rfc822_es')
 def _jinja2_filter_rfc822(datestr, fmt=None):
