@@ -142,6 +142,7 @@
 				{% if g.user.is_admin %}
 				<th style="width:auto;">Delete</th>
 				{% endif %}
+				<th style="width:auto;">Date</th>
                 <th style="width:auto;">User</th>
                 <th style="width:100%;">Comment</th>
             </thead>
@@ -162,7 +163,8 @@
 						<span>Anonymous</span>
 						{% endif %}
 					</td>
-					<td class="col-md-10">{{ comment.text }}</td>
+					<td class="col-md-1" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</td>
+					<td class="col-md-9">{{ comment.text }}</td>
 				</tr>
 				{% endfor %}
             <tbody>

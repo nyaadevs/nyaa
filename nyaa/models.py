@@ -325,12 +325,18 @@ class Comment(db.Model):
         DB_TABLE_PREFIX + 'torrents.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete='CASCADE'))
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
     text = db.Column(db.String(length=255), nullable=False)
 
     user = db.relationship('User', uselist=False, back_populates='comments')
 
     def __repr__(self):
         return '<Comment %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
 
 
 class UserLevelType(IntEnum):
