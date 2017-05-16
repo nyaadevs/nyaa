@@ -58,7 +58,8 @@ stream = BinLogStreamReader(
             'host': MYSQL_HOST,
             'port': MYSQL_PORT,
             'user': MYSQL_USER,
-            'passwd': MYSQL_PW
+            'passwd': MYSQL_PW,
+
         },
         server_id=10, # arbitrary
         # only care about this database currently
@@ -124,7 +125,7 @@ def reindex_stats(s, index_name):
                 "download_count": s["download_count"],
                 "leech_count": s['leech_count'],
                 "seed_count": s['seed_count'],
-            }})
+            }, "doc_as_upsert": True})
 
 n = 0
 last_save = time.time()
