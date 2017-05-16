@@ -99,6 +99,39 @@ table.torrent-list thead th.sorting_desc:after {
 	}
 }
 
+.search-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.form-control.search-bar {
+    order: 1;
+    width: 88%;
+}
+
+.search-btn {
+	order: 2;
+	align-self: flex-end;
+	top: -34px;
+	height: 0;
+    width: auto;
+}
+
+#navFilter-category {
+    order: 3;
+}
+
+#navFilter-criteria {
+    order: 4;
+}
+
+@media (min-width: 768px) {
+	.search-btn {
+		top: 0;
+		width: auto;
+	}
+}
+
 /* elasticsearch term highlight */
 .hlt1 {
     font-style: normal;
