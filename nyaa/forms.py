@@ -79,7 +79,7 @@ class ProfileForm(FlaskForm):
         Unique(User, User.email, 'Email is taken')
     ])
 
-    current_password = PasswordField('Current password', [Optional()])
+    current_password = PasswordField('Current password', [Required()])
 
     new_password = PasswordField('New password (confirm)', [
         Optional(),
