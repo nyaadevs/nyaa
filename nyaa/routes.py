@@ -98,6 +98,18 @@ def _generate_query_string(term, category, filter, user):
     return params
 
 
+@app.template_filter('utc_time')
+def get_utc_timestamp(datetime_str):
+    ''' Returns a UTC POSIX timestamp, as seconds '''
+    UTC_EPOCH = datetime.utcfromtimestamp(0)
+    return int((datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S') - UTC_EPOCH).total_seconds())
+
+
+@app.template_filter('display_time')
+def get_display_time(datetime_str):
+    return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
+
+
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
 def home(rss):

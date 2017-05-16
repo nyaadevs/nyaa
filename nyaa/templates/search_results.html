@@ -74,7 +74,7 @@
 				</td>
 				<td class="text-center">{{ torrent.filesize | filesizeformat(True) }}</td>
 				{% if use_elastic %}
-                <td class="text-center" {#data-timestamp="{{ torrent.created_time|int }}"#}>{{ torrent.created_time }}</td>
+                <td class="text-center" data-timestamp="{{ torrent.created_time | utc_time }}">{{ torrent.created_time | display_time }}</td>
 				{% else %}
 				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
 				{% endif %}
