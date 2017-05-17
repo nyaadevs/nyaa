@@ -46,13 +46,13 @@
                     {{ render_field(form.password_confirm, class_='form-control', placeholder='New password (confirm)') }}
                 </div>
             </div>
-            <br>
             <div class="row">
                 <div class="col-md-4">
                     <input type="submit" value="Update" class="btn btn-primary">
                 </div>
             </div>
         </form>
+	<hr>
     </div>
     <div class="tab-pane fade" role="tabpanel" id="email-change" aria-labelledby="email-change-tab">
         <form method="POST">
@@ -73,7 +73,6 @@
                     {{ render_field(form.current_password, class_='form-control', placeholder='Current password') }}
                 </div>
             </div>
-            <br>
             <div class="row">
                 <div class="col-md-4">
                     <input type="submit" value="Update" class="btn btn-primary">
@@ -82,5 +81,7 @@
         </form>
     </div>
 </div>
+
+<hr>
 
 {% endblock %}
