@@ -92,7 +92,7 @@
 						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;<b>{{ key }}</b></td>
 					{{ loop(value.items()) }}
 					{%- else %}
-					<td style="padding-left: {{ loop.depth0 * 20 }}px">
+					<td{% if loop.depth0 is greaterthan 0 %} style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
 						<i class="glyphicon glyphicon-file"></i>&nbsp;{{ key }}</td>
 					<td class="col-md-2">{{ value | filesizeformat(True) }}</td>
 					{%- endif %}
@@ -122,8 +122,11 @@
 <script>
 	var target = document.getElementById('torrent-description');
 	var text = target.innerHTML;
-	var html = marked(text.trim(), { sanitize: true, breaks:true });
-	target.innerHTML = html;
+	var reader = new commonmark.Parser({safe: true});
+	var writer = new commonmark.HtmlRenderer({safe: true});
+	writer.softbreak = '<br />';
+	var parsed = reader.parse(text.trim());
+	target.innerHTML = writer.render(parsed);
 </script>
 
 {% endblock %}

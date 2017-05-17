@@ -8,6 +8,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
 		<link rel="icon" type="image/png" href="/static/favicon.png">
+		<link rel="mask-icon" href="/static/pinned-tab.svg" color="#3582F7">
 		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
 
 		<!-- Bootstrap core CSS -->
@@ -34,7 +35,7 @@
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
 		<script src="/static/js/bootstrap-select.js"></script>
 		<script src="/static/js/main.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/commonmark/0.27.0/commonmark.min.js"></script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
@@ -144,16 +145,16 @@
 				{% else %}
 				<form class="navbar-form navbar-right form" action="/" method="get">
 				{% endif %}
-					<div class="input-group">
-						<input type="text" class="form-control" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
-						<div class="input-group-btn" id="navFilter">
+					<div class="input-group search-container">
+						<input type="text" class="form-control search-bar" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
+						<div class="input-group-btn nav-filter" id="navFilter-criteria">
 							<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
-								<option value="0" title="Show all" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>Show all</option>
+								<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
 								<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
 								<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
 							</select>
 						</div>
-						<div class="input-group-btn" id="navFilter">
+						<div class="input-group-btn nav-filter" id="navFilter-category">
 							{% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
 												('1_1', '- Anime Music Video', 'Anime - AMV'),
 												('1_2', '- English-translated', 'Anime - English'),
@@ -177,7 +178,7 @@
 												('6_0', 'Software', 'Software'),
 												('6_1', '- Applications', 'Software - Apps'),
 												('6_2', '- Games', 'Software - Games')] %}
-							{% set suke_cats = [('1_0', 'Art', 'Art'),
+												{% set suke_cats = [('1_0', 'Art', 'Art'),
 												('1_1', '- Anime', 'Art - Anime'),
 												('1_2', '- Doujinshi', 'Art - Doujinshi'),
 												('1_3', '- Games', 'Art - Games'),
@@ -192,8 +193,8 @@
 								{% set used_cats = suke_cats %}
 							{% endif %}
 							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
-								<option value="0_0" title="Show all" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
-									Show all
+								<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
+									All categories
 								</option>
 								{% for cat_id, cat_name, cat_title in used_cats %}
 								<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
@@ -202,7 +203,7 @@
 								{% endfor %}
 							</select>
 						</div>
-						<div class="input-group-btn">
+						<div class="input-group-btn search-btn">
 							<button class="btn btn-primary" type="submit">
 								<i class="fa fa-search fa-fw"></i>
 							</button>

@@ -72,23 +72,23 @@ class RegisterForm(FlaskForm):
 
 
 class ProfileForm(FlaskForm):
-    email = TextField('New email address', [
+    email = TextField('New Email Address', [
         Email(),
         Optional(),
         Length(min=5, max=128),
-        Unique(User, User.email, 'Email is taken')
+        Unique(User, User.email, 'This email address has been taken')
     ])
 
-    current_password = PasswordField('Current password', [Optional()])
+    current_password = PasswordField('Current Password', [Required()])
 
-    new_password = PasswordField('New password (confirm)', [
+    new_password = PasswordField('New Password', [
         Optional(),
-        EqualTo('password_confirm', message='Passwords must match'),
+        EqualTo('password_confirm', message='Two passwords must match'),
         Length(min=6, max=1024,
                message='Password must be at least %(min)d characters long.')
     ])
 
-    password_confirm = PasswordField('Repeat Password')
+    password_confirm = PasswordField('Repeat New Password')
 
 
 # Classes for a SelectField that can be set to disable options (id, name, disabled)
@@ -126,7 +126,8 @@ class DisabledSelectField(SelectField):
 class EditForm(FlaskForm):
     display_name = TextField('Torrent display name', [
         Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long and %(max)d at most.')
+               message='Torrent display name must be at least %(min)d characters long '
+                       'and %(max)d at most.')
     ])
 
     category = DisabledSelectField('Category')
@@ -172,7 +173,8 @@ class UploadForm(FlaskForm):
     display_name = TextField('Torrent display name (optional)', [
         Optional(),
         Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long and %(max)d at most.')
+               message='Torrent display name must be at least %(min)d characters long and '
+                       '%(max)d at most.')
     ])
 
     # category = SelectField('Category')
@@ -209,7 +211,7 @@ class UploadForm(FlaskForm):
         # Decode and ensure data is bencoded data
         try:
             torrent_dict = bencode.decode(field.data)
-            #field.data.close()
+            # field.data.close()
         except (bencode.MalformedBencodeException, UnicodeError):
             raise ValidationError('Malformed torrent file')
 
@@ -220,7 +222,6 @@ class UploadForm(FlaskForm):
             _validate_torrent_metadata(torrent_dict)
         except AssertionError as e:
             raise ValidationError('Malformed torrent metadata ({})'.format(e.args[0]))
-
 
         site_tracker = app.config.get('MAIN_ANNOUNCE_URL')
         ensure_tracker = app.config.get('ENFORCE_MAIN_ANNOUNCE_URL')
@@ -233,11 +234,12 @@ class UploadForm(FlaskForm):
         # Ensure private torrents are using our tracker
         if torrent_dict['info'].get('private') == 1:
             if torrent_dict['announce'].decode('utf-8') != site_tracker:
-                raise ValidationError('Private torrent: please set {} as the main tracker'.format(site_tracker))
+                raise ValidationError(
+                    'Private torrent: please set {} as the main tracker'.format(site_tracker))
 
         elif ensure_tracker and not tracker_found:
-            raise ValidationError('Please include {} in the trackers of the torrent'.format(site_tracker))
-
+            raise ValidationError(
+                'Please include {} in the trackers of the torrent'.format(site_tracker))
 
         # Note! bencode will sort dict keys, as per the spec
         # This may result in a different hash if the uploaded torrent does not match the
@@ -274,11 +276,13 @@ class TorrentFileData(object):
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 
+
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
     announce_string = _validate_bytes(announce, 'announce', 'utf-8')
 
-    tracker_found = tracker_to_check_for and (announce_string.lower() == tracker_to_check_for.lower()) or False
+    tracker_found = tracker_to_check_for and (
+        announce_string.lower() == tracker_to_check_for.lower()) or False
 
     announce_list = torrent_dict.get('announce-list')
     if announce_list is not None:

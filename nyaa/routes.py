@@ -6,18 +6,16 @@ from nyaa import bencode, utils
 from nyaa import torrents
 from nyaa import backend
 from nyaa import api_handler
+from nyaa.search import search_elastic, search_db
 import config
 
 import json
-import re
 from datetime import datetime, timedelta
 import ipaddress
 import os.path
 import base64
 from urllib.parse import quote
-import sqlalchemy_fulltext.modes as FullTextMode
-from sqlalchemy_fulltext import FullTextSearch
-import shlex
+import math
 from werkzeug import url_encode
 
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -27,7 +25,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 
+from flask_paginate import Pagination
+
+
 DEBUG_API = False
+DEFAULT_MAX_SEARCH_RESULT = 1000
+DEFAULT_PER_PAGE = 75
+SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} results.<br>\n'
+                               'Please refine your search results if you can\'t find '
+                               'what you were looking for.')
 
 
 def redirect_url():
@@ -48,143 +54,12 @@ def modify_query(**new_values):
 
     return '{}?{}'.format(flask.request.path, url_encode(args))
 
+
 @app.template_global()
 def filter_truthy(input_list):
     ''' Jinja2 can't into list comprehension so this is for
         the search_results.html template '''
     return [item for item in input_list if item]
-
-def search(term='', user=None, sort='id', order='desc', category='0_0', quality_filter='0', page=1, rss=False, admin=False):
-    sort_keys = {
-        'id': models.Torrent.id,
-        'size': models.Torrent.filesize,
-        'name': models.Torrent.display_name,
-        'seeders': models.Statistic.seed_count,
-        'leechers': models.Statistic.leech_count,
-        'downloads': models.Statistic.download_count
-    }
-
-    sort_ = sort.lower()
-    if sort_ not in sort_keys:
-        flask.abort(400)
-    sort = sort_keys[sort]
-
-    order_keys = {
-        'desc': 'desc',
-        'asc': 'asc'
-    }
-
-    order_ = order.lower()
-    if order_ not in order_keys:
-        flask.abort(400)
-
-    filter_keys = {
-        '0': None,
-        '1': (models.TorrentFlags.REMAKE, False),
-        '2': (models.TorrentFlags.TRUSTED, True),
-        '3': (models.TorrentFlags.COMPLETE, True)
-    }
-
-    sentinel = object()
-    filter_tuple = filter_keys.get(quality_filter.lower(), sentinel)
-    if filter_tuple is sentinel:
-        flask.abort(400)
-
-    if user:
-        user = models.User.by_id(user)
-        if not user:
-            flask.abort(404)
-        user = user.id
-
-    main_category = None
-    sub_category = None
-    main_cat_id = 0
-    sub_cat_id = 0
-    if category:
-        cat_match = re.match(r'^(\d+)_(\d+)$', category)
-        if not cat_match:
-            flask.abort(400)
-
-        main_cat_id = int(cat_match.group(1))
-        sub_cat_id = int(cat_match.group(2))
-
-        if main_cat_id > 0:
-            if sub_cat_id > 0:
-                sub_category = models.SubCategory.by_category_ids(main_cat_id, sub_cat_id)
-            else:
-                main_category = models.MainCategory.by_id(main_cat_id)
-
-            if not category:
-                flask.abort(400)
-
-    # Force sort by id desc if rss
-    if rss:
-        sort = sort_keys['id']
-        order = 'desc'
-
-    same_user = False
-    if flask.g.user:
-        same_user = flask.g.user.id == user
-
-    if term:
-        query = db.session.query(models.TorrentNameSearch)
-    else:
-        query = models.Torrent.query
-
-    # User view (/user/username)
-    if user:
-        query = query.filter(models.Torrent.uploader_id == user)
-
-        if not admin:
-            # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.DELETED)).is_(False))
-            # If logged in user is not the same as the user being viewed, show only torrents that aren't hidden or anonymous
-            # If logged in user is the same as the user being viewed, show all torrents including hidden and anonymous ones
-            # On RSS pages in user view, show only torrents that aren't hidden or anonymous no matter what
-            if not same_user or rss:
-                query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN |
-                                                                      models.TorrentFlags.ANONYMOUS)).is_(False))
-    # General view (homepage, general search view)
-    else:
-        if not admin:
-            # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.DELETED)).is_(False))
-            # If logged in, show all torrents that aren't hidden unless they belong to you
-            # On RSS pages, show all public torrents and nothing more.
-            if flask.g.user and not rss:
-                query = query.filter((models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False)) |
-                                     (models.Torrent.uploader_id == flask.g.user.id))
-            # Otherwise, show all torrents that aren't hidden
-            else:
-                query = query.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False))
-
-    if main_category:
-        query = query.filter(models.Torrent.main_category_id == main_cat_id)
-    elif sub_category:
-        query = query.filter((models.Torrent.main_category_id == main_cat_id) &
-                             (models.Torrent.sub_category_id == sub_cat_id))
-
-    if filter_tuple:
-        query = query.filter(models.Torrent.flags.op('&')(int(filter_tuple[0])).is_(filter_tuple[1]))
-
-    if term:
-        for item in shlex.split(term, posix=False):
-            if len(item) >= 2:
-                query = query.filter(FullTextSearch(
-                    item, models.TorrentNameSearch, FullTextMode.NATURAL))
-
-    # Sort and order
-    if sort.class_ != models.Torrent:
-        query = query.join(sort.class_)
-
-    query = query.order_by(getattr(sort, order)())
-
-    if rss:
-        query = query.limit(app.config['RESULTS_PER_PAGE'])
-    else:
-        query = query.paginate_faste(page, per_page=app.config['RESULTS_PER_PAGE'], step=5)
-
-    return query
 
 
 @app.errorhandler(404)
@@ -202,8 +77,7 @@ def before_request():
 
         flask.g.user = user
 
-        if not 'timeout' in flask.session or flask.session['timeout'] < datetime.now():
-            print("hio")
+        if 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
             flask.session['timeout'] = datetime.now() + timedelta(days=7)
             flask.session.permanent = True
             flask.session.modified = True
@@ -225,21 +99,35 @@ def _generate_query_string(term, category, filter, user):
     return params
 
 
+@app.template_filter('utc_time')
+def get_utc_timestamp(datetime_str):
+    ''' Returns a UTC POSIX timestamp, as seconds '''
+    UTC_EPOCH = datetime.utcfromtimestamp(0)
+    return int((datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S') - UTC_EPOCH).total_seconds())
+
+
+@app.template_filter('display_time')
+def get_display_time(datetime_str):
+    return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
+
+
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
 def home(rss):
     if flask.request.args.get('page') == 'rss':
         rss = True
 
-    term = flask.request.args.get('q')
+    term = flask.request.args.get('q', flask.request.args.get('term'))
     sort = flask.request.args.get('s')
     order = flask.request.args.get('o')
-    category = flask.request.args.get('c')
-    quality_filter = flask.request.args.get('f')
-    user_name = flask.request.args.get('u')
-    page = flask.request.args.get('p')
-    if page:
-        page = int(page)
+    category = flask.request.args.get('c', flask.request.args.get('cats'))
+    quality_filter = flask.request.args.get('f', flask.request.args.get('filter'))
+    user_name = flask.request.args.get('u', flask.request.args.get('user'))
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+
+    per_page = app.config.get('RESULTS_PER_PAGE')
+    if not per_page:
+        per_page = DEFAULT_PER_PAGE
 
     user_id = None
     if user_name:
@@ -249,33 +137,76 @@ def home(rss):
         user_id = user.id
 
     query_args = {
-        'term': term or '',
         'user': user_id,
         'sort': sort or 'id',
         'order': order or 'desc',
         'category': category or '0_0',
         'quality_filter': quality_filter or '0',
-        'page': page or 1,
-        'rss': rss
+        'page': page,
+        'rss': rss,
+        'per_page': per_page
     }
 
-    # God mode
-    if flask.g.user and flask.g.user.is_admin:
-        query_args['admin'] = True
+    if flask.g.user:
+        query_args['logged_in_user'] = flask.g.user
+        if flask.g.user.is_admin:  # God mode
+            query_args['admin'] = True
 
-    query = search(**query_args)
+    # If searching, we get results from elastic search
+    use_elastic = app.config.get('USE_ELASTIC_SEARCH')
+    if use_elastic and term:
+        query_args['term'] = term
 
-    if rss:
-        return render_rss('/', query)
+        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT')
+        if not max_search_results:
+            max_search_results = DEFAULT_MAX_SEARCH_RESULT
+
+        # Only allow up to (max_search_results / page) pages
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
+
+        query_args['page'] = max_page
+        query_args['max_search_results'] = max_search_results
+
+        query_results = search_elastic(**query_args)
+
+        if rss:
+            return render_rss('/', query_results, use_elastic=True)
+        else:
+            rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+            max_results = min(max_search_results, query_results['hits']['total'])
+            # change p= argument to whatever you change page_parameter to or pagination breaks
+            pagination = Pagination(p=query_args['page'], per_page=per_page,
+                                    total=max_results, bs_version=3, page_parameter='p',
+                                    display_msg=SERACH_PAGINATE_DISPLAY_MSG)
+            return flask.render_template('home.html',
+                                         use_elastic=True,
+                                         pagination=pagination,
+                                         torrent_query=query_results,
+                                         search=query_args,
+                                         rss_filter=rss_query_string)
     else:
-        rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
-        return flask.render_template('home.html',
-                                     torrent_query=query,
-                                     search=query_args,
-                                     rss_filter=rss_query_string)
+        # If ES is enabled, default to db search for browsing
+        if use_elastic:
+            query_args['term'] = ''
+        else:  # Otherwise, use db search for everything
+            query_args['term'] = term or ''
+
+        query = search_db(**query_args)
+        if rss:
+            return render_rss('/', query, use_elastic=False)
+        else:
+            rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+            # Use elastic is always false here because we only hit this section
+            # if we're browsing without a search term (which means we default to DB)
+            # or if ES is disabled
+            return flask.render_template('home.html',
+                                         use_elastic=False,
+                                         torrent_query=query,
+                                         search=query_args,
+                                         rss_filter=rss_query_string)
 
 
-@app.route('/user/<user_name>', methods=['GET', 'POST'])
+@app.route('/user/<user_name>')
 def view_user(user_name):
     user = models.User.by_username(user_name)
 
@@ -320,6 +251,10 @@ def view_user(user_name):
     if page:
         page = int(page)
 
+    per_page = app.config.get('RESULTS_PER_PAGE')
+    if not per_page:
+        per_page = DEFAULT_PER_PAGE
+
     query_args = {
         'term': term or '',
         'user': user.id,
@@ -328,27 +263,68 @@ def view_user(user_name):
         'category': category or '0_0',
         'quality_filter': quality_filter or '0',
         'page': page or 1,
-        'rss': False
+        'rss': False,
+        'per_page': per_page
     }
 
-    # God mode
-    if flask.g.user and flask.g.user.is_admin:
-        query_args['admin'] = True
+    if flask.g.user:
+        query_args['logged_in_user'] = flask.g.user
+        if flask.g.user.is_admin:  # God mode
+            query_args['admin'] = True
 
-    query = search(**query_args)
-
+    # Use elastic search for term searching
     rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+    use_elastic = app.config.get('USE_ELASTIC_SEARCH')
+    if use_elastic and term:
+        query_args['term'] = term
 
-    return flask.render_template('user.html',
-                                 form=form,
-                                 torrent_query=query,
-                                 search=query_args,
-                                 user=user,
-                                 user_page=True,
-                                 rss_filter=rss_query_string,
-                                 level=level,
-                                 admin=admin,
-                                 superadmin=superadmin)
+        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT')
+        if not max_search_results:
+            max_search_results = DEFAULT_MAX_SEARCH_RESULT
+
+        # Only allow up to (max_search_results / page) pages
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
+
+        query_args['page'] = max_page
+        query_args['max_search_results'] = max_search_results
+
+        query_results = search_elastic(**query_args)
+
+        max_results = min(max_search_results, query_results['hits']['total'])
+        # change p= argument to whatever you change page_parameter to or pagination breaks
+        pagination = Pagination(p=query_args['page'], per_page=per_page,
+                                total=max_results, bs_version=3, page_parameter='p',
+                                display_msg=SERACH_PAGINATE_DISPLAY_MSG)
+        return flask.render_template('user.html',
+                                     use_elastic=True,
+                                     pagination=pagination,
+                                     torrent_query=query_results,
+                                     search=query_args,
+                                     user=user,
+                                     user_page=True,
+                                     rss_filter=rss_query_string,
+                                     level=level,
+                                     admin=admin,
+                                     superadmin=superadmin,
+                                     form=form)
+    # Similar logic as home page
+    else:
+        if use_elastic:
+            query_args['term'] = ''
+        else:
+            query_args['term'] = term or ''
+        query = search_db(**query_args)
+        return flask.render_template('user.html',
+                                     use_elastic=False,
+                                     torrent_query=query,
+                                     search=query_args,
+                                     user=user,
+                                     user_page=True,
+                                     rss_filter=rss_query_string,
+                                     level=level,
+                                     admin=admin,
+                                     superadmin=superadmin,
+                                     form=form)
 
 
 @app.template_filter('rfc822')
@@ -356,19 +332,27 @@ def _jinja2_filter_rfc822(date, fmt=None):
     return formatdate(float(date.strftime('%s')))
 
 
-def render_rss(label, query):
+@app.template_filter('rfc822_es')
+def _jinja2_filter_rfc822(datestr, fmt=None):
+    return formatdate(float(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').strftime('%s')))
+
+
+def render_rss(label, query, use_elastic):
     rss_xml = flask.render_template('rss.xml',
+                                    use_elastic=use_elastic,
                                     term=label,
                                     site_url=flask.request.url_root,
-                                    query=query)
+                                    torrent_query=query)
     response = flask.make_response(rss_xml)
     response.headers['Content-Type'] = 'application/xml'
+    # Cache for an hour
+    response.headers['Cache-Control'] = 'max-age={}'.format(1*5*60)
     return response
 
 
-#@app.route('/about', methods=['GET'])
+# @app.route('/about', methods=['GET'])
 # def about():
-#    return flask.render_template('about.html')
+    # return flask.render_template('about.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -385,7 +369,8 @@ def login():
         if not user:
             user = models.User.by_email(username)
 
-        if not user or password != user.password_hash or user.status == models.UserStatusType.INACTIVE:
+        if (not user or password != user.password_hash
+                or user.status == models.UserStatusType.INACTIVE):
             flask.flash(flask.Markup(
                 '<strong>Login failed!</strong> Incorrect username or password.'), 'danger')
             return flask.redirect(flask.url_for('login'))
@@ -463,25 +448,36 @@ def profile():
 
     if flask.request.method == 'POST' and form.validate():
         user = flask.g.user
-        new_email = form.email.data
+        new_email = form.email.data.strip()
         new_password = form.new_password.data
 
         if new_email:
+            # enforce password check on email change too
+            if form.current_password.data != user.password_hash:
+                flask.flash(flask.Markup(
+                    '<strong>Email change failed!</strong> Incorrect password.'), 'danger')
+                return flask.redirect('/profile')
             user.email = form.email.data
-
+            flask.flash(flask.Markup(
+                '<strong>Email successfully changed!</strong>'), 'info')
         if new_password:
             if form.current_password.data != user.password_hash:
                 flask.flash(flask.Markup(
                     '<strong>Password change failed!</strong> Incorrect password.'), 'danger')
                 return flask.redirect('/profile')
             user.password_hash = form.new_password.data
+            flask.flash(flask.Markup(
+                '<strong>Password successfully changed!</strong>'), 'info')
 
         db.session.add(user)
         db.session.commit()
 
         flask.g.user = user
+        return flask.redirect('/profile')
 
-    return flask.render_template('profile.html', form=form, level=level)
+    current_email = models.User.by_id(flask.g.user.id).email
+
+    return flask.render_template('profile.html', form=form, email=current_email, level=level)
 
 
 @app.route('/user/activate/<payload>')
@@ -572,7 +568,8 @@ def edit_torrent(torrent_id):
 
     if flask.request.method == 'POST' and form.validate():
         # Form has been sent, edit torrent with data.
-        torrent.main_category_id, torrent.sub_category_id = form.category.parsed_data.get_category_ids()
+        torrent.main_category_id, torrent.sub_category_id = \
+            form.category.parsed_data.get_category_ids()
         torrent.display_name = (form.display_name.data or '').strip()
         torrent.information = (form.information.data or '').strip()
         torrent.description = (form.description.data or '').strip()
@@ -584,6 +581,9 @@ def edit_torrent(torrent_id):
         torrent.anonymous = form.is_anonymous.data
 
         db.session.commit()
+
+        flask.flash(flask.Markup(
+            'Torrent has been successfully edited! Changes might take a few minutes to show up.'), 'info')
 
         return flask.redirect('/view/' + str(torrent_id))
     else:
@@ -599,7 +599,10 @@ def edit_torrent(torrent_id):
         form.is_complete.data = torrent.complete
         form.is_anonymous.data = torrent.anonymous
 
-        return flask.render_template('edit.html', form=form, torrent=torrent, admin=flask.g.user.is_admin)
+        return flask.render_template('edit.html',
+                                     form=form,
+                                     torrent=torrent,
+                                     admin=flask.g.user.is_admin)
 
 
 @app.route('/view/<int:torrent_id>/magnet')
@@ -651,8 +654,10 @@ def get_activation_link(user):
 
 
 def send_verification_email(to_address, activ_link):
-    ''' this is until we have our own mail server, obviously. This can be greatly cut down if on same machine.
-     probably can get rid of all but msg formatting/building, init line and sendmail line if local SMTP server '''
+    ''' this is until we have our own mail server, obviously.
+     This can be greatly cut down if on same machine.
+     probably can get rid of all but msg formatting/building,
+     init line and sendmail line if local SMTP server '''
 
     msg_body = 'Please click on: ' + activ_link + ' to activate your account.\n\n\nUnsubscribe:'
 
@@ -679,7 +684,7 @@ def _create_user_class_choices():
     return choices
 
 
-#################################### STATIC PAGES ####################################
+# #################################### STATIC PAGES ####################################
 @app.route('/rules', methods=['GET'])
 def site_rules():
     return flask.render_template('rules.html')
@@ -690,9 +695,9 @@ def site_help():
     return flask.render_template('help.html')
 
 
-#################################### API ROUTES ####################################
+# #################################### API ROUTES ####################################
 # DISABLED FOR NOW
-@app.route('/api/upload', methods = ['POST'])
+@app.route('/api/upload', methods=['POST'])
 def api_upload():
     api_response = api_handler.api_upload(flask.request)
     return api_response
