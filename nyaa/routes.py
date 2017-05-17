@@ -6,6 +6,7 @@ from nyaa import bencode, utils
 from nyaa import torrents
 from nyaa import backend
 from nyaa import api_handler
+from nyaa import api_torznab
 from nyaa.search import search
 import config
 
@@ -689,4 +690,10 @@ def site_help():
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
     api_response = api_handler.api_upload(flask.request)
+    return api_response
+
+
+@app.route('/api', methods=['GET'])
+def api_root():
+    api_response = api_torznab.handle_api_request(flask.request)
     return api_response
