@@ -206,14 +206,14 @@ def home(rss):
                                          rss_filter=rss_query_string)
 
 
-@app.route('/user/<user_name>')
+@app.route('/user/<user_name>', methods=['GET', 'POST'])
 def view_user(user_name):
     user = models.User.by_username(user_name)
 
     if not user:
         flask.abort(404)
 
-    if flask.g.user:
+    if flask.g.user and flask.g.user.id != user.id:
         admin = flask.g.user.is_admin
         superadmin = flask.g.user.is_superadmin
     else:
