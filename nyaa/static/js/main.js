@@ -18,16 +18,50 @@ $(document).on('change', ':file', function() {
 
 // We can watch for our custom `fileselect` event like this
 $(document).ready(function() {
-	$(':file').on('fileselect', function(event, numFiles, label) {
+	var dropZone = $('#upload-drop-zone'),
+		fileWarning = $('<div/>').html('Invalid file selected. Please select a torrent file.')
+			.css({  id: 'file-warning', class: 'alert alert-warning text-center',
+					role: 'alert', width: $('.form-group:first').width() + 'px' })
+			.hide().insertAfter(dropZone);
 
+	$(':file').on('fileselect', function(event, numFiles, label) {
 		var input = $(this).parent().prev().find(':text'),
 			log = numFiles > 1 ? numFiles + ' files selected' : label;
+		
+		if (label.endsWith('.torrent')) {
+			fileWarning.fadeOut('fast');
+		} else {
+			fileWarning.fadeIn('fast');
+			input.val('');
+			return false;
+		}
 
 		if (input.length) {
 			input.val(log);
 		} else {
 			if (log) alert(log);
 		}
+	});
+
+	$('body').on('dragenter', function(event) {
+		event.preventDefault();
+		dropZone.css({ 'visibility': 'visible', 'opacity': 1 });
+	});
+
+	dropZone.on('dragleave', function(event) {
+		event.preventDefault();
+		$(this).css({ 'visibility': 'hidden', 'opacity': 0 });
+	});
+
+	dropZone.on('dragover', function(event) {
+		event.preventDefault();
+	});
+
+	dropZone.on('drop dragdrop', function(event) {
+		event.preventDefault();
+		var files = event.originalEvent.dataTransfer.files;
+		$('#torrent_file')[0].files = files;
+		$(this).css({ 'visibility': 'hidden', 'opacity': 0 });
 	});
 });
 

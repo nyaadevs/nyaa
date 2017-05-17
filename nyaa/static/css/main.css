@@ -173,6 +173,34 @@ table.torrent-list thead th.sorting_desc:after {
 	}
 }
 
+/* Upload page drop zone */
+#upload-drop-zone
+{
+	visibility: hidden;
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 9999999999;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	transition: visibility 175ms, opacity 175ms;
+	display: table;
+	text-shadow: 1px 1px 2px #000;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.45);
+	font: bold 42px Tahoma, sans-serif;
+}
+
+#upload-drop-zone span
+{
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	transition: font-size 175ms;
+}
+
 /* elasticsearch term highlight */
 .hlt1 {
 	font-style: normal;
@@ -184,5 +212,5 @@ table.torrent-list thead th.sorting_desc:after {
 }
 
 ul.nav-tabs#profileTabs {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 }
