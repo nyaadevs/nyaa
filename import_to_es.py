@@ -8,6 +8,7 @@ with a cron job or some binlog-reading thing (TODO)
 from nyaa import app
 from nyaa.models import Torrent
 from elasticsearch import Elasticsearch
+from elasticsearch.client import IndicesClient
 from elasticsearch import helpers
 import progressbar
 import sys
@@ -22,6 +23,7 @@ bar = progressbar.ProgressBar(
             ])
 
 es = Elasticsearch()
+ic = IndicesClient(es)
 
 # turn into thing that elasticsearch indexes. We flatten in
 # the stats (seeders/leechers) so we can order by them in es naturally.
@@ -89,4 +91,10 @@ def page_query(query, limit=sys.maxsize, batch_size=10000):
         bar.update(start)
         start = min(limit, start + batch_size)
 
+# turn off refreshes while bulk loading
+ic.put_settings(body={'index': {'refresh_interval': -1}}, index=app.config['ES_INDEX_NAME'])
+
 helpers.bulk(es, (mk_es(t) for t in page_query(Torrent.query)), chunk_size=10000)
+
+# restore to near-enough real time
+ic.put_settings(body={'index': {'refresh_interval': 30}}, index=app.config['ES_INDEX_NAME'])
