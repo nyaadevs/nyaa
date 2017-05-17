@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Browse :: {{ config.SITE_NAME }}{% endblock %}
+{% block title %}{% if search.term %}{{ search.term | e}}{% else %}Browse{% endif %} :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
 
 <div class="alert alert-info">
