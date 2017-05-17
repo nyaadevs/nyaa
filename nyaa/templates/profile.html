@@ -7,14 +7,14 @@
 
 <ul class="nav nav-tabs" id="profileTabs" role="tablist">
     <li role="presentation" class="active">
-        <a href="#password-change" id="password-change-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="false">Password</a>
+        <a href="#password-change" id="password-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">Password</a>
     </li>
     <li role="presentation">
-        <a href="#email-change" role="tab" id="email-change-tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">Email</a>
+        <a href="#email-change" id="email-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Email</a>
     </li>
 </ul>
 <div class="tab-content">
-    <div class="tab-pane fade" role="tabpanel" id="password-change" aria-labelledby="password-change-tab">
+    <div class="tab-pane fade active in" role="tabpanel" id="password-change" aria-labelledby="password-change-tab">
         <form method="POST">
             {{ form.csrf_token }}
             <div class="row">
