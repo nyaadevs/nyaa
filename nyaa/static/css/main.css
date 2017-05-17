@@ -99,6 +99,12 @@ table.torrent-list thead th.sorting_desc:after {
 	}
 }
 
+@media (min-width: 992px){}
+	.col-md-5 {
+		word-wrap: break-word;
+	}
+}
+
 /* elasticsearch term highlight */
 .hlt1 {
     font-style: normal;
