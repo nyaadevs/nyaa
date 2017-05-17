@@ -1,0 +1,15 @@
+language: python
+
+python:
+  - 3.6
+
+dist: xenial
+sudo: false
+
+cache: pip
+
+install:
+  - pip install --upgrade pep8
+
+script:
+  - pep8 nyaa/ --show-source --max-line-length=100
