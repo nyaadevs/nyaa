@@ -57,50 +57,35 @@ mappings:
         fielddata: true
       created_time:
         type: date
-        index: false
         # Only in the ES index for generating magnet links
       info_hash:
         enabled: false
       filesize:
         type: long
-        index: false
       anonymous:
         type: boolean
-        index: false
       trusted:
         type: boolean
-        index: false
       remake:
         type: boolean
-        index: false
       complete:
         type: boolean
-        index: false
       hidden:
         type: boolean
-        index: false
       deleted:
         type: boolean
-        index: false
       has_torrent:
         type: boolean
-        index: false
       download_count:
         type: long
-        index: false
       leech_count:
         type: long
-        index: false
       seed_count:
         type: long
-        index: false
       # these ids are really only for filtering, thus keyword
       uploader_id:
         type: keyword
-        index: false
       main_category_id:
         type: keyword
-        index: false
       sub_category_id:
         type: keyword
-        index: false
