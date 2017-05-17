@@ -22,7 +22,7 @@ bar = progressbar.ProgressBar(
             ' (', progressbar.ETA(), ') ',
             ])
 
-es = Elasticsearch()
+es = Elasticsearch(timeout=30)
 ic = IndicesClient(es)
 
 # turn into thing that elasticsearch indexes. We flatten in

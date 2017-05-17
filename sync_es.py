@@ -51,7 +51,7 @@ NT_DB = 'nyaav2'
 with open(SAVE_LOC) as f:
     pos = json.load(f)
 
-es = Elasticsearch()
+es = Elasticsearch(timeout=30)
 
 stream = BinLogStreamReader(
         # TODO parse out from config.py or something
