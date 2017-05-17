@@ -411,3 +411,34 @@ h6:hover .header-anchor {
 		margin-top: auto;
 	}
 }
+
+#torrent-mass-action-form {
+	display: flex;
+	flex-direction: column;
+}
+
+@media (min-width: 768px) {
+	#torrent-mass-action-form {
+		flex-direction: row;
+	}
+
+	#torrent-mass-action-form > * {
+        margin-right: 1em;
+	}
+
+	#torrent-mass-action-form #select-all {
+		margin-right: 1em;
+	}
+}
+
+#torrent-mass-action-form > * {
+    margin-bottom: 1em;
+}
+
+.btn-container {
+	display: flex
+}
+
+.btn-container > button {
+    flex: 1;
+}

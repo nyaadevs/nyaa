@@ -139,3 +139,54 @@
 		{% endif %}
 	</div>
 {% endmacro %}
+
+{% macro render_category_select() %}
+    {% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
+        ('1_1', '- Anime Music Video', 'Anime - AMV'),
+        ('1_2', '- English-translated', 'Anime - English'),
+        ('1_3', '- Non-English-translated', 'Anime - Non-English'),
+        ('1_4', '- Raw', 'Anime - Raw'),
+        ('2_0', 'Audio', 'Audio'),
+        ('2_1', '- Lossless', 'Audio - Lossless'),
+        ('2_2', '- Lossy', 'Audio - Lossy'),
+        ('3_0', 'Literature', 'Literature'),
+        ('3_1', '- English-translated', 'Literature - English'),
+        ('3_2', '- Non-English-translated', 'Literature - Non-English'),
+        ('3_3', '- Raw', 'Literature - Raw'),
+        ('4_0', 'Live Action', 'Live Action'),
+        ('4_1', '- English-translated', 'Live Action - English'),
+        ('4_2', '- Idol/Promotional Video', 'Live Action - Idol/PV'),
+        ('4_3', '- Non-English-translated', 'Live Action - Non-English'),
+        ('4_4', '- Raw', 'Live Action - Raw'),
+        ('5_0', 'Pictures', 'Pictures'),
+        ('5_1', '- Graphics', 'Pictures - Graphics'),
+        ('5_2', '- Photos', 'Pictures - Photos'),
+        ('6_0', 'Software', 'Software'),
+        ('6_1', '- Applications', 'Software - Apps'),
+        ('6_2', '- Games', 'Software - Games')] %}
+
+    {% set suke_cats = [('1_0', 'Art', 'Art'),
+        ('1_1', '- Anime', 'Art - Anime'),
+        ('1_2', '- Doujinshi', 'Art - Doujinshi'),
+        ('1_3', '- Games', 'Art - Games'),
+        ('1_4', '- Manga', 'Art - Manga'),
+        ('1_5', '- Pictures', 'Art - Pictures'),
+        ('2_0', 'Real Life', 'Real Life'),
+        ('2_1', '- Photobooks and Pictures', 'Real Life - Pictures'),
+        ('2_2', '- Videos', 'Real Life - Videos')] %}
+
+    {% if config.SITE_FLAVOR == 'nyaa' %}
+        {% set used_cats = nyaa_cats %}
+    {% elif config.SITE_FLAVOR == 'sukebei' %}
+        {% set used_cats = suke_cats %}
+    {% endif %}
+
+    <select class="form-control" title="Category">
+        <option>Select Category</option>
+        {% for cat_id, cat_name, cat_title in used_cats %}
+            <option value="{{ cat_id }}" title="{{ cat_title }}">
+                {{ cat_name }}
+            </option>
+        {% endfor %}
+    </select>
+{% endmacro %}

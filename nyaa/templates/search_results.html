@@ -1,3 +1,5 @@
+{% from '_formhelpers.html' import render_category_select %}
+
 {% macro render_column_header(header_class, header_style, center_text=False, sort_key=None, header_title=None) %}
 {% set class_suffix = (search.sort == sort_key) and ("_" + search.order) or "" %}
 {% set th_classes = filter_truthy([header_class, sort_key and "sorting" + class_suffix, center_text and "text-center"]) %}
@@ -18,10 +20,35 @@
 {% endif %}
 
 {% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
+{% if is_current_user %}
+    <form class="form-inline" id="torrent-mass-action-form" action="/user/{{ g.user.username }}/torrents" method="post">
+        <select name="action" id="torrent-action" class="form-control">
+            <option value="move-category">Move To Category</option>
+            <optgroup label="Hide / Unhide">
+                <option value="hide">Hide</option>
+                <option value="unhide">Unhide</option>
+            </optgroup>
+            <optgroup label="Remake">
+                <option value="remake">Remake</option>
+                <option value="unremake">Unremake</option>
+            </optgroup>
+        </select>
+        <div class="category-select">
+            {{ render_category_select() }}
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-success" id="select-all">Select All</button>
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+    </form>
+{% endif %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
 			<tr>
+                {% if is_current_user %}
+                    <th></th>
+                {% endif %}
 				{% call render_column_header("hdr-category", "width:80px;", center_text=True) %}
 					<div>Category</div>
 				{% endcall %}
@@ -60,6 +87,11 @@
 			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
 				{% set cat_id = use_elastic and ((torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string)) or torrent.sub_category.id_as_string %}
 				{% set icon_dir = config.SITE_FLAVOR %}
+				{% if is_current_user %}
+					<td>
+						<input type="checkbox" class="checkbox" name="{{ torrent.id }}">
+					</td>
+				{% endif %}
 				<td style="padding:0 4px;">
 				{% if use_elastic %}
 				<a href="{{ url_for('home', c=cat_id) }}" title="{{ category_name(cat_id) }}">
@@ -99,15 +131,15 @@
 				{% endif %}
 				
 				{% if config.ENABLE_SHOW_STATS %}
-				{% if use_elastic %}
-				<td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
-				<td class="text-center" style="color: red;">{{ torrent.leech_count }}</td>
-				<td class="text-center">{{ torrent.download_count }}</td>
-				{% else %}
-				<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
-				<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
-				<td class="text-center">{{ torrent.stats.download_count }}</td>
-				{% endif %}
+				    {% if use_elastic %}
+				        <td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
+				        <td class="text-center" style="color: red;">{{ torrent.leech_count }}</td>
+				        <td class="text-center">{{ torrent.download_count }}</td>
+                    {% else %}
+						<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
+						<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
+						<td class="text-center">{{ torrent.stats.download_count }}</td>
+					{% endif %}
 				{% endif %}
 			</tr>
 			{% endfor %}

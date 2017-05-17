@@ -372,10 +372,13 @@ def view_user(user_name):
         'per_page': results_per_page
     }
 
+    is_logged_in_user_account = False
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
         if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
+        if flask.g.user.id == user.id:
+            is_logged_in_user_account = True
 
     # Use elastic search for term searching
     rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
@@ -407,7 +410,10 @@ def view_user(user_name):
                                      user_page=True,
                                      rss_filter=rss_query_string,
                                      level=user_level,
-                                     admin_form=admin_form)
+                                     admin_form=admin_form,
+                                     form=form,
+                                     is_current_user=is_logged_in_user_account)
+
     # Similar logic as home page
     else:
         if use_elastic:
@@ -423,7 +429,9 @@ def view_user(user_name):
                                      user_page=True,
                                      rss_filter=rss_query_string,
                                      level=user_level,
-                                     admin_form=admin_form)
+                                     admin_form=admin_form,
+                                     form=form,
+                                     is_current_user=is_logged_in_user_account)
 
 
 @app.template_filter('rfc822')
