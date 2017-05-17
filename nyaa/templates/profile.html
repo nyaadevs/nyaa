@@ -45,6 +45,12 @@
             {{ form.csrf_token }}
             <div class="row">
                 <div class="form-group col-md-4">
+                    <label class="control-label" for="current_email">Current Email</label>
+                    <div>{{email}}</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
                     {{ render_field(form.email, class_='form-control', placeholder='New email address') }}
                 </div>
             </div>
