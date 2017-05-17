@@ -8,6 +8,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
 		<link rel="icon" type="image/png" href="/static/favicon.png">
+		<link rel="mask-icon" href="/static/pinned-tab.svg" color="#3582F7">
 		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
 
 		<!-- Bootstrap core CSS -->
@@ -34,7 +35,7 @@
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
 		<script src="/static/js/bootstrap-select.js"></script>
 		<script src="/static/js/main.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/commonmark/0.27.0/commonmark.min.js"></script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>

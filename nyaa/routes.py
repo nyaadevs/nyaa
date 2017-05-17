@@ -116,15 +116,13 @@ def home(rss):
     if flask.request.args.get('page') == 'rss':
         rss = True
 
-    term = flask.request.args.get('q')
+    term = flask.request.args.get('q', flask.request.args.get('term'))
     sort = flask.request.args.get('s')
     order = flask.request.args.get('o')
-    category = flask.request.args.get('c')
-    quality_filter = flask.request.args.get('f')
-    user_name = flask.request.args.get('u')
-    page = flask.request.args.get('p')
-    if page:
-        page = int(page)
+    category = flask.request.args.get('c', flask.request.args.get('cats'))
+    quality_filter = flask.request.args.get('f', flask.request.args.get('filter'))
+    user_name = flask.request.args.get('u', flask.request.args.get('user'))
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
 
     per_page = app.config.get('RESULTS_PER_PAGE')
     if not per_page:
@@ -143,7 +141,7 @@ def home(rss):
         'order': order or 'desc',
         'category': category or '0_0',
         'quality_filter': quality_filter or '0',
-        'page': page or 1,
+        'page': page,
         'rss': rss,
         'per_page': per_page
     }
