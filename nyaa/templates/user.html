@@ -1,8 +1,34 @@
 {% extends "layout.html" %}
 {% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
+{% from "_formhelpers.html" import render_menu_with_button %}
+
+{% if superadmin %}
+    <h2>User Information</h2><br>
+    <dl class="dl-horizontal">
+        <dt>User ID:</dt>
+        <dd>{{user.id}}</dd>
+        <dt>Account created on:</dt>
+        <dd>{{user.created_time}}</dd>
+        <dt>Email address:</dt>
+        <dd>{{user.email}}</dd>
+        <dt>User class:</dt>
+        <dd>{{level}}</dd><br>
+    </dl>
+    <form method="POST">
+        {{ form.csrf_token }}
+
+        <div class="form-group row">
+            <div class="col-md-6">
+                {{ render_menu_with_button(form.user_class)}}
+            </div>
+        </div>
+    </form>
+    <br>
+{% endif %}
+
 <h3>
-	Browsing {{user.username}}'s torrents
+    Browsing {{user.username}}'s torrents
 </h3>
 
 {% include "search_results.html" %}
