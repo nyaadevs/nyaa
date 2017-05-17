@@ -106,8 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var targetEl = markdownEditor.querySelector(targetSelector);
 
     var reader = new commonmark.Parser({safe: true});
-    var writer = new commonmark.HtmlRenderer({safe: true});
-    writer.softbreak = '<br />';
+    var writer = new commonmark.HtmlRenderer({safe: true, softbreak: '<br />'});
 
     previewTabEl.addEventListener('click', function () {
       var parsed = reader.parse(sourceSelector.value.trim());
