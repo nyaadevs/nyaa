@@ -536,6 +536,9 @@ def edit_torrent(torrent_id):
 
         db.session.commit()
 
+        flask.flash(flask.Markup(
+            'Torrent has been successfully edited! Changes might take a few minutes to show up.'), 'info')
+
         return flask.redirect('/view/' + str(torrent_id))
     else:
         # Setup form with pre-formatted form.
