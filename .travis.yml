@@ -13,3 +13,6 @@ install:
 
 script:
   - pep8 nyaa/ --show-source --max-line-length=100
+
+notifications:
+  email: false
