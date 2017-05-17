@@ -3,7 +3,20 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 
-<h1>Edit Profile</h1>
+<h2 style="margin-bottom: 20px;">Profile of <strong>{{ name }}</strong></h2>
+
+<div class="row">
+    <div class="col-sm-3 avatar" style="display: none;">
+	    <!--- TO BE IMPLEMENTED --->
+    </div>
+    <div class="col-sm-9">
+        <dl class="dl-horizontal">
+			<dt>User ID:</dt><dd>{{ g.user.id }}</dd>
+			<dt>User Class:</dt><dd>{{ level }}</dd>
+			<dt>User Created on:</dt><dd>{{ g.user.created_time }}</dd>
+		</dl>
+    </div>
+</div>
 
 <ul class="nav nav-tabs" id="profileTabs" role="tablist">
     <li role="presentation" class="active">
@@ -12,10 +25,8 @@
     <li role="presentation">
         <a href="#email-change" id="email-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Email</a>
     </li>
-    <li role="presentation">
-        <a href="#general-info" id="general-info-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">My Info</a>
-    </li>
 </ul>
+
 <div class="tab-content">
     <div class="tab-pane fade active in" role="tabpanel" id="password-change" aria-labelledby="password-change-tab">
         <form method="POST">
@@ -69,16 +80,6 @@
                 </div>
             </div>
         </form>
-    </div>
-    <div class="tab-pane fade" role="tabpanel" id="general-info" aria-labelledby="general-info-tab">
-        <dl class="dl-horizontal">
-        <dt>User ID:</dt>
-        <dd>{{g.user.id}}</dd>
-        <dt>Account created on:</dt>
-        <dd>{{g.user.created_time}}</dd>
-        <dt>User class:</dt>
-        <dd>{{level}}</dd><br>
-    </dl>
     </div>
 </div>
 
