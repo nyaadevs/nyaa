@@ -12,6 +12,9 @@
     <li role="presentation">
         <a href="#email-change" id="email-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Email</a>
     </li>
+    <li role="presentation">
+        <a href="#general-info" id="general-info-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">My Info</a>
+    </li>
 </ul>
 <div class="tab-content">
     <div class="tab-pane fade active in" role="tabpanel" id="password-change" aria-labelledby="password-change-tab">
@@ -66,6 +69,16 @@
                 </div>
             </div>
         </form>
+    </div>
+    <div class="tab-pane fade" role="tabpanel" id="general-info" aria-labelledby="general-info-tab">
+        <dl class="dl-horizontal">
+        <dt>User ID:</dt>
+        <dd>{{g.user.id}}</dd>
+        <dt>Account created on:</dt>
+        <dd>{{g.user.created_time}}</dd>
+        <dt>User class:</dt>
+        <dd>{{level}}</dd><br>
+    </dl>
     </div>
 </div>
 

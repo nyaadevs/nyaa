@@ -259,6 +259,14 @@ class UploadForm(FlaskForm):
                                             bencoded_info_dict=bencoded_info_dict)
 
 
+class UserForm(FlaskForm):
+    user_class = DisabledSelectField('Change User Class')
+
+    def validate_user_class(form, field):
+        if not field.data:
+            raise ValidationError('Please select a proper user class')
+
+
 class TorrentFileData(object):
     """Quick and dirty class to pass data from the validator"""
 
