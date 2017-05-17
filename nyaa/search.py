@@ -97,13 +97,21 @@ class ElasticSearchResultAccessor:
         return ElasticTorrentAccessor(self.elastic[i])
 
 
+def create_elastic_client():
+    es_hosts = app.config.get('ES_CLUSTER_HOSTS', ['localhost'])
+    es_port = app.config.get('ES_CLUSTER_PORT', 9200)
+    es_use_ssl = app.config.get('ES_CLUSTER_SSL', False)
+
+    return Elasticsearch(hosts=es_hosts, port=es_port, use_ssl=es_use_ssl)
+
+
 def search_elastic(term='', user=None, sort='id', order='desc',
                    category='0_0', quality_filter='0', page=1,
                    rss=False, admin=False, logged_in_user=None,
                    per_page=75, max_search_results=1000):
     # This function can easily be memcached now
 
-    es_client = Elasticsearch()
+    es_client = create_elastic_client()
 
     es_sort_keys = {
         'id': 'id',
