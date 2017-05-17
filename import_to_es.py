@@ -92,9 +92,9 @@ def page_query(query, limit=sys.maxsize, batch_size=10000):
         start = min(limit, start + batch_size)
 
 # turn off refreshes while bulk loading
-ic.put_settings(body={'index': {'refresh_interval': -1}}, index=app.config['ES_INDEX_NAME'])
+ic.put_settings(body={'index': {'refresh_interval': '-1'}}, index=app.config['ES_INDEX_NAME'])
 
 helpers.bulk(es, (mk_es(t) for t in page_query(Torrent.query)), chunk_size=10000)
 
 # restore to near-enough real time
-ic.put_settings(body={'index': {'refresh_interval': 30}}, index=app.config['ES_INDEX_NAME'])
+ic.put_settings(body={'index': {'refresh_interval': '30s'}}, index=app.config['ES_INDEX_NAME'])
