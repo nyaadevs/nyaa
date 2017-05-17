@@ -11,6 +11,7 @@
 			<link>{{ url_for('download_torrent', torrent_id=torrent.id, _external=True) }}</link>
 			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
 			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+			<enclosure url="{{ url_for('download_torrent', torrent_id=torrent.id, _external=True) }}" type="application/x-bittorrent" length="{{ torrent.filesize }}" />
 		</item>
 		{% else %}
 		<item>
@@ -18,6 +19,7 @@
 			<link>{{ torrent.magnet_uri }}</link>
 			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
 			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+			<enclosure url="{{ torrent.magnet_uri }}" type="application/x-bittorrent" length="{{ torrent.filesize }}" />
 		</item>
 		{% endif %}
 		{% endfor %}
