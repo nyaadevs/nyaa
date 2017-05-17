@@ -3,14 +3,98 @@ import re
 import math
 import json
 import shlex
+from datetime import datetime, timedelta
 
 from nyaa import app, db
-from nyaa import models
+from nyaa import models, torrents
 
 import sqlalchemy_fulltext.modes as FullTextMode
 from sqlalchemy_fulltext import FullTextSearch
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
+
+class ElasticTorrentStatsAccessor:    
+    def __init__(self, elasticResult):
+        self.seed_count = elasticResult.seed_count
+        self.leech_count = elasticResult.leech_count
+        self.download_count = elasticResult.download_count
+
+class ElasticTorrentAccessor:
+    knownAttributes = ['id', 'has_torrent', 'display_name', 'filesize', 'anonymous', 'trusted', 'remake', 'complete', 'hidden', 'deleted']
+
+    def __init__(self, elasticResult):
+        self.elastic = elasticResult
+
+    def __getattr__(self, name):
+        # Passthru for attributes that are the same
+        if name in self.knownAttributes:
+            return self.elastic[name]
+
+        # Safetynet: throw if an attribute is accessed which we don't implement    
+        raise Exception("Unknown attribute {}".format(name))
+
+    @property
+    def created_time(self):
+        return datetime.strptime(self.elastic.created_time, '%Y-%m-%dT%H:%M:%S')
+        
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - models.UTC_EPOCH).total_seconds()
+
+    @property
+    def user(self):
+        # TODO: Adding the name to elastic and updating elastic when the user changes it's name is better than doing separate db lookups thousands of times per day.
+        if (self.elastic.uploader_id):
+            return models.User.by_id(self.elastic.uploader_id)
+        else:
+            return None
+
+    @property
+    def description(self):
+        # Description isn't included in import_to_es (sync_es appears to have it), but only views for individual torrents use it, so it's not needed here
+        return None
+
+    @property
+    def magnet_uri(self):
+        return torrents.create_magnet(self)
+
+    @property
+    def info_hash(self):
+        return bytes.fromhex(self.elastic.info_hash)
+
+    @property
+    def main_category(self):
+        # TODO: Same, hitting the db 
+        return  self.sub_category.main_category
+
+    @property
+    def sub_category(self):
+        # TODO: Same, hitting the db 
+        return models.SubCategory.by_category_ids(self.elastic.main_category_id, self.elastic.sub_category_id)
+
+    @property
+    def stats(self):
+        return ElasticTorrentStatsAccessor(self.elastic)
+
+class ElasticSearchResultAccessor:
+
+    def __init__(self, elasticResult):
+        self.elastic = elasticResult
+
+    @property
+    def total(self):
+        return self.elastic.hits.total
+   
+    @property
+    def items(self):
+        return self
+    
+    def __len__(self):
+        return len(self.elastic)
+
+    def __getitem__(self, i):
+        return ElasticTorrentAccessor(self.elastic[i])
 
 
 def search_elastic(term='', user=None, sort='id', order='desc',
@@ -326,3 +410,41 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         query = query.paginate_faste(page, per_page=per_page, step=5)
 
     return query
+
+def search(term='', user=None, sort='id', order='desc', category='0_0',
+                quality_filter='0', page=1, rss=False, admin=False,
+                logged_in_user=None, per_page=75):
+    use_elastic = app.config.get('USE_ELASTIC_SEARCH')
+    if use_elastic and term:
+        query_args = {
+            'term': term,
+            'user': user,
+            'sort': sort,
+            'order': order,
+            'category': category,
+            'quality_filter': quality_filter,
+            'page': page,
+            'rss': rss,
+            'admin': admin,
+            'logged_in_user': logged_in_user,
+            'per_page': per_page,
+            'max_search_results': app.config.get('ES_MAX_SEARCH_RESULT', 1000)
+        }
+        elasticResult = search_elastic(**query_args)
+        return ElasticSearchResultAccessor(elasticResult)
+    else:
+        query_args = {
+            'term': term,
+            'user': user,
+            'sort': sort,
+            'order': order,
+            'category': category,
+            'quality_filter': quality_filter,
+            'page': page,
+            'rss': rss,
+            'admin': admin,
+            'logged_in_user': logged_in_user,
+            'per_page': per_page
+        }
+        dbResult = search_db(**query_args)
+        return dbResult
