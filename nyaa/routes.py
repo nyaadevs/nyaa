@@ -77,7 +77,7 @@ def before_request():
 
         flask.g.user = user
 
-        if not 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
+        if 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
             flask.session['timeout'] = datetime.now() + timedelta(days=7)
             flask.session.permanent = True
             flask.session.modified = True
