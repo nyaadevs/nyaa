@@ -1,5 +1,5 @@
-@import url(//fonts.googleapis.com/earlyaccess/notosansjapanese.css);
-@import url('https://fonts.googleapis.com/css?family=Noto+Sans');
+@import url('//fonts.googleapis.com/earlyaccess/notosansjapanese.css');
+@import url('//fonts.googleapis.com/css?family=Noto+Sans');
 
 body {
     font-family: 'Noto Sans', 'Noto Sans Japanese', sans-serif;
