@@ -459,7 +459,7 @@ def profile():
                 return flask.redirect('/profile')
             user.email = form.email.data
             flask.flash(flask.Markup(
-                '<strong>Email successfully changed!</strong>'), 'info')
+                '<strong>Email successfully changed!</strong>'), 'success')
         if new_password:
             if form.current_password.data != user.password_hash:
                 flask.flash(flask.Markup(
@@ -467,7 +467,7 @@ def profile():
                 return flask.redirect('/profile')
             user.password_hash = form.new_password.data
             flask.flash(flask.Markup(
-                '<strong>Password successfully changed!</strong>'), 'info')
+                '<strong>Password successfully changed!</strong>'), 'success')
 
         db.session.add(user)
         db.session.commit()
@@ -475,9 +475,11 @@ def profile():
         flask.g.user = user
         return flask.redirect('/profile')
 
-    current_email = models.User.by_id(flask.g.user.id).email
-
-    return flask.render_template('profile.html', form=form, email=current_email, level=level)
+    _user = models.User.by_id(flask.g.user.id)
+    username = _user.username
+    current_email = _user.email
+    
+    return flask.render_template('profile.html', form=form, name=username, email=current_email, level=level)
 
 
 @app.route('/user/activate/<payload>')
