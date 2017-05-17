@@ -1,8 +1,10 @@
 @import url('//fonts.googleapis.com/earlyaccess/notosansjapanese.css');
+@import url('//fonts.googleapis.com/earlyaccess/notosanstc.css');
+@import url('//fonts.googleapis.com/earlyaccess/notosanssc.css');
 @import url('//fonts.googleapis.com/css?family=Noto+Sans');
-
+  
 body {
-    font-family: 'Noto Sans', 'Noto Sans Japanese', sans-serif;
+    font-family: 'Noto Sans', 'Noto Sans Japanese', 'Noto Sans TC', 'Noto Sans SC', sans-serif;
 }
 
 nav a.navbar-brand {
