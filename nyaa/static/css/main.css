@@ -94,8 +94,8 @@ table.torrent-list thead th.sorting_desc:after {
 
 @media (max-width: 991px){
 	.col-md-5 {
-	    margin-left: 20px;
-	    margin-bottom: 10px;
+		margin-left: 20px;
+		margin-bottom: 10px;
 	}
 }
 
@@ -107,10 +107,10 @@ table.torrent-list thead th.sorting_desc:after {
 
 /* elasticsearch term highlight */
 .hlt1 {
-    font-style: normal;
-    display: inline-block;
-    padding: 0 3px;
-    border-radius: 3px;
-    border: 1px solid rgba(100, 56, 0, 0.8);
-    background: rgba(200,127,0,0.3);
+	font-style: normal;
+	display: inline-block;
+	padding: 0 3px;
+	border-radius: 3px;
+	border: 1px solid rgba(100, 56, 0, 0.8);
+	background: rgba(200,127,0,0.3);
 }
