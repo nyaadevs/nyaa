@@ -10,7 +10,7 @@ from orderedset import OrderedSet
 from werkzeug import secure_filename
 
 DEBUG_API = False
-#################################### API ROUTES ####################################
+# #################################### API ROUTES ####################################
 CATEGORIES = [
     ('Anime', ['Anime Music Video', 'English-translated', 'Non-English-translated', 'Raw']),
     ('Audio', ['Lossless', 'Lossy']),
@@ -30,7 +30,7 @@ def validate_main_sub_cat(main_cat_name, sub_cat_name):
                     cat_id = main_cat.id_as_string
                     sub_cat_id = sub_cat.id_as_string
                     cat_sub_cat = sub_cat_id.split('_')
-                    #print('cat: {0} sub_cat: {1}'.format(cat_sub_cat[0], cat_sub_cat[1]))
+                    # print('cat: {0} sub_cat: {1}'.format(cat_sub_cat[0], cat_sub_cat[1]))
 
                     return True, cat_sub_cat[0], cat_sub_cat[1]
 
@@ -112,17 +112,22 @@ def api_upload(upload_request):
                 if DEBUG_API:
                     print(json.dumps(j, indent=4))
 
-                _json_keys = ['username', 'password',
-                              'display_name', 'main_cat', 'sub_cat', 'flags']  # 'information' and 'description' are not required
+                _json_keys = ['username',
+                              'password',
+                              'display_name',
+                              'main_cat',
+                              'sub_cat',
+                              'flags']  # 'information' and 'description' are not required
                 # Check that required fields are present
                 for _k in _json_keys:
                     if _k not in j.keys():
-                        return flask.make_response(flask.jsonify({"Error": "Missing JSON field: {0}.".format(_k)}), 400)
+                        return flask.make_response(flask.jsonify(
+                            {"Error": "Missing JSON field: {0}.".format(_k)}), 400)
                 # Check that no extra fields are present
                 for k in j.keys():
-                    if k not in ['username', 'password',
-                                 'display_name', 'main_cat', 'sub_cat', 'information', 'description', 'flags']:
-                        return flask.make_response(flask.jsonify({"Error": "Incorrect JSON field(s)."}), 400)
+                    if k not in set(_json_keys + ['information', 'description']):
+                        return flask.make_response(flask.jsonify(
+                            {"Error": "Incorrect JSON field(s)."}), 400)
             else:
                 return flask.make_response(flask.jsonify({"Error": "No metadata."}), 400)
             if 'torrent' in upload_request.files:
@@ -143,14 +148,17 @@ def api_upload(upload_request):
             if not user:
                 user = models.User.by_email(username)
 
-            if not user or password != user.password_hash or user.status == models.UserStatusType.INACTIVE:
-                return flask.make_response(flask.jsonify({"Error": "Incorrect username or password"}), 403)
+            if (not user or password != user.password_hash
+                    or user.status == models.UserStatusType.INACTIVE):
+                return flask.make_response(flask.jsonify(
+                    {"Error": "Incorrect username or password"}), 403)
 
             current_user = user
 
             display_name = j['display_name']
             if (len(display_name) < 3) or (len(display_name) > 1024):
-                return flask.make_response(flask.jsonify({"Error": "Torrent name must be between 3 and 1024 characters."}), 400)
+                return flask.make_response(flask.jsonify(
+                    {"Error": "Torrent name must be between 3 and 1024 characters."}), 400)
 
             main_cat_name = j['main_cat']
             sub_cat_name = j['sub_cat']
@@ -158,14 +166,16 @@ def api_upload(upload_request):
             cat_subcat_status, cat_id, sub_cat_id = validate_main_sub_cat(
                 main_cat_name, sub_cat_name)
             if not cat_subcat_status:
-                return flask.make_response(flask.jsonify({"Error": "Incorrect Category / Sub-Category."}), 400)
+                return flask.make_response(flask.jsonify(
+                    {"Error": "Incorrect Category / Sub-Category."}), 400)
 
             # TODO Sanitize information
             information = None
             try:
                 information = j['information']
                 if len(information) > 255:
-                    return flask.make_response(flask.jsonify({"Error": "Information is limited to 255 characters."}), 400)
+                    return flask.make_response(flask.jsonify(
+                        {"Error": "Information is limited to 255 characters."}), 400)
             except Exception as e:
                 information = ''
 
@@ -173,8 +183,10 @@ def api_upload(upload_request):
             description = None
             try:
                 description = j['description']
-                if len(description) > (10 * 1024):
-                    return flask.make_response(flask.jsonify({"Error": "Description is limited to {0} characters.".format(10 * 1024)}), 403)
+                limit = 10 * 1024
+                if len(description) > limit:
+                    return flask.make_response(flask.jsonify(
+                        {"Error": "Description is limited to {0} characters.".format(limit)}), 403)
             except Exception as e:
                 description = ''
 
@@ -182,13 +194,15 @@ def api_upload(upload_request):
             if v_flags:
                 torrent_flags = j['flags']
             else:
-                return flask.make_response(flask.jsonify({"Error": "Incorrect torrent flags."}), 400)
+                return flask.make_response(flask.jsonify(
+                    {"Error": "Incorrect torrent flags."}), 400)
 
             torrent_status, torrent_data = validate_torrent_file(
                 torrent_file.filename, torrent_file.read())  # Needs validation
 
             if not torrent_status:
-                return flask.make_response(flask.jsonify({"Error": "Invalid or Duplicate torrent file."}), 400)
+                return flask.make_response(flask.jsonify(
+                    {"Error": "Invalid or Duplicate torrent file."}), 400)
 
             # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
             # keys and values have been checked for (see UploadForm in forms.py for details)
@@ -297,21 +311,24 @@ def api_upload(upload_request):
             # Store tracker refs in DB
             for order, tracker in enumerate(db_trackers):
                 torrent_tracker = models.TorrentTrackers(torrent_id=torrent.id,
-                    tracker_id=tracker.id, order=order)
+                                                         tracker_id=tracker.id, order=order)
                 db.session.add(torrent_tracker)
 
             db.session.commit()
 
             if app.config.get('BACKUP_TORRENT_FOLDER'):
                 torrent_file.seek(0, 0)
-                torrent_path = os.path.join(app.config['BACKUP_TORRENT_FOLDER'], '{}.{}'.format(torrent.id, secure_filename(torrent_file.filename)))
+                torrent_path = os.path.join(app.config['BACKUP_TORRENT_FOLDER'], '{}.{}'.format(
+                    torrent.id, secure_filename(torrent_file.filename)))
                 torrent_file.save(torrent_path)
             torrent_file.close()
 
-            #print('Success? {0}'.format(torrent.id))
-            return flask.make_response(flask.jsonify({"Success": "Request was processed {0}".format(torrent.id)}), 200)
+            # print('Success? {0}'.format(torrent.id))
+            return flask.make_response(flask.jsonify(
+                {"Success": "Request was processed {0}".format(torrent.id)}), 200)
         except Exception as e:
             print('Exception: {0}'.format(e))
-            return flask.make_response(flask.jsonify({"Error": "Incorrect JSON. Please see HELP page for examples."}), 400)
+            return flask.make_response(flask.jsonify(
+                {"Error": "Incorrect JSON. Please see HELP page for examples."}), 400)
     else:
         return flask.make_response(flask.jsonify({"Error": "Bad request"}), 400)

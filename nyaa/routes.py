@@ -31,8 +31,9 @@ from flask_paginate import Pagination
 DEBUG_API = False
 DEFAULT_MAX_SEARCH_RESULT = 1000
 DEFAULT_PER_PAGE = 75
-SERACH_PAGINATE_DISPLAY_MSG = '''Displaying results {start}-{end} out of {total} results.<br>
-                                 Please refine your search results if you can't find what you were looking for.'''
+SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} results.<br>\n'
+                               'Please refine your search results if you can\'t find '
+                               'what you were looking for.')
 
 
 def redirect_url():
@@ -76,7 +77,7 @@ def before_request():
 
         flask.g.user = user
 
-        if not 'timeout' in flask.session or flask.session['timeout'] < datetime.now():
+        if not 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
             flask.session['timeout'] = datetime.now() + timedelta(days=7)
             flask.session.permanent = True
             flask.session.modified = True
@@ -160,7 +161,8 @@ def home(rss):
         if not max_search_results:
             max_search_results = DEFAULT_MAX_SEARCH_RESULT
 
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page)))) # Only allow up to (max_search_results / page) pages 
+        # Only allow up to (max_search_results / page) pages
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
 
         query_args['page'] = max_page
         query_args['max_search_results'] = max_search_results
@@ -186,7 +188,7 @@ def home(rss):
         # If ES is enabled, default to db search for browsing
         if use_elastic:
             query_args['term'] = ''
-        else: # Otherwise, use db search for everything
+        else:  # Otherwise, use db search for everything
             query_args['term'] = term or ''
 
         query = search_db(**query_args)
@@ -251,7 +253,8 @@ def view_user(user_name):
         if not max_search_results:
             max_search_results = DEFAULT_MAX_SEARCH_RESULT
 
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page)))) # Only allow up to (max_search_results / page) pages 
+        # Only allow up to (max_search_results / page) pages
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
 
         query_args['page'] = max_page
         query_args['max_search_results'] = max_search_results
@@ -291,6 +294,7 @@ def view_user(user_name):
 def _jinja2_filter_rfc822(date, fmt=None):
     return formatdate(float(date.strftime('%s')))
 
+
 @app.template_filter('rfc822_es')
 def _jinja2_filter_rfc822(datestr, fmt=None):
     return formatdate(float(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').strftime('%s')))
@@ -311,7 +315,7 @@ def render_rss(label, query, use_elastic):
 
 # @app.route('/about', methods=['GET'])
 # def about():
-#    return flask.render_template('about.html')
+    # return flask.render_template('about.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -328,7 +332,8 @@ def login():
         if not user:
             user = models.User.by_email(username)
 
-        if not user or password != user.password_hash or user.status == models.UserStatusType.INACTIVE:
+        if (not user or password != user.password_hash
+                or user.status == models.UserStatusType.INACTIVE):
             flask.flash(flask.Markup(
                 '<strong>Login failed!</strong> Incorrect username or password.'), 'danger')
             return flask.redirect(flask.url_for('login'))
@@ -511,7 +516,8 @@ def edit_torrent(torrent_id):
 
     if flask.request.method == 'POST' and form.validate():
         # Form has been sent, edit torrent with data.
-        torrent.main_category_id, torrent.sub_category_id = form.category.parsed_data.get_category_ids()
+        torrent.main_category_id, torrent.sub_category_id = \
+            form.category.parsed_data.get_category_ids()
         torrent.display_name = (form.display_name.data or '').strip()
         torrent.information = (form.information.data or '').strip()
         torrent.description = (form.description.data or '').strip()
@@ -538,7 +544,10 @@ def edit_torrent(torrent_id):
         form.is_complete.data = torrent.complete
         form.is_anonymous.data = torrent.anonymous
 
-        return flask.render_template('edit.html', form=form, torrent=torrent, admin=flask.g.user.is_admin)
+        return flask.render_template('edit.html',
+                                     form=form,
+                                     torrent=torrent,
+                                     admin=flask.g.user.is_admin)
 
 
 @app.route('/view/<int:torrent_id>/magnet')
@@ -590,8 +599,10 @@ def get_activation_link(user):
 
 
 def send_verification_email(to_address, activ_link):
-    ''' this is until we have our own mail server, obviously. This can be greatly cut down if on same machine.
-     probably can get rid of all but msg formatting/building, init line and sendmail line if local SMTP server '''
+    ''' this is until we have our own mail server, obviously.
+     This can be greatly cut down if on same machine.
+     probably can get rid of all but msg formatting/building,
+     init line and sendmail line if local SMTP server '''
 
     msg_body = 'Please click on: ' + activ_link + ' to activate your account.\n\n\nUnsubscribe:'
 
@@ -611,7 +622,7 @@ def send_verification_email(to_address, activ_link):
     server.quit()
 
 
-#################################### STATIC PAGES ####################################
+# #################################### STATIC PAGES ####################################
 @app.route('/rules', methods=['GET'])
 def site_rules():
     return flask.render_template('rules.html')
@@ -622,9 +633,9 @@ def site_help():
     return flask.render_template('help.html')
 
 
-#################################### API ROUTES ####################################
+# #################################### API ROUTES ####################################
 # DISABLED FOR NOW
-@app.route('/api/upload', methods = ['POST'])
+@app.route('/api/upload', methods=['POST'])
 def api_upload():
     api_response = api_handler.api_upload(flask.request)
     return api_response
