@@ -72,23 +72,23 @@ class RegisterForm(FlaskForm):
 
 
 class ProfileForm(FlaskForm):
-    email = TextField('New email address', [
+    email = TextField('New Email Address', [
         Email(),
         Optional(),
         Length(min=5, max=128),
-        Unique(User, User.email, 'Email is taken')
+        Unique(User, User.email, 'This email address has been taken')
     ])
 
-    current_password = PasswordField('Current password', [Optional()])
+    current_password = PasswordField('Current Password', [Required()])
 
-    new_password = PasswordField('New password (confirm)', [
+    new_password = PasswordField('New Password', [
         Optional(),
-        EqualTo('password_confirm', message='Passwords must match'),
+        EqualTo('password_confirm', message='Two passwords must match'),
         Length(min=6, max=1024,
                message='Password must be at least %(min)d characters long.')
     ])
 
-    password_confirm = PasswordField('Repeat Password')
+    password_confirm = PasswordField('Repeat New Password')
 
 
 # Classes for a SelectField that can be set to disable options (id, name, disabled)

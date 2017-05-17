@@ -108,3 +108,7 @@ table.torrent-list thead th.sorting_desc:after {
     border: 1px solid rgba(100, 56, 0, 0.8);
     background: rgba(200,127,0,0.3);
 }
+
+ul.nav-tabs#profileTabs {
+    margin-bottom: 15px;
+}

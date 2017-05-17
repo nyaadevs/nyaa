@@ -4,40 +4,63 @@
 {% from "_formhelpers.html" import render_field %}
 
 <h1>Edit Profile</h1>
-	<form method="POST">
-		{{ form.csrf_token }}
 
-		<div class="row">
-			<div class="form-group col-md-4">
-				{{ render_field(form.email, class_='form-control', placeholder='New email address') }}
-			</div>
-		</div>
+<ul class="nav nav-tabs" id="profileTabs" role="tablist">
+    <li role="presentation" class="active">
+        <a href="#password-change" id="password-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">Password</a>
+    </li>
+    <li role="presentation">
+        <a href="#email-change" id="email-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Email</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade active in" role="tabpanel" id="password-change" aria-labelledby="password-change-tab">
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{ render_field(form.current_password, class_='form-control', placeholder='Current password') }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{ render_field(form.new_password, class_='form-control', placeholder='New password') }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{ render_field(form.password_confirm, class_='form-control', placeholder='New password (confirm)') }}
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="submit" value="Update" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="tab-pane fade" role="tabpanel" id="email-change" aria-labelledby="email-change-tab">
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{ render_field(form.email, class_='form-control', placeholder='New email address') }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{ render_field(form.current_password, class_='form-control', placeholder='Current password') }}
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="submit" value="Update" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
-		<div class="row">
-			<div class="form-group col-md-4">
-				{{ render_field(form.current_password, class_='form-control', placeholder='Current password') }}
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="form-group col-md-4">
-				{{ render_field(form.new_password, class_='form-control', placeholder='New password') }}
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="form-group col-md-4">
-				{{ render_field(form.password_confirm, class_='form-control', placeholder='New password (confirm)') }}
-			</div>
-		</div>
-
-		<br>
-
-		<div class="row">
-			<div class="col-md-4">
-				<input type="submit" value="Update" class="btn btn-primary">
-			</div>
-		</div>
-	</form>
 {% endblock %}
-

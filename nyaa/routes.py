@@ -401,6 +401,11 @@ def profile():
         new_password = form.new_password.data
 
         if new_email:
+            # enforce password check on email change too
+            if form.current_password.data != user.password_hash:
+                flask.flash(flask.Markup(
+                    '<strong>Email change failed!</strong> Incorrect password.'), 'danger')
+                return flask.redirect('/profile')
             user.email = form.email.data
 
         if new_password:
