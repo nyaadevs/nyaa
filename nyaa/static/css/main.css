@@ -1,3 +1,14 @@
+@import url(//fonts.googleapis.com/earlyaccess/notosansjapanese.css);
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans');
+
+body {
+    font-family: 'Noto Sans', 'Noto Sans Japanese', sans-serif;
+}
+
+nav a.navbar-brand {
+    font-weight: bold;
+}
+
 .panel-heading-collapse a:after {
 	font-family:'Glyphicons Halflings';
 	content:"\e114";
