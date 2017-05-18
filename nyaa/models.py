@@ -343,6 +343,16 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
+    def validate_authorization(self, password):
+        ''' Returns a boolean for whether the user can be logged in '''
+        checks = [
+            # Password must match
+            password == self.password_hash,
+            # Reject inactive and banned users
+            self.status == UserStatusType.ACTIVE
+        ]
+        return all(checks)
+
     @classmethod
     def by_id(cls, id):
         return cls.query.get(id)
@@ -356,6 +366,10 @@ class User(db.Model):
     def by_email(cls, email):
         user = cls.query.filter_by(email=email).first()
         return user
+
+    @classmethod
+    def by_username_or_email(cls, username_or_email):
+        return cls.by_username(username_or_email) or cls.by_email(username_or_email)
 
     @property
     def is_admin(self):
