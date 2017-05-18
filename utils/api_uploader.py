@@ -1,6 +1,9 @@
 # Uploads a single torrent file
 # Works on nyaa.si and sukebei.nyaa.si
 
+# Consider using api_uploader_v2.py instead
+# It has a nice command line interface
+
 import json
 import requests
 
@@ -86,7 +89,7 @@ is_complete  : False
 
 # ######################################## CHANGE HERE ########################################
 
-url = 'https://nyaa.si/api/upload'  # or https://sukebei.nyaa.si/api/upload or http://127.0.0.1:5500/api/upload
+url = 'https://nyaa.si/api/upload'  # or 'https://sukebei.nyaa.si/api/upload' or 'http://127.0.0.1:5500/api/upload'
 
 # Required
 username = ''
