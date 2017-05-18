@@ -6,16 +6,16 @@
 <h2 style="margin-bottom: 20px;">Profile of <strong>{{ name }}</strong></h2>
 
 <div class="row">
-    	<div class="col-sm-3 avatar" style="display: none;">
-		    <!-- TO BE IMPLEMENTED -->
-   	 </div>
-   	 <div class="col-sm-9">
-		    <dl class="row" style="margin-right: 0; margin-left: 0;">
-			    <dt class="col-sm-3">User ID:</dt><dd class="col-sm-9">{{ g.user.id }}</dd>
-			    <dt class="col-sm-3">User Class:</dt><dd class="col-sm-9">{{ level }}</dd>
-			    <dt class="col-sm-3">User Created on:</dt><dd class="col-sm-9">{{ g.user.created_time }}</dd>
-		    </dl>
-   	 </div>
+	<div class="col-sm-4 avatar" style="display: none;">
+		<!-- TO BE IMPLEMENTED -->
+	</div>
+	<div class="col-sm-8">
+		<dl class="row" style="margin: 20px 0 15px 0;">
+			<dt class="col-sm-3">User ID:</dt><dd class="col-sm-9">{{ g.user.id }}</dd>
+			<dt class="col-sm-3">User Class:</dt><dd class="col-sm-9">{{ level }}</dd>
+			<dt class="col-sm-3">User Created on:</dt><dd class="col-sm-9">{{ g.user.created_time }}</dd>
+		</dl>
+	</div>
 </div>
 
 <ul class="nav nav-tabs" id="profileTabs" role="tablist">
