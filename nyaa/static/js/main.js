@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var state = {};
   var allSelected = false;
 
-  var torrentActionSelectEl = form.querySelector('#torrent-action');
+  var torrentActionSelectEl = form.querySelector('#action');
   var categorySelectEl = form.querySelector('.category-select');
   var selectAllBtn = form.querySelector('#select-all');
   var torrentTable = document.querySelector('.torrent-list');

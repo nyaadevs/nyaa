@@ -21,7 +21,6 @@ from flask_wtf.recaptcha.validators import Recaptcha as RecaptchaValidator
 
 
 class Unique(object):
-
     """ validator that checks field uniqueness """
 
     def __init__(self, model, field, message=None):
@@ -174,6 +173,9 @@ class EditForm(FlaskForm):
 
 
 class UploadForm(FlaskForm):
+    class Meta:
+        csrf = False
+        
     torrent_file = FileField('Torrent file', [
         FileRequired()
     ])
@@ -286,12 +288,57 @@ class UserForm(FlaskForm):
             raise ValidationError('Please select a proper user class')
 
 
+class UserTorrentMassAction(FlaskForm):
+    action = SelectField('action', choices=[
+        ('hide', 'Hide'),
+        ('unhide', 'Unhide'),
+        ('remake', 'Remake'),
+        ('unremake', 'Unremake'),
+    ])
+
+    category = StringField('category')
+
+    def __init__(self, *args, **kwargs):
+        super(UserTorrentMassAction, self).__init__(*args, **kwargs)
+        self.selected_torrents = [x for x in kwargs.get('selected_torrents', []) if x.isdigit()]
+
+    def validate(self, user=None):
+        super(UserTorrentMassAction, self).validate()
+        torrents = db.session.query(models.Torrent).filter(models.Torrent.id.in_(self.selected_torrents))\
+            .filter(models.Torrent.user == user).all()
+
+        if len(torrents) == len(self.selected_torrents):
+            self.selected_torrents = torrents
+            return True
+        else:
+            return False
+
+    def apply_user_action(self):
+        def set_torrent_prop(prop, value):
+            def fn(torrent):
+                setattr(torrent, prop, value)
+            return fn
+
+        actions = {
+            'hide': set_torrent_prop('hidden', True),
+            'unhide': set_torrent_prop('hidden', False),
+            'remake': set_torrent_prop('remake', True),
+            'unremake': set_torrent_prop('remake', False)
+        }
+
+        action = actions.get(self.action.data)
+        [action(torrent) for torrent in self.selected_torrents]
+        
+        db.session.commit()
+
+
 class TorrentFileData(object):
     """Quick and dirty class to pass data from the validator"""
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 

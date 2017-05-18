@@ -113,6 +113,7 @@
 	</div>
 {% endmacro %}
 
+<<<<<<< HEAD
 {% macro render_menu_with_button(field) %}
 {% if field.errors %}
 	<div class="form-group has-error">
@@ -140,7 +141,7 @@
 	</div>
 {% endmacro %}
 
-{% macro render_category_select() %}
+{% macro render_category_select(name) %}
     {% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
         ('1_1', '- Anime Music Video', 'Anime - AMV'),
         ('1_2', '- English-translated', 'Anime - English'),
@@ -181,7 +182,7 @@
         {% set used_cats = suke_cats %}
     {% endif %}
 
-    <select class="form-control" title="Category">
+    <select class="form-control" title="Category" name="{{ name }}">
         <option>Select Category</option>
         {% for cat_id, cat_name, cat_title in used_cats %}
             <option value="{{ cat_id }}" title="{{ cat_title }}">

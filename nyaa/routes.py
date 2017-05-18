@@ -373,12 +373,15 @@ def view_user(user_name):
     }
 
     is_logged_in_user_account = False
+
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
         if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
         if flask.g.user.id == user.id:
             is_logged_in_user_account = True
+
+    form = forms.UserTorrentMassAction(flask.request.form)
 
     # Use elastic search for term searching
     rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
@@ -421,6 +424,7 @@ def view_user(user_name):
         else:
             query_args['term'] = search_term or ''
         query = search_db(**query_args)
+
         return flask.render_template('user.html',
                                      use_elastic=False,
                                      torrent_query=query,
@@ -432,6 +436,16 @@ def view_user(user_name):
                                      admin_form=admin_form,
                                      form=form,
                                      is_current_user=is_logged_in_user_account)
+
+
+@app.route('/user/<user_name>/torrents', methods=['POST'])
+def update_torrents(user_name):
+    test = flask.request.form.getlist('selected_torrents')
+    form = forms.UserTorrentMassAction(flask.request.form, selected_torrents=test)
+    if form.validate(user=flask.g.user):
+        form.apply_user_action()
+
+    return flask.redirect(f"/user/{user_name}")
 
 
 @app.template_filter('rfc822')

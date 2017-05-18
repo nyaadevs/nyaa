@@ -19,29 +19,40 @@
 {% endif %}
 {% endif %}
 
+{% macro user_form(is_available) %}
+    {% if is_available %}
+        <form class="form-inline" id="torrent-mass-action-form" action="/user/{{ g.user.username }}/torrents" method="post">
+            {{ form.csrf_token }}
+            <select name="action" id="action" class="form-control">
+                <option value="move-category">Move To Category</option>
+                <optgroup label="Hide / Unhide">
+                    <option value="hide">Hide</option>
+                    <option value="unhide">Unhide</option>
+                </optgroup>
+                <optgroup label="Remake">
+                    <option value="remake">Remake</option>
+                    <option value="unremake">Unremake</option>
+                </optgroup>
+            </select>
+            <div class="category-select">
+                {{ render_category_select('category') }}
+            </div>
+            <div class="btn-container">
+                <button class="btn btn-success" id="select-all">Select All</button>
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+
+            {{ caller() }}
+
+        </form>
+    {% else %}
+        {{ caller() }}
+    {% endif %}
+{% endmacro %}
+
 {% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
-{% if is_current_user %}
-    <form class="form-inline" id="torrent-mass-action-form" action="/user/{{ g.user.username }}/torrents" method="post">
-        <select name="action" id="torrent-action" class="form-control">
-            <option value="move-category">Move To Category</option>
-            <optgroup label="Hide / Unhide">
-                <option value="hide">Hide</option>
-                <option value="unhide">Unhide</option>
-            </optgroup>
-            <optgroup label="Remake">
-                <option value="remake">Remake</option>
-                <option value="unremake">Unremake</option>
-            </optgroup>
-        </select>
-        <div class="category-select">
-            {{ render_category_select() }}
-        </div>
-        <div class="btn-container">
-            <button class="btn btn-success" id="select-all">Select All</button>
-            <button type="submit" class="btn btn-primary">Apply</button>
-        </div>
-    </form>
-{% endif %}
+
+{% call user_form(is_current_user) %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
@@ -146,6 +157,7 @@
 		</tbody>
 	</table>
 </div>
+{% endcall %}
 {% else %}
 <h3>No results found</h3>
 {% endif %}
