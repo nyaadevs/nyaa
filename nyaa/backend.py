@@ -26,7 +26,7 @@ def _replace_utf8_values(dict_or_list):
     return did_change
 
 
-def handle_torrent_upload(upload_form, uploading_user=None):
+def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent_data = upload_form.torrent_file.parsed_data
 
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
@@ -70,12 +70,8 @@ def handle_torrent_upload(upload_form, uploading_user=None):
     # Copy trusted status from user if possible
     torrent.trusted = (uploading_user.level >=
                        models.UserLevelType.TRUSTED) if uploading_user else False
-
     # Set category ids
-    torrent.main_category_id, torrent.sub_category_id = \
-        upload_form.category.parsed_data.get_category_ids()
-    # print('Main cat id: {0}, Sub cat id: {1}'.format(
-    #    torrent.main_category_id, torrent.sub_category_id))
+    torrent.main_category_id, torrent.sub_category_id = upload_form.category.parsed_data.get_category_ids()
 
     # To simplify parsing the filelist, turn single-file torrent into a list
     torrent_filelist = info_dict.get('files')

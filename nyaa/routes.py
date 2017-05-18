@@ -346,7 +346,7 @@ def render_rss(label, query, use_elastic):
     response = flask.make_response(rss_xml)
     response.headers['Content-Type'] = 'application/xml'
     # Cache for an hour
-    response.headers['Cache-Control'] = 'max-age={}'.format(1*5*60)
+    response.headers['Cache-Control'] = 'max-age={}'.format(1 * 5 * 60)
     return response
 
 
@@ -515,6 +515,7 @@ def _create_upload_category_choices():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
+    #print('{0} - {1}'.format(flask.request.files, flask.request.form))
     form.category.choices = _create_upload_category_choices()
     if flask.request.method == 'POST' and form.validate():
         torrent = backend.handle_torrent_upload(form, flask.g.user)
@@ -696,8 +697,10 @@ def site_help():
 
 
 # #################################### API ROUTES ####################################
-# DISABLED FOR NOW
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
-    api_response = api_handler.api_upload(flask.request)
+    is_valid_user, user, debug = api_handler.validate_user(flask.request)
+    if not is_valid_user:
+        return flask.make_response(flask.jsonify({"Failure": "Invalid username or password."}), 400)
+    api_response = api_handler.api_upload(flask.request, user)
     return api_response
