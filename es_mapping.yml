@@ -18,6 +18,7 @@ settings:
         char_filter:
           - my_char_filter
         filter:
+          - resolution
           - lowercase
           - my_ngram
     filter:
@@ -25,10 +26,13 @@ settings:
         type: edgeNGram
         min_gram: 1
         max_gram: 15
+      resolution:
+        type: pattern_capture
+        patterns: ["(\\d+)x(\\d+)"]
     char_filter:
       my_char_filter:
         type: mapping
-        mappings: ["-=>_", "!=>_"]
+        mappings: ["-=>_", "!=>_", "_=>\\u0020"]
   index:
     # we're running a single es node, so no sharding necessary,
     # plus replicas don't really help either.
