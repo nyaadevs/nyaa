@@ -558,17 +558,17 @@ def _create_upload_category_choices():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
-    form.category.choices = _create_upload_category_choices()
+    upload_form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
+    upload_form.category.choices = _create_upload_category_choices()
 
-    if flask.request.method == 'POST' and form.validate():
-        torrent = backend.handle_torrent_upload(form, flask.g.user)
+    if flask.request.method == 'POST' and upload_form.validate():
+        torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
 
         return flask.redirect('/view/' + str(torrent.id))
     else:
         # If we get here with a POST, it means the form data was invalid: return a non-okay status
         status_code = 400 if flask.request.method == 'POST' else 200
-        return flask.render_template('upload.html', form=form, user=flask.g.user), status_code
+        return flask.render_template('upload.html', upload_form=upload_form), status_code
 
 
 @app.route('/view/<int:torrent_id>')
