@@ -6,8 +6,8 @@ import os
 import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import TextField, PasswordField, BooleanField, TextAreaField, SelectField
-from wtforms.validators import Required, Optional, Email, Length, EqualTo, ValidationError, Regexp
+from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField
+from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError, Regexp
 
 # For DisabledSelectField
 from wtforms.widgets import Select as SelectWidget
@@ -39,27 +39,27 @@ _username_validator = Regexp(
 
 
 class LoginForm(FlaskForm):
-    username = TextField('Username or email address', [Required(), _username_validator])
-    password = PasswordField('Password', [Required()])
+    username = StringField('Username or email address', [DataRequired(), _username_validator])
+    password = PasswordField('Password', [DataRequired()])
 
 
 class RegisterForm(FlaskForm):
-    username = TextField('Username', [
-        Required(),
+    username = StringField('Username', [
+        DataRequired(),
         Length(min=3, max=32),
         _username_validator,
         Unique(User, User.username, 'Username not availiable')
     ])
 
-    email = TextField('Email address', [
+    email = StringField('Email address', [
         Email(),
-        Required(),
+        DataRequired(),
         Length(min=5, max=128),
         Unique(User, User.email, 'Email already in use by another account')
     ])
 
     password = PasswordField('Password', [
-        Required(),
+        DataRequired(),
         EqualTo('password_confirm', message='Passwords must match'),
         Length(min=6, max=1024,
                message='Password must be at least %(min)d characters long.')
@@ -72,14 +72,14 @@ class RegisterForm(FlaskForm):
 
 
 class ProfileForm(FlaskForm):
-    email = TextField('New Email Address', [
+    email = StringField('New Email Address', [
         Email(),
         Optional(),
         Length(min=5, max=128),
         Unique(User, User.email, 'This email address has been taken')
     ])
 
-    current_password = PasswordField('Current Password', [Required()])
+    current_password = PasswordField('Current Password', [DataRequired()])
 
     new_password = PasswordField('New Password', [
         Optional(),
@@ -124,7 +124,7 @@ class DisabledSelectField(SelectField):
 
 
 class EditForm(FlaskForm):
-    display_name = TextField('Torrent display name', [
+    display_name = StringField('Torrent display name', [
         Length(min=3, max=255,
                message='Torrent display name must be at least %(min)d characters long '
                        'and %(max)d at most.')
@@ -153,7 +153,7 @@ class EditForm(FlaskForm):
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
 
-    information = TextField('Information', [
+    information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
     ])
     description = TextAreaField('Description (markdown supported)', [
@@ -170,7 +170,7 @@ class UploadForm(FlaskForm):
         FileRequired()
     ])
 
-    display_name = TextField('Torrent display name (optional)', [
+    display_name = StringField('Torrent display name (optional)', [
         Optional(),
         Length(min=3, max=255,
                message='Torrent display name must be at least %(min)d characters long and '
@@ -200,7 +200,7 @@ class UploadForm(FlaskForm):
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
 
-    information = TextField('Information', [
+    information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
     ])
     description = TextAreaField('Description (markdown supported)', [
