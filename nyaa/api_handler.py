@@ -57,7 +57,7 @@ def api_upload(upload_request, user):
         form_info_as_dict = []
         for k, v in form_info.items():
             if k in ['is_anonymous', 'is_hidden', 'is_remake', 'is_complete']:
-                if v == 'y':
+                if v == True:
                     form_info_as_dict.append((k, v))
             else:
                 form_info_as_dict.append((k, v))
@@ -65,7 +65,7 @@ def api_upload(upload_request, user):
 
         # print(repr(form_info))
     except Exception as e:
-        return flask.make_response(flask.jsonify({"Failure": "Invalid form. See HELP in api_uploader.py"}), 400)
+        return flask.make_response(flask.jsonify({'Failure': ['Invalid data. See HELP in api_uploader.py']}), 400)
 
     try:
         torrent_file = upload_request.files['torrent_file']
@@ -81,7 +81,7 @@ def api_upload(upload_request, user):
     if upload_request.method == 'POST' and form.validate():
         torrent = backend.handle_torrent_upload(form, user, True)
 
-        return flask.make_response(flask.jsonify({"Success": "Request was processed {0}".format(torrent.id)}), 200)
+        return flask.make_response(flask.jsonify({'Success': int('{0}'.format(torrent.id))}), 200)
     else:
         # print(form.errors)
         return_error_messages = []
@@ -89,4 +89,4 @@ def api_upload(upload_request, user):
             # print(error_messages)
             return_error_messages.extend(error_messages)
 
-        return flask.make_response(flask.jsonify({"Failure": return_error_messages}), 400)
+        return flask.make_response(flask.jsonify({'Failure': return_error_messages}), 400)
