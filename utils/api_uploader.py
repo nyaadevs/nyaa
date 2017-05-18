@@ -5,24 +5,26 @@ import json
 import requests
 
 '''
-The POST payload to the api endpoint (/api/upload) should look like this
-{
-    'auth_info': {
-        'username': str,
-        'password': str
-    },
-    'torrent_info': {
-        'category': str, # see below
-        'display_name': str, # optional
-        'information': str,
-        'description': str,
-        'is_anonymous': boolean,
-        'is_hidden': boolean,
-        'is_remake': boolean,
-        'is_complete': boolean
-    },
-    'torrent_file': bytes # see below example
-}
+The POST payload to the api endpoint (/api/upload) should be multipart/form-data containing three fields
+
+'auth_info': file containing "{
+    'username': str,
+    'password': str
+}",
+
+'torrent_info':  {
+    'category': str, # see below
+    'display_name': str, # optional
+    'information': str,
+    'description': str,
+    'is_anonymous': boolean,
+    'is_hidden': boolean,
+    'is_remake': boolean,
+    'is_complete': boolean
+},
+
+'torrent_file': multi part file format
+
 
 A successful request should return {'Success': int(torrent_id)}
 A failed request should return {'Failure': ["Failure 1", "Failure 2"...]]}
