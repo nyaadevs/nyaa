@@ -29,36 +29,15 @@
             <subcat id="7020" name="Ebook" />    {# Includes 100301 #}
             <subcat id="7060" name="Foreign" />  {# Includes 100302 #}
         </category>
+
         <!-- Nyaa Specific categories -->
-        <category id="100100" name="Anime">
-            <subcat id="100101" name="Anime - Music Video" />
-            <subcat id="100102" name="Anime - English-translated" />
-            <subcat id="100103" name="Anime - Non-English-translated" />
-            <subcat id="100104" name="Anime - Raw" />
+        {% for category in categories %}
+        <category id="{{ 100000 + category.id * 100 }}" name="{{ category.name }}">
+            {% for subcat in category.sub_categories %}
+            <subcat id="{{ 100000 + category.id * 100 + subcat.id }}" name="{{ category.name }} - {{ subcat.name }}" />
+            {% endfor %}
         </category>
-        <category id="100200" name="Audio">
-            <subcat id="100201" name="Audio - Lossless" />
-            <subcat id="100202" name="Audio - Lossy" />
-        </category>
-        <category id="100300" name="Literature">
-            <subcat id="100301" name="Literature - English-translated" />
-            <subcat id="100302" name="Literature - Non-English-translated" />
-            <subcat id="100303" name="Literature - Raw" />
-        </category>
-        <category id="100400" name="Live Action">
-            <subcat id="100401" name="Live Action - English-translated" />
-            <subcat id="100402" name="Live Action - Idol/Promotional Video" />
-            <subcat id="100403" name="Live Action - Non-English-translated" />
-            <subcat id="100404" name="Live Action - Raw" />
-        </category>
-        <category id="100500" name="Pictures">
-            <subcat id="100501" name="Graphics" />
-            <subcat id="100502" name="Photos" />
-        </category>
-        <category id="100600" name="Software">
-            <subcat id="100601" name="Applications" />
-            <subcat id="100602" name="Games" />
-        </category>
+        {% endfor %}
     </categories>
     <groups></groups>
     <genres></genres>

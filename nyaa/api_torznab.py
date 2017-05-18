@@ -1,6 +1,6 @@
 import flask
 
-from nyaa import app, db
+from nyaa import app, db, models
 from nyaa.search import search
 
 TORZNAB_ERRORS = {
@@ -64,8 +64,11 @@ def get_torznab_categories(torrent):
     if sub_cat_id > 0:
         categories.append(100000 + main_cat_id * 100)
     categories.append(100000 + main_cat_id * 100 + sub_cat_id)
-    
+
     return categories
+
+def get_torznab_categorymap():
+    return models.MainCategory.query
 
 def render_torznab_error(code):
     # TODO: Check Accept header and set Cache-Control.
@@ -79,8 +82,10 @@ def render_torznab_error(code):
 
 
 def render_torznab_caps():
+    category_map = get_torznab_categorymap()
     # TODO: Check Accept header and set Cache-Control.
-    torznab_xml = flask.render_template('torznab/caps.xml')
+    torznab_xml = flask.render_template('torznab/caps.xml',
+                                        categories=category_map)
     response = flask.make_response(torznab_xml)
     response.headers['Content-Type'] = 'application/xml'
     return response
