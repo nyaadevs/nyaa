@@ -3,6 +3,7 @@ import re
 import math
 import json
 import shlex
+import warnings
 from datetime import datetime, timedelta
 
 from nyaa import app, db
@@ -20,28 +21,35 @@ class ElasticTorrentStatsAccessor:
         self.download_count = elasticResult.download_count
 
 class ElasticTorrentAccessor:
-    knownAttributes = ['id', 'has_torrent', 'display_name', 'filesize', 'anonymous', 'trusted', 'remake', 'complete', 'hidden', 'deleted']
+    passtru_attributes = ['id', 'has_torrent', 'display_name', 'filesize', 'anonymous', 'trusted', 'remake', 'complete', 'hidden', 'deleted']
 
     def __init__(self, elasticResult):
         self.elastic = elasticResult
+        self.created_time = datetime.strptime(self.elastic.created_time, '%Y-%m-%dT%H:%M:%S')
+        self.created_utc_timestamp = (self.created_time - models.UTC_EPOCH).total_seconds()
+        self.info_hash = bytes.fromhex(self.elastic.info_hash)
+        # TODO: Verify if models.SubCategory is cached or hits the db on every call
+        self.sub_category = models.SubCategory.by_category_ids(self.elastic.main_category_id,
+                                                               self.elastic.sub_category_id)
+        self.main_category = self.sub_category.main_category
+        self.stats = ElasticTorrentStatsAccessor(self.elastic)
+        self.magnet_uri = torrents.create_magnet(self)
 
     def __getattr__(self, name):
-        # Passthru for attributes that are the same
-        if name in self.knownAttributes:
-            return self.elastic[name]
-
-        # Safetynet: throw if an attribute is accessed which we don't implement    
-        raise Exception("Unknown attribute {}".format(name))
-
-    @property
-    def created_time(self):
-        return datetime.strptime(self.elastic.created_time, '%Y-%m-%dT%H:%M:%S')
+        try:
+            result = self.elastic[name]
+        except KeyError:
+            # Raise an AttributeError if the key does not exist
+            raise AttributeError('{class_name!r} object has no attribute {attr!r}'
+                                 .format(class_name=self.__class__.__name__, attr=name)
+                                 )
+        else:
+            if name not in self.passtru_attributes:
+                warnings.warn('{class_name!r} object accessing unsupported attribute {attr!r}'
+                              .format(class_name=self.__class__.__name__, attr=name)
+                              )
+            return result
         
-    @property
-    def created_utc_timestamp(self):
-        ''' Returns a UTC POSIX timestamp, as seconds '''
-        return (self.created_time - models.UTC_EPOCH).total_seconds()
-
     @property
     def user(self):
         # TODO: Adding the name to elastic and updating elastic when the user changes it's name is better than doing separate db lookups thousands of times per day.
@@ -55,37 +63,12 @@ class ElasticTorrentAccessor:
         # Description isn't included in import_to_es (sync_es appears to have it), but only views for individual torrents use it, so it's not needed here
         return None
 
-    @property
-    def magnet_uri(self):
-        return torrents.create_magnet(self)
-
-    @property
-    def info_hash(self):
-        return bytes.fromhex(self.elastic.info_hash)
-
-    @property
-    def main_category(self):
-        # TODO: Same, hitting the db 
-        return  self.sub_category.main_category
-
-    @property
-    def sub_category(self):
-        # TODO: Same, hitting the db 
-        return models.SubCategory.by_category_ids(self.elastic.main_category_id, self.elastic.sub_category_id)
-
-    @property
-    def stats(self):
-        return ElasticTorrentStatsAccessor(self.elastic)
-
 class ElasticSearchResultAccessor:
 
     def __init__(self, elasticResult):
         self.elastic = elasticResult
+        self.total = self.elastic.hits.total
 
-    @property
-    def total(self):
-        return self.elastic.hits.total
-   
     @property
     def items(self):
         return self
