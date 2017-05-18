@@ -440,8 +440,8 @@ def view_user(user_name):
 
 @app.route('/user/<user_name>/torrents', methods=['POST'])
 def update_torrents(user_name):
-    test = flask.request.form.getlist('selected_torrents')
-    form = forms.UserTorrentMassAction(flask.request.form, selected_torrents=test)
+    selected_torrent_ids = flask.request.form.getlist('selected_torrents')
+    form = forms.UserTorrentMassAction(flask.request.form, selected_torrents=selected_torrent_ids)
     if form.validate(user=flask.g.user):
         form.apply_user_action()
 
