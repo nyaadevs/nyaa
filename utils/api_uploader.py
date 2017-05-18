@@ -1,6 +1,5 @@
 # Uploads a single torrent file
 # Works on nyaa.si and sukebei.nyaa.si
-# An updated version will work on sukebei.nyaa.si
 
 import json
 import requests
