@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   torrentActionSelectEl.addEventListener('change', function (event) {
-    if (event.target.value === 'move-category') {
+    if (event.target.value === 'move_category') {
       categorySelectEl.classList.remove('hidden');
     } else {
       categorySelectEl.classList.add('hidden');

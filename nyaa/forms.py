@@ -294,9 +294,12 @@ class UserTorrentMassAction(FlaskForm):
         ('unhide', 'Unhide'),
         ('remake', 'Remake'),
         ('unremake', 'Unremake'),
+        ('move_category', 'Move To Category')
     ])
 
     category = StringField('category')
+
+    selected_category = {'main': None, 'sub': None}
 
     def __init__(self, *args, **kwargs):
         super(UserTorrentMassAction, self).__init__(*args, **kwargs)
@@ -304,26 +307,50 @@ class UserTorrentMassAction(FlaskForm):
 
     def validate(self, user=None):
         super(UserTorrentMassAction, self).validate()
+
         torrents = db.session.query(models.Torrent).filter(models.Torrent.id.in_(self.selected_torrents))\
             .filter(models.Torrent.user == user).all()
 
-        if len(torrents) == len(self.selected_torrents):
-            self.selected_torrents = torrents
-            return True
-        else:
+        if len(torrents) != len(self.selected_torrents):
             return False
+
+        self.selected_torrents = torrents
+
+        if self.action.data == 'move_category':
+            [primary, secondary] = self.category.data.split('_')
+
+            category = models.MainCategory.by_id(primary)
+            subcategory = db.session.query(models.SubCategory) \
+                .filter(models.SubCategory.main_category_id == category.id) \
+                .filter(models.SubCategory.id == secondary).first()
+
+            if category is not None and subcategory is not None:
+                self.selected_category['main'] = category
+                self.selected_category['sub'] = subcategory
+                return True
+
+            return False
+
+        return True
 
     def apply_user_action(self):
         def set_torrent_prop(prop, value):
+            if prop is not 'move_category':
+                def fn(torrent):
+                    setattr(torrent, prop, value)
+                return fn
+
             def fn(torrent):
-                setattr(torrent, prop, value)
+                torrent.main_category = self.selected_category['main']
+                torrent.sub_category = self.selected_category['sub']
             return fn
 
         actions = {
             'hide': set_torrent_prop('hidden', True),
             'unhide': set_torrent_prop('hidden', False),
             'remake': set_torrent_prop('remake', True),
-            'unremake': set_torrent_prop('remake', False)
+            'unremake': set_torrent_prop('remake', False),
+            'move_category': set_torrent_prop('move_category', None)
         }
 
         action = actions.get(self.action.data)

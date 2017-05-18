@@ -21,25 +21,27 @@
 
 {% macro user_form(is_available) %}
     {% if is_available %}
-        <form class="form-inline" id="torrent-mass-action-form" action="/user/{{ g.user.username }}/torrents" method="post">
+        <form class="form" id="torrent-mass-action-form" action="/user/{{ g.user.username }}/torrents" method="post">
             {{ form.csrf_token }}
-            <select name="action" id="action" class="form-control">
-                <option value="move-category">Move To Category</option>
-                <optgroup label="Hide / Unhide">
-                    <option value="hide">Hide</option>
-                    <option value="unhide">Unhide</option>
-                </optgroup>
-                <optgroup label="Remake">
-                    <option value="remake">Remake</option>
-                    <option value="unremake">Unremake</option>
-                </optgroup>
-            </select>
-            <div class="category-select">
-                {{ render_category_select('category') }}
-            </div>
-            <div class="btn-container">
-                <button class="btn btn-success" id="select-all">Select All</button>
-                <button type="submit" class="btn btn-primary">Apply</button>
+            <div class="form-group">
+                <select name="action" id="action" class="form-control">
+                    <option value="move_category">Move To Category</option>
+                    <optgroup label="Hide / Unhide">
+                        <option value="hide">Hide</option>
+                        <option value="unhide">Unhide</option>
+                    </optgroup>
+                    <optgroup label="Remake">
+                        <option value="remake">Remake</option>
+                        <option value="unremake">Unremake</option>
+                    </optgroup>
+                </select>
+                <div class="category-select">
+                    {{ render_category_select('category') }}
+                </div>
+                <div class="btn-container">
+                    <button class="btn btn-success" id="select-all">Select Visible Items</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </div>
             </div>
 
             {{ caller() }}
