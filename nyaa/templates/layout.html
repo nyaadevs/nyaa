@@ -247,8 +247,6 @@
 					<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
-							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
-					
 							<div class="input-group-btn nav-filter" id="navFilter-criteria">
 								<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
 									<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
@@ -262,7 +260,8 @@
 									On narrow viewports, there isn't enough room to fit the full stuff in the selectpicker, so we show a full-width one on wide viewports, but squish it on narrow ones.
 								-->
 								{# XXX Search breaks with multiple fields with the same name: default to the shorter one so we don't break visuals. This is a hack! #}
-								{# <select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
+								{# 
+								<select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
@@ -271,7 +270,8 @@
 										{{ cat_name }}
 									</option>
 									{% endfor %}
-								</select> #}
+								</select> 
+								#}
 								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
@@ -283,6 +283,7 @@
 									{% endfor %}
 								</select>
 							</div>
+							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
 							<div class="input-group-btn search-btn">
 								<button class="btn btn-primary" type="submit">
 									<i class="fa fa-search fa-fw"></i>
