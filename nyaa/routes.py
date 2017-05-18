@@ -110,6 +110,9 @@ def get_utc_timestamp(datetime_str):
 def get_display_time(datetime_str):
     return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
 
+# Routes start here #
+
+app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
 
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
