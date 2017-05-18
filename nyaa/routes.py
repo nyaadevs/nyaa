@@ -515,7 +515,7 @@ def _create_upload_category_choices():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
-    print('{0} - {1}'.format(flask.request.files, flask.request.form))
+    #print('{0} - {1}'.format(flask.request.files, flask.request.form))
     form.category.choices = _create_upload_category_choices()
     if flask.request.method == 'POST' and form.validate():
         torrent = backend.handle_torrent_upload(form, flask.g.user)
