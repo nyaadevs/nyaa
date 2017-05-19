@@ -289,7 +289,6 @@ def view_user(user_name):
     category = chain_get(req_args, 'c', 'cats')
     quality_filter = chain_get(req_args, 'f', 'filter')
 
-    user_name = chain_get(req_args, 'u', 'user')
     page_number = chain_get(req_args, 'p', 'page', 'offset')
     try:
         page_number = max(1, int(page_number))
@@ -309,7 +308,6 @@ def view_user(user_name):
         'rss': False,
         'per_page': results_per_page
     }
-    print(query_args)
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
