@@ -190,4 +190,4 @@ function addThemeClass(){
 	"dark" === localStorage.getItem("theme") && document.body.classList.add('dark')
 }
 
-window.onload=addThemeClass;
+window.addEventListener("load", addThemeClass, false);
