@@ -133,7 +133,7 @@
                 <div class="modal-body">
                     <form method="POST" action="{{ request.url }}/submit_report">
                         {{ form.csrf_token }}
-                        {{ render_field(form.reason, class_='form-control') }}
+                        {{ render_field(form.reason, class_='form-control', maxlength=255) }}
                         <div style="float: right;">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-danger">Report</button>

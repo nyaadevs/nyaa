@@ -390,7 +390,7 @@ class Report(db.Model):
     __tablename__ = DB_TABLE_PREFIX + 'reports'
 
     id = db.Column(db.Integer, primary_key=True)
-    torrent = db.Column(db.Integer, db.ForeignKey(
+    torrent_id = db.Column(db.Integer, db.ForeignKey(
         DB_TABLE_PREFIX + 'torrents.id'))
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id'))
@@ -398,8 +398,11 @@ class Report(db.Model):
     reason = db.Column(db.String(length=255), nullable=False)
     status = db.Column(ChoiceType(ReportStatus, impl=db.Integer()), nullable=False)
 
-    def __init__(self, torrent, user_id, reason):
-        self.torrent = torrent
+    user = db.relationship('User', uselist=False)
+    torrent = db.relationship('Torrent', uselist=False)
+
+    def __init__(self, torrent_id, user_id, reason):
+        self.torrent_id = torrent_id
         self.user_id = user_id
         self.reason = reason
         self.status = ReportStatus.IN_REVIEW
@@ -412,6 +415,10 @@ class Report(db.Model):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
 
+    @classmethod
+    def not_reviewed(cls):
+        reports = cls.query.filter_by(status=0).all()
+        return reports
 
 # class Session(db.Model):
 #    __tablename__ = 'sessions'

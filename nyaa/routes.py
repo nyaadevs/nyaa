@@ -675,7 +675,7 @@ def submit_report(torrent_id):
         if flask.g.user is not None:
             current_user_id = flask.g.user.id
             report = models.Report(
-                torrent=torrent_id,
+                torrent_id=torrent_id,
                 user_id=current_user_id,
                 reason=report_reason)
 
@@ -686,6 +686,17 @@ def submit_report(torrent_id):
             flask.abort(403)
 
     return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+
+
+@app.route('/reports', methods=['GET'])
+def view_reports():
+    reports = models.Report.not_reviewed()
+
+    if not flask.g.user or not flask.g.user.is_admin:
+        flask.abort(403)
+
+    return flask.render_template('reports.html',
+                                 reports=reports)
 
 
 def _get_cached_torrent_file(torrent):
