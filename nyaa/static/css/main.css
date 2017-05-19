@@ -447,6 +447,8 @@ h6:hover .header-anchor {
 	-webkit-box-direction: normal;
 	-ms-flex-direction: column;
 	flex-direction: column;
+
+	padding: 1em 0;
 }
 
 @media (min-width: 768px) {
@@ -455,6 +457,28 @@ h6:hover .header-anchor {
 		-webkit-box-direction: normal;
 		-ms-flex-direction: row;
 		flex-direction: row;
+
+		width: 75%;
+        justify-content: flex-end;
+	}
+
+	#torrent-mass-action-form select {
+        border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	#torrent-mass-action-form .form-group .category-select select {
+        border-radius: 0;
+		border-left: 0;
+    }
+
+	#torrent-mass-action-form #select-all {
+		border-radius: 0;
+	}
+
+	#torrent-mass-action-form #apply-action {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
 	}
 }
 

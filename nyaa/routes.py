@@ -381,7 +381,7 @@ def view_user(user_name):
         if flask.g.user.id == user.id:
             is_logged_in_user_account = True
 
-    form = forms.UserTorrentMassAction(flask.request.form)
+    form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user)
 
     # Use elastic search for term searching
     rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
@@ -441,7 +441,7 @@ def view_user(user_name):
 @app.route('/user/<user_name>/torrents', methods=['POST'])
 def update_torrents(user_name):
     selected_torrent_ids = flask.request.form.getlist('selected_torrents')
-    form = forms.UserTorrentMassAction(flask.request.form, selected_torrents=selected_torrent_ids)
+    form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user, selected_torrents=selected_torrent_ids)
     if form.validate(user=flask.g.user):
         form.apply_user_action()
 

@@ -19,12 +19,12 @@
 {% endif %}
 {% endif %}
 
-{% macro user_form(is_available) %}
+{% macro user_form(user, is_available) %}
     {% if is_available %}
         <form class="form" id="torrent-mass-action-form" action="/user/{{ g.user.username }}/torrents" method="post">
             {{ form.csrf_token }}
             <div class="form-group">
-                <select name="action" id="action" class="form-control">
+                <select name="action" id="action" class="form-control" title="action">
                     <option value="move_category">Move To Category</option>
                     <optgroup label="Hide / Unhide">
                         <option value="hide">Hide</option>
@@ -34,13 +34,18 @@
                         <option value="remake">Remake</option>
                         <option value="unremake">Unremake</option>
                     </optgroup>
+                    {% if user.is_admin  %}
+                    <optgroup label="Admin">
+                        <option value="anonymise">Make Anonymous</option>
+                    </optgroup>
+                    {% endif %}
                 </select>
                 <div class="category-select">
                     {{ render_category_select('category') }}
                 </div>
                 <div class="btn-container">
                     <button class="btn btn-success" id="select-all">Select Visible Items</button>
-                    <button type="submit" class="btn btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-primary" id="apply-action">Apply</button>
                 </div>
             </div>
 
@@ -54,7 +59,7 @@
 
 {% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
 
-{% call user_form(is_current_user) %}
+{% call user_form(user, is_current_user) %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>

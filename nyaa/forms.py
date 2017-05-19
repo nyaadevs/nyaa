@@ -301,9 +301,20 @@ class UserTorrentMassAction(FlaskForm):
 
     selected_category = {'main': None, 'sub': None}
 
+    admin_actions = [
+        ('anonymise', 'Make Anonymous')
+    ]
+
     def __init__(self, *args, **kwargs):
         super(UserTorrentMassAction, self).__init__(*args, **kwargs)
         self.selected_torrents = [x for x in kwargs.get('selected_torrents', []) if x.isdigit()]
+        user = kwargs.get('user', None)
+
+        if user is None:
+            raise TypeError('User needs to be passed as a keyword parameter.')
+
+        if user.is_admin:
+            self.action.choices = self.action.choices + self.admin_actions
 
     def validate(self, user=None):
         super(UserTorrentMassAction, self).validate()
@@ -355,7 +366,7 @@ class UserTorrentMassAction(FlaskForm):
 
         action = actions.get(self.action.data)
         [action(torrent) for torrent in self.selected_torrents]
-        
+
         db.session.commit()
 
 
