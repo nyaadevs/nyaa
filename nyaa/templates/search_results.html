@@ -52,7 +52,7 @@
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
 				{% if use_elastic %}
-				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category_id }} - {{ torrent.sub_category_id }}">
+				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% else %}
 				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% endif %}
@@ -78,7 +78,7 @@
 				{% else %}
 				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
 				{% endif %}
-				
+
 				{% if config.ENABLE_SHOW_STATS %}
 				{% if use_elastic %}
 				<td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
