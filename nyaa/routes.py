@@ -743,6 +743,10 @@ def site_rules():
 def site_help():
     return flask.render_template('help.html')
 
+@app.routes('/xmlns/nyaa', methods=['GET'])
+def xmlns_nyaa():
+    return flask.render_template('xmlns.html')
+
 
 # #################################### API ROUTES ####################################
 @app.route('/api/upload', methods=['POST'])
