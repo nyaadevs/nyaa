@@ -112,7 +112,9 @@ def get_display_time(datetime_str):
 
 # Routes start here #
 
+
 app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
+
 
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
@@ -186,7 +188,9 @@ def home(rss):
                                          pagination=pagination,
                                          torrent_query=query_results,
                                          search=query_args,
-                                         rss_filter=rss_query_string)
+                                         rss_filter=rss_query_string,
+                                         main_cat=models.MainCategory.by_id,
+                                         sub_cat=models.SubCategory.by_category_ids)
     else:
         # If ES is enabled, default to db search for browsing
         if use_elastic:
@@ -481,7 +485,7 @@ def profile():
     _user = models.User.by_id(flask.g.user.id)
     username = _user.username
     current_email = _user.email
-    
+
     return flask.render_template('profile.html', form=form, name=username, email=current_email, level=level)
 
 
