@@ -391,7 +391,7 @@ class Report(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     torrent_id = db.Column(db.Integer, db.ForeignKey(
-        DB_TABLE_PREFIX + 'torrents.id'))
+        DB_TABLE_PREFIX + 'torrents.id', ondelete='CASCADE'))
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id'))
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
