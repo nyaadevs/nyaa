@@ -110,6 +110,19 @@ def get_utc_timestamp(datetime_str):
 def get_display_time(datetime_str):
     return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
 
+@utils.cached_function
+def get_category_id_map():
+    ''' Reads database for categories and turns them into a dict with
+        ids as keys and name list as the value, ala
+        {'1_0': ['Anime'], '1_2': ['Anime', 'English-translated'], ...} '''
+    cat_id_map = {}
+    for main_cat in models.MainCategory.query:
+        cat_id_map[main_cat.id_as_string] = [main_cat.name]
+        for sub_cat in main_cat.sub_categories:
+            cat_id_map[sub_cat.id_as_string] = [main_cat.name, sub_cat.name]
+    return cat_id_map
+
+
 # Routes start here #
 
 app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
@@ -510,10 +523,14 @@ def activate_user(payload):
 def _create_upload_category_choices():
     ''' Turns categories in the database into a list of (id, name)s '''
     choices = [('', '[Select a category]')]
-    for main_cat in models.MainCategory.query.order_by(models.MainCategory.id):
-        choices.append((main_cat.id_as_string, main_cat.name, True))
-        for sub_cat in main_cat.sub_categories:
-            choices.append((sub_cat.id_as_string, ' - ' + sub_cat.name))
+    id_map = get_category_id_map()
+
+    for key in sorted(id_map.keys()):
+        cat_names = id_map[key]
+        is_main_cat = key.endswith('_0')
+
+        cat_name = is_main_cat and cat_names[0] or (' - ' + cat_names[1])
+        choices.append( (key, cat_name, is_main_cat) )
     return choices
 
 

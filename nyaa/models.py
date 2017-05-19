@@ -293,12 +293,8 @@ class SubCategory(db.Model):
         return '_'.join(str(x) for x in self.get_category_ids())
 
     @classmethod
-    def by_id(cls, id):
-        return cls.query.get(id)
-
-    @classmethod
     def by_category_ids(cls, main_cat_id, sub_cat_id):
-        return cls.query.filter(cls.id == sub_cat_id, cls.main_category_id == main_cat_id).first()
+        return cls.query.get( (sub_cat_id, main_cat_id) )
 
 
 class UserLevelType(IntEnum):
