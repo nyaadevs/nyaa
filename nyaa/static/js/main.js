@@ -27,7 +27,7 @@ $(document).ready(function() {
 	$(':file').on('fileselect', function(event, numFiles, label) {
 		var input = $(this).parent().prev().find(':text'),
 			log = numFiles > 1 ? numFiles + ' files selected' : label;
-		
+
 		if (label.endsWith('.torrent')) {
 			fileWarning.fadeOut('fast');
 		} else {
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-// 
+//
 // This is the unminified version of the theme changer script in the layout.html @ line: 21
 // ===========================================================
 // if (typeof(Storage) !== 'undefined') {
