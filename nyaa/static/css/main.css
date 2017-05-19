@@ -451,6 +451,10 @@ h6:hover .header-anchor {
 	padding: 1em 0;
 }
 
+#torrent-mass-action-form .form-group > * {
+    margin: 0.5em 0;
+}
+
 @media (min-width: 768px) {
 	#torrent-mass-action-form .form-group {
 		-webkit-box-orient: horizontal;
@@ -460,6 +464,10 @@ h6:hover .header-anchor {
 
 		width: 75%;
         justify-content: flex-end;
+	}
+
+	#torrent-mass-action-form .form-group > * {
+		margin: 0;
 	}
 
 	#torrent-mass-action-form select {
@@ -493,3 +501,4 @@ h6:hover .header-anchor {
 	-ms-flex: 1;
 	flex: 1
 }
+
