@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_fulltext import FullText
 
 import re
+import base64
 from markupsafe import escape as escape_markup
 from urllib.parse import unquote as unquote_url
 
@@ -120,6 +121,14 @@ class Torrent(db.Model):
                 return '<a href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url)))
         # Escaped
         return escape_markup(self.information)
+
+    @property
+    def info_hash_as_b32(self):
+        return base64.b32encode(self.info_hash).decode('utf-8')
+
+    @property
+    def info_hash_as_hex(self):
+        return self.info_hash.hex()
 
     @property
     def magnet_uri(self):
