@@ -380,6 +380,39 @@ class User(db.Model):
         return self.level is UserLevelType.TRUSTED
 
 
+class ReportStatus(IntEnum):
+    IN_REVIEW = 0
+    VALID = 1
+    INVALID = 2
+
+
+class Report(db.Model):
+    __tablename__ = DB_TABLE_PREFIX + 'reports'
+
+    id = db.Column(db.Integer, primary_key=True)
+    torrent = db.Column(db.Integer, db.ForeignKey(
+        DB_TABLE_PREFIX + 'torrents.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'))
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    reason = db.Column(db.String(length=255), nullable=False)
+    status = db.Column(ChoiceType(ReportStatus, impl=db.Integer()), nullable=False)
+
+    def __init__(self, torrent, user_id, reason):
+        self.torrent = torrent
+        self.user_id = user_id
+        self.reason = reason
+        self.status = ReportStatus.IN_REVIEW
+
+    def __repr__(self):
+        return '<Report %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+
 # class Session(db.Model):
 #    __tablename__ = 'sessions'
 #

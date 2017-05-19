@@ -278,6 +278,14 @@ class TorrentFileData(object):
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 
 
+class ReportForm(FlaskForm):
+    reason = TextAreaField('Report reason', [
+        Length(min=3, max=255,
+               message='Report reason must be at least %(min)d characters long '
+                       'and %(max)d at most.')
+    ])
+
+
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
     announce_string = _validate_bytes(announce, 'announce', 'utf-8')

@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}{{ torrent.display_name }} :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
+{% from "_formhelpers.html" import render_field %}
 <div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
@@ -54,6 +55,8 @@
 	</div>
 	<div class="panel-footer">
 		{% if torrent.has_torrent %}<a href="/view/{{ torrent.id }}/torrent"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
+		<button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#reportModal">Report</button>
+		<div class="clearfix"></div>
 	</div>
 </div>
 
@@ -118,6 +121,31 @@
 	</div>
 </div>
 {% endif %}
+
+    <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Report torrent #{{ torrent.id }}</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ request.url }}/submit_report">
+                        {{ form.csrf_token }}
+                        {{ render_field(form.reason, class_='form-control') }}
+                        <div style="float: right;">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Report</button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer" style="border-top: none;">
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
 	var target = document.getElementById('torrent-description');

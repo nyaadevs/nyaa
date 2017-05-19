@@ -578,9 +578,11 @@ def view_torrent(torrent_id):
     if torrent.filelist:
         files = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
+    report_form = forms.ReportForm()
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
-                                 can_edit=can_edit)
+                                 can_edit=can_edit,
+                                 form=report_form)
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
@@ -661,6 +663,29 @@ def download_torrent(torrent_id):
         quote(torrent.torrent_name.encode('utf-8')))
 
     return resp
+
+
+@app.route('/view/<int:torrent_id>/submit_report', methods=['POST'])
+def submit_report(torrent_id):
+    form = forms.ReportForm(flask.request.form)
+
+    if flask.request.method == 'POST' and form.validate():
+        report_reason = (form.reason.data or '').strip()
+
+        if flask.g.user is not None:
+            current_user_id = flask.g.user.id
+            report = models.Report(
+                torrent=torrent_id,
+                user_id=current_user_id,
+                reason=report_reason)
+
+            db.session.add(report)
+            db.session.commit()
+            flask.flash('Successfully reported torrent!', 'success')
+        else:
+            flask.abort(403)
+
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
 def _get_cached_torrent_file(torrent):
