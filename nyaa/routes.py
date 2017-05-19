@@ -62,6 +62,12 @@ def filter_truthy(input_list):
     return [item for item in input_list if item]
 
 
+@app.template_global()
+def category_name(cat_id):
+    ''' Given a category id (eg. 1_2), returns a category name (eg. Anime - English-translated) '''
+    return ' - '.join(get_category_id_map().get(cat_id, ['???']))
+
+
 @app.errorhandler(404)
 def not_found(error):
     return flask.render_template('404.html'), 404

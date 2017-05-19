@@ -48,11 +48,11 @@
 			{% set torrents = torrent_query if use_elastic else torrent_query.items %}
 			{% for torrent in torrents %}
 			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
-				{% set cat_id = (torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string) if use_elastic else (torrent.main_category.id|string) + '_' + (torrent.sub_category.id|string) %}
+				{% set cat_id = use_elastic and ((torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string)) or torrent.sub_category.id_as_string %}
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
 				{% if use_elastic %}
-				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category_id }} - {{ torrent.sub_category_id }}">
+				<a href="/?c={{ cat_id }}" title="{{ category_name(cat_id) }}">
 				{% else %}
 				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% endif %}
