@@ -135,24 +135,44 @@ def get_category_id_map():
 
 app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
 
+def chain_get(source, *args):
+    ''' Tries to return values from source by the given keys.
+        Returns None if none match.
+        Note: can return a None from the source. '''
+    sentinel = object()
+    for key in args:
+        value = source.get(key, sentinel)
+        if value is not sentinel:
+            return value
+    return None
 
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
 def home(rss):
-    if flask.request.args.get('page') == 'rss':
-        rss = True
+    render_as_rss = rss
+    req_args = flask.request.args
+    if req_args.get('page') == 'rss':
+        render_as_rss = True
 
-    term = flask.request.args.get('q', flask.request.args.get('term'))
-    sort = flask.request.args.get('s')
-    order = flask.request.args.get('o')
-    category = flask.request.args.get('c', flask.request.args.get('cats'))
-    quality_filter = flask.request.args.get('f', flask.request.args.get('filter'))
-    user_name = flask.request.args.get('u', flask.request.args.get('user'))
-    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    search_term = chain_get(req_args, 'q', 'term')
 
-    per_page = app.config.get('RESULTS_PER_PAGE')
-    if not per_page:
-        per_page = DEFAULT_PER_PAGE
+    sort_key = req_args.get('s')
+    sort_order = req_args.get('o')
+
+    category = chain_get(req_args, 'c', 'cats')
+    quality_filter = chain_get(req_args, 'f', 'filter')
+
+    user_name = chain_get(req_args, 'u', 'user')
+    page_number = chain_get(req_args, 'p', 'page', 'offset')
+    try:
+        page_number = max(1, int(page_number))
+    except (ValueError, TypeError):
+        page_number = 1
+
+    # Check simply if the key exists
+    use_magnet_links = 'magnets' in req_args or 'm' in req_args
+
+    results_per_page = app.config.get('RESULTS_PER_PAGE', DEFAULT_PER_PAGE)
 
     user_id = None
     if user_name:
@@ -163,13 +183,13 @@ def home(rss):
 
     query_args = {
         'user': user_id,
-        'sort': sort or 'id',
-        'order': order or 'desc',
+        'sort': sort_key or 'id',
+        'order': sort_order or 'desc',
         'category': category or '0_0',
         'quality_filter': quality_filter or '0',
-        'page': page,
-        'rss': rss,
-        'per_page': per_page
+        'page': page_number,
+        'rss': render_as_rss,
+        'per_page': results_per_page
     }
 
     if flask.g.user:
@@ -179,28 +199,26 @@ def home(rss):
 
     # If searching, we get results from elastic search
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
-    if use_elastic and term:
-        query_args['term'] = term
+    if use_elastic and search_term:
+        query_args['term'] = search_term
 
-        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT')
-        if not max_search_results:
-            max_search_results = DEFAULT_MAX_SEARCH_RESULT
+        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT', DEFAULT_MAX_SEARCH_RESULT)
 
         # Only allow up to (max_search_results / page) pages
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / results_per_page)))
 
         query_args['page'] = max_page
         query_args['max_search_results'] = max_search_results
 
         query_results = search_elastic(**query_args)
 
-        if rss:
-            return render_rss('/', query_results, use_elastic=True)
+        if render_as_rss:
+            return render_rss('"{}"'.format(search_term), query_results, use_elastic=True, magnet_links=use_magnet_links)
         else:
-            rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+            rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
             max_results = min(max_search_results, query_results['hits']['total'])
             # change p= argument to whatever you change page_parameter to or pagination breaks
-            pagination = Pagination(p=query_args['page'], per_page=per_page,
+            pagination = Pagination(p=query_args['page'], per_page=results_per_page,
                                     total=max_results, bs_version=3, page_parameter='p',
                                     display_msg=SERACH_PAGINATE_DISPLAY_MSG)
             return flask.render_template('home.html',
@@ -214,13 +232,13 @@ def home(rss):
         if use_elastic:
             query_args['term'] = ''
         else:  # Otherwise, use db search for everything
-            query_args['term'] = term or ''
+            query_args['term'] = search_term or ''
 
         query = search_db(**query_args)
-        if rss:
-            return render_rss('/', query, use_elastic=False)
+        if render_as_rss:
+            return render_rss('Home', query, use_elastic=False, magnet_links=use_magnet_links)
         else:
-            rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+            rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
             # Use elastic is always false here because we only hit this section
             # if we're browsing without a search term (which means we default to DB)
             # or if ES is disabled
@@ -259,38 +277,39 @@ def view_user(user_name):
 
         return flask.redirect('/user/' + user.username)
 
-    level = 'Regular'
-    if user.is_admin:
-        level = 'Moderator'
-    if user.is_superadmin:  # check this second because user can be admin AND superadmin
-        level = 'Administrator'
-    elif user.is_trusted:
-        level = 'Trusted'
+    user_level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][user.level]
 
-    term = flask.request.args.get('q')
-    sort = flask.request.args.get('s')
-    order = flask.request.args.get('o')
-    category = flask.request.args.get('c')
-    quality_filter = flask.request.args.get('f')
-    page = flask.request.args.get('p')
-    if page:
-        page = int(page)
+    req_args = flask.request.args
 
-    per_page = app.config.get('RESULTS_PER_PAGE')
-    if not per_page:
-        per_page = DEFAULT_PER_PAGE
+    search_term = chain_get(req_args, 'q', 'term')
+
+    sort_key = req_args.get('s')
+    sort_order = req_args.get('o')
+
+    category = chain_get(req_args, 'c', 'cats')
+    quality_filter = chain_get(req_args, 'f', 'filter')
+
+    user_name = chain_get(req_args, 'u', 'user')
+    page_number = chain_get(req_args, 'p', 'page', 'offset')
+    try:
+        page_number = max(1, int(page_number))
+    except (ValueError, TypeError):
+        page_number = 1
+
+    results_per_page = app.config.get('RESULTS_PER_PAGE', DEFAULT_PER_PAGE)
 
     query_args = {
-        'term': term or '',
+        'term': search_term or '',
         'user': user.id,
-        'sort': sort or 'id',
-        'order': order or 'desc',
+        'sort': sort_key or 'id',
+        'order': sort_order or 'desc',
         'category': category or '0_0',
         'quality_filter': quality_filter or '0',
-        'page': page or 1,
+        'page': page_number,
         'rss': False,
-        'per_page': per_page
+        'per_page': results_per_page
     }
+    print(query_args)
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
@@ -298,17 +317,15 @@ def view_user(user_name):
             query_args['admin'] = True
 
     # Use elastic search for term searching
-    rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
+    rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
-    if use_elastic and term:
-        query_args['term'] = term
+    if use_elastic and search_term:
+        query_args['term'] = search_term
 
-        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT')
-        if not max_search_results:
-            max_search_results = DEFAULT_MAX_SEARCH_RESULT
+        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT', DEFAULT_MAX_SEARCH_RESULT)
 
         # Only allow up to (max_search_results / page) pages
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
+        max_page = min(query_args['page'], int(math.ceil(max_search_results / results_per_page)))
 
         query_args['page'] = max_page
         query_args['max_search_results'] = max_search_results
@@ -317,7 +334,7 @@ def view_user(user_name):
 
         max_results = min(max_search_results, query_results['hits']['total'])
         # change p= argument to whatever you change page_parameter to or pagination breaks
-        pagination = Pagination(p=query_args['page'], per_page=per_page,
+        pagination = Pagination(p=query_args['page'], per_page=results_per_page,
                                 total=max_results, bs_version=3, page_parameter='p',
                                 display_msg=SERACH_PAGINATE_DISPLAY_MSG)
         return flask.render_template('user.html',
@@ -328,7 +345,7 @@ def view_user(user_name):
                                      user=user,
                                      user_page=True,
                                      rss_filter=rss_query_string,
-                                     level=level,
+                                     level=user_level,
                                      admin=admin,
                                      superadmin=superadmin,
                                      form=form)
@@ -337,7 +354,7 @@ def view_user(user_name):
         if use_elastic:
             query_args['term'] = ''
         else:
-            query_args['term'] = term or ''
+            query_args['term'] = search_term or ''
         query = search_db(**query_args)
         return flask.render_template('user.html',
                                      use_elastic=False,
@@ -346,7 +363,7 @@ def view_user(user_name):
                                      user=user,
                                      user_page=True,
                                      rss_filter=rss_query_string,
-                                     level=level,
+                                     level=user_level,
                                      admin=admin,
                                      superadmin=superadmin,
                                      form=form)
@@ -362,9 +379,10 @@ def _jinja2_filter_rfc822(datestr, fmt=None):
     return formatdate(float(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').strftime('%s')))
 
 
-def render_rss(label, query, use_elastic):
+def render_rss(label, query, use_elastic, magnet_links=False):
     rss_xml = flask.render_template('rss.xml',
                                     use_elastic=use_elastic,
+                                    magnet_links=magnet_links,
                                     term=label,
                                     site_url=flask.request.url_root,
                                     torrent_query=query)
