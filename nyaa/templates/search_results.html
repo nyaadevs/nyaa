@@ -103,7 +103,9 @@
                     </optgroup>
                     {% if user.is_admin  %}
                     <optgroup label="Admin">
+                        <option value="delete">Delete</option>
                         <option value="anonymise">Make Anonymous</option>
+                        <option value="unanonymise">Remove Anonymity</option>
                     </optgroup>
                     {% endif %}
                 </select>

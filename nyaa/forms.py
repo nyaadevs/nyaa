@@ -1,4 +1,5 @@
 import flask
+from sqlalchemy.exc import SQLAlchemyError
 from nyaa import db, app
 from nyaa.models import User
 from nyaa import bencode, utils, models
@@ -302,8 +303,12 @@ class UserTorrentMassAction(FlaskForm):
     selected_category = {'main': None, 'sub': None}
 
     admin_actions = [
-        ('anonymise', 'Make Anonymous')
+        ('anonymise', 'Make Anonymous'),
+        ('delete', 'Delete'),
+        ('unanonymise', 'Remove Anonymity')
     ]
+
+    is_admin = False
 
     def __init__(self, *args, **kwargs):
         super(UserTorrentMassAction, self).__init__(*args, **kwargs)
@@ -314,12 +319,13 @@ class UserTorrentMassAction(FlaskForm):
             raise TypeError('User needs to be passed as a keyword parameter.')
 
         if user.is_admin:
+            self.is_admin = True
             self.action.choices = self.action.choices + self.admin_actions
 
     def validate(self, user=None):
         super(UserTorrentMassAction, self).validate()
 
-        torrents = db.session.query(models.Torrent).filter(models.Torrent.id.in_(self.selected_torrents))\
+        torrents = db.session.query(models.Torrent).filter(models.Torrent.id.in_(self.selected_torrents)) \
             .filter(models.Torrent.user == user).all()
 
         if len(torrents) != len(self.selected_torrents):
@@ -329,6 +335,10 @@ class UserTorrentMassAction(FlaskForm):
 
         if self.action.data == 'move_category':
             [primary, secondary] = self.category.data.split('_')
+
+            # Category notation implies that these must be numbers. Reject everything else
+            if primary.isdigit() is False or secondary.isdigit() is False:
+                return False
 
             category = models.MainCategory.by_id(primary)
             subcategory = db.session.query(models.SubCategory) \
@@ -364,11 +374,20 @@ class UserTorrentMassAction(FlaskForm):
             'move_category': set_torrent_prop('move_category', None)
         }
 
+        if self.is_admin:
+            actions['anonymise'] = set_torrent_prop('anonymous', True)
+            actions['unanonymise'] = set_torrent_prop('anonymous', False)
+            actions['delete'] = set_torrent_prop('deleted', True)
+
         action = actions.get(self.action.data)
         [action(torrent) for torrent in self.selected_torrents]
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            return {'ok': False, 'message': 'Failed to persisted changes.', 'exception': e}
 
+        return {'ok': True, 'message': 'Successfully persisted changes.'}
 
 class TorrentFileData(object):
     """Quick and dirty class to pass data from the validator"""

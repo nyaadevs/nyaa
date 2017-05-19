@@ -442,8 +442,15 @@ def view_user(user_name):
 def update_torrents(user_name):
     selected_torrent_ids = flask.request.form.getlist('selected_torrents')
     form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user, selected_torrents=selected_torrent_ids)
+
     if form.validate(user=flask.g.user):
-        form.apply_user_action()
+        result = form.apply_user_action()
+        status = 'info'
+        if result['ok'] is False:
+            status = 'danger'
+
+        flask.flash(flask.Markup(
+            f"<strong>{result['message']}</strong>."), status)
 
     return flask.redirect(f"/user/{user_name}")
 
