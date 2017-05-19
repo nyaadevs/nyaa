@@ -15,6 +15,8 @@ import os.path
 api_blueprint = flask.Blueprint('api', __name__)
 
 # #################################### API HELPERS ####################################
+
+
 def basic_auth_user(f):
     ''' A decorator that will try to validate the user into g.user from basic auth.
         Note: this does not set user to None on failure, so users can also authorize
@@ -30,15 +32,17 @@ def basic_auth_user(f):
         return f(*args, **kwargs)
     return decorator
 
+
 def api_require_user(f):
     ''' Returns an error message if flask.g.user is None.
         Remember to put after basic_auth_user. '''
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         if flask.g.user is None:
-            return flask.jsonify({'errors':['Bad authorization']}), 403
+            return flask.jsonify({'errors': ['Bad authorization']}), 403
         return f(*args, **kwargs)
     return decorator
+
 
 def validate_user(upload_request):
     auth_info = None
@@ -121,18 +125,19 @@ def api_upload(upload_request, user):
 
 # V2 below
 
+
 # Map UploadForm fields to API keys
 UPLOAD_API_FORM_KEYMAP = {
-    'torrent_file' : 'torrent',
+    'torrent_file': 'torrent',
 
-    'display_name' : 'name',
+    'display_name': 'name',
 
-    'is_anonymous' : 'anonymous',
-    'is_hidden'    : 'hidden',
-    'is_complete'  : 'complete',
-    'is_remake'    : 'remake'
+    'is_anonymous': 'anonymous',
+    'is_hidden': 'hidden',
+    'is_complete': 'complete',
+    'is_remake': 'remake'
 }
-UPLOAD_API_FORM_KEYMAP_REVERSE = {v:k for k,v in UPLOAD_API_FORM_KEYMAP.items()}
+UPLOAD_API_FORM_KEYMAP_REVERSE = {v: k for k, v in UPLOAD_API_FORM_KEYMAP.items()}
 UPLOAD_API_KEYS = [
     'name',
     'category',
@@ -144,17 +149,18 @@ UPLOAD_API_KEYS = [
     'description'
 ]
 
+
 @api_blueprint.route('/v2/upload', methods=['POST'])
 @basic_auth_user
 @api_require_user
 def v2_api_upload():
     mapped_dict = {
-        'torrent_file' : flask.request.files.get('torrent')
+        'torrent_file': flask.request.files.get('torrent')
     }
 
     request_data_field = flask.request.form.get('torrent_data')
     if request_data_field is None:
-        return flask.jsonify({'errors' : ['missing torrent_data field']}), 400
+        return flask.jsonify({'errors': ['missing torrent_data field']}), 400
     request_data = json.loads(request_data_field)
 
     # Map api keys to upload form fields
@@ -171,15 +177,15 @@ def v2_api_upload():
 
         # Create a response dict with relevant data
         torrent_metadata = {
-            'url' : flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
-            'id'  : torrent.id,
-            'name'  : torrent.display_name,
-            'hash'   : torrent.info_hash.hex(),
-            'magnet' : torrent.magnet_uri
+            'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+            'id': torrent.id,
+            'name': torrent.display_name,
+            'hash': torrent.info_hash.hex(),
+            'magnet': torrent.magnet_uri
         }
 
         return flask.jsonify(torrent_metadata)
     else:
         # Map errors back from form fields into the api keys
-        mapped_errors = { UPLOAD_API_FORM_KEYMAP.get(k, k) : v for k,v in upload_form.errors.items() }
-        return flask.jsonify({'errors' : mapped_errors}), 400
+        mapped_errors = {UPLOAD_API_FORM_KEYMAP.get(k, k): v for k, v in upload_form.errors.items()}
+        return flask.jsonify({'errors': mapped_errors}), 400
