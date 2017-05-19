@@ -419,7 +419,7 @@ h6:hover .header-anchor {
 
 @media (min-width: 768px) {
 	#torrent-mass-action-form > * {
-        margin-right: 1em;
+		margin-right: 1em;
 	}
 
 	#torrent-mass-action-form #select-all {
@@ -428,7 +428,7 @@ h6:hover .header-anchor {
 }
 
 #torrent-mass-action-form > * {
-    margin-bottom: 1em;
+	margin-bottom: 1em;
 }
 
 .btn-container {
@@ -436,7 +436,7 @@ h6:hover .header-anchor {
 }
 
 .btn-container > button {
-    flex: 1;
+	flex: 1;
 }
 
 #torrent-mass-action-form .form-group {
