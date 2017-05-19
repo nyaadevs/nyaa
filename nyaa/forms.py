@@ -7,7 +7,8 @@ import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError, Regexp
+from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError
+from wtforms.validators import Regexp
 
 # For DisabledSelectField
 from wtforms.widgets import Select as SelectWidget

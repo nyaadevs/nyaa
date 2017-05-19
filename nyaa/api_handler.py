@@ -9,12 +9,12 @@ from nyaa import torrents
 import functools
 import json
 import os.path
-#from orderedset import OrderedSet
-#from werkzeug import secure_filename
 
 api_blueprint = flask.Blueprint('api', __name__)
 
 # #################################### API HELPERS ####################################
+
+
 def basic_auth_user(f):
     ''' A decorator that will try to validate the user into g.user from basic auth.
         Note: this does not set user to None on failure, so users can also authorize
@@ -30,15 +30,17 @@ def basic_auth_user(f):
         return f(*args, **kwargs)
     return decorator
 
+
 def api_require_user(f):
     ''' Returns an error message if flask.g.user is None.
         Remember to put after basic_auth_user. '''
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         if flask.g.user is None:
-            return flask.jsonify({'errors':['Bad authorization']}), 403
+            return flask.jsonify({'errors': ['Bad authorization']}), 403
         return f(*args, **kwargs)
     return decorator
+
 
 def validate_user(upload_request):
     auth_info = None
@@ -55,7 +57,8 @@ def validate_user(upload_request):
             if not user:
                 user = models.User.by_email(username)
 
-            if (not user or password != user.password_hash or user.status == models.UserStatusType.INACTIVE):
+            if not user or password != user.password_hash or \
+                    user.status == models.UserStatusType.INACTIVE:
                 return False, None, None
 
             return True, user, None
@@ -85,23 +88,21 @@ def api_upload(upload_request, user):
         form_info_as_dict = []
         for k, v in form_info.items():
             if k in ['is_anonymous', 'is_hidden', 'is_remake', 'is_complete']:
-                if v == True:
+                if v:
                     form_info_as_dict.append((k, v))
             else:
                 form_info_as_dict.append((k, v))
         form_info = ImmutableMultiDict(form_info_as_dict)
-
-        # print(repr(form_info))
     except Exception as e:
-        return flask.make_response(flask.jsonify({'Failure': ['Invalid data. See HELP in api_uploader.py']}), 400)
+        return flask.make_response(flask.jsonify(
+            {'Failure': ['Invalid data. See HELP in api_uploader.py']}), 400)
 
     try:
         torrent_file = upload_request.files['torrent_file']
         torrent_file = ImmutableMultiDict([('torrent_file', torrent_file)])
-
-        # print(repr(torrent_file))
     except Exception as e:
-        return flask.make_response(flask.jsonify({'Failure': ['No torrent file was attached.']}), 400)
+        return flask.make_response(flask.jsonify(
+            {'Failure': ['No torrent file was attached.']}), 400)
 
     form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)))
     form.category.choices = _create_upload_category_choices()
@@ -111,28 +112,27 @@ def api_upload(upload_request, user):
 
         return flask.make_response(flask.jsonify({'Success': int('{0}'.format(torrent.id))}), 200)
     else:
-        # print(form.errors)
         return_error_messages = []
         for error_name, error_messages in form.errors.items():
-            # print(error_messages)
             return_error_messages.extend(error_messages)
 
         return flask.make_response(flask.jsonify({'Failure': return_error_messages}), 400)
 
 # V2 below
 
+
 # Map UploadForm fields to API keys
 UPLOAD_API_FORM_KEYMAP = {
-    'torrent_file' : 'torrent',
+    'torrent_file': 'torrent',
 
-    'display_name' : 'name',
+    'display_name': 'name',
 
-    'is_anonymous' : 'anonymous',
-    'is_hidden'    : 'hidden',
-    'is_complete'  : 'complete',
-    'is_remake'    : 'remake'
+    'is_anonymous': 'anonymous',
+    'is_hidden': 'hidden',
+    'is_complete': 'complete',
+    'is_remake': 'remake'
 }
-UPLOAD_API_FORM_KEYMAP_REVERSE = {v:k for k,v in UPLOAD_API_FORM_KEYMAP.items()}
+UPLOAD_API_FORM_KEYMAP_REVERSE = {v: k for k, v in UPLOAD_API_FORM_KEYMAP.items()}
 UPLOAD_API_KEYS = [
     'name',
     'category',
@@ -144,17 +144,18 @@ UPLOAD_API_KEYS = [
     'description'
 ]
 
+
 @api_blueprint.route('/v2/upload', methods=['POST'])
 @basic_auth_user
 @api_require_user
 def v2_api_upload():
     mapped_dict = {
-        'torrent_file' : flask.request.files.get('torrent')
+        'torrent_file': flask.request.files.get('torrent')
     }
 
     request_data_field = flask.request.form.get('torrent_data')
     if request_data_field is None:
-        return flask.jsonify({'errors' : ['missing torrent_data field']}), 400
+        return flask.jsonify({'errors': ['missing torrent_data field']}), 400
     request_data = json.loads(request_data_field)
 
     # Map api keys to upload form fields
@@ -171,15 +172,15 @@ def v2_api_upload():
 
         # Create a response dict with relevant data
         torrent_metadata = {
-            'url' : flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
-            'id'  : torrent.id,
-            'name'  : torrent.display_name,
-            'hash'   : torrent.info_hash.hex(),
-            'magnet' : torrent.magnet_uri
+            'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+            'id': torrent.id,
+            'name': torrent.display_name,
+            'hash': torrent.info_hash.hex(),
+            'magnet': torrent.magnet_uri
         }
 
         return flask.jsonify(torrent_metadata)
     else:
         # Map errors back from form fields into the api keys
-        mapped_errors = { UPLOAD_API_FORM_KEYMAP.get(k, k) : v for k,v in upload_form.errors.items() }
-        return flask.jsonify({'errors' : mapped_errors}), 400
+        mapped_errors = {UPLOAD_API_FORM_KEYMAP.get(k, k): v for k, v in upload_form.errors.items()}
+        return flask.jsonify({'errors': mapped_errors}), 400

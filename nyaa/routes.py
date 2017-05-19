@@ -116,6 +116,7 @@ def get_utc_timestamp(datetime_str):
 def get_display_time(datetime_str):
     return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
 
+
 @utils.cached_function
 def get_category_id_map():
     ''' Reads database for categories and turns them into a dict with
@@ -131,7 +132,9 @@ def get_category_id_map():
 
 # Routes start here #
 
+
 app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
+
 
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
@@ -500,8 +503,9 @@ def profile():
     _user = models.User.by_id(flask.g.user.id)
     username = _user.username
     current_email = _user.email
-    
-    return flask.render_template('profile.html', form=form, name=username, email=current_email, level=level)
+
+    return flask.render_template('profile.html', form=form, name=username, email=current_email,
+                                 level=level)
 
 
 @app.route('/user/activate/<payload>')
@@ -536,15 +540,15 @@ def _create_upload_category_choices():
         is_main_cat = key.endswith('_0')
 
         cat_name = is_main_cat and cat_names[0] or (' - ' + cat_names[1])
-        choices.append( (key, cat_name, is_main_cat) )
+        choices.append((key, cat_name, is_main_cat))
     return choices
 
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
-    #print('{0} - {1}'.format(flask.request.files, flask.request.form))
     form.category.choices = _create_upload_category_choices()
+
     if flask.request.method == 'POST' and form.validate():
         torrent = backend.handle_torrent_upload(form, flask.g.user)
 

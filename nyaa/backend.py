@@ -71,7 +71,8 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent.trusted = (uploading_user.level >=
                        models.UserLevelType.TRUSTED) if uploading_user else False
     # Set category ids
-    torrent.main_category_id, torrent.sub_category_id = upload_form.category.parsed_data.get_category_ids()
+    torrent.main_category_id, torrent.sub_category_id = \
+        upload_form.category.parsed_data.get_category_ids()
 
     # To simplify parsing the filelist, turn single-file torrent into a list
     torrent_filelist = info_dict.get('files')

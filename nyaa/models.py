@@ -294,7 +294,7 @@ class SubCategory(db.Model):
 
     @classmethod
     def by_category_ids(cls, main_cat_id, sub_cat_id):
-        return cls.query.get( (sub_cat_id, main_cat_id) )
+        return cls.query.get((sub_cat_id, main_cat_id))
 
 
 class UserLevelType(IntEnum):
