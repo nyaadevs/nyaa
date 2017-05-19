@@ -1,0 +1,54 @@
+{% macro add_tag(torrent, key, tag) -%}
+{% if torrent[key] %}
+<torznab:attr name="tag" value="{{ tag }}" />
+{% endif %}
+{%- endmacro %}
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:torznab="http://torznab.com/schemas/2015/feed">
+	<channel>
+		<title>{{ config.SITE_NAME }}</title>
+		<description>{{ config.SITE_NAME }} API result</description>
+		<link>{{ url_for('home', _external=True) }}</link>
+        <torznab:response offset="{{ offset }}" total="{{ query.total }}" />
+		{% for torrent in query %}
+            {% set view_url = url_for('view_torrent', torrent_id=torrent.id, _external=True) %}
+            {% set magnet_url = torrent.magnet_uri %}
+        {% if torrent.has_torrent %}
+		    {% set download_url = url_for('download_torrent', torrent_id=torrent.id, _external=True) %}
+        {% else %}
+		    {% set download_url = magnet_url %}
+        {% endif %}
+		<item>
+			<title>{{ torrent.display_name | escape }}</title>
+			<guid isPermaLink="true">{{ view_url }}</guid>
+			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+			<link>{{ download_url }}</link>
+		    <enclosure url="{{ download_url }}" type="application/x-bittorrent" length="{{ torrent.filesize }}" />
+            <comments>{{ view_url }}</comments>
+            <category>{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}</category>
+            {# <description>{{ torrent.description | escape }}</description> #}
+            <torznab:attr name="size" value="{{ torrent.filesize }}" />
+        {% for cat in get_torznab_categories(torrent) %}
+            <torznab:attr name="category" value="{{ cat }}" />
+        {% endfor %}
+{# Only include extended attributes if requested #}
+{% if extended %}
+            {{ add_tag(torrent, 'deleted', 'deleted') }}
+            {{ add_tag(torrent, 'hidden', 'hidden') }}
+            {{ add_tag(torrent, 'remake', 'remake') }}
+            {{ add_tag(torrent, 'trusted', 'trusted') }}
+            {{ add_tag(torrent, 'anonymous', 'anonymous') }}
+            <torznab:attr name="infohash" value="{{ torrent.info_hash.hex() }}" />
+            <torznab:attr name="magneturl" value="{{ magnet_url }}" />
+        {% if config.ENABLE_SHOW_STATS %}
+            <torznab:attr name="seeders" value="{{ torrent.stats.seed_count }}" />
+            <torznab:attr name="leechers" value="{{ torrent.stats.leech_count }}" />
+            <torznab:attr name="grabs" value="{{ torrent.stats.download_count }}" />
+        {% endif %}
+        {% if not torrent.anonymous %}
+            <torznab:attr name="poster" value="{{ torrent.user.name }}" />
+        {% endif %}
+{% endif %}
+		</item>
+        {% endfor %}
+	</channel>
+</rss>

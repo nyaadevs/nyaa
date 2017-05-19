@@ -6,7 +6,8 @@ from nyaa import bencode, utils
 from nyaa import torrents
 from nyaa import backend
 from nyaa import api_handler
-from nyaa.search import search_elastic, search_db
+from nyaa import api_torznab
+from nyaa.search import search
 import config
 
 import json
@@ -168,15 +169,14 @@ def home(rss):
         max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
 
         query_args['page'] = max_page
-        query_args['max_search_results'] = max_search_results
 
-        query_results = search_elastic(**query_args)
+        query_results = search(**query_args)
 
         if rss:
             return render_rss('/', query_results, use_elastic=True)
         else:
             rss_query_string = _generate_query_string(term, category, quality_filter, user_name)
-            max_results = min(max_search_results, query_results['hits']['total'])
+            max_results = min(max_search_results, query_results.total)
             # change p= argument to whatever you change page_parameter to or pagination breaks
             pagination = Pagination(p=query_args['page'], per_page=per_page,
                                     total=max_results, bs_version=3, page_parameter='p',
@@ -188,13 +188,9 @@ def home(rss):
                                          search=query_args,
                                          rss_filter=rss_query_string)
     else:
-        # If ES is enabled, default to db search for browsing
-        if use_elastic:
-            query_args['term'] = ''
-        else:  # Otherwise, use db search for everything
-            query_args['term'] = term or ''
+        query_args['term'] = term or ''
 
-        query = search_db(**query_args)
+        query = search(**query_args)
         if rss:
             return render_rss('/', query, use_elastic=False)
         else:
@@ -289,11 +285,10 @@ def view_user(user_name):
         max_page = min(query_args['page'], int(math.ceil(max_search_results / float(per_page))))
 
         query_args['page'] = max_page
-        query_args['max_search_results'] = max_search_results
 
-        query_results = search_elastic(**query_args)
+        query_results = search(**query_args)
 
-        max_results = min(max_search_results, query_results['hits']['total'])
+        max_results = min(max_search_results, query_results.total)
         # change p= argument to whatever you change page_parameter to or pagination breaks
         pagination = Pagination(p=query_args['page'], per_page=per_page,
                                 total=max_results, bs_version=3, page_parameter='p',
@@ -333,11 +328,6 @@ def view_user(user_name):
 @app.template_filter('rfc822')
 def _jinja2_filter_rfc822(date, fmt=None):
     return formatdate(float(date.strftime('%s')))
-
-
-@app.template_filter('rfc822_es')
-def _jinja2_filter_rfc822(datestr, fmt=None):
-    return formatdate(float(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').strftime('%s')))
 
 
 def render_rss(label, query, use_elastic):
@@ -708,4 +698,10 @@ def api_upload():
     if not is_valid_user:
         return flask.make_response(flask.jsonify({"Failure": "Invalid username or password."}), 400)
     api_response = api_handler.api_upload(flask.request, user)
+    return api_response
+
+
+@app.route('/api', methods=['GET'])
+def api_root():
+    api_response = api_torznab.handle_api_request(flask.request)
     return api_response

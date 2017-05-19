@@ -1,0 +1,65 @@
+<caps>
+    <server version="1.0" title="{{ config.SITE_NAME }}" strapline="..." url="{{ url_for('home', _external=True) }}" image="..." />
+
+    <limits max="{{ config.RESULTS_PER_PAGE }}" default="{{ config.RESULTS_PER_PAGE }}" />
+    <registration available="no" open="no" />
+    <searching>
+        <search available="yes" supportedParams="q" />
+        <tv-search available="yes" supportedParams="q" />
+        <movie-search available="no" />
+        <audio-search available="no" />
+    </searching>
+    <categories>
+        {# TODO: Generate from central source/table #}
+
+        <!-- Generic Newznab/Torznab categories, may not include all releases -->
+        {# See https://github.com/nZEDb/nZEDb/blob/0.x/docs/newznab_api_specification.txt #}
+        <category id="3000" name="Audio">
+            <subcat id="3010" name="MP3" />
+            <subcat id="3040" name="Lossless" /> {# Includes 100201 #}
+            <subcat id="3060" name="Foreign" />
+        </category>
+        <category id="4000" name="PC">
+            <subcat id="4050" name="Games" />    {# Includes 100602 #}
+        </category>
+        <category id="5000" name="TV">
+            <subcat id="5070" name="Anime" />    {# Includes 100102 #}
+        </category>
+        <category id="7000" name="Books"> 
+            <subcat id="7020" name="Ebook" />    {# Includes 100301 #}
+            <subcat id="7060" name="Foreign" />  {# Includes 100302 #}
+        </category>
+        <!-- Nyaa Specific categories -->
+        <category id="100100" name="Anime">
+            <subcat id="100101" name="Anime - Music Video" />
+            <subcat id="100102" name="Anime - English-translated" />
+            <subcat id="100103" name="Anime - Non-English-translated" />
+            <subcat id="100104" name="Anime - Raw" />
+        </category>
+        <category id="100200" name="Audio">
+            <subcat id="100201" name="Audio - Lossless" />
+            <subcat id="100202" name="Audio - Lossy" />
+        </category>
+        <category id="100300" name="Literature">
+            <subcat id="100301" name="Literature - English-translated" />
+            <subcat id="100302" name="Literature - Non-English-translated" />
+            <subcat id="100303" name="Literature - Raw" />
+        </category>
+        <category id="100400" name="Live Action">
+            <subcat id="100401" name="Live Action - English-translated" />
+            <subcat id="100402" name="Live Action - Idol/Promotional Video" />
+            <subcat id="100403" name="Live Action - Non-English-translated" />
+            <subcat id="100404" name="Live Action - Raw" />
+        </category>
+        <category id="100500" name="Pictures">
+            <subcat id="100501" name="Graphics" />
+            <subcat id="100502" name="Photos" />
+        </category>
+        <category id="100600" name="Software">
+            <subcat id="100601" name="Applications" />
+            <subcat id="100602" name="Games" />
+        </category>
+    </categories>
+    <groups></groups>
+    <genres></genres>
+</caps>
