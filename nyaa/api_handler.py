@@ -59,6 +59,8 @@ def validate_user(upload_request):
                 return False, None, None
 
             return True, user, None
+        else:
+            return False, None, None
 
     except Exception as e:
         return False, None, e
@@ -99,7 +101,7 @@ def api_upload(upload_request, user):
 
         # print(repr(torrent_file))
     except Exception as e:
-        pass
+        return flask.make_response(flask.jsonify({'Failure': ['No torrent file was attached.']}), 400)
 
     form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)))
     form.category.choices = _create_upload_category_choices()
