@@ -18,7 +18,7 @@
 - `pyenv activate nyaa`
 - Install dependencies with `pip install -r requirements.txt`
 - Copy `config.example.py` into `config.py`
-- Change TALBE_PREFIX to `nyaa_` or `sukebei_` depending on the site
+- Change TABLE_PREFIX to `nyaa_` or `sukebei_` depending on the site
 
 ## Setting up MySQL/MariaDB database for advanced functionality
 - Enable `USE_MYSQL` flag in config.py
@@ -64,7 +64,7 @@
 
 ## Setting up ES
 - Run `./create_es.sh` and this creates two indicies: `nyaa` and `sukebei`
-- The output should show `akncolwedged: true` twice
+- The output should show `acknowledged: true` twice
 - The safest bet is to disable the webapp here to ensure there's no database writes
 - Run `python import_to_es.py` with `SITE_FLAVOR` set to `nyaa`
 - Run `python import_to_es.py` with `SITE_FLAVOR` set to `sukebei`
