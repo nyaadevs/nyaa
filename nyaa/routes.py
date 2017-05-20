@@ -693,30 +693,35 @@ def view_reports():
 
     page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
     reports = models.Report.not_reviewed(page)
+    report_action = forms.ReportActionForm(flask.request.form)
 
-    if flask.request.method == 'POST':
-        data = flask.request.form
-        torrent = models.Torrent.by_id(data['torrent'])
-        report = models.Report.by_id(data['report'])
+    if flask.request.method == 'POST' and report_action.validate():
+        action = report_action.action.data
+        torrent_id = report_action.torrent.data
+        report_id = report_action.report.data
+        torrent = models.Torrent.by_id(torrent_id)
+        report = models.Report.by_id(report_id)
+        
         if not torrent or not report or report.status != 0:
             flask.abort(404)
         else:
-            if data['action'] == 'delete':
+            if action == 'delete':
                 torrent.deleted = True
                 report.status = 1
-            elif data['action'] == 'hide':
+            elif action == 'hide':
                 torrent.hidden = True
                 report.status = 1
             else:
                 report.status = 2
 
-            models.Report.remove_reviewed(data['torrent'])
+            models.Report.remove_reviewed(torrent_id)
             db.session.commit()
             flask.flash('Closed report #{}'.format(report.id), 'success')
             return flask.redirect(flask.url_for('view_reports'))
 
     return flask.render_template('reports.html',
-                                 reports=reports)
+                                 reports=reports,
+                                 report_action=report_action)
 
 
 def _get_cached_torrent_file(torrent):

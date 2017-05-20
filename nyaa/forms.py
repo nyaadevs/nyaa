@@ -6,7 +6,7 @@ import os
 import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField, HiddenField
 from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError
 from wtforms.validators import Regexp
 
@@ -285,6 +285,12 @@ class ReportForm(FlaskForm):
                        'and %(max)d at most.'),
         DataRequired('You must provide a valid report reason.')
     ])
+
+
+class ReportActionForm(FlaskForm):
+    action = SelectField(choices=[('close', 'Close'), ('hide', 'Hide'), ('delete', 'Delete')])
+    torrent = HiddenField()
+    report = HiddenField()
 
 
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):

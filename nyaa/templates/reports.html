@@ -28,13 +28,10 @@
 				<td>{{ report.created_time }}</td>
 				<td style="width: 15%">
 					<form method="post">
-						<select name="action" class="pull-left">
-							<option value="close">Close</option>
-							<option value="delete">Delete</option>
-							<option value="hide">Hide</option>
-						</select>
-						<input type="hidden" value="{{ report.torrent.id }}" name="torrent">
-						<input type="hidden" value="{{ report.id }}" name="report">
+						{{ report_action.csrf_token }}
+						{{ report_action.action }}
+						{{ report_action.torrent(value=report.torrent.id) }}
+						{{ report_action.report(value=report.id) }}
 						<button type="submit" class="btn btn-primary pull-right">Review</button>
 					</form>
 				</td>
