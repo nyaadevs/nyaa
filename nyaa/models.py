@@ -89,10 +89,14 @@ class Torrent(db.Model):
                                    primaryjoin=(
                                        "and_(SubCategory.id == foreign(Torrent.sub_category_id), "
                                        "SubCategory.main_category_id == Torrent.main_category_id)"))
-    info = db.relationship('TorrentInfo', uselist=False, back_populates='torrent')
-    filelist = db.relationship('TorrentFilelist', uselist=False, back_populates='torrent')
-    stats = db.relationship('Statistic', uselist=False, back_populates='torrent', lazy='joined')
-    trackers = db.relationship('TorrentTrackers', uselist=True, lazy='joined')
+    info = db.relationship('TorrentInfo', uselist=False,
+                           cascade="all, delete-orphan", back_populates='torrent')
+    filelist = db.relationship('TorrentFilelist', uselist=False,
+                           cascade="all, delete-orphan", back_populates='torrent')
+    stats = db.relationship('Statistic', uselist=False,
+                           cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
+    trackers = db.relationship('TorrentTrackers', uselist=True,
+                           cascade="all, delete-orphan", lazy='joined')
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
