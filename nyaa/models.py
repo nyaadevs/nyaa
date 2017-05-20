@@ -422,11 +422,7 @@ class Report(db.Model):
 
     @classmethod
     def not_reviewed(cls, page):
-        reports = cls.query.filter(cls.status == 0)\
-            .join(Torrent, aliased=True).filter(Torrent.flags != 36, Torrent.flags != 2)\
-            .order_by(db.asc(cls.id))\
-            .paginate(page=page, per_page=20)
-        # reports = cls.query.filter_by(status=0).paginate(page=page, per_page=20)
+        reports = cls.query.filter_by(status=0).paginate(page=page, per_page=20)
         return reports
 
     @classmethod

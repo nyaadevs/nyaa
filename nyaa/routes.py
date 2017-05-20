@@ -701,7 +701,7 @@ def view_reports():
         report_id = report_action.report.data
         torrent = models.Torrent.by_id(torrent_id)
         report = models.Report.by_id(report_id)
-        
+
         if not torrent or not report or report.status != 0:
             flask.abort(404)
         else:
