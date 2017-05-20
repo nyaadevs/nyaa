@@ -380,6 +380,10 @@ class UserTorrentMassAction(FlaskForm):
             actions['delete'] = set_torrent_prop('deleted', True)
 
         action = actions.get(self.action.data)
+
+        if action is None:
+            return {'ok': False, 'message': 'The action specified can not be found.'}
+
         [action(torrent) for torrent in self.selected_torrents]
 
         try:
@@ -388,6 +392,7 @@ class UserTorrentMassAction(FlaskForm):
             return {'ok': False, 'message': 'Failed to persisted changes.', 'exception': e}
 
         return {'ok': True, 'message': 'Successfully persisted changes.'}
+
 
 class TorrentFileData(object):
     """Quick and dirty class to pass data from the validator"""
