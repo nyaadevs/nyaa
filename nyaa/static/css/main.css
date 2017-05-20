@@ -36,6 +36,11 @@ table.torrent-list thead th a {
 	filter: alpha(opacity=1);
 }
 
+table.torrent-list thead th a:visited {
+	color: #1d4568;
+        /*color: #dd77ff;*/ /* Color suggested in #145 */
+}
+
 table.torrent-list thead th.sorting:after,
 table.torrent-list thead th.sorting_asc:after,
 table.torrent-list thead th.sorting_desc:after {
