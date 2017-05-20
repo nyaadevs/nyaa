@@ -32,12 +32,16 @@
 
 	</div>
 	<div class="row form-group">
-		<div class="col-md-4">
+		<div class="col-md-6">
 			{{ render_field(form.information, class_='form-control', placeholder='Your website or IRC channel') }}
 		</div>
-		<div class="col-md-8">
+		<div class="col-md-6">
 			<label class="control-label">Torrent flags</label>
 			<div>
+			<label class="btn btn-primary" title="Upload torrent anonymously (don't display your username)">
+				{{ form.is_anonymous(disabled=(False if user else ""), checked=(False if user else "")) }}
+				Anonymous
+			</label>
 			<label class="btn btn-default" style="background-color: darkgray; border-color: #ccc;" title="Hide torrent from listing">
 				{{ form.is_hidden }}
 				Hidden
@@ -49,10 +53,6 @@
 			<label class="btn btn-primary" title="This torrent is a complete batch (eg. season)">
 				{{ form.is_complete }}
 				Complete
-			</label>
-			<label class="btn btn-primary" title="Upload torrent anonymously (don't display your username)">
-				{{ form.is_anonymous(disabled=(False if user else ""), checked=(False if user else "")) }}
-				Anonymous
 			</label>
 			{% if user.is_trusted %}
 			<label class="btn btn-success" title="Mark torrent trusted">
