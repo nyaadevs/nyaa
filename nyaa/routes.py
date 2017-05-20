@@ -555,7 +555,8 @@ def _create_upload_category_choices():
         cat_names = id_map[key]
         is_main_cat = key.endswith('_0')
 
-        cat_name = is_main_cat and cat_names[0] or (' - ' + cat_names[1])
+        # cat_name = is_main_cat and cat_names[0] or (' - ' + cat_names[1])
+        cat_name = ' - '.join(cat_names)
         choices.append((key, cat_name, is_main_cat))
     return choices
 
