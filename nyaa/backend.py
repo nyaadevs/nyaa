@@ -100,7 +100,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         for directory in path_parts:
             current_directory = current_directory.setdefault(directory, {})
 
-        current_directory[filename] = file_dict['length']
+        # Don't add empty filenames (BitComet directory)
+        if filename:
+            current_directory[filename] = file_dict['length']
 
     parsed_file_tree = utils.sorted_pathdict(parsed_file_tree)
 
