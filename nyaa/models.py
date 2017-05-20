@@ -382,15 +382,15 @@ class User(db.Model):
 
     @property
     def is_admin(self):
-        return self.level is UserLevelType.ADMIN or self.level is UserLevelType.SUPERADMIN
+        return self.level >= UserLevelType.ADMIN
 
     @property
     def is_superadmin(self):
-        return self.level is UserLevelType.SUPERADMIN
+        return self.level == UserLevelType.SUPERADMIN
 
     @property
     def is_trusted(self):
-        return self.level is UserLevelType.TRUSTED
+        return self.level >= UserLevelType.TRUSTED
 
 
 # class Session(db.Model):

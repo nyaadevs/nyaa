@@ -68,8 +68,8 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent.remake = upload_form.is_remake.data
     torrent.complete = upload_form.is_complete.data
     # Copy trusted status from user if possible
-    torrent.trusted = (uploading_user.level >=
-                       models.UserLevelType.TRUSTED) if uploading_user else False
+    can_mark_trusted = uploading_user and uploading_user.is_trusted
+    torrent.trusted = upload_form.is_trusted.data if can_mark_trusted else False
     # Set category ids
     torrent.main_category_id, torrent.sub_category_id = \
         upload_form.category.parsed_data.get_category_ids()
