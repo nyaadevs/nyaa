@@ -429,6 +429,10 @@ class Report(db.Model):
         # reports = cls.query.filter_by(status=0).paginate(page=page, per_page=20)
         return reports
 
+    @classmethod
+    def remove_reviewed(cls, id):
+        return cls.query.filter(cls.torrent_id == id, cls.status == 0).delete()
+
 # class Session(db.Model):
 #    __tablename__ = 'sessions'
 #

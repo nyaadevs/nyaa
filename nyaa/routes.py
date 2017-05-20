@@ -710,6 +710,7 @@ def view_reports():
             else:
                 report.status = 2
 
+            models.Report.remove_reviewed(data['torrent'])
             db.session.commit()
             flask.flash('Closed report #{}'.format(report.id), 'success')
             return flask.redirect(flask.url_for('view_reports'))
