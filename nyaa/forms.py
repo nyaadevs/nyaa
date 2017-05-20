@@ -282,7 +282,8 @@ class ReportForm(FlaskForm):
     reason = TextAreaField('Report reason', [
         Length(min=3, max=255,
                message='Report reason must be at least %(min)d characters long '
-                       'and %(max)d at most.')
+                       'and %(max)d at most.'),
+        DataRequired('You must provide a valid report reason.')
     ])
 
 

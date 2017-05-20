@@ -27,7 +27,6 @@ from email.utils import formatdate
 
 from flask_paginate import Pagination
 
-
 DEBUG_API = False
 DEFAULT_MAX_SEARCH_RESULT = 1000
 DEFAULT_PER_PAGE = 75
@@ -582,7 +581,7 @@ def view_torrent(torrent_id):
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
                                  can_edit=can_edit,
-                                 form=report_form)
+                                 report_form=report_form)
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
@@ -667,33 +666,53 @@ def download_torrent(torrent_id):
 
 @app.route('/view/<int:torrent_id>/submit_report', methods=['POST'])
 def submit_report(torrent_id):
+    if not flask.g.user:
+        flask.abort(403)
+
     form = forms.ReportForm(flask.request.form)
 
     if flask.request.method == 'POST' and form.validate():
-        report_reason = (form.reason.data or '').strip()
+        report_reason = form.reason.data
+        current_user_id = flask.g.user.id
+        report = models.Report(
+            torrent_id=torrent_id,
+            user_id=current_user_id,
+            reason=report_reason)
 
-        if flask.g.user is not None:
-            current_user_id = flask.g.user.id
-            report = models.Report(
-                torrent_id=torrent_id,
-                user_id=current_user_id,
-                reason=report_reason)
-
-            db.session.add(report)
-            db.session.commit()
-            flask.flash('Successfully reported torrent!', 'success')
-        else:
-            flask.abort(403)
+        db.session.add(report)
+        db.session.commit()
+        flask.flash('Successfully reported torrent!', 'success')
 
     return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
-@app.route('/reports', methods=['GET'])
+@app.route('/reports', methods=['GET', 'POST'])
 def view_reports():
-    reports = models.Report.not_reviewed()
-
     if not flask.g.user or not flask.g.user.is_admin:
         flask.abort(403)
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    reports = models.Report.not_reviewed(page)
+
+    if flask.request.method == 'POST':
+        data = flask.request.form
+        torrent = models.Torrent.by_id(data['torrent'])
+        report = models.Report.by_id(data['report'])
+        if not torrent or not report or report.status != 0:
+            flask.abort(404)
+        else:
+            if data['action'] == 'delete':
+                torrent.deleted = True
+                report.status = 1
+            elif data['action'] == 'hide':
+                torrent.hidden = True
+                report.status = 1
+            else:
+                report.status = 2
+
+            db.session.commit()
+            flask.flash('Closed report #{}'.format(report.id), 'success')
+            return flask.redirect(flask.url_for('view_reports'))
 
     return flask.render_template('reports.html',
                                  reports=reports)

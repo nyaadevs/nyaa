@@ -13,6 +13,7 @@ from urllib.parse import unquote as unquote_url
 
 if app.config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql
+
     BinaryType = mysql.BINARY
     DescriptionTextType = mysql.TEXT
     MediumBlobType = mysql.MEDIUMBLOB
@@ -26,7 +27,6 @@ else:
     COL_UTF8_GENERAL_CI = 'NOCASE'
     COL_UTF8MB4_BIN = None
     COL_ASCII_GENERAL_CI = 'NOCASE'
-
 
 # For property timestamps
 UTC_EPOCH = datetime.utcfromtimestamp(0)
@@ -327,6 +327,7 @@ class User(db.Model):
     last_login_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
 
     torrents = db.relationship('Torrent', back_populates='user', lazy="dynamic")
+
     # session = db.relationship('Session', uselist=False, back_populates='user')
 
     def __init__(self, username, email, password):
@@ -398,8 +399,8 @@ class Report(db.Model):
     reason = db.Column(db.String(length=255), nullable=False)
     status = db.Column(ChoiceType(ReportStatus, impl=db.Integer()), nullable=False)
 
-    user = db.relationship('User', uselist=False)
-    torrent = db.relationship('Torrent', uselist=False)
+    user = db.relationship('User', uselist=False, lazy="joined")
+    torrent = db.relationship('Torrent', uselist=False, lazy="joined")
 
     def __init__(self, torrent_id, user_id, reason):
         self.torrent_id = torrent_id
@@ -416,8 +417,16 @@ class Report(db.Model):
         return (self.created_time - UTC_EPOCH).total_seconds()
 
     @classmethod
-    def not_reviewed(cls):
-        reports = cls.query.filter_by(status=0).all()
+    def by_id(cls, id):
+        return cls.query.get(id)
+
+    @classmethod
+    def not_reviewed(cls, page):
+        reports = cls.query.filter(cls.status == 0)\
+            .join(Torrent, aliased=True).filter(Torrent.flags != 36, Torrent.flags != 2)\
+            .order_by(db.asc(cls.id))\
+            .paginate(page=page, per_page=20)
+        # reports = cls.query.filter_by(status=0).paginate(page=page, per_page=20)
         return reports
 
 # class Session(db.Model):
