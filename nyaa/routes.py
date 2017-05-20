@@ -275,7 +275,7 @@ def view_user(user_name):
         db.session.add(user)
         db.session.commit()
 
-        return flask.redirect('/user/' + user.username)
+        return flask.redirect(flask.url_for('view_user', user_name=user.username))
 
     user_level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][user.level]
 
@@ -579,16 +579,17 @@ def upload():
 def view_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
 
+    viewer = flask.g.user
+
     if not torrent:
         flask.abort(404)
 
-    if torrent.deleted and (not flask.g.user or not flask.g.user.is_admin):
+    # Only allow admins see deleted torrents
+    if torrent.deleted and not (viewer and viewer.is_admin):
         flask.abort(404)
 
-    if flask.g.user:
-        can_edit = flask.g.user is torrent.user or flask.g.user.is_admin
-    else:
-        can_edit = False
+    # Only allow owners and admins to edit torrents
+    can_edit = viewer and (viewer is torrent.user or viewer.is_admin)
 
     files = None
     if torrent.filelist:
@@ -596,6 +597,7 @@ def view_torrent(torrent_id):
 
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
+                                 viewer=viewer,
                                  can_edit=can_edit)
 
 
@@ -604,15 +606,18 @@ def edit_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
     form = forms.EditForm(flask.request.form)
     form.category.choices = _create_upload_category_choices()
-    category = str(torrent.main_category_id) + "_" + str(torrent.sub_category_id)
+
+    editor = flask.g.user
 
     if not torrent:
         flask.abort(404)
 
-    if torrent.deleted and (not flask.g.user or not flask.g.user.is_admin):
+    # Only allow admins edit deleted torrents
+    if torrent.deleted and not (editor and editor.is_admin):
         flask.abort(404)
 
-    if not flask.g.user or (flask.g.user is not torrent.user and not flask.g.user.is_admin):
+    # Only allow torrent owners or admins edit torrents
+    if not editor or not (editor is torrent.user or editor.is_admin):
         flask.abort(403)
 
     if flask.request.method == 'POST' and form.validate():
@@ -622,36 +627,43 @@ def edit_torrent(torrent_id):
         torrent.display_name = (form.display_name.data or '').strip()
         torrent.information = (form.information.data or '').strip()
         torrent.description = (form.description.data or '').strip()
-        if flask.g.user.is_admin:
-            torrent.deleted = form.is_deleted.data
+
         torrent.hidden = form.is_hidden.data
         torrent.remake = form.is_remake.data
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
+
+        if editor.is_trusted:
+            torrent.trusted = form.is_trusted.data
+        if editor.is_admin:
+            torrent.deleted = form.is_deleted.data
 
         db.session.commit()
 
         flask.flash(flask.Markup(
             'Torrent has been successfully edited! Changes might take a few minutes to show up.'), 'info')
 
-        return flask.redirect('/view/' + str(torrent_id))
+        return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent.id))
     else:
-        # Setup form with pre-formatted form.
-        form.category.data = category
-        form.display_name.data = torrent.display_name
-        form.information.data = torrent.information
-        form.description.data = torrent.description
-        form.is_hidden.data = torrent.hidden
-        if flask.g.user.is_admin:
+        if flask.request.method != 'POST':
+            # Fill form data only if the POST didn't fail
+            form.category.data = torrent.sub_category.id_as_string
+            form.display_name.data = torrent.display_name
+            form.information.data = torrent.information
+            form.description.data = torrent.description
+
+            form.is_hidden.data = torrent.hidden
+            form.is_remake.data = torrent.remake
+            form.is_complete.data = torrent.complete
+            form.is_anonymous.data = torrent.anonymous
+
+            form.is_trusted.data = torrent.trusted
             form.is_deleted.data = torrent.deleted
-        form.is_remake.data = torrent.remake
-        form.is_complete.data = torrent.complete
-        form.is_anonymous.data = torrent.anonymous
 
         return flask.render_template('edit.html',
                                      form=form,
                                      torrent=torrent,
-                                     admin=flask.g.user.is_admin)
+                                     editor=editor)
 
 
 @app.route('/view/<int:torrent_id>/magnet')

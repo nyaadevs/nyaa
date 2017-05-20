@@ -16,68 +16,57 @@
 <form method="POST" enctype="multipart/form-data">
 	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{config.MAIN_ANNOUNCE_URL}}</kbd> in your trackers</p>{% endif %}
 	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_upload(form.torrent_file, accept=".torrent") }}
+		<div class="col-md-6">
+		{{ render_upload(form.torrent_file, accept=".torrent") }}
 		</div>
 	</div>
-
 	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.category, class_='form-control')}}
+		<div class="col-md-6">
+		{{ render_field(form.display_name, class_='form-control', placeholder='Display name') }}
+		</div>
+		<div class="col-md-4">
+		{{ render_field(form.category, class_='form-control')}}
 		</div>
 	</div>
-
 	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.display_name, class_='form-control', placeholder='Display name') }}
-		</div>
+
 	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
+	<div class="row form-group">
+		<div class="col-md-4">
 			{{ render_field(form.information, class_='form-control', placeholder='Your website or IRC channel') }}
 		</div>
-	</div>
-
-    <div class="row">
-        <div class="form-group col-md-6">
-            {{ render_markdown_editor(form.description, field_name='description') }}
-        </div>
-    </div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
+		<div class="col-md-8">
+			<label class="control-label">Torrent flags</label>
+			<div>
+			<label class="btn btn-default" style="background-color: darkgray; border-color: #ccc;" title="Hide torrent from listing">
 				{{ form.is_hidden }}
 				Hidden
 			</label>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
+			<label class="btn btn-danger" title="This torrent is derived from another release">
 				{{ form.is_remake }}
 				Remake
 			</label>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
+			<label class="btn btn-primary" title="This torrent is a complete batch (eg. season)">
 				{{ form.is_complete }}
 				Complete
 			</label>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
-				{{ form.is_anonymous }}
+			<label class="btn btn-primary" title="Upload torrent anonymously (don't display your username)">
+				{{ form.is_anonymous(disabled=(False if user else ""), checked=(False if user else "")) }}
 				Anonymous
 			</label>
+			{% if user.is_trusted %}
+			<label class="btn btn-success" title="Mark torrent trusted">
+				{{ form.is_trusted(checked="") }}
+				Trusted
+			</label>
+			{% endif %}
+			</div>
+		</div>
+
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			{{ render_markdown_editor(form.description, field_name='description') }}
 		</div>
 	</div>
 
