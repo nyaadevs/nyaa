@@ -58,6 +58,10 @@ table.torrent-list thead th.sorting_desc:after {
 	content: "\f0dd";
 }
 
+table.torrent-list tbody tr td a:visited {
+	color: #1d4568;
+}
+
 #torrent-description img {
 	max-width: 100%;
 }

@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_fulltext import FullText
 
 import re
+import base64
 from markupsafe import escape as escape_markup
 from urllib.parse import unquote as unquote_url
 
@@ -88,10 +89,14 @@ class Torrent(db.Model):
                                    primaryjoin=(
                                        "and_(SubCategory.id == foreign(Torrent.sub_category_id), "
                                        "SubCategory.main_category_id == Torrent.main_category_id)"))
-    info = db.relationship('TorrentInfo', uselist=False, back_populates='torrent')
-    filelist = db.relationship('TorrentFilelist', uselist=False, back_populates='torrent')
-    stats = db.relationship('Statistic', uselist=False, back_populates='torrent', lazy='joined')
-    trackers = db.relationship('TorrentTrackers', uselist=True, lazy='joined')
+    info = db.relationship('TorrentInfo', uselist=False,
+                           cascade="all, delete-orphan", back_populates='torrent')
+    filelist = db.relationship('TorrentFilelist', uselist=False,
+                           cascade="all, delete-orphan", back_populates='torrent')
+    stats = db.relationship('Statistic', uselist=False,
+                           cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
+    trackers = db.relationship('TorrentTrackers', uselist=True,
+                           cascade="all, delete-orphan", lazy='joined')
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
@@ -120,6 +125,14 @@ class Torrent(db.Model):
                 return '<a href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url)))
         # Escaped
         return escape_markup(self.information)
+
+    @property
+    def info_hash_as_b32(self):
+        return base64.b32encode(self.info_hash).decode('utf-8')
+
+    @property
+    def info_hash_as_hex(self):
+        return self.info_hash.hex()
 
     @property
     def magnet_uri(self):
@@ -370,15 +383,15 @@ class User(db.Model):
 
     @property
     def is_admin(self):
-        return self.level is UserLevelType.ADMIN or self.level is UserLevelType.SUPERADMIN
+        return self.level >= UserLevelType.ADMIN
 
     @property
     def is_superadmin(self):
-        return self.level is UserLevelType.SUPERADMIN
+        return self.level == UserLevelType.SUPERADMIN
 
     @property
     def is_trusted(self):
-        return self.level is UserLevelType.TRUSTED
+        return self.level >= UserLevelType.TRUSTED
 
 
 class ReportStatus(IntEnum):

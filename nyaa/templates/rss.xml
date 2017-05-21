@@ -1,37 +1,45 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
 	<channel>
-		<title>{{ config.SITE_NAME }} Torrent File RSS (No magnets)</title>
+		<title>{{ config.SITE_NAME }} Torrent File RSS</title>
 		<description>RSS Feed for {{ term }}</description>
 		<link>{{ url_for('home', _external=True) }}</link>
 		<atom:link href="{{ url_for('home', page='rss', _external=True) }}" rel="self" type="application/rss+xml" />
 		{% for torrent in torrent_query %}
-		{% if torrent.has_torrent %}
 		<item>
 			<title>{{ torrent.display_name }}</title>
+			{# <description><![CDATA[{{ torrent.description }}]]></description> #}
 			{% if use_elastic %}
-			<link>{{ url_for('download_torrent', torrent_id=torrent.meta.id, _external=True) }}</link>
-			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.meta.id, _external=True) }}</guid>
-			<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>
+				{% if torrent.has_torrent and not magnet_links %}
+				<link>{{ url_for('download_torrent', torrent_id=torrent.meta.id, _external=True) }}</link>
+				{% else %}
+				<link>{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}</link>
+				{% endif %}
+				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.meta.id, _external=True) }}</guid>
+				<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>
+
+				<seeders>  {{- torrent.seed_count     }}</seeders>
+				<leechers> {{- torrent.leech_count    }}</leechers>
+				<downloads>{{- torrent.download_count }}</downloads>
+				<infoHash> {{- torrent.info_hash      }}</infoHash>
 			{% else %}
-			<link>{{ url_for('download_torrent', torrent_id=torrent.id, _external=True) }}</link>
-			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
-			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
-			{% endif %}			
-		</item>
-		{% else %}
-		<item>
-			<title>{{ torrent.display_name }}</title>
-			{% if use_elastic %}
-			<link>{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}</link>
-			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.meta.id, _external=True) }}</guid>
-			<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>
-			{% else %}
-			<link>{{ torrent.magnet_uri }}</link>
-			<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
-			<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+				{% if torrent.has_torrent and not magnet_links %}
+				<link>{{ url_for('download_torrent', torrent_id=torrent.id, _external=True) }}</link>
+				{% else %}
+				<link>{{ torrent.magnet_uri }}</link>
+				{% endif %}
+				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
+				<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
+
+				<seeders>  {{- torrent.stats.seed_count     }}</seeders>
+				<leechers> {{- torrent.stats.leech_count    }}</leechers>
+				<downloads>{{- torrent.stats.download_count }}</downloads>
+				<infoHash> {{- torrent.info_hash_as_hex     }}</infoHash>
 			{% endif %}
+			{% set cat_id = use_elastic and ((torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string)) or torrent.sub_category.id_as_string %}
+			<categoryId>{{- cat_id }}</categoryId>
+			<category>  {{- category_name(cat_id) }}</category>
+			<size>      {{- torrent.filesize | filesizeformat(True) }}</size>
 		</item>
-		{% endif %}
 		{% endfor %}
 	</channel>
 </rss>

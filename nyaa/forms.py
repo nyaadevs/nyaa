@@ -153,6 +153,7 @@ class EditForm(FlaskForm):
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
+    is_trusted = BooleanField('Trusted')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
@@ -200,6 +201,7 @@ class UploadForm(FlaskForm):
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
+    is_trusted = BooleanField('Trusted')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
@@ -295,7 +297,7 @@ class ReportActionForm(FlaskForm):
 
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
-    announce_string = _validate_bytes(announce, 'announce', 'utf-8')
+    announce_string = _validate_bytes(announce, 'announce', test_decode='utf-8')
 
     tracker_found = tracker_to_check_for and (
         announce_string.lower() == tracker_to_check_for.lower()) or False
@@ -307,7 +309,7 @@ def _validate_trackers(torrent_dict, tracker_to_check_for=None):
         for announce in announce_list:
             _validate_list(announce, 'announce-list item')
 
-            announce_string = _validate_bytes(announce[0], 'announce-list item url', 'utf-8')
+            announce_string = _validate_bytes(announce[0], 'announce-list item url', test_decode='utf-8')
             if tracker_to_check_for and announce_string.lower() == tracker_to_check_for.lower():
                 tracker_found = True
 
@@ -323,7 +325,7 @@ def _validate_torrent_metadata(torrent_dict):
     assert isinstance(info_dict, dict), 'info is not a dict'
 
     encoding_bytes = torrent_dict.get('encoding', b'utf-8')
-    encoding = _validate_bytes(encoding_bytes, 'encoding', 'utf-8').lower()
+    encoding = _validate_bytes(encoding_bytes, 'encoding', test_decode='utf-8').lower()
 
     name = info_dict.get('name')
     _validate_bytes(name, 'name', test_decode=encoding)
@@ -345,17 +347,21 @@ def _validate_torrent_metadata(torrent_dict):
 
             path_list = file_dict.get('path')
             _validate_list(path_list, 'path')
-            for path_part in path_list:
+            # Validate possible directory names
+            for path_part in path_list[:-1]:
                 _validate_bytes(path_part, 'path part', test_decode=encoding)
+            # Validate actual filename, allow b'' to specify an empty directory
+            _validate_bytes(path_list[-1], 'filename', check_empty=False, test_decode=encoding)
 
     else:
         length = info_dict.get('length')
         _validate_number(length, 'length', check_positive=True)
 
 
-def _validate_bytes(value, name='value', test_decode=None):
+def _validate_bytes(value, name='value', check_empty=True, test_decode=None):
     assert isinstance(value, bytes), name + ' is not bytes'
-    assert len(value) > 0, name + ' is empty'
+    if check_empty:
+        assert len(value) > 0, name + ' is empty'
     if test_decode:
         try:
             return value.decode(test_decode)

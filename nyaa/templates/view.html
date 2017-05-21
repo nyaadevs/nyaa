@@ -6,7 +6,7 @@
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
 			{% if can_edit %}
-			<a href="{{ request.url }}/edit"><i class="fa fa-fw fa-pencil"></i></a>
+			<a href="{{ request.url }}/edit" title="Edit torrent"><i class="fa fa-fw fa-pencil"></i></a>
 			{% endif %}
 			{{ torrent.display_name }}
 		</h3>
@@ -24,7 +24,14 @@
 
 		<div class="row">
 			<div class="col-md-1">Submitter:</div>
-			<div class="col-md-5">{% if not torrent.anonymous and torrent.user %}<a href="{{ url_for('view_user', user_name=torrent.user.username) }}">{{ torrent.user.username }}</a>{% else %}Anonymous{% endif %}</div>
+			<div class="col-md-5">
+			{% set user_url = torrent.user and url_for('view_user', user_name=torrent.user.username) %}
+			{%- if not torrent.anonymous and torrent.user -%}
+			<a href="{{ user_url }}">{{ torrent.user.username }}</a>
+			{%- else -%}
+			Anonymous {% if torrent.user and (viewer == torrent.user or viewer.is_admin) %}(<a href="{{ user_url }}">{{ torrent.user.username }}</a>){% endif %}
+			{%- endif -%}
+			</div>
 
 			<div class="col-md-1">Seeders:</div>
 			<div class="col-md-5"><span style="color: green;">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.seed_count }}{% else %}Coming soon{% endif %}</span></div>

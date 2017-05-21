@@ -38,3 +38,4 @@ elasticsearch-dsl==5.2.0
 progressbar2==3.20.0
 mysql-replication==0.13
 flask-paginate==0.4.5
+statsd==3.2.1

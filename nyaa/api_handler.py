@@ -130,7 +130,8 @@ UPLOAD_API_FORM_KEYMAP = {
     'is_anonymous': 'anonymous',
     'is_hidden': 'hidden',
     'is_complete': 'complete',
-    'is_remake': 'remake'
+    'is_remake': 'remake',
+    'is_trusted': 'trusted'
 }
 UPLOAD_API_FORM_KEYMAP_REVERSE = {v: k for k, v in UPLOAD_API_FORM_KEYMAP.items()}
 UPLOAD_API_KEYS = [
@@ -140,6 +141,7 @@ UPLOAD_API_KEYS = [
     'hidden',
     'complete',
     'remake',
+    'trusted',
     'information',
     'description'
 ]
@@ -161,7 +163,7 @@ def v2_api_upload():
     # Map api keys to upload form fields
     for key in UPLOAD_API_KEYS:
         mapped_key = UPLOAD_API_FORM_KEYMAP_REVERSE.get(key, key)
-        mapped_dict[mapped_key] = request_data.get(key)
+        mapped_dict[mapped_key] = request_data.get(key) or ''
 
     # Flask-WTF (very helpfully!!) automatically grabs the request form, so force a None formdata
     upload_form = forms.UploadForm(None, data=mapped_dict)
