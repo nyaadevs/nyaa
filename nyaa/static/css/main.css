@@ -60,7 +60,6 @@ table.torrent-list thead th.sorting_desc:after {
 
 table.torrent-list tbody tr td a:visited {
 	color: #1d4568;
-	/*color: #dd77ff;*/ /* Color suggested in #145 */
 }
 
 #torrent-description img {
