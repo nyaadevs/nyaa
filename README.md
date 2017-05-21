@@ -78,6 +78,12 @@
 - Set up `sync_es.py` as a service and run it, preferably as the system/root
 - Make sure `sync_es.py` runs within venv with the right dependencies
 
+## Database migrations
+- Uses [flask-Migrate](https://flask-migrate.readthedocs.io/)
+- Run `./db_migrate.py db migrate` to generate the migration script after database model changes.
+- Take a look at the result in `migrations/versions/...` to make sure nothing went wrong.
+- Run `./db_migrate.py db upgrade` to upgrade your database.
+
 ## Good to go!
 - After that, enable the `USE_ELASTIC_SEARCH` flag and restart the webapp and you're good to go
 
