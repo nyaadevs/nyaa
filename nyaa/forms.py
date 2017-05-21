@@ -153,6 +153,7 @@ class EditForm(FlaskForm):
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
+    is_trusted = BooleanField('Trusted')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
@@ -200,6 +201,7 @@ class UploadForm(FlaskForm):
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
+    is_trusted = BooleanField('Trusted')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
