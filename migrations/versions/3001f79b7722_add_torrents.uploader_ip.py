@@ -19,6 +19,7 @@ TABLE_PREFIXES = ('nyaa', 'sukebei')
 
 
 def upgrade():
+
     for prefix in TABLE_PREFIXES:
         op.add_column(prefix + '_torrents', sa.Column('uploader_ip', sa.Binary(), nullable=True))
         # ### end Alembic commands ###
