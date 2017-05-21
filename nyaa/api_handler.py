@@ -12,6 +12,9 @@ from nyaa import routes
 import functools
 import json
 import os.path
+import re
+
+import binascii
 
 api_blueprint = flask.Blueprint('api', __name__)
 
@@ -254,3 +257,65 @@ def ghetto_import():
     db.session.commit()
 
     return 'success'
+
+# ####################################### INFO #######################################
+ID_PATTERN = '^[1-9][0-9]*$'
+INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$' # INFO_HASH as string
+
+@api_blueprint.route('/v2/info/<torrent_id_or_hash>', methods=['GET'])
+@basic_auth_user
+@api_require_user
+def v2_api_info(torrent_id_or_hash):
+    #id_type = None
+    matchID = re.match(ID_PATTERN, torrent_id_or_hash)
+    matchHASH = re.match(INFO_HASH_PATTERN, torrent_id_or_hash)
+
+    torrent = None
+
+    if matchID:
+        #id_type = 'id'
+        torrent = models.Torrent.by_id(torrent_id_or_hash)
+    elif matchHASH:
+        #id_type = 'hash'
+        # Convert the string representation of a torrent hash back into a binary representation
+        a2b_hash = binascii.unhexlify(torrent_id_or_hash)
+        torrent = models.Torrent.by_info_hash(a2b_hash)
+    else:
+        return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
+
+    viewer = flask.g.user
+
+    if not torrent:
+        return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
+
+    # Only allow admins see deleted torrents
+    if torrent.deleted and not (viewer and viewer.is_admin):
+        return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
+
+    submitter = 'anonymous'
+    if not torrent.anonymous and torrent.user:
+        submitter = torrent.user.username
+    if torrent.user and (viewer == torrent.user or viewer.is_admin):
+        submitter = torrent.user.username
+
+    files = ''
+    if torrent.filelist:
+        files = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
+
+    # Create a response dict with relevant data
+    torrent_metadata = {
+        'submitter': submitter,
+        'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+        'id': torrent.id,
+        'name': torrent.display_name,
+        'hash': torrent.info_hash.hex(),
+        'magnet': torrent.magnet_uri,
+        'main_category': torrent.main_category.name,
+        'sub_category': torrent.sub_category.name,
+        'information': torrent.information,
+        'description': torrent.description,
+        'stats': {'seeders': torrent.stats.seed_count, 'leechers': torrent.stats.leech_count, 'downloads': torrent.stats.download_count},
+        'filelist': files
+    }
+
+    return flask.jsonify(torrent_metadata), 200
