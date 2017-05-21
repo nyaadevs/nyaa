@@ -1,7 +1,7 @@
 <caps>
     <server version="1.0" title="{{ config.SITE_NAME }}" strapline="..." url="{{ url_for('home', _external=True) }}" image="..." />
 
-    <limits max="{{ config.RESULTS_PER_PAGE }}" default="{{ config.RESULTS_PER_PAGE }}" />
+    <limits max="{{ page_size }}" default="{{ page_size }}" />
     <registration available="no" open="no" />
     <searching>
         <search available="yes" supportedParams="q" />

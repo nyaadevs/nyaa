@@ -8,8 +8,8 @@
 		<title>{{ config.SITE_NAME }}</title>
 		<description>{{ config.SITE_NAME }} API result</description>
 		<link>{{ url_for('home', _external=True) }}</link>
-        <torznab:response offset="{{ offset }}" total="{{ query.total }}" />
-		{% for torrent in query %}
+        <torznab:response offset="{{ offset }}" total="{{ torrent_query.total }}" />
+		{% for torrent in torrent_query.items %}
             {% set view_url = url_for('view_torrent', torrent_id=torrent.id, _external=True) %}
             {% set magnet_url = torrent.magnet_uri %}
         {% if torrent.has_torrent %}
@@ -44,7 +44,7 @@
             <torznab:attr name="leechers" value="{{ torrent.stats.leech_count }}" />
             <torznab:attr name="grabs" value="{{ torrent.stats.download_count }}" />
         {% endif %}
-        {% if not torrent.anonymous %}
+        {% if not torrent.anonymous and torrent.uploader_id %}
             <torznab:attr name="poster" value="{{ torrent.user.name }}" />
         {% endif %}
 {% endif %}

@@ -1,7 +1,8 @@
 import flask
+import re
 
 from nyaa import app, db, models
-from nyaa.search import search
+from nyaa.search import search_custom, EmptySearchResult, EmptySearchError
 
 TORZNAB_ERRORS = {
     100: 'Incorrect user credentials',
@@ -43,6 +44,8 @@ TORZNAB_CATEGORY_MAP = {
     7620: [100302]
 }
 
+TORZNAB_RESULTS_PER_PAGE = 100
+
 
 @app.template_global()
 def get_torznab_categories(torrent):
@@ -52,6 +55,8 @@ def get_torznab_categories(torrent):
     site_cat = 100000 + main_cat_id * 100 + sub_cat_id
 
     # Add the 101 category for ease of use.
+    if sub_cat_id > 0:
+        categories.append(main_cat_id * 100)
     categories.append(main_cat_id * 100 + sub_cat_id)
 
     # Add torznab/newznab generic range categories.
@@ -85,16 +90,17 @@ def render_torznab_caps():
     category_map = get_torznab_categorymap()
     # TODO: Check Accept header and set Cache-Control.
     torznab_xml = flask.render_template('torznab/caps.xml',
+                                        page_size=TORZNAB_RESULTS_PER_PAGE,
                                         categories=category_map)
     response = flask.make_response(torznab_xml)
     response.headers['Content-Type'] = 'application/xml'
     return response
 
 
-def render_torznab_feed(query, offset, extended):
+def render_torznab_feed(query_results, offset, extended):
     # TODO: Check Accept header and set Cache-Control.
     torznab_xml = flask.render_template('torznab/feed.xml',
-                                        query=query,
+                                        torrent_query=query_results,
                                         offset=offset,
                                         extended=extended)
     response = flask.make_response(torznab_xml)
@@ -106,71 +112,113 @@ def torznab_caps():
     return render_torznab_caps()
 
 
-def torznab_search():
-    page_size = app.config['RESULTS_PER_PAGE']
+def get_categories_filter(cat):
+    categories = []
+    if cat:
+        for item in cat.split(','):
+            # Parse 1_1 format for compatibility
+            cat_match = re.match(r'^(\d+)_(\d+)$', item)
+            if cat_match:
+                item = int(cat_match.group(1)) * 100 + int(cat_match.group(2))
+
+            num = int(item)
+            if num >= 100000:
+                categories.append(num - 100000)
+            elif num >= 1000:
+                categories.extend([x - 100000 for x in TORZNAB_CATEGORY_MAP.get(num, [])])
+            elif num > 0:
+                categories.append(num)
+
+        # Check if any of the specified categories 'stuck'.
+        if not categories:
+            raise EmptySearchError('Categories {} guaranteed to produce empty result'.format(cat))
+    return categories
+
+def get_tag_filter(tag):
+    include_tags = []
+    exclude_tags = []
+    if tag:
+        for item in tag.split(','):
+            if item[0] == '!':
+                exclude_tags.append(item[1:].lower())
+            else:
+                include_tags.append(item.lower())
+    for incl in include_tags:
+        if incl in exclude_tags:
+            raise EmptySearchError('Tag {} both required and filtered')
+    return (include_tags, exclude_tags)
+
+def torznab_search(api_request):
+    page_size = TORZNAB_RESULTS_PER_PAGE
 
     # Default newznab query params, return empty result if unsupported to prevent clients from accessing the api as a traditional newznab indexer.
-    q = flask.request.args.get('q')
-    season = flask.request.args.get('season')
-    ep = flask.request.args.get('ep')
-    rid = flask.request.args.get('rid')
+    query_term = api_request.args.get('q')
+    query_season = api_request.args.get('season')
+    query_episode = api_request.args.get('ep')
+    query_rageid = api_request.args.get('rid')
 
-    cat = flask.request.args.get('cat', default='100000')
-
-    # Quality filter (remake/trusted) has no predefined query param yet. Propose 'tag' as generic cross newznab/torznab field to remain site agnostic.
-    #quality_filter = flask.request.args.get('f')
-    extended = flask.request.args.get('extended')
-    offset = flask.request.args.get('offset', default=0, type=int)
-    limit = flask.request.args.get('limit', default=page_size, type=int)
-
-    if season or ep or rid:
+    if query_season is not None or query_episode is not None or query_rageid is not None:
         return render_torznab_error(201)
 
-    page = int(1 + offset / page_size)
-    # TODO: Cleanup q
-    # TODO: category can have multiple, yet search does not support that.
-    category = None
-    quality_filter = None
-    # TODO: offset = usually per page, but not guaranteed, give error if not a multiple of page size.
-    #       Or fix search module to accept offset & limit instead of page.
-    # TODO: maximum of limit should be the app.config['RESULTS_PER_PAGE']
-    query_args = {
-        'term': q or '',
-        'category': category or '0_0',
-        'quality_filter': quality_filter or '0',
-        'page': page or 1,
-        'rss': False  # We want it to page
-    }
+    cat = api_request.args.get('cat', default='')
+    # Quality filter (remake/trusted) has no predefined query param yet.
+    # Propose 'tag' as generic cross newznab/torznab field to remain site agnostic.
+    tag = api_request.args.get('tag', default='')
+    extended = api_request.args.get('extended', False, type=bool)
+    offset = api_request.args.get('offset', default=0, type=int)
+    limit = api_request.args.get('limit', default=page_size, type=int)
 
-    # God mode
-    if flask.g.user and flask.g.user.is_admin:
-        query_args['admin'] = True
+    try:
+        limit = min(limit, page_size)
+        if limit == 0:
+            raise EmptySearchError('Limit of 0 guaranteed guarantees empty result')
+        if offset % limit:
+            app.logger.warn('offset {} isn\'t a multiple of the page size {}'.format(offset, limit))
+            return render_torznab_error(201)
 
-    query = search(**query_args)
+        categories = get_categories_filter(cat)
 
-    return render_torznab_feed(query, offset, extended)
+        (include_tags, exclude_tags) = get_tag_filter(tag)
+
+        # TODO: Cleanup q
+
+        query_args = {
+            'term': query_term,
+            'categories': categories,
+            'include_tags': include_tags,
+            'exclude_tags': exclude_tags,
+            'page': 1 + int(offset / limit),
+            'page_size': limit
+        }
+
+        query_results = search_custom(**query_args)
+    except EmptySearchError:
+        query_results = EmptySearchResult()
+
+    return render_torznab_feed(query_results, offset, extended)
 
 
 def handle_api_request(api_request):
-    apikey = api_request.args.get('apikey')
+    #apikey = api_request.args.get('apikey')
     mode = api_request.args.get('t')
 
     if mode == 'caps':
         return torznab_caps()
 
-    if mode == 'search':
-        return torznab_search()
+    elif mode == 'search':
+        return torznab_search(api_request)
 
-    if mode == 'tvsearch':
-        return torznab_search()
+    elif mode == 'tvsearch':
+        return torznab_search(api_request)
 
-    if mode == 'register':
+    elif mode == 'register':
         return render_torznab_error(103)
 
     # modes specified in the newznab spec that are not supported.
-    if mode in ['movie', 'music', 'book',
-                'details', 'getnfo', 'get',
-                'cartadd', 'cartdel', 'comments', 'commentadd', 'user']:
+    elif mode in ['movie', 'music', 'book',
+                  'details', 'getnfo', 'get',
+                  'cartadd', 'cartdel', 'comments', 'commentadd', 'user']:
         return render_torznab_error(203)
 
-    return render_torznab_error(202)
+    else:
+        return render_torznab_error(202)

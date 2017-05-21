@@ -77,11 +77,6 @@
 {% endif %}
 
 <center>
-	{% if use_elastic %}
-	{{ pagination.info }}
-	{{ pagination.links }}
-	{% else %}
-	{% from "bootstrap/pagination.html" import render_pagination %}
+    {% from "bootstrap/pagination.html" import render_pagination %}
 	{{ render_pagination(torrent_query) }}
-	{% endif %}
 </center>

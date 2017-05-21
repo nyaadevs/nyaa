@@ -3,439 +3,114 @@ import re
 import math
 import json
 import shlex
-import warnings
 from datetime import datetime, timedelta
 
 from nyaa import app, db
 from nyaa import models, torrents
+from nyaa.search_elastic import search_elastic
+from nyaa.search_db import search_db
 
-import sqlalchemy_fulltext.modes as FullTextMode
-from sqlalchemy_fulltext import FullTextSearch
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, Q
+class EmptySearchError(Exception):
+    """Indicates that the query is guaranteed to produce an empty result"""
+    pass
 
-class ElasticTorrentStatsAccessor:    
-    def __init__(self, elasticResult):
-        self.seed_count = elasticResult.seed_count
-        self.leech_count = elasticResult.leech_count
-        self.download_count = elasticResult.download_count
+class EmptySearchResult:
+    def __init__(self):
+        self.total = 0
 
-class ElasticTorrentAccessor:
-    passtru_attributes = ['id', 'has_torrent', 'display_name', 'filesize', 'anonymous', 'trusted', 'remake', 'complete', 'hidden', 'deleted']
-
-    def __init__(self, elasticResult):
-        self.elastic = elasticResult
-        self.created_time = datetime.strptime(self.elastic.created_time, '%Y-%m-%dT%H:%M:%S')
-        self.created_utc_timestamp = (self.created_time - models.UTC_EPOCH).total_seconds()
-        self.info_hash = bytes.fromhex(self.elastic.info_hash)
-        # TODO: Verify if models.SubCategory is cached or hits the db on every call
-        self.sub_category = models.SubCategory.by_category_ids(self.elastic.main_category_id,
-                                                               self.elastic.sub_category_id)
-        self.main_category = self.sub_category.main_category
-        self.stats = ElasticTorrentStatsAccessor(self.elastic)
-        self.magnet_uri = torrents.create_magnet(self)
-
-    def __getattr__(self, name):
-        try:
-            result = self.elastic[name]
-        except KeyError:
-            # Raise an AttributeError if the key does not exist
-            raise AttributeError('{class_name!r} object has no attribute {attr!r}'
-                                 .format(class_name=self.__class__.__name__, attr=name)
-                                 )
-        else:
-            if name not in self.passtru_attributes:
-                warnings.warn('{class_name!r} object accessing unsupported attribute {attr!r}'
-                              .format(class_name=self.__class__.__name__, attr=name)
-                              )
-            return result
-        
-    @property
-    def user(self):
-        # TODO: Adding the name to elastic and updating elastic when the user changes it's name is better than doing separate db lookups thousands of times per day.
-        if (self.elastic.uploader_id):
-            return models.User.by_id(self.elastic.uploader_id)
-        else:
-            return None
-
-    @property
-    def description(self):
-        # Description isn't included in import_to_es (sync_es appears to have it), but only views for individual torrents use it, so it's not needed here
-        return None
-
-class ElasticSearchResultAccessor:
-
-    def __init__(self, elasticResult):
-        self.elastic = elasticResult
-        self.total = self.elastic.hits.total
-
-    @property
-    def items(self):
-        return self
-    
     def __len__(self):
-        return len(self.elastic)
+        return 0
 
     def __getitem__(self, i):
-        return ElasticTorrentAccessor(self.elastic[i])
+        raise StopIteration
 
-
-def create_elastic_client():
-    es_hosts = app.config.get('ES_CLUSTER_HOSTS', ['localhost'])
-    es_port = app.config.get('ES_CLUSTER_PORT', 9200)
-    es_use_ssl = app.config.get('ES_CLUSTER_SSL', False)
-
-    return Elasticsearch(hosts=es_hosts, port=es_port, use_ssl=es_use_ssl)
-
-
-def search_elastic(term='', user=None, sort='id', order='desc',
-                   category='0_0', quality_filter='0', page=1,
-                   rss=False, admin=False, logged_in_user=None,
-                   per_page=75, max_search_results=1000):
-    # This function can easily be memcached now
-
-    es_client = create_elastic_client()
-
-    es_sort_keys = {
-        'id': 'id',
-        'size': 'filesize',
-        # 'name': 'display_name',  # This is slow and buggy
-        'seeders': 'seed_count',
-        'leechers': 'leech_count',
-        'downloads': 'download_count'
+def search_custom(term='', uploader_id=None,
+                  categories=None, include_tags=None, exclude_tags=None,
+                  sort_by='id', sort_order='desc', page=0, page_size=75,
+                  logged_in_user_id=None, is_admin=False,
+                  include_total=False):
+    
+    query_args = {
+        'term': term,
+        'uploader_id': uploader_id,
+        'categories': categories,
+        'include_tags': include_tags,
+        'exclude_tags': exclude_tags,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
+        'page': page,
+        'page_size': page_size,
+        'logged_in_user_id': logged_in_user_id,
+        'is_admin': is_admin,
+        'include_total': include_total
     }
 
-    sort_ = sort.lower()
-    if sort_ not in es_sort_keys:
-        flask.abort(400)
-
-    es_sort = es_sort_keys[sort]
-
-    order_keys = {
-        'desc': 'desc',
-        'asc': 'asc'
-    }
-
-    order_ = order.lower()
-    if order_ not in order_keys:
-        flask.abort(400)
-
-    # Only allow ID, desc if RSS
-    if rss:
-        sort = es_sort_keys['id']
-        order = 'desc'
-
-    # funky, es sort is default asc, prefixed by '-' if desc
-    if 'desc' == order:
-        es_sort = '-' + es_sort
-
-    # Quality filter
-    quality_keys = [
-        '0',  # Show all
-        '1',  # No remakes
-        '2',  # Only trusted
-        '3'   # Only completed
-    ]
-
-    if quality_filter.lower() not in quality_keys:
-        flask.abort(400)
-
-    quality_filter = int(quality_filter)
-
-    # Category filter
-    main_category = None
-    sub_category = None
-    main_cat_id = 0
-    sub_cat_id = 0
-    if category:
-        cat_match = re.match(r'^(\d+)_(\d+)$', category)
-        if not cat_match:
-            flask.abort(400)
-
-        main_cat_id = int(cat_match.group(1))
-        sub_cat_id = int(cat_match.group(2))
-
-        if main_cat_id > 0:
-            if sub_cat_id > 0:
-                sub_category = models.SubCategory.by_category_ids(main_cat_id, sub_cat_id)
-                if not sub_category:
-                    flask.abort(400)
-            else:
-                main_category = models.MainCategory.by_id(main_cat_id)
-                if not main_category:
-                    flask.abort(400)
-
-    # This might be useless since we validate users
-    # before coming into this method, but just to be safe...
-    if user:
-        user = models.User.by_id(user)
-        if not user:
-            flask.abort(404)
-        user = user.id
-
-    same_user = False
-    if logged_in_user:
-        same_user = user == logged_in_user.id
-
-    s = Search(using=es_client, index=app.config.get('ES_INDEX_NAME'))  # todo, sukebei prefix
-
-    # Apply search term
-    if term:
-        s = s.query('simple_query_string',
-                    analyzer='my_search_analyzer',
-                    default_operator="AND",
-                    query=term)
-
-    # User view (/user/username)
-    if user:
-        s = s.filter('term', uploader_id=user)
-
-        if not admin:
-            # Hide all DELETED torrents if regular user
-            s = s.filter('term', deleted=False)
-            # If logged in user is not the same as the user being viewed,
-            # show only torrents that aren't hidden or anonymous.
-            #
-            # If logged in user is the same as the user being viewed,
-            # show all torrents including hidden and anonymous ones.
-            #
-            # On RSS pages in user view, show only torrents that
-            # aren't hidden or anonymous no matter what
-            if not same_user or rss:
-                s = s.filter('term', hidden=False)
-                s = s.filter('term', anonymous=False)
-    # General view (homepage, general search view)
-    else:
-        if not admin:
-            # Hide all DELETED torrents if regular user
-            s = s.filter('term', deleted=False)
-            # If logged in, show all torrents that aren't hidden unless they belong to you
-            # On RSS pages, show all public torrents and nothing more.
-            if logged_in_user and not rss:
-                hiddenFilter = Q('term', hidden=False)
-                userFilter = Q('term', uploader_id=logged_in_user.id)
-                combinedFilter = hiddenFilter | userFilter
-                s = s.filter('bool', filter=[combinedFilter])
-            else:
-                s = s.filter('term', hidden=False)
-
-    if main_category:
-        s = s.filter('term', main_category_id=main_cat_id)
-    elif sub_category:
-        s = s.filter('term', main_category_id=main_cat_id)
-        s = s.filter('term', sub_category_id=sub_cat_id)
-
-    if quality_filter == 0:
-        pass
-    elif quality_filter == 1:
-        s = s.filter('term', remake=False)
-    elif quality_filter == 2:
-        s = s.filter('term', trusted=True)
-    elif quality_filter == 3:
-        s = s.filter('term', complete=True)
-
-    # Apply sort
-    s = s.sort(es_sort)
-
-    # Only show first RESULTS_PER_PAGE items for RSS
-    if rss:
-        s = s[0:per_page]
-    else:
-        max_page = min(page, int(math.ceil(max_search_results / float(per_page))))
-        from_idx = (max_page - 1) * per_page
-        to_idx = min(max_search_results, max_page * per_page)
-        s = s[from_idx:to_idx]
-
-    highlight = app.config.get('ENABLE_ELASTIC_SEARCH_HIGHLIGHT')
-    if highlight:
-        s = s.highlight_options(tags_schema='styled')
-        s = s.highlight("display_name")
-
-    # Return query, uncomment print line to debug query
-    # from pprint import pprint
-    # print(json.dumps(s.to_dict()))
-    return s.execute()
-
-
-def search_db(term='', user=None, sort='id', order='desc', category='0_0',
-              quality_filter='0', page=1, rss=False, admin=False,
-              logged_in_user=None, per_page=75):
-    sort_keys = {
-        'id': models.Torrent.id,
-        'size': models.Torrent.filesize,
-        # Disable this because we disabled this in search_elastic, for the sake of consistency:
-        # 'name': models.Torrent.display_name,
-        'seeders': models.Statistic.seed_count,
-        'leechers': models.Statistic.leech_count,
-        'downloads': models.Statistic.download_count
-    }
-
-    sort_ = sort.lower()
-    if sort_ not in sort_keys:
-        flask.abort(400)
-    sort = sort_keys[sort]
-
-    order_keys = {
-        'desc': 'desc',
-        'asc': 'asc'
-    }
-
-    order_ = order.lower()
-    if order_ not in order_keys:
-        flask.abort(400)
-
-    filter_keys = {
-        '0': None,
-        '1': (models.TorrentFlags.REMAKE, False),
-        '2': (models.TorrentFlags.TRUSTED, True),
-        '3': (models.TorrentFlags.COMPLETE, True)
-    }
-
-    sentinel = object()
-    filter_tuple = filter_keys.get(quality_filter.lower(), sentinel)
-    if filter_tuple is sentinel:
-        flask.abort(400)
-
-    if user:
-        user = models.User.by_id(user)
-        if not user:
-            flask.abort(404)
-        user = user.id
-
-    main_category = None
-    sub_category = None
-    main_cat_id = 0
-    sub_cat_id = 0
-    if category:
-        cat_match = re.match(r'^(\d+)_(\d+)$', category)
-        if not cat_match:
-            flask.abort(400)
-
-        main_cat_id = int(cat_match.group(1))
-        sub_cat_id = int(cat_match.group(2))
-
-        if main_cat_id > 0:
-            if sub_cat_id > 0:
-                sub_category = models.SubCategory.by_category_ids(main_cat_id, sub_cat_id)
-            else:
-                main_category = models.MainCategory.by_id(main_cat_id)
-
-            if not category:
-                flask.abort(400)
-
-    # Force sort by id desc if rss
-    if rss:
-        sort = sort_keys['id']
-        order = 'desc'
-
-    same_user = False
-    if logged_in_user:
-        same_user = logged_in_user.id == user
-
-    if term:
-        query = db.session.query(models.TorrentNameSearch)
-    else:
-        query = models.Torrent.query
-
-    # User view (/user/username)
-    if user:
-        query = query.filter(models.Torrent.uploader_id == user)
-
-        if not admin:
-            # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(
-                int(models.TorrentFlags.DELETED)).is_(False))
-            # If logged in user is not the same as the user being viewed,
-            # show only torrents that aren't hidden or anonymous
-            #
-            # If logged in user is the same as the user being viewed,
-            # show all torrents including hidden and anonymous ones
-            #
-            # On RSS pages in user view,
-            # show only torrents that aren't hidden or anonymous no matter what
-            if not same_user or rss:
-                query = query.filter(models.Torrent.flags.op('&')(
-                    int(models.TorrentFlags.HIDDEN | models.TorrentFlags.ANONYMOUS)).is_(False))
-    # General view (homepage, general search view)
-    else:
-        if not admin:
-            # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(
-                int(models.TorrentFlags.DELETED)).is_(False))
-            # If logged in, show all torrents that aren't hidden unless they belong to you
-            # On RSS pages, show all public torrents and nothing more.
-            if logged_in_user and not rss:
-                query = query.filter(
-                    (models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False)) |
-                    (models.Torrent.uploader_id == logged_in_user.id))
-            # Otherwise, show all torrents that aren't hidden
-            else:
-                query = query.filter(models.Torrent.flags.op('&')(
-                    int(models.TorrentFlags.HIDDEN)).is_(False))
-
-    if main_category:
-        query = query.filter(models.Torrent.main_category_id == main_cat_id)
-    elif sub_category:
-        query = query.filter((models.Torrent.main_category_id == main_cat_id) &
-                             (models.Torrent.sub_category_id == sub_cat_id))
-
-    if filter_tuple:
-        query = query.filter(models.Torrent.flags.op('&')(
-            int(filter_tuple[0])).is_(filter_tuple[1]))
-
-    if term:
-        for item in shlex.split(term, posix=False):
-            if len(item) >= 2:
-                query = query.filter(FullTextSearch(
-                    item, models.TorrentNameSearch, FullTextMode.NATURAL))
-
-    # Sort and order
-    if sort.class_ != models.Torrent:
-        query = query.join(sort.class_)
-
-    query = query.order_by(getattr(sort, order)())
-
-    if rss:
-        query = query.limit(per_page)
-    else:
-        query = query.paginate_faste(page, per_page=per_page, step=5)
-
-    return query
-
-def search(term='', user=None, sort='id', order='desc', category='0_0',
-                quality_filter='0', page=1, rss=False, admin=False,
-                logged_in_user=None, per_page=75):
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
     if use_elastic and term:
-        query_args = {
-            'term': term,
-            'user': user,
-            'sort': sort,
-            'order': order,
-            'category': category,
-            'quality_filter': quality_filter,
-            'page': page,
-            'rss': rss,
-            'admin': admin,
-            'logged_in_user': logged_in_user,
-            'per_page': per_page,
-            'max_search_results': app.config.get('ES_MAX_SEARCH_RESULT', 1000)
-        }
-        elasticResult = search_elastic(**query_args)
-        return ElasticSearchResultAccessor(elasticResult)
+        query_args['max_search_results'] = app.config.get('ES_MAX_SEARCH_RESULT', 1000)
+        result = search_elastic(**query_args)
+        return result
     else:
-        query_args = {
-            'term': term,
-            'user': user,
-            'sort': sort,
-            'order': order,
-            'category': category,
-            'quality_filter': quality_filter,
-            'page': page,
-            'rss': rss,
-            'admin': admin,
-            'logged_in_user': logged_in_user,
-            'per_page': per_page
-        }
-        dbResult = search_db(**query_args)
-        return dbResult
+        result = search_db(**query_args)
+        return result
+
+def get_search_categories(category):
+    cat_match = re.match(r'^(\d+)_(\d+)$', category)
+    if cat_match:
+        category = int(cat_match.group(1)) * 100 + int(cat_match.group(2))
+    else:
+        category = int(category)
+    if category:
+        return [category]
+    else:
+        return []
+
+def get_filter_tags(quality_filter):
+    filter_keys = {
+        '0': ([], []),
+        '1': ([], ['remake']),
+        '2': (['trusted'], []),
+        '3': (['complete'], [])
+    }
+    try:
+        return filter_keys[quality_filter]
+    except KeyError:
+        app.logger.warn('filter mode {} unsupported'.format(quality_filter))
+        flask.abort(400)
+
+# Legacy search, has knowledge about 'rss'.
+def search(term='', user=None, sort='id', order='desc', category='0_0',
+           quality_filter='0', page=1, rss=False, admin=False,
+           logged_in_user=None, per_page=75):
+
+    app.logger.info('Searching db for term={} category={} page={}'.format(term, category, page))
+
+    (include_tags, exclude_tags) = get_filter_tags(quality_filter)
+
+    categories = get_search_categories(category)
+
+    query_args = {
+        'term': term,
+        'uploader_id': user,
+        'categories': categories,
+        'include_tags': include_tags,
+        'exclude_tags': exclude_tags,
+        'sort_by': sort,
+        'sort_order': order,
+        'page': page,
+        'page_size': per_page,
+        'logged_in_user_id': logged_in_user.id if logged_in_user else None,
+        'is_admin': admin,
+        'include_total': True
+    }
+
+    # Restrict rss feed
+    if rss:
+        query_args['sort_by'] = 'id'
+        query_args['sort_order'] = 'desc'
+        query_args['logged_in_user_id'] = None
+        query_args['include_total'] = False
+
+    result = search_custom(**query_args)
+    return result
+
