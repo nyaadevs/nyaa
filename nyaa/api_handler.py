@@ -130,7 +130,8 @@ UPLOAD_API_FORM_KEYMAP = {
     'is_anonymous': 'anonymous',
     'is_hidden': 'hidden',
     'is_complete': 'complete',
-    'is_remake': 'remake'
+    'is_remake': 'remake',
+    'is_trusted': 'trusted'
 }
 UPLOAD_API_FORM_KEYMAP_REVERSE = {v: k for k, v in UPLOAD_API_FORM_KEYMAP.items()}
 UPLOAD_API_KEYS = [
@@ -140,6 +141,7 @@ UPLOAD_API_KEYS = [
     'hidden',
     'complete',
     'remake',
+    'trusted',
     'information',
     'description'
 ]

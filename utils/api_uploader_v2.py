@@ -87,6 +87,11 @@ tor_group.add_argument('-H', '--hidden', default=False, action='store_true', hel
 tor_group.add_argument('-C', '--complete', default=False, action='store_true', help='Mark torrent as complete (eg. season batch)')
 tor_group.add_argument('-R', '--remake', default=False, action='store_true', help='Mark torrent as remake (derivative work from another release)')
 
+trusted_group = tor_group.add_mutually_exclusive_group(required=False)
+trusted_group.add_argument('-T', '--trusted', dest='trusted', action='store_true', help='Mark torrent as trusted, if possible. Defaults to true')
+trusted_group.add_argument('--no-trusted', dest='trusted', action='store_false', help='Do not mark torrent as trusted')
+parser.set_defaults(trusted=True)
+
 tor_group.add_argument('torrent', metavar='TORRENT_FILE', help='The .torrent file to upload')
 
 
@@ -145,6 +150,7 @@ if __name__ == "__main__":
         'hidden'    : args.hidden,
         'complete'  : args.complete,
         'remake'    : args.remake,
+        'trusted'    : args.trusted,
     }
     encoded_data = { 
         'torrent_data' : json.dumps(data)
