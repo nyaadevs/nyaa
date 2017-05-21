@@ -1,3 +1,4 @@
+import flask
 from nyaa import app, db
 from nyaa import models, forms
 from nyaa import bencode, utils
@@ -8,6 +9,7 @@ import json
 from werkzeug import secure_filename
 from collections import OrderedDict
 from orderedset import OrderedSet
+from ipaddress import ip_address
 
 
 def _replace_utf8_values(dict_or_list):
@@ -53,7 +55,8 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
                              description=description,
                              encoding=torrent_encoding,
                              filesize=torrent_filesize,
-                             user=uploading_user)
+                             user=uploading_user,
+                             uploader_ip=ip_address(flask.request.remote_addr).packed)
 
     # Store bencoded info_dict
     torrent.info = models.TorrentInfo(info_dict=torrent_data.bencoded_info_dict)

@@ -3,32 +3,38 @@
 {% block body %}
 {% from "_formhelpers.html" import render_menu_with_button %}
 
-{% if superadmin %}
+{% if g.user and g.user.is_moderator %}
     <h2>User Information</h2><br>
     <dl class="dl-horizontal">
         <dt>User ID:</dt>
-        <dd>{{user.id}}</dd>
+        <dd>{{ user.id }}</dd>
         <dt>Account created on:</dt>
-        <dd>{{user.created_time}}</dd>
+        <dd>{{ user.created_time }}</dd>
         <dt>Email address:</dt>
-        <dd>{{user.email}}</dd>
+        <dd>{{ user.email }}</dd>
         <dt>User class:</dt>
-        <dd>{{level}}</dd><br>
+        <dd>{{ level }}</dd>
+        {%- if g.user.is_superadmin -%}
+        <dt>Last login IP:</dt>
+        <dd>{{ user.ip_string }}</dd><br>
+        {%- endif -%}
     </dl>
+    {% if admin_form %}
     <form method="POST">
-        {{ form.csrf_token }}
+        {{ admin_form.csrf_token }}
 
         <div class="form-group row">
             <div class="col-md-6">
-                {{ render_menu_with_button(form.user_class)}}
+                {{ render_menu_with_button(admin_form.user_class) }}
             </div>
         </div>
     </form>
     <br>
+    {% endif %}
 {% endif %}
 
 <h3>
-    Browsing {{user.username}}'s torrents
+    Browsing {{ user.username }}'s torrents
 </h3>
 
 {% include "search_results.html" %}

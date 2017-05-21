@@ -11,7 +11,7 @@ import config
 
 import json
 from datetime import datetime, timedelta
-import ipaddress
+from ipaddress import ip_address
 import os.path
 import base64
 from urllib.parse import quote
@@ -135,6 +135,7 @@ def get_category_id_map():
 
 app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
 
+
 def chain_get(source, *args):
     ''' Tries to return values from source by the given keys.
         Returns None if none match.
@@ -145,6 +146,7 @@ def chain_get(source, *args):
         if value is not sentinel:
             return value
     return None
+
 
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
@@ -194,7 +196,7 @@ def home(rss):
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
-        if flask.g.user.is_admin:  # God mode
+        if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
 
     # If searching, we get results from elastic search
@@ -215,7 +217,8 @@ def home(rss):
         if render_as_rss:
             return render_rss('"{}"'.format(search_term), query_results, use_elastic=True, magnet_links=use_magnet_links)
         else:
-            rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
+            rss_query_string = _generate_query_string(
+                search_term, category, quality_filter, user_name)
             max_results = min(max_search_results, query_results['hits']['total'])
             # change p= argument to whatever you change page_parameter to or pagination breaks
             pagination = Pagination(p=query_args['page'], per_page=results_per_page,
@@ -238,7 +241,8 @@ def home(rss):
         if render_as_rss:
             return render_rss('Home', query, use_elastic=False, magnet_links=use_magnet_links)
         else:
-            rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
+            rss_query_string = _generate_query_string(
+                search_term, category, quality_filter, user_name)
             # Use elastic is always false here because we only hit this section
             # if we're browsing without a search term (which means we default to DB)
             # or if ES is disabled
@@ -256,22 +260,23 @@ def view_user(user_name):
     if not user:
         flask.abort(404)
 
-    if flask.g.user and flask.g.user.id != user.id:
-        admin = flask.g.user.is_admin
-        superadmin = flask.g.user.is_superadmin
-    else:
-        admin = False
-        superadmin = False
+    admin_form = None
+    if flask.g.user and flask.g.user.is_moderator and flask.g.user.level > user.level:
+        admin_form = forms.UserForm()
+        default, admin_form.user_class.choices = _create_user_class_choices(user)
+        if flask.request.method == 'GET':
+            admin_form.user_class.data = default
 
-    form = forms.UserForm()
-    form.user_class.choices = _create_user_class_choices()
-    if flask.request.method == 'POST' and form.validate():
-        selection = form.user_class.data
+    if flask.request.method == 'POST' and admin_form and admin_form.validate():
+        selection = admin_form.user_class.data
 
         if selection == 'regular':
             user.level = models.UserLevelType.REGULAR
         elif selection == 'trusted':
             user.level = models.UserLevelType.TRUSTED
+        elif selection == 'moderator':
+            user.level = models.UserLevelType.MODERATOR
+
         db.session.add(user)
         db.session.commit()
 
@@ -311,7 +316,7 @@ def view_user(user_name):
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
-        if flask.g.user.is_admin:  # God mode
+        if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
 
     # Use elastic search for term searching
@@ -344,9 +349,7 @@ def view_user(user_name):
                                      user_page=True,
                                      rss_filter=rss_query_string,
                                      level=user_level,
-                                     admin=admin,
-                                     superadmin=superadmin,
-                                     form=form)
+                                     admin_form=admin_form)
     # Similar logic as home page
     else:
         if use_elastic:
@@ -362,9 +365,7 @@ def view_user(user_name):
                                      user_page=True,
                                      rss_filter=rss_query_string,
                                      level=user_level,
-                                     admin=admin,
-                                     superadmin=superadmin,
-                                     form=form)
+                                     admin_form=admin_form)
 
 
 @app.template_filter('rfc822')
@@ -417,7 +418,7 @@ def login():
             return flask.redirect(flask.url_for('login'))
 
         user.last_login_date = datetime.utcnow()
-        user.last_login_ip = ipaddress.ip_address(flask.request.remote_addr).packed
+        user.last_login_ip = ip_address(flask.request.remote_addr).packed
         db.session.add(user)
         db.session.commit()
 
@@ -451,7 +452,7 @@ def register():
     if flask.request.method == 'POST' and form.validate():
         user = models.User(username=form.username.data.strip(),
                            email=form.email.data.strip(), password=form.password.data)
-        user.last_login_ip = ipaddress.ip_address(flask.request.remote_addr).packed
+        user.last_login_ip = ip_address(flask.request.remote_addr).packed
         db.session.add(user)
         db.session.commit()
 
@@ -479,13 +480,7 @@ def profile():
 
     form = forms.ProfileForm(flask.request.form)
 
-    level = 'Regular'
-    if flask.g.user.is_admin:
-        level = 'Moderator'
-    if flask.g.user.is_superadmin:  # check this second because we can be admin AND superadmin
-        level = 'Administrator'
-    elif flask.g.user.is_trusted:
-        level = 'Trusted'
+    level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][flask.g.user.level]
 
     if flask.request.method == 'POST' and form.validate():
         user = flask.g.user
@@ -586,11 +581,11 @@ def view_torrent(torrent_id):
         flask.abort(404)
 
     # Only allow admins see deleted torrents
-    if torrent.deleted and not (viewer and viewer.is_admin):
+    if torrent.deleted and not (viewer and viewer.is_moderator):
         flask.abort(404)
 
     # Only allow owners and admins to edit torrents
-    can_edit = viewer and (viewer is torrent.user or viewer.is_admin)
+    can_edit = viewer and (viewer is torrent.user or viewer.is_moderator)
 
     files = None
     if torrent.filelist:
@@ -614,11 +609,11 @@ def edit_torrent(torrent_id):
         flask.abort(404)
 
     # Only allow admins edit deleted torrents
-    if torrent.deleted and not (editor and editor.is_admin):
+    if torrent.deleted and not (editor and editor.is_moderator):
         flask.abort(404)
 
     # Only allow torrent owners or admins edit torrents
-    if not editor or not (editor is torrent.user or editor.is_admin):
+    if not editor or not (editor is torrent.user or editor.is_moderator):
         flask.abort(403)
 
     if flask.request.method == 'POST' and form.validate():
@@ -636,7 +631,7 @@ def edit_torrent(torrent_id):
 
         if editor.is_trusted:
             torrent.trusted = form.is_trusted.data
-        if editor.is_admin:
+        if editor.is_moderator:
             torrent.deleted = form.is_deleted.data
 
         db.session.commit()
@@ -739,11 +734,22 @@ def send_verification_email(to_address, activ_link):
     server.quit()
 
 
-def _create_user_class_choices():
+def _create_user_class_choices(user):
     choices = [('regular', 'Regular')]
-    if flask.g.user and flask.g.user.is_superadmin:
-        choices.append(('trusted', 'Trusted'))
-    return choices
+    default = 'regular'
+    if flask.g.user:
+        if flask.g.user.is_moderator:
+            choices.append(('trusted', 'Trusted'))
+        if flask.g.user.is_superadmin:
+            choices.append(('moderator', 'Moderator'))
+
+        if user:
+            if user.is_moderator:
+                default = 'moderator'
+            elif user.is_trusted:
+                default = 'trusted'
+
+    return default, choices
 
 
 # #################################### STATIC PAGES ####################################

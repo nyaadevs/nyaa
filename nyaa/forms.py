@@ -263,7 +263,7 @@ class UploadForm(FlaskForm):
 
 
 class UserForm(FlaskForm):
-    user_class = DisabledSelectField('Change User Class')
+    user_class = SelectField('Change User Class')
 
     def validate_user_class(form, field):
         if not field.data:
@@ -294,7 +294,8 @@ def _validate_trackers(torrent_dict, tracker_to_check_for=None):
         for announce in announce_list:
             _validate_list(announce, 'announce-list item')
 
-            announce_string = _validate_bytes(announce[0], 'announce-list item url', test_decode='utf-8')
+            announce_string = _validate_bytes(
+                announce[0], 'announce-list item url', test_decode='utf-8')
             if tracker_to_check_for and announce_string.lower() == tracker_to_check_for.lower():
                 tracker_found = True
 

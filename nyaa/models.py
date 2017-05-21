@@ -6,6 +6,7 @@ from sqlalchemy import func, ForeignKeyConstraint, Index
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_fulltext import FullText
+from ipaddress import ip_address
 
 import re
 import base64
@@ -61,6 +62,7 @@ class Torrent(db.Model):
     encoding = db.Column(db.String(length=32), nullable=False)
     flags = db.Column(db.Integer, default=0, nullable=False, index=True)
     uploader_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    uploader_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
     has_torrent = db.Column(db.Boolean, nullable=False, default=False)
 
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow, nullable=False)
@@ -92,11 +94,11 @@ class Torrent(db.Model):
     info = db.relationship('TorrentInfo', uselist=False,
                            cascade="all, delete-orphan", back_populates='torrent')
     filelist = db.relationship('TorrentFilelist', uselist=False,
-                           cascade="all, delete-orphan", back_populates='torrent')
+                               cascade="all, delete-orphan", back_populates='torrent')
     stats = db.relationship('Statistic', uselist=False,
-                           cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
+                            cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
     trackers = db.relationship('TorrentTrackers', uselist=True,
-                           cascade="all, delete-orphan", lazy='joined')
+                               cascade="all, delete-orphan", lazy='joined')
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
@@ -137,6 +139,11 @@ class Torrent(db.Model):
     @property
     def magnet_uri(self):
         return create_magnet(self)
+
+    @property
+    def uploader_ip_string(self):
+        if self.uploader_ip:
+            return str(ip_address(self.uploader_ip))
 
     @property
     def anonymous(self):
@@ -313,7 +320,7 @@ class SubCategory(db.Model):
 class UserLevelType(IntEnum):
     REGULAR = 0
     TRUSTED = 1
-    ADMIN = 2
+    MODERATOR = 2
     SUPERADMIN = 3
 
 
@@ -362,6 +369,11 @@ class User(db.Model):
         ]
         return all(checks)
 
+    @property
+    def ip_string(self):
+        if self.last_login_ip:
+            return str(ip_address(self.last_login_ip))
+
     @classmethod
     def by_id(cls, id):
         return cls.query.get(id)
@@ -381,8 +393,8 @@ class User(db.Model):
         return cls.by_username(username_or_email) or cls.by_email(username_or_email)
 
     @property
-    def is_admin(self):
-        return self.level >= UserLevelType.ADMIN
+    def is_moderator(self):
+        return self.level >= UserLevelType.MODERATOR
 
     @property
     def is_superadmin(self):
