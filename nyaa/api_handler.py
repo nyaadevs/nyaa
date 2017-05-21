@@ -50,6 +50,22 @@ def api_require_user(f):
 
 # #################################### API ROUTES ####################################
 
+    if upload_request.method == 'POST' and form.validate():
+        torrent = backend.handle_torrent_upload(form, user, True)
+
+        return flask.make_response(flask.jsonify({'Success': int('{0}'.format(torrent.id))}), 200)
+    else:
+        return_error_messages = []
+        for error_name, error_messages in form.errors.items():
+            return_error_messages.extend(error_messages)
+
+        return flask.make_response(flask.jsonify({'Failure': return_error_messages}), 400)
+
+# ##################################### V2 BELOW #####################################
+
+
+# ###################################### UPLOAD ######################################
+
 # Map UploadForm fields to API keys
 UPLOAD_API_FORM_KEYMAP = {
     'torrent_file': 'torrent',
@@ -258,9 +274,11 @@ def ghetto_import():
 
     return 'success'
 
+
 # ####################################### INFO #######################################
 ID_PATTERN = '^[1-9][0-9]*$'
-INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$' # INFO_HASH as string
+INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'  # INFO_HASH as string
+
 
 @api_blueprint.route('/v2/info/<torrent_id_or_hash>', methods=['GET'])
 @basic_auth_user
