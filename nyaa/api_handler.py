@@ -266,36 +266,32 @@ INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$' # INFO_HASH as string
 @basic_auth_user
 @api_require_user
 def v2_api_info(torrent_id_or_hash):
-    #id_type = None
+    torrent = None
+    viewer = flask.g.user
+
     matchID = re.match(ID_PATTERN, torrent_id_or_hash)
     matchHASH = re.match(INFO_HASH_PATTERN, torrent_id_or_hash)
 
-    torrent = None
-
     if matchID:
-        #id_type = 'id'
         torrent = models.Torrent.by_id(torrent_id_or_hash)
     elif matchHASH:
-        #id_type = 'hash'
-        # Convert the string representation of a torrent hash back into a binary representation
+        # Convert the string representation of a torrent hash into binary
         a2b_hash = binascii.unhexlify(torrent_id_or_hash)
         torrent = models.Torrent.by_info_hash(a2b_hash)
     else:
         return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
 
-    viewer = flask.g.user
-
     if not torrent:
         return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
 
     # Only allow admins see deleted torrents
-    if torrent.deleted and not (viewer and viewer.is_admin):
+    if torrent.deleted and not (viewer and viewer.is_superadmin):
         return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
 
     submitter = 'anonymous'
     if not torrent.anonymous and torrent.user:
         submitter = torrent.user.username
-    if torrent.user and (viewer == torrent.user or viewer.is_admin):
+    if torrent.user and (viewer == torrent.user or viewer.is_moderator):
         submitter = torrent.user.username
 
     files = ''

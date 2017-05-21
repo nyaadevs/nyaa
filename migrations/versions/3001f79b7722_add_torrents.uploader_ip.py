@@ -1,7 +1,7 @@
 """Add uploader_ip column to torrents table.
 
 Revision ID: 3001f79b7722
-Revises: 
+Revises:
 Create Date: 2017-05-21 18:01:35.472717
 
 """
