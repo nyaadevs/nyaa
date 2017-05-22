@@ -679,7 +679,7 @@ def redirect_magnet(torrent_id):
 def download_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
 
-    if not torrent:
+    if not torrent or not torrent.has_torrent:
         flask.abort(404)
 
     resp = flask.Response(_get_cached_torrent_file(torrent))
