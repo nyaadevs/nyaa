@@ -136,48 +136,59 @@
 			Comments - {{ comment_count }}
 		</h3>
 	</div>
-	<div class="panel-collapse">
-        <table class="table table-bordered table-striped">
-            <thead>
-				{% if g.user.is_admin %}
-				<th style="width:auto;">Delete</th>
-				{% endif %}
-				<th style="width:auto;">Date</th>
-                <th style="width:auto;">User</th>
-                <th style="width:100%;">Comment</th>
-            </thead>
-            <tbody>
-				{% for comment in comments %}
-				<tr>
-					{% if g.user.is_admin %}
-					<td class="col-md-1">
-						<a href="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id )}}"><i class="fa fa-ban"></i></a>
-					</td>
-					{% endif %}
-					<td class="col-md-1">
-						{% if comment.user %}
-						<a href="{{ url_for('view_user', user_name=comment.user.username) }}">
-							{{ comment.user.username }}
-						</a>
-						{% else %}
-						<span>Anonymous</span>
+	{% for comment in comments %}
+	<div class="panel panel-default">
+		<div class="panel-body" >
+			<div class="row">
+				<div class="col-md-2">
+					<p>
+						{% set user_url = torrent.user and url_for('view_user', user_name=comment.user.username) %}
+						<a href="{{ user_url }}">{{ comment.user.username }}</a>
+						{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
+						(uploader)
 						{% endif %}
-					</td>
-					<td class="col-md-1" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</td>
-					<td class="col-md-9">{{ comment.text }}</td>
-				</tr>
-				{% endfor %}
-            <tbody>
-        </table>
+					</p>
+					<p>{{ comment.user.userlevel_str }}</p>
+					<p>
+						<img style="max-width: 120px;" src="{{ comment.user.gravatar_url() }}">
+					</p>
+					{% if g.user.is_moderator or g.user.id == comment.user_id %}
+					<div class="row form-group">
+						<div class="col-md-6">
+					<label class="btn btn-default" title="Delete">
+						<a href="{{ url_for('delete_comment', comment_id=comment.id, torrent_id=torrent.id)}}">Delete</a>
+					</label>
+						</div>
+					</div>
+					{% endif %}
+
+				</div>
+				<div class="col-md-10">
+					<small>{{comment.created_time | timesince}}</small><br><br>
+					{# Escape newlines into html entities because CF strips blank newlines #}
+					<div id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
+				</div>
+			</div>
+		</div>
 	</div>
+	<script>
+		var target = document.getElementById('torrent-comment{{ comment.id }}');
+		var text = target.innerHTML;
+		var reader = new commonmark.Parser({safe: true});
+		var writer = new commonmark.HtmlRenderer({safe: true, softbreak: '<br />'});
+		var parsed = reader.parse(text.trim());
+		target.innerHTML = writer.render(parsed);
+	</script>
+	{% endfor %}
 </div>
 
-<form method="POST" action="{{ request.url }}/submit_comment">
+{% if g.user %}
+<form method="POST">
 	{{ form.csrf_token }}
 	{{ render_field(form.comment, class_='form-control') }}
-	{{ render_field(form.is_anonymous) }}
 	<input type="submit" value="Submit" class="btn btn-primary">
 </form>
+{% endif %}
 
 <script>
 	var target = document.getElementById('torrent-description');
