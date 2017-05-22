@@ -20,6 +20,7 @@
 {% endif %}
 
 {% macro render_torrent_card(torrent, is_current_user) %}
+	{# This currently is not in use yet, but it's a card-like styling for torrents on mobile widths #}
     {% set cat_id = (torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string) if use_elastic else (torrent.main_category.id|string) + '_' + (torrent.sub_category.id|string) %}
     {% set icon_dir = config.SITE_FLAVOR %}
 
@@ -233,11 +234,6 @@
 		</tbody>
 	</table>
 </div>
-<ul class="torrent-list">
-    {% for torrent in torrents %}
-        <li class="torrent-card">{{ render_torrent_card(torrent, is_current_user) }}</li>
-    {% endfor %}
-</ul>
 {% endcall %}
 {% else %}
 <h3>No results found</h3>

@@ -502,3 +502,6 @@ h6:hover .header-anchor {
 	flex: 1
 }
 
+.checkbox-column {
+	width: 5px;
+}
