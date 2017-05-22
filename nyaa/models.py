@@ -394,7 +394,7 @@ class User(db.Model):
 
     def gravatar_url(self):
         # from http://en.gravatar.com/site/implement/images/python/
-        size = 40
+        size = 120
         # construct the url
         gravatar_url = 'https://www.gravatar.com/avatar/' + \
             hashlib.md5(self.email.encode('utf-8').lower()).hexdigest() + '?'

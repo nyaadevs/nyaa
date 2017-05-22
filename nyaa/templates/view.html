@@ -137,34 +137,29 @@
 		</h3>
 	</div>
 	{% for comment in comments %}
-	<div class="panel panel-default">
-		<div class="panel-body" >
-			<div class="row">
-				<div class="col-md-2">
-					<p>
-						{% set user_url = torrent.user and url_for('view_user', user_name=comment.user.username) %}
-						<a href="{{ user_url }}">{{ comment.user.username }}</a>
-						{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
-						(uploader)
-						{% endif %}
-					</p>
-					<p>{{ comment.user.userlevel_str }}</p>
-					<p>
-						<img style="max-width: 120px;" src="{{ comment.user.gravatar_url() }}">
-					</p>
-					{% if g.user.is_moderator or g.user.id == comment.user_id %}
-					<div class="row form-group">
-						<div class="col-md-6">
-					<label class="btn btn-default" title="Delete">
-						<a href="{{ url_for('delete_comment', comment_id=comment.id, torrent_id=torrent.id)}}">Delete</a>
-					</label>
-						</div>
-					</div>
+	<div class="panel panel-default comments-panel">
+		<div class="panel-body">
+			<div class="col-md-2">
+				<p>
+					{% set user_url = torrent.user and url_for('view_user', user_name=comment.user.username) %}
+					<a href="{{ user_url }}">{{ comment.user.username }}</a>
+					{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
+					(uploader)
 					{% endif %}
-
+				</p>
+				<p>{{ comment.user.userlevel_str }}</p>
+				<p>
+					<img class="avatar" src="{{ comment.user.gravatar_url() }}">
+				</p>
+			</div>
+			<div class="col-md-10">
+				<div class="row">
+					<small>{{comment.created_time | timesince}}</small>
+					{% if g.user.is_moderator or g.user.id == comment.user_id %}
+					<div class="btn btn-danger btn-sm delete-btn" title="Delete" onclick='location.href = "{{ url_for('delete_comment', comment_id=comment.id, torrent_id=torrent.id)}}";'>Delete</div>
+					{% endif %}
 				</div>
-				<div class="col-md-10">
-					<small>{{comment.created_time | timesince}}</small><br><br>
+				<div class="row">
 					{# Escape newlines into html entities because CF strips blank newlines #}
 					<div id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
 				</div>
@@ -180,15 +175,14 @@
 		target.innerHTML = writer.render(parsed);
 	</script>
 	{% endfor %}
+	{% if g.user %}
+	<form method="POST" class="comment-box">
+		{{ form.csrf_token }}
+		{{ render_field(form.comment, class_='form-control') }}
+		<input type="submit" value="Submit" class="btn btn-success btn-sm">
+	</form>
+	{% endif %}
 </div>
-
-{% if g.user %}
-<form method="POST">
-	{{ form.csrf_token }}
-	{{ render_field(form.comment, class_='form-control') }}
-	<input type="submit" value="Submit" class="btn btn-primary">
-</form>
-{% endif %}
 
 <script>
 	var target = document.getElementById('torrent-description');
