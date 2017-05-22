@@ -58,7 +58,7 @@
 			<div class="col-md-1">File size:</div>
 			<div class="col-md-5">{{ torrent.filesize | filesizeformat(True) }}</div>
 
-			<div class="col-md-1">Downloads:</div>
+			<div class="col-md-1">Completed:</div>
 			<div class="col-md-5">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.download_count }}{% else %}Coming soon{% endif %}</div>
 		</div>
 	</div>
