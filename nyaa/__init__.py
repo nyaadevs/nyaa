@@ -12,6 +12,7 @@ app.config.from_object('config')
 
 # Database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
 
 # Don't refresh cookie each request
 app.config['SESSION_REFRESH_EACH_REQUEST'] = False
