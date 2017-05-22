@@ -218,3 +218,26 @@ table.torrent-list tbody tr td a:visited {
 ul.nav-tabs#profileTabs {
 	margin-bottom: 15px;
 }
+
+.comments-panel {
+	width: 99%;
+	margin: 0 auto;
+	margin-top:10px;
+	margin-bottom:10px;
+}
+
+.comment-box {
+	width: 95%;
+	margin: 0 auto;
+	margin-top:30px;
+	margin-bottom:10px;
+}
+
+.delete-comment-form {
+	position: relative;
+	float: right;
+}
+
+.avatar {
+	max-width: 120px;
+}

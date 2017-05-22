@@ -7,7 +7,7 @@
 {% set torrent_url = url_for('view_torrent', torrent_id=torrent.id) %}
 <h1>
 	Edit Torrent <a href="{{ torrent_url }}">#{{torrent.id}}</a>
-	{% if (torrent.user != None) and (torrent.user != editor) %}
+	{% if (torrent.user != None) and (torrent.user != g.user) %}
 	(by <a href="{{ url_for('view_user', user_name=torrent.user.username) }}">{{ torrent.user.username }}</a>)
 	{% endif %}
 </h1>
@@ -31,7 +31,7 @@
 		<div class="col-md-6">
 			<label class="control-label">Torrent flags</label>
 			<div>
-			{% if editor.is_moderator %}
+			{% if g.user.is_moderator %}
 			<label class="btn btn-primary">
 				{{ form.is_deleted }}
 				Deleted
@@ -58,7 +58,7 @@
 				Anonymous
 			</label>
 			{% endif %}
-			{% if editor.is_trusted %}
+			{% if g.user.is_trusted %}
 			<label class="btn btn-success" title="Mark torrent trusted">
 				{{ form.is_trusted }}
 				Trusted

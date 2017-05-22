@@ -7,6 +7,7 @@ from nyaa import torrents
 from nyaa import backend
 from nyaa import api_handler
 from nyaa.search import search_elastic, search_db
+from sqlalchemy.orm import joinedload
 import config
 
 import json
@@ -570,21 +571,48 @@ def upload():
         return flask.render_template('upload.html', upload_form=upload_form), status_code
 
 
-@app.route('/view/<int:torrent_id>')
+@app.route('/view/<int:torrent_id>', methods=['GET', 'POST'])
 def view_torrent(torrent_id):
-    torrent = models.Torrent.by_id(torrent_id)
-
-    viewer = flask.g.user
-
+    if flask.request.method == 'POST':
+        torrent = models.Torrent.by_id(torrent_id)
+    else:
+        torrent = models.Torrent.query \
+                                .options(joinedload('filelist'),
+                                         joinedload('comments')) \
+                                .filter_by(id=torrent_id) \
+                                .first()
     if not torrent:
         flask.abort(404)
 
     # Only allow admins see deleted torrents
-    if torrent.deleted and not (viewer and viewer.is_moderator):
+    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
         flask.abort(404)
 
+    comment_form = None
+    if flask.g.user:
+        comment_form = forms.CommentForm()
+
+    if flask.request.method == 'POST':
+        if not flask.g.user:
+            flask.abort(403)
+
+        if comment_form.validate():
+            comment_text = (comment_form.comment.data or '').strip()
+
+            comment = models.Comment(
+                torrent_id=torrent_id,
+                user_id=flask.g.user.id,
+                text=comment_text)
+
+            db.session.add(comment)
+            db.session.commit()
+
+            flask.flash('Comment successfully posted.', 'success')
+
+            return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+
     # Only allow owners and admins to edit torrents
-    can_edit = viewer and (viewer is torrent.user or viewer.is_moderator)
+    can_edit = flask.g.user and (flask.g.user is torrent.user or flask.g.user.is_moderator)
 
     files = None
     if torrent.filelist:
@@ -592,8 +620,29 @@ def view_torrent(torrent_id):
 
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
-                                 viewer=viewer,
+                                 comment_form=comment_form,
+                                 comments=torrent.comments,
                                  can_edit=can_edit)
+
+
+@app.route('/view/<int:torrent_id>/comment/<int:comment_id>/delete', methods=['POST'])
+def delete_comment(torrent_id, comment_id):
+    if not flask.g.user:
+        flask.abort(403)
+
+    comment = models.Comment.query.filter_by(id=comment_id).first()
+    if not comment:
+        flask.abort(404)
+
+    if not (comment.user.id == flask.g.user.id or flask.g.user.is_moderator):
+        flask.abort(403)
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    flask.flash('Comment successfully deleted.', 'success')
+
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
@@ -608,11 +657,11 @@ def edit_torrent(torrent_id):
         flask.abort(404)
 
     # Only allow admins edit deleted torrents
-    if torrent.deleted and not (editor and editor.is_moderator):
+    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
         flask.abort(404)
 
     # Only allow torrent owners or admins edit torrents
-    if not editor or not (editor is torrent.user or editor.is_moderator):
+    if not flask.g.user or not (flask.g.user is torrent.user or flask.g.user.is_moderator):
         flask.abort(403)
 
     if flask.request.method == 'POST' and form.validate():
@@ -628,9 +677,9 @@ def edit_torrent(torrent_id):
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
 
-        if editor.is_trusted:
+        if flask.g.user.is_trusted:
             torrent.trusted = form.is_trusted.data
-        if editor.is_moderator:
+        if flask.g.user.is_moderator:
             torrent.deleted = form.is_deleted.data
 
         db.session.commit()
@@ -658,8 +707,7 @@ def edit_torrent(torrent_id):
 
         return flask.render_template('edit.html',
                                      form=form,
-                                     torrent=torrent,
-                                     editor=editor)
+                                     torrent=torrent)
 
 
 @app.route('/view/<int:torrent_id>/magnet')
@@ -752,7 +800,37 @@ def _create_user_class_choices(user):
     return default, choices
 
 
+@app.template_filter()
+def timesince(dt, default='just now'):
+    """
+    Returns string representing "time since" e.g.
+    3 minutes ago, 5 hours ago etc.
+    Date and time (UTC) are returned if older than 1 day.
+    """
+
+    now = datetime.utcnow()
+    diff = now - dt
+
+    periods = (
+        (diff.days, 'day', 'days'),
+        (diff.seconds / 3600, 'hour', 'hours'),
+        (diff.seconds / 60, 'minute', 'minutes'),
+        (diff.seconds, 'second', 'seconds'),
+    )
+
+    if diff.days >= 1:
+        return dt.strftime('%Y-%m-%d %H:%M UTC')
+    else:
+        for period, singular, plural in periods:
+
+            if period >= 1:
+                return '%d %s ago' % (period, singular if period == 1 else plural)
+
+    return default
+
 # #################################### STATIC PAGES ####################################
+
+
 @app.route('/rules', methods=['GET'])
 def site_rules():
     return flask.render_template('rules.html')
