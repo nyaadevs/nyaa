@@ -11,6 +11,8 @@ from nyaa import models
 
 USED_TRACKERS = OrderedSet()
 
+# Limit the amount of trackers added into .torrent files
+MAX_TRACKERS = 5
 
 def read_trackers_from_file(file_object):
     USED_TRACKERS.clear()
@@ -116,7 +118,7 @@ def create_default_metadata_base(torrent, trackers=None):
         metadata_base['announce'] = trackers[0]
     if len(trackers) > 1:
         # Yes, it's a list of lists with a single element inside.
-        metadata_base['announce-list'] = [[tracker] for tracker in trackers]
+        metadata_base['announce-list'] = [[tracker] for tracker in trackers[:MAX_TRACKERS]]
 
     return metadata_base
 
