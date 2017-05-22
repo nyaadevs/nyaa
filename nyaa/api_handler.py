@@ -93,7 +93,8 @@ def api_upload(upload_request, user):
             else:
                 form_info_as_dict.append((k, v))
         # Hack for while v1 is still being used: default trusted to true
-        form_info_as_dict.setdefault('is_trusted', True)
+        if not [x for x in form_info_as_dict if x[0] == 'is_trusted']:
+            form_info_as_dict.append(('is_trusted', True))
         form_info = ImmutableMultiDict(form_info_as_dict)
     except Exception as e:
         return flask.make_response(flask.jsonify(
