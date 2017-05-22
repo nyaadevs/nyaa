@@ -104,7 +104,7 @@ def api_upload(upload_request, user):
         return flask.make_response(flask.jsonify(
             {'Failure': ['No torrent file was attached.']}), 400)
 
-    form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)))
+    form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)), csrf_enabled=False)
     form.category.choices = _create_upload_category_choices()
 
     if upload_request.method == 'POST' and form.validate():
@@ -166,7 +166,7 @@ def v2_api_upload():
         mapped_dict[mapped_key] = request_data.get(key) or ''
 
     # Flask-WTF (very helpfully!!) automatically grabs the request form, so force a None formdata
-    upload_form = forms.UploadForm(None, data=mapped_dict)
+    upload_form = forms.UploadForm(None, data=mapped_dict, csrf_enabled=False)
     upload_form.category.choices = _create_upload_category_choices()
 
     if upload_form.validate():
