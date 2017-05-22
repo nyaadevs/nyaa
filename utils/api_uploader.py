@@ -23,7 +23,8 @@ The POST payload to the api endpoint (/api/upload) should be multipart/form-data
     'is_anonymous': boolean,
     'is_hidden': boolean,
     'is_remake': boolean,
-    'is_complete': boolean
+    'is_complete': boolean,
+    'is_trusted': boolean #optional
 },
 
 'torrent_file': multi part file format
@@ -105,6 +106,7 @@ is_anonymous = False
 is_hidden    = False
 is_remake    = False
 is_complete  = False
+is_trusted   = True # This will only work if a user is trusted, otherwise the option is ignored
 
 auth_info = {
     'username'     : username,
