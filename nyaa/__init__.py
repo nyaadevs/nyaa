@@ -37,7 +37,7 @@ if not app.config['DEBUG']:
     def internal_error(exception):
         app.logger.error(exception)
         flask.flash(flask.Markup(
-            '<strong>An error occured!</strong> Debugging information has been logged.'), 'danger')
+            '<strong>An error occurred!</strong> Debug information has been logged.'), 'danger')
         return flask.redirect('/')
 
 # Get git commit hash
