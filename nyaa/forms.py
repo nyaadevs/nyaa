@@ -166,6 +166,10 @@ class EditForm(FlaskForm):
 
 
 class UploadForm(FlaskForm):
+
+    class Meta:
+        csrf = False
+        
     torrent_file = FileField('Torrent file', [
         FileRequired()
     ])

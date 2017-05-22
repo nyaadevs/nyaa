@@ -14,8 +14,6 @@
 
 <div id="upload-drop-zone"><span>Drop here!</span></div>
 <form method="POST" enctype="multipart/form-data">
-	{{ upload_form.csrf_token }}
-
 	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{ config.MAIN_ANNOUNCE_URL }}</kbd> in your trackers</p>{% endif %}
 	<div class="row">
 		<div class="col-md-6">
