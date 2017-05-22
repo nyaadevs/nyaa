@@ -329,7 +329,7 @@ class Comment(db.Model):
         DB_TABLE_PREFIX + 'torrents.id', ondelete='CASCADE'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
-    text = db.Column(db.String(length=255), nullable=False)
+    text = db.Column(db.String(length=255, collation=COL_UTF8MB4_BIN), nullable=False)
 
     user = db.relationship('User', uselist=False, back_populates='comments', lazy="joined")
 
