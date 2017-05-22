@@ -319,8 +319,10 @@ def view_user(user_name):
         flask.abort(404)
 
     admin_form = None
+    mass_action_form = None
     if flask.g.user and flask.g.user.is_moderator and flask.g.user.level > user.level:
         admin_form = forms.UserForm()
+        mass_action_form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user)
         default, admin_form.user_class.choices = _create_user_class_choices(user)
         if flask.request.method == 'GET':
             admin_form.user_class.data = default
@@ -379,9 +381,9 @@ def view_user(user_name):
         if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
         if flask.g.user.id == user.id:
+            mass_action_form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user)
             is_logged_in_user_account = True
 
-    form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user)
 
     # Use elastic search for term searching
     rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
@@ -414,7 +416,7 @@ def view_user(user_name):
                                      rss_filter=rss_query_string,
                                      level=user_level,
                                      admin_form=admin_form,
-                                     form=form,
+                                     mass_action_form=mass_action_form,
                                      is_current_user=is_logged_in_user_account)
 
     # Similar logic as home page
@@ -434,7 +436,7 @@ def view_user(user_name):
                                      rss_filter=rss_query_string,
                                      level=user_level,
                                      admin_form=admin_form,
-                                     form=form,
+                                     mass_action_form=mass_action_form,
                                      is_current_user=is_logged_in_user_account)
 
 

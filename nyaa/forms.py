@@ -318,7 +318,7 @@ class UserTorrentMassAction(FlaskForm):
         if user is None:
             raise TypeError('User needs to be passed as a keyword parameter.')
 
-        if user.is_admin:
+        if user.is_moderator or user.is_superadmin:
             self.is_admin = True
             self.action.choices = self.action.choices + self.admin_actions
 
