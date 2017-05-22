@@ -107,7 +107,7 @@ def api_upload(upload_request, user):
         return flask.make_response(flask.jsonify(
             {'Failure': ['No torrent file was attached.']}), 400)
 
-    form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)), meta={'csrf':False})
+    form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)), meta={'csrf': False})
     form.category.choices = _create_upload_category_choices()
 
     if upload_request.method == 'POST' and form.validate():
@@ -138,7 +138,7 @@ UPLOAD_API_FORM_KEYMAP = {
 }
 UPLOAD_API_FORM_KEYMAP_REVERSE = {v: k for k, v in UPLOAD_API_FORM_KEYMAP.items()}
 UPLOAD_API_DEFAULTS = {
-    'name' : '',
+    'name': '',
     'category': '',
     'anonymous': False,
     'hidden': False,
@@ -169,7 +169,7 @@ def v2_api_upload():
         mapped_dict[mapped_key] = request_data.get(key, default)
 
     # Flask-WTF (very helpfully!!) automatically grabs the request form, so force a None formdata
-    upload_form = forms.UploadForm(None, data=mapped_dict, meta={'csrf':False})
+    upload_form = forms.UploadForm(None, data=mapped_dict, meta={'csrf': False})
     upload_form.category.choices = _create_upload_category_choices()
 
     if upload_form.validate():
@@ -193,7 +193,7 @@ def v2_api_upload():
 
 # #################################### TEMPORARY ####################################
 
-from orderedset import OrderedSet
+from orderedset import OrderedSet  # noqa: E402
 
 
 @api_blueprint.route('/ghetto_import', methods=['POST'])
