@@ -87,11 +87,13 @@ def api_upload(upload_request, user):
 
         form_info_as_dict = []
         for k, v in form_info.items():
-            if k in ['is_anonymous', 'is_hidden', 'is_remake', 'is_complete']:
+            if k in ['is_anonymous', 'is_hidden', 'is_remake', 'is_complete', 'is_trusted']:
                 if v:
                     form_info_as_dict.append((k, v))
             else:
                 form_info_as_dict.append((k, v))
+        # Hack for while v1 is still being used: default trusted to true
+        form_info_as_dict.setdefault('is_trusted', True)
         form_info = ImmutableMultiDict(form_info_as_dict)
     except Exception as e:
         return flask.make_response(flask.jsonify(
@@ -104,7 +106,7 @@ def api_upload(upload_request, user):
         return flask.make_response(flask.jsonify(
             {'Failure': ['No torrent file was attached.']}), 400)
 
-    form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)), csrf_enabled=False)
+    form = forms.UploadForm(CombinedMultiDict((torrent_file, form_info)), meta={'csrf':False})
     form.category.choices = _create_upload_category_choices()
 
     if upload_request.method == 'POST' and form.validate():
@@ -134,17 +136,17 @@ UPLOAD_API_FORM_KEYMAP = {
     'is_trusted': 'trusted'
 }
 UPLOAD_API_FORM_KEYMAP_REVERSE = {v: k for k, v in UPLOAD_API_FORM_KEYMAP.items()}
-UPLOAD_API_KEYS = [
-    'name',
-    'category',
-    'anonymous',
-    'hidden',
-    'complete',
-    'remake',
-    'trusted',
-    'information',
-    'description'
-]
+UPLOAD_API_DEFAULTS = {
+    'name' : '',
+    'category': '',
+    'anonymous': False,
+    'hidden': False,
+    'complete': False,
+    'remake': False,
+    'trusted': True,
+    'information': '',
+    'description': ''
+}
 
 
 @api_blueprint.route('/v2/upload', methods=['POST'])
@@ -161,12 +163,12 @@ def v2_api_upload():
     request_data = json.loads(request_data_field)
 
     # Map api keys to upload form fields
-    for key in UPLOAD_API_KEYS:
+    for key, default in UPLOAD_API_DEFAULTS.items():
         mapped_key = UPLOAD_API_FORM_KEYMAP_REVERSE.get(key, key)
-        mapped_dict[mapped_key] = request_data.get(key) or ''
+        mapped_dict[mapped_key] = request_data.get(key, default)
 
     # Flask-WTF (very helpfully!!) automatically grabs the request form, so force a None formdata
-    upload_form = forms.UploadForm(None, data=mapped_dict, csrf_enabled=False)
+    upload_form = forms.UploadForm(None, data=mapped_dict, meta={'csrf':False})
     upload_form.category.choices = _create_upload_category_choices()
 
     if upload_form.validate():
