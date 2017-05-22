@@ -121,7 +121,8 @@ metadata={
     'is_anonymous' : is_anonymous,
     'is_hidden'    : is_hidden,
     'is_remake'    : is_remake,
-    'is_complete'  : is_complete
+    'is_complete'  : is_complete,
+    'is_trusted'   : is_trusted
 }
 
 files = {
