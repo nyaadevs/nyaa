@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('torrent_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
-    sa.Column('text', sa.String(length=255), nullable=False),
+    sa.Column('text', sa.String(length=255, collation='utf8mb4_bin'), nullable=False),
     sa.ForeignKeyConstraint(['torrent_id'], ['nyaa_torrents.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -33,7 +33,7 @@ def upgrade():
     sa.Column('torrent_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
-    sa.Column('text', sa.String(length=255), nullable=False),
+    sa.Column('text', sa.String(length=255, collation='utf8mb4_bin'), nullable=False),
     sa.ForeignKeyConstraint(['torrent_id'], ['sukebei_torrents.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
