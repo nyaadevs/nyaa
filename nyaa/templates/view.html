@@ -176,7 +176,7 @@
 	</script>
 	{% endfor %}
 	{% if comment_form %}
-	<form action="{{ url_for('submit_comment', torrent_id=torrent.id) }}" method="POST" class="comment-box">
+	<form class="comment-box" method="POST">
 		{{ comment_form.csrf_token }}
 		{{ render_field(comment_form.comment, class_='form-control') }}
 		<input type="submit" value="Submit" class="btn btn-success btn-sm">
