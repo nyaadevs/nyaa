@@ -9,7 +9,7 @@ NYAA_HOST = 'https://nyaa.si'
 SUKEBEI_HOST = 'https://sukebei.nyaa.si'
 
 API_BASE = '/api'
-API_UPLOAD = API_BASE + '/v2/upload'
+API_UPLOAD = API_BASE + '/upload'
 
 NYAA_CATS = '''1_1 - Anime - AMV
 1_2 - Anime - English

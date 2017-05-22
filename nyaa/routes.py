@@ -133,9 +133,6 @@ def get_category_id_map():
 # Routes start here #
 
 
-app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
-
-
 def chain_get(source, *args):
     ''' Tries to return values from source by the given keys.
         Returns None if none match.
@@ -767,10 +764,5 @@ def site_help():
 
 
 # #################################### API ROUTES ####################################
-@app.route('/api/upload', methods=['POST'])
-def api_upload():
-    is_valid_user, user, debug = api_handler.validate_user(flask.request)
-    if not is_valid_user:
-        return flask.make_response(flask.jsonify({"Failure": "Invalid username or password."}), 400)
-    api_response = api_handler.api_upload(flask.request, user)
-    return api_response
+
+app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
