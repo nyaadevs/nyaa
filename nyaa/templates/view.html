@@ -29,9 +29,9 @@
 			{%- if not torrent.anonymous and torrent.user -%}
 			<a href="{{ user_url }}">{{ torrent.user.username }}</a>
 			{%- else -%}
-			Anonymous {% if torrent.user and (viewer == torrent.user or viewer.is_moderator) %}(<a href="{{ user_url }}">{{ torrent.user.username }}</a>){% endif %}
+			Anonymous {% if torrent.user and (g.user == torrent.user or g.user.is_moderator) %}(<a href="{{ user_url }}">{{ torrent.user.username }}</a>){% endif %}
 			{%- endif -%}
-			{%- if viewer and viewer.is_superadmin and torrent.uploader_ip -%}
+			{%- if g.user and g.user.is_superadmin and torrent.uploader_ip -%}
 			({{ torrent.uploader_ip_string }})
 			{%- endif -%}
 			</div>
@@ -133,7 +133,7 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			Comments - {{ comment_count }}
+			Comments - {{ comments|length }}
 		</h3>
 	</div>
 	{% for comment in comments %}
@@ -148,15 +148,15 @@
 					{% endif %}
 				</p>
 				<p>{{ comment.user.userlevel_str }}</p>
-				<p>
-					<img class="avatar" src="{{ comment.user.gravatar_url() }}">
-				</p>
+				<p><img class="avatar" src="{{ comment.user.gravatar_url() }}"></p>
 			</div>
 			<div class="col-md-10">
 				<div class="row">
-					<small>{{comment.created_time | timesince}}</small>
+					<small>{{ comment.created_time | timesince }}</small>
 					{% if g.user.is_moderator or g.user.id == comment.user_id %}
-					<div class="btn btn-danger btn-sm delete-btn" title="Delete" onclick='location.href = "{{ url_for('delete_comment', comment_id=comment.id, torrent_id=torrent.id)}}";'>Delete</div>
+					<form class="delete-comment-form" action="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
+						<button name="submit" type="submit" class="btn btn-danger btn-sm" title="Delete">Delete</button>
+					</form>
 					{% endif %}
 				</div>
 				<div class="row">
@@ -175,10 +175,10 @@
 		target.innerHTML = writer.render(parsed);
 	</script>
 	{% endfor %}
-	{% if g.user %}
-	<form method="POST" class="comment-box">
-		{{ form.csrf_token }}
-		{{ render_field(form.comment, class_='form-control') }}
+	{% if comment_form %}
+	<form action="{{ url_for('submit_comment', torrent_id=torrent.id) }}" method="POST" class="comment-box">
+		{{ comment_form.csrf_token }}
+		{{ render_field(comment_form.comment, class_='form-control') }}
 		<input type="submit" value="Submit" class="btn btn-success btn-sm">
 	</form>
 	{% endif %}

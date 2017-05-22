@@ -128,18 +128,16 @@ class DisabledSelectField(SelectField):
 
 class CommentForm(FlaskForm):
     comment = TextAreaField('Make a comment', [
-        Length(max=255, message='Comment must be at most %(max)d characters long.'),
+        Length(min=3, max=255, message='Comment must be at least %(min)d characters '
+               'long and %(max)d at most.'),
         DataRequired()
     ])
-
-    is_anonymous = BooleanField('Anonymous')
 
 
 class EditForm(FlaskForm):
     display_name = StringField('Torrent display name', [
-        Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long '
-                       'and %(max)d at most.')
+        Length(min=3, max=255, message='Torrent display name must be at least %(min)d characters '
+               'long and %(max)d at most.')
     ])
 
     category = DisabledSelectField('Category')

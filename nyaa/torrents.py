@@ -14,6 +14,7 @@ USED_TRACKERS = OrderedSet()
 # Limit the amount of trackers added into .torrent files
 MAX_TRACKERS = 5
 
+
 def read_trackers_from_file(file_object):
     USED_TRACKERS.clear()
 
