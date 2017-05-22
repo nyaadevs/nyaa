@@ -215,7 +215,9 @@ def home(rss):
         query_results = search_elastic(**query_args)
 
         if render_as_rss:
-            return render_rss('"{}"'.format(search_term), query_results, use_elastic=True, magnet_links=use_magnet_links)
+            return render_rss(
+                '"{}"'.format(search_term), query_results,
+                use_elastic=True, magnet_links=use_magnet_links)
         else:
             rss_query_string = _generate_query_string(
                 search_term, category, quality_filter, user_name)
@@ -637,7 +639,8 @@ def edit_torrent(torrent_id):
         db.session.commit()
 
         flask.flash(flask.Markup(
-            'Torrent has been successfully edited! Changes might take a few minutes to show up.'), 'info')
+            'Torrent has been successfully edited! Changes might take a few minutes to show up.'),
+            'info')
 
         return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent.id))
     else:

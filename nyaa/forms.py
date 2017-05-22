@@ -166,7 +166,6 @@ class EditForm(FlaskForm):
 
 
 class UploadForm(FlaskForm):
-        
     torrent_file = FileField('Torrent file', [
         FileRequired()
     ])
