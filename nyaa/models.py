@@ -392,6 +392,15 @@ class User(db.Model):
         ]
         return all(checks)
 
+    def gravatar_url(self):
+        # from http://en.gravatar.com/site/implement/images/python/
+        size = 40
+        # construct the url
+        gravatar_url = 'https://www.gravatar.com/avatar/' + \
+            hashlib.md5(self.email.encode('utf-8').lower()).hexdigest() + '?'
+        gravatar_url += urllib.parse.urlencode({'d': config.DEFAULT_AVATAR_URL, 's': str(size)})
+        return gravatar_url
+
     @property
     def ip_string(self):
         if self.last_login_ip:

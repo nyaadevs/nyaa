@@ -129,7 +129,7 @@ class DisabledSelectField(SelectField):
 class CommentForm(FlaskForm):
     comment = TextAreaField('Make a comment', [
         Length(max=255, message='Comment must be at most %(max)d characters long.'),
-        Required()
+        DataRequired()
     ])
 
     is_anonymous = BooleanField('Anonymous')
