@@ -38,31 +38,35 @@
 			{{ render_field(upload_form.information, class_='form-control', placeholder='Your website or IRC channel') }}
 		</div>
 		<div class="col-md-6">
-			<label class="control-label">Torrent flags</label>
-			<div>
-			<label class="btn btn-primary" title="Upload torrent anonymously (don't display your username)">
+			<label class="control-label">Torrent flags</label><br>
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-default" title="Upload torrent anonymously (don't display your username)">
 				{{ upload_form.is_anonymous(disabled=(False if g.user else ""), checked=(False if g.user else "")) }}
+				<span class="glyphicon glyphicon-ok"></span>
 				Anonymous
 			</label>
-			<label class="btn btn-default" style="background-color: darkgray; border-color: #ccc;" title="Hide torrent from listing">
+			<label class="btn btn-grey" title="Hide torrent from listing">
 				{{ upload_form.is_hidden }}
+				<span class="glyphicon glyphicon-ok"></span>
 				Hidden
 			</label>
 			<label class="btn btn-danger" title="This torrent is derived from another release">
 				{{ upload_form.is_remake }}
+				<span class="glyphicon glyphicon-ok"></span>
 				Remake
 			</label>
-			<label class="btn btn-primary" title="This torrent is a complete batch (eg. season)">
+			<label class="btn btn-warning" title="This torrent is a complete batch (eg. season)">
 				{{ upload_form.is_complete }}
+				<span class="glyphicon glyphicon-ok"></span>
 				Complete
 			</label>
 			{% if g.user.is_trusted %}
-			<label class="btn btn-success" title="Mark torrent trusted">
+			<label class="btn btn-success active" title="Mark torrent trusted">
 				{{ upload_form.is_trusted(checked="") }}
+				<span class="glyphicon glyphicon-ok"></span>
 				Trusted
 			</label>
 			{% endif %}
-			</div>
 		</div>
 
 	</div>
