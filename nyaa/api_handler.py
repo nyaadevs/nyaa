@@ -85,7 +85,11 @@ def v2_api_upload():
     request_data_field = flask.request.form.get('torrent_data')
     if request_data_field is None:
         return flask.jsonify({'errors': ['missing torrent_data field']}), 400
-    request_data = json.loads(request_data_field)
+
+    try:
+        request_data = json.loads(request_data_field)
+    except json.decoder.JSONDecodeError:
+        return flask.jsonify({'errors': ['unable to parse valid JSON in torrent_data']}), 400
 
     # Map api keys to upload form fields
     for key, default in UPLOAD_API_DEFAULTS.items():
