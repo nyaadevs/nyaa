@@ -138,7 +138,7 @@
 		</h3>
 	</div>
 	{% for comment in comments %}
-	<div class="panel panel-default comment-panel" id="com-{{ comment.id }}">
+	<div class="panel panel-default comment-panel" id="com-{{ loop.index }}">
 		<div class="panel-body">
 			<div class="col-md-2">
 				<p>
@@ -151,7 +151,7 @@
 			</div>
 			<div class="col-md-10">
 				<div class="row">
-					<a href="#com-{{ comment.id }}"><small>{{ comment.created_time | timesince }}</small></a>
+					<a href="#com-{{ loop.index }}"><small>{{ comment.created_time | timesince }}</small></a>
 					{% if g.user.is_moderator or g.user.id == comment.user_id %}
 					<form class="delete-comment-form" action="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 						<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
