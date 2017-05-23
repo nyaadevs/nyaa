@@ -240,10 +240,9 @@ def ghetto_import():
         if not tracker:
             tracker = models.Trackers(uri=announce)
             db.session.add(tracker)
+            db.session.flush()
 
         db_trackers.add(tracker)
-
-    db.session.flush()
 
     # Store tracker refs in DB
     for order, tracker in enumerate(db_trackers):
