@@ -28,13 +28,7 @@ conn_group.add_argument('-u', '--user', help='Username or email')
 conn_group.add_argument('-p', '--password', help='Password')
 conn_group.add_argument('--host', help='Select another api host (for debugging purposes)')
 
-resp_group = parser.add_argument_group('Response options')
-
-resp_group.add_argument('--raw', default=False, action='store_true', help='Print only raw response (JSON)')
-
-info_group = parser.add_argument_group('Info options')
-
-info_group.add_argument('-q', '--query', required=True, help='Torrent by id or hash Required.')
+parser.add_argument('-q', '--query', required=True, help='Torrent by id or hash Required.')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -49,7 +43,7 @@ if __name__ == '__main__':
     matchID = re.match(ID_PATTERN, api_query)
     matchHASH = re.match(INFO_HASH_PATTERN, api_query)
 
-    if (not matchID) and (not matchHASH):
+    if not (matchID or matchHASH):
         raise Exception('Query was not a valid id or valid hash.')
 
 
@@ -65,21 +59,5 @@ if __name__ == '__main__':
 
     # Go!
     r = requests.get(api_info_url, auth=auth)
-    response = None
 
-    if args.raw:
-        print(r.text)
-    else:
-        try:
-            response = r.json()
-        except ValueError:
-            print('Bad response:')
-            print(r.text)
-            exit(1)
-
-        errors = response.get('errors')
-        if errors:
-            print('Query failed', errors)
-            exit(1)
-        else:
-            print(response)
+    print(r.text)

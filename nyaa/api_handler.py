@@ -284,20 +284,23 @@ INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'  # INFO_HASH as string
 @basic_auth_user
 @api_require_user
 def v2_api_info(torrent_id_or_hash):
-    torrent = None
-    viewer = flask.g.user
+    torrent_id_or_hash = torrent_id_or_hash.lower().strip()
 
     matchID = re.match(ID_PATTERN, torrent_id_or_hash)
     matchHASH = re.match(INFO_HASH_PATTERN, torrent_id_or_hash)
 
+    torrent = None
+
     if matchID:
-        torrent = models.Torrent.by_id(torrent_id_or_hash)
+        torrent = models.Torrent.by_id(int(torrent_id_or_hash))
     elif matchHASH:
-        # Convert the string representation of a torrent hash into binary
+        # Convert the string representation of a torrent hash back into a binary representation
         a2b_hash = binascii.unhexlify(torrent_id_or_hash)
         torrent = models.Torrent.by_info_hash(a2b_hash)
     else:
         return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
+
+    viewer = flask.g.user
 
     if not torrent:
         return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
@@ -306,13 +309,13 @@ def v2_api_info(torrent_id_or_hash):
     if torrent.deleted and not (viewer and viewer.is_superadmin):
         return flask.jsonify({'errors': ['Query was not a valid id or hash.']}), 400
 
-    submitter = 'anonymous'
+    submitter = None
     if not torrent.anonymous and torrent.user:
         submitter = torrent.user.username
     if torrent.user and (viewer == torrent.user or viewer.is_moderator):
         submitter = torrent.user.username
 
-    files = ''
+    files = {}
     if torrent.filelist:
         files = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
@@ -322,10 +325,13 @@ def v2_api_info(torrent_id_or_hash):
         'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
         'id': torrent.id,
         'name': torrent.display_name,
-        'hash': torrent.info_hash.hex(),
+        'hash_b32': torrent.info_hash_as_b32, #as used in magnet uri
+        'hash_hex': torrent.info_hash.hex(), #as shown in torrent client
         'magnet': torrent.magnet_uri,
         'main_category': torrent.main_category.name,
+        'main_category_id': torrent.main_category.id,
         'sub_category': torrent.sub_category.name,
+        'sub_category_id': torrent.sub_category.id,
         'information': torrent.information,
         'description': torrent.description,
         'stats': {'seeders': torrent.stats.seed_count, 'leechers': torrent.stats.leech_count, 'downloads': torrent.stats.download_count},
