@@ -480,8 +480,6 @@ def profile():
 
     form = forms.ProfileForm(flask.request.form)
 
-    level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][flask.g.user.level]
-
     if flask.request.method == 'POST' and form.validate():
         user = flask.g.user
         new_email = form.email.data.strip()
@@ -511,12 +509,7 @@ def profile():
         flask.g.user = user
         return flask.redirect('/profile')
 
-    _user = models.User.by_id(flask.g.user.id)
-    username = _user.username
-    current_email = _user.email
-
-    return flask.render_template('profile.html', form=form, name=username, email=current_email,
-                                 level=level)
+    return flask.render_template('profile.html', form=form)
 
 
 @app.route('/user/activate/<payload>')

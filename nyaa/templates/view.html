@@ -25,15 +25,15 @@
 		<div class="row">
 			<div class="col-md-1">Submitter:</div>
 			<div class="col-md-5">
-			{% set user_url = torrent.user and url_for('view_user', user_name=torrent.user.username) %}
-			{%- if not torrent.anonymous and torrent.user -%}
-			<a href="{{ user_url }}">{{ torrent.user.username }}</a>
-			{%- else -%}
-			Anonymous {% if torrent.user and (g.user == torrent.user or g.user.is_moderator) %}(<a href="{{ user_url }}">{{ torrent.user.username }}</a>){% endif %}
-			{%- endif -%}
-			{%- if g.user and g.user.is_superadmin and torrent.uploader_ip -%}
-			({{ torrent.uploader_ip_string }})
-			{%- endif -%}
+				{% set user_url = torrent.user and url_for('view_user', user_name=torrent.user.username) %}
+				{%- if not torrent.anonymous and torrent.user -%}
+				<a class="text-{{ torrent.user.userlevel_color }}" href="{{ user_url }}">{{ torrent.user.username }}</a>
+				{%- else -%}
+				Anonymous {% if torrent.user and (g.user == torrent.user or g.user.is_moderator) %}(<a href="{{ user_url }}">{{ torrent.user.username }}</a>){% endif %}
+				{%- endif -%}
+				{% if g.user and g.user.is_superadmin and torrent.uploader_ip %}
+				({{ torrent.uploader_ip_string }})
+				{% endif %}
 			</div>
 
 			<div class="col-md-1">Seeders:</div>

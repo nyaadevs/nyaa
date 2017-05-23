@@ -258,15 +258,16 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 }
 
 .btn-grey {
-    color: #000000;
-    background-color: #cccfd2;
-    border-color: #ccc;
+	color: #000000;
+	background-color: #cccfd2;
+	border-color: #ccc;
 }
 .btn-grey:hover, .btn-grey:focus, .btn-grey:active, .btn-grey.active, .open > .dropdown-toggle.btn-grey {
-    background-color: #aaaaaa;
+	background-color: #aaaaaa;
 }
 .btn span.glyphicon {
 	opacity: 0;
 }
 .btn.active span.glyphicon {
-    opacity: 1;
+	opacity: 1;
+}

@@ -3,17 +3,17 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 
-<h2 style="margin-bottom: 20px;">Profile of <strong>{{ name }}</strong></h2>
+<h2 style="margin-bottom: 20px;">Profile of <strong class="text-{{ g.user.userlevel_color }}">{{ g.user.username }}</strong></h2>
 
-<div class="row">
-	<div class="col-sm-4 avatar" style="display: none;">
-		<!-- TO BE IMPLEMENTED -->
+<div class="row" style="margin-bottom: 20px;">
+	<div class="col-sm-2" style="max-width: 150px;">
+		<img class="avatar" src="{{ g.user.gravatar_url() }}">
 	</div>
-	<div class="col-sm-8">
+	<div class="col-sm-10">
 		<dl class="row" style="margin: 20px 0 15px 0;">
-			<dt class="col-sm-3">User ID:</dt><dd class="col-sm-9">{{ g.user.id }}</dd>
-			<dt class="col-sm-3">User Class:</dt><dd class="col-sm-9">{{ level }}</dd>
-			<dt class="col-sm-3">User Created on:</dt><dd class="col-sm-9">{{ g.user.created_time }}</dd>
+			<dt class="col-sm-2">User ID:</dt><dd class="col-sm-10">{{ g.user.id }}</dd>
+			<dt class="col-sm-2">User Class:</dt><dd class="col-sm-10">{{ g.user.userlevel_str }}</dd>
+			<dt class="col-sm-2">User Created on:</dt><dd class="col-sm-10">{{ g.user.created_time }}</dd>
 		</dl>
 	</div>
 </div>
@@ -59,7 +59,7 @@
             <div class="row">
                 <div class="form-group col-md-4">
                     <label class="control-label" for="current_email">Current Email</label>
-                    <div>{{email}}</div>
+                    <div>{{ g.user.email }}</div>
                 </div>
             </div>
             <div class="row">
