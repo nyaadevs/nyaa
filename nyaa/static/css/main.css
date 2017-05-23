@@ -219,18 +219,33 @@ ul.nav-tabs#profileTabs {
 	margin-bottom: 15px;
 }
 
-.comments-panel {
+.comment-panel {
 	width: 99%;
 	margin: 0 auto;
-	margin-top:10px;
-	margin-bottom:10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.comment-panel:target {
+	border-color: black;
+	border-width: 2px;
+}
+
+.text-purple, a.text-purple:visited { color: #a760bc; }
+a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0; }
+
+.comment-content {
+	word-break: break-all;
+}
+.comment-content img {
+	max-width: 100%;
+	max-height: 600px;
 }
 
 .comment-box {
 	width: 95%;
 	margin: 0 auto;
-	margin-top:30px;
-	margin-bottom:10px;
+	margin-top: 30px;
+	margin-bottom: 10px;
 }
 
 .delete-comment-form {

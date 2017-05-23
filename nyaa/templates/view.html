@@ -100,7 +100,8 @@
 				<tr>
 					{%- if value is iterable %}
 					<td colspan="2" {% if loop.depth0 is greaterthan 0 %}style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
-						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;<b>{{ key }}</b></td>
+						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;<b>{{ key }}</b>
+					</td>
 					{{ loop(value.items()) }}
 					{%- else %}
 					<td{% if loop.depth0 is greaterthan 0 %} style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
@@ -133,35 +134,33 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			Comments - {{ comments|length }}
+			Comments - {{ comments | length }}
 		</h3>
 	</div>
 	{% for comment in comments %}
-	<div class="panel panel-default comments-panel">
+	<div class="panel panel-default comment-panel" id="com-{{ comment.id }}">
 		<div class="panel-body">
 			<div class="col-md-2">
 				<p>
-					{% set user_url = torrent.user and url_for('view_user', user_name=comment.user.username) %}
-					<a href="{{ user_url }}">{{ comment.user.username }}</a>
+					<a class="text-{{ comment.user.userlevel_color }}" href="{{ url_for('view_user', user_name=comment.user.username) }}">{{ comment.user.username }}</a>
 					{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
 					(uploader)
 					{% endif %}
 				</p>
-				<p>{{ comment.user.userlevel_str }}</p>
 				<p><img class="avatar" src="{{ comment.user.gravatar_url() }}"></p>
 			</div>
 			<div class="col-md-10">
 				<div class="row">
-					<small>{{ comment.created_time | timesince }}</small>
+					<a href="#com-{{ comment.id }}"><small>{{ comment.created_time | timesince }}</small></a>
 					{% if g.user.is_moderator or g.user.id == comment.user_id %}
 					<form class="delete-comment-form" action="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
-						<button name="submit" type="submit" class="btn btn-danger btn-sm" title="Delete">Delete</button>
+						<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
 					</form>
 					{% endif %}
 				</div>
 				<div class="row">
 					{# Escape newlines into html entities because CF strips blank newlines #}
-					<div id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
+					<div class="comment-content" id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
 				</div>
 			</div>
 		</div>

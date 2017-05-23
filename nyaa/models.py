@@ -415,6 +415,15 @@ class User(db.Model):
             return 'Moderator'
 
     @property
+    def userlevel_color(self):
+        if self.level == UserLevelType.REGULAR:
+            return 'default'
+        elif self.level == UserLevelType.TRUSTED:
+            return 'success'
+        elif self.level >= UserLevelType.MODERATOR:
+            return 'purple'
+
+    @property
     def ip_string(self):
         if self.last_login_ip:
             return str(ip_address(self.last_login_ip))
