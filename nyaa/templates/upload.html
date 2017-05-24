@@ -41,7 +41,7 @@
 			<div class="btn-group" data-toggle="buttons">
 				<label class="btn btn-default {% if not g.user %}active disabled{% endif %}" title="Upload torrent anonymously (don't display your username)">
 					{{ upload_form.is_anonymous(disabled=(False if g.user else ""), checked=(False if g.user else "")) }}
-					{% if not g.user %}<span class="glyphicon glyphicon-asterisk"></span>{% endif %}
+					{% if not g.user %}<span class="glyphicon glyphicon-ban-circle"></span>{% endif %}
 					{% if g.user %}<span class="glyphicon glyphicon-check"></span>{% endif %}
 					{% if g.user %}<span class="glyphicon glyphicon-unchecked"></span>{% endif %}
 					Anonymous
