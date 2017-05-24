@@ -66,9 +66,6 @@
 					Trusted
 				</label>
 				{% endif %}
-			</div>
-			<br><br>
-			<div class="btn-group" data-toggle="buttons">
 				{% if g.user.is_moderator %}
 				<label class="btn btn-primary {% if torrent.deleted %}active{% endif %}">
 					{{ form.is_deleted }}
