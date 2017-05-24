@@ -57,7 +57,8 @@
 					</button>
 					<a class="navbar-brand" href="/">{{ config.SITE_NAME }}</a>
 				</div>
-				{% set search_placeholder = 'Search {}\'s torrents...'.format(user.username) if user_page else 'Search...' %}
+				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
+				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
 						<li {% if request.path == "/upload" %} class="active"{% endif %}><a href="/upload">Upload</a></li>
