@@ -100,7 +100,7 @@ class Torrent(db.Model):
     stats = db.relationship('Statistic', uselist=False,
                             cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
     trackers = db.relationship('TorrentTrackers', uselist=True,
-                               cascade="all, delete-orphan", lazy='joined')
+                               cascade="all, delete-orphan", lazy='joined', order_by='TorrentTrackers.order')
     comments = db.relationship('Comment', uselist=True,
                                cascade="all, delete-orphan")
 
