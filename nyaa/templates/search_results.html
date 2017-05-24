@@ -10,9 +10,9 @@
 {% endmacro %}
 
 {% if user_query is defined %}
-{% if user_query['first_word_user'] and not search['user'] %}
+{% if user_query.first_word_user and not search.user %}
 <div class="alert alert-info">
-	<a href="/user/{{ user_query['first_word_user'].username }}{{ modify_query(q=user_query['query_sans_user'])[1:] }}">Click here to see only results uploaded by {{ user_query['first_word_user'].username }}</a>
+	<a href="/user/{{ user_query.first_word_user.username }}{{ modify_query(q=user_query.query_sans_user)[1:] }}">Click here to see only results uploaded by {{ user_query.first_word_user.username }}</a>
 </div>
 {% endif %}
 {% endif %}

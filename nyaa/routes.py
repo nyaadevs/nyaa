@@ -10,6 +10,7 @@ from nyaa.search import search_elastic, search_db
 from sqlalchemy.orm import joinedload
 import config
 
+import re
 import json
 from datetime import datetime, timedelta
 from ipaddress import ip_address
@@ -181,14 +182,16 @@ def home(rss):
             flask.abort(404)
         user_id = user.id
 
+    user_query = {
+        'first_word_user': None,
+        'query_sans_user': None
+    }
     if search_term:
-        exploded_query = search_term.split(" ")
-        first_word_user = models.User.by_username(exploded_query[0].encode('ascii', 'ignore'))
-        exploded_query.pop(0)
-        query_sans_user = ' '.join(exploded_query)
-    else:
-        first_word_user = None
-        query_sans_user = None
+        user_word_match = re.match(r'^([a-zA-Z0-9_-]+) *(.*|$)', search_term)
+        if user_word_match:
+            first_word_username = user_word_match.group(1)
+            user_query['first_word_user'] = models.User.by_username(first_word_username)
+            user_query['query_sans_user'] = user_word_match.group(2)
 
     query_args = {
         'user': user_id,
@@ -201,10 +204,6 @@ def home(rss):
         'per_page': results_per_page
     }
 
-    user_query = {
-        'first_word_user': first_word_user,
-        'query_sans_user': query_sans_user
-    }
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
