@@ -181,6 +181,15 @@ def home(rss):
             flask.abort(404)
         user_id = user.id
 
+    if search_term:
+        exploded_query = search_term.split(" ")
+        first_word_user = models.User.by_username(exploded_query[0])
+        exploded_query.pop(0)
+        query_sans_user = ' '.join(exploded_query)
+    else:
+        first_word_user = None
+        query_sans_user = None
+
     query_args = {
         'user': user_id,
         'sort': sort_key or 'id',
@@ -190,6 +199,11 @@ def home(rss):
         'page': page_number,
         'rss': render_as_rss,
         'per_page': results_per_page
+    }
+
+    user_query = {
+        'first_word_user': first_word_user,
+        'query_sans_user': query_sans_user
     }
 
     if flask.g.user:
@@ -229,7 +243,8 @@ def home(rss):
                                          pagination=pagination,
                                          torrent_query=query_results,
                                          search=query_args,
-                                         rss_filter=rss_query_string)
+                                         rss_filter=rss_query_string,
+                                         user_query=user_query)
     else:
         # If ES is enabled, default to db search for browsing
         if use_elastic:
@@ -250,7 +265,8 @@ def home(rss):
                                          use_elastic=False,
                                          torrent_query=query,
                                          search=query_args,
-                                         rss_filter=rss_query_string)
+                                         rss_filter=rss_query_string,
+                                         user_query=user_query)
 
 
 @app.route('/user/<user_name>', methods=['GET', 'POST'])
