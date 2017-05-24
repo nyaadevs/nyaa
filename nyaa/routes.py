@@ -182,16 +182,25 @@ def home(rss):
             flask.abort(404)
         user_id = user.id
 
-    user_query = {
+    special_results = {
         'first_word_user': None,
-        'query_sans_user': None
+        'query_sans_user': None,
+        'infohash_torrent': None
     }
-    if search_term:
+    # Add advanced features to searches (but not RSS or user searches)
+    if search_term and not render_as_rss and not user_id:
+        # Check if the first word of the search is an existing user
         user_word_match = re.match(r'^([a-zA-Z0-9_-]+) *(.*|$)', search_term)
         if user_word_match:
-            first_word_username = user_word_match.group(1)
-            user_query['first_word_user'] = models.User.by_username(first_word_username)
-            user_query['query_sans_user'] = user_word_match.group(2)
+            special_results['first_word_user'] = models.User.by_username(user_word_match.group(1))
+            special_results['query_sans_user'] = user_word_match.group(2)
+
+        # Check if search is a 40-char torrent hash
+        infohash_match = re.match(r'(?i)^([a-f0-9]{40})$', search_term)
+        if infohash_match:
+            # Check for info hash in database
+            matched_torrent = models.Torrent.by_info_hash_hex(infohash_match.group(1))
+            special_results['infohash_torrent'] = matched_torrent
 
     query_args = {
         'user': user_id,
@@ -209,6 +218,14 @@ def home(rss):
         query_args['logged_in_user'] = flask.g.user
         if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
+
+    infohash_torrent = special_results.get('infohash_torrent')
+    if infohash_torrent:
+        # infohash_torrent is only set if this is not RSS or userpage search
+        flask.flash(flask.Markup('You were redirected here because '
+                                 'the given hash matched this torrent.'), 'info')
+        # Redirect user from search to the torrent if we found one with the specific info_hash
+        return flask.redirect(flask.url_for('view_torrent', torrent_id=infohash_torrent.id))
 
     # If searching, we get results from elastic search
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
@@ -243,7 +260,7 @@ def home(rss):
                                          torrent_query=query_results,
                                          search=query_args,
                                          rss_filter=rss_query_string,
-                                         user_query=user_query)
+                                         special_results=special_results)
     else:
         # If ES is enabled, default to db search for browsing
         if use_elastic:
@@ -265,7 +282,7 @@ def home(rss):
                                          torrent_query=query,
                                          search=query_args,
                                          rss_filter=rss_query_string,
-                                         user_query=user_query)
+                                         special_results=special_results)
 
 
 @app.route('/user/<user_name>', methods=['GET', 'POST'])

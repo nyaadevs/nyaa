@@ -41,7 +41,7 @@
 {% endif %}
 
 <h3>
-    Browsing <span class="text-{{ user.userlevel_color }}">{{ user.username }}</span>'s torrents
+    Browsing <span class="text-{{ user.userlevel_color }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
 </h3>
 
 {% include "search_results.html" %}
