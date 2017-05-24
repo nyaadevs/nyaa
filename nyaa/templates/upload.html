@@ -43,33 +43,33 @@
 			<label class="btn btn-default {% if not g.user %}active disabled{% endif %}" title="Upload torrent anonymously (don't display your username)">
 				{{ upload_form.is_anonymous(disabled=(False if g.user else ""), checked=(False if g.user else "")) }}
 				{% if not g.user %}<span class="glyphicon glyphicon-asterisk"></span>{% endif %}
-				{% if g.user %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
-				{% if g.user %}<span class="glyphicon glyphicon-remove"></span>{% endif %}
+				{% if g.user %}<span class="glyphicon glyphicon-check"></span>{% endif %}
+				{% if g.user %}<span class="glyphicon glyphicon-unchecked"></span>{% endif %}
 				Anonymous
 			</label>
 			<label class="btn btn-grey" title="Hide torrent from listing">
 				{{ upload_form.is_hidden }}
-				<span class="glyphicon glyphicon-ok"></span>
-				<span class="glyphicon glyphicon-remove"></span>
+				<span class="glyphicon glyphicon-check"></span>
+				<span class="glyphicon glyphicon-unchecked"></span>
 				Hidden
 			</label>
 			<label class="btn btn-danger" title="This torrent is derived from another release">
 				{{ upload_form.is_remake }}
-				<span class="glyphicon glyphicon-ok"></span>
-				<span class="glyphicon glyphicon-remove"></span>
+				<span class="glyphicon glyphicon-check"></span>
+				<span class="glyphicon glyphicon-unchecked"></span>
 				Remake
 			</label>
 			<label class="btn btn-warning" title="This torrent is a complete batch (eg. season)">
 				{{ upload_form.is_complete }}
-				<span class="glyphicon glyphicon-ok"></span>
-				<span class="glyphicon glyphicon-remove"></span>
+				<span class="glyphicon glyphicon-check"></span>
+				<span class="glyphicon glyphicon-unchecked"></span>
 				Complete
 			</label>
 			{% if g.user.is_trusted %}
 			<label class="btn btn-success active" title="Mark torrent trusted">
 				{{ upload_form.is_trusted(checked="") }}
-				<span class="glyphicon glyphicon-ok"></span>
-				<span class="glyphicon glyphicon-remove"></span>
+				<span class="glyphicon glyphicon-check"></span>
+				<span class="glyphicon glyphicon-unchecked"></span>
 				Trusted
 			</label>
 			{% endif %}

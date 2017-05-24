@@ -265,15 +265,15 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 .btn-grey:hover, .btn-grey:focus, .btn-grey:active, .btn-grey.active, .open > .dropdown-toggle.btn-grey {
 	background-color: #aaaaaa;
 }
-.btn span.glyphicon-ok {
+.btn span.glyphicon-check {
 	display: none;
 }
-.btn.active span.glyphicon-ok {
+.btn.active span.glyphicon-check {
 	display: inline;
 }
-.btn span.glyphicon-remove {
+.btn span.glyphicon-unchecked {
 	display: inline;
 }
-.btn.active span.glyphicon-remove {
+.btn.active span.glyphicon-unchecked {
 	display: none;
 }
