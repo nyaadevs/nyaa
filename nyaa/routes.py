@@ -183,7 +183,7 @@ def home(rss):
 
     if search_term:
         exploded_query = search_term.split(" ")
-        first_word_user = models.User.by_username(exploded_query[0])
+        first_word_user = models.User.by_username(exploded_query[0].encode('ascii', 'ignore'))
         exploded_query.pop(0)
         query_sans_user = ' '.join(exploded_query)
     else:
