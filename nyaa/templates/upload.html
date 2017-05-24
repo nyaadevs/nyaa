@@ -40,10 +40,11 @@
 		<div class="col-md-6">
 			<label class="control-label">Torrent flags</label><br>
 		<div class="btn-group" data-toggle="buttons">
-			<label class="btn btn-default" title="Upload torrent anonymously (don't display your username)">
+			<label class="btn btn-default {% if not g.user %}active disabled{% endif %}" title="Upload torrent anonymously (don't display your username)">
 				{{ upload_form.is_anonymous(disabled=(False if g.user else ""), checked=(False if g.user else "")) }}
-				<span class="glyphicon glyphicon-ok"></span>
-				<span class="glyphicon glyphicon-remove"></span>
+				{% if not g.user %}<span class="glyphicon glyphicon-asterisk"></span>{% endif %}
+				{% if g.user %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
+				{% if g.user %}<span class="glyphicon glyphicon-remove"></span>{% endif %}
 				Anonymous
 			</label>
 			<label class="btn btn-grey" title="Hide torrent from listing">
