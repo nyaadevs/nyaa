@@ -57,6 +57,7 @@
 					</button>
 					<a class="navbar-brand" href="/">{{ config.SITE_NAME }}</a>
 				</div>
+				{% set search_placeholder = 'Search {}\'s torrents...'.format(user.username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
 						<li {% if request.path == "/upload" %} class="active"{% endif %}><a href="/upload">Upload</a></li>
@@ -193,11 +194,10 @@
 						{% else %}
 						<form class="navbar-form navbar-right form" action="/" method="get">
 						{% endif %}
-	
-							<input type="text" class="form-control" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
-	
-							<br>
 							
+							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
+							<br>
+
 							<select class="form-control" title="Filter" data-width="120px" name="f">
 								<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
 								<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
@@ -231,7 +231,7 @@
 					<form class="navbar-form navbar-right form" action="/" method="get">
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
-							<input type="text" class="form-control search-bar" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
+							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
 					
 							<div class="input-group-btn nav-filter" id="navFilter-criteria">
 								<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
