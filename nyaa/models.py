@@ -411,10 +411,8 @@ class User(db.Model):
             return 'User'
         elif self.level == UserLevelType.TRUSTED:
             return 'Trusted'
-        elif self.level == UserLevelType.MODERATOR:
+        elif self.level >= UserLevelType.MODERATOR:
             return 'Moderator'
-        elif self.level == UserLevelType.SUPERADMIN:
-            return 'Administrator'
 
     @property
     def userlevel_color(self):
