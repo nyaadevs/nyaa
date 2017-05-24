@@ -384,7 +384,6 @@ def view_user(user_name):
             mass_action_form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user)
             is_logged_in_user_account = True
 
-
     # Use elastic search for term searching
     rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
@@ -443,7 +442,10 @@ def view_user(user_name):
 @app.route('/user/<user_name>/torrents', methods=['POST'])
 def update_torrents(user_name):
     selected_torrent_ids = flask.request.form.getlist('selected_torrents')
-    form = forms.UserTorrentMassAction(flask.request.form, user=flask.g.user, selected_torrents=selected_torrent_ids)
+    form = forms.UserTorrentMassAction(
+        flask.request.form,
+        user=flask.g.user,
+        selected_torrents=selected_torrent_ids)
 
     if form.validate(user=flask.g.user):
         result = form.apply_user_action()
