@@ -62,6 +62,10 @@
 			<div class="col-md-1">Completed:</div>
 			<div class="col-md-5">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.download_count }}{% else %}Coming soon{% endif %}</div>
 		</div>
+		<div class="row">
+			<div class="col-md-offset-6 col-md-1">SHA-1 hash:</div>
+			<div class="col-md-5"><kbd>{{ torrent.info_hash_as_hex }}</kbd></div>
+		</div>
 	</div>
 	<div class="panel-footer">
 		{% if torrent.has_torrent %}<a href="/view/{{ torrent.id }}/torrent"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
