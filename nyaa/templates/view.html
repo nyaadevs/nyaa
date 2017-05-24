@@ -83,8 +83,9 @@
 <div class="panel panel-default">
 	<div class="panel-heading panel-heading-collapse">
 		<h3 class="panel-title">
-			<a class="collapsed col-md-12" data-target="#collapseFileList" data-toggle="collapse" style="color:inherit;text-decoration:none;">File list</a>
+			<a class="collapsed" data-target="#collapseFileList" data-toggle="collapse" style="color:inherit;text-decoration:none;display:block;width:auto;">File list</a>
 		</h3>
+		
 	</div>
 
 	<div class="panel-collapse collapse" id="collapseFileList">
@@ -97,19 +98,22 @@
 			</thead>
 			<tbody>
 				{%- for key, value in files.items() recursive %}
+				{%- if value is iterable %}
 				<tr>
-					{%- if value is iterable %}
 					<td colspan="2" {% if loop.depth0 is greaterthan 0 %}style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
 						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;<b>{{ key }}</b>
 					</td>
-					{{ loop(value.items()) }}
-					{%- else %}
+				</tr>
+				{{ loop(value.items()) }}
+				{%- else %}
+				<tr>
 					<td{% if loop.depth0 is greaterthan 0 %} style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
 						<i class="glyphicon glyphicon-file"></i>&nbsp;{{ key }}</td>
 					<td class="col-md-2">{{ value | filesizeformat(True) }}</td>
-					{%- endif %}
 				</tr>
+				{%- endif %}
 				{%- endfor %}
+			</tbody>
 		</table>
 	</div>
 </div>
