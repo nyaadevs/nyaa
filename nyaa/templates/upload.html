@@ -18,24 +18,24 @@
 
 	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{ config.MAIN_ANNOUNCE_URL }}</kbd> in your trackers</p>{% endif %}
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-xl-6">
 		{{ render_upload(upload_form.torrent_file, accept=".torrent") }}
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-xl-6">
 		{{ render_field(upload_form.display_name, class_='form-control', placeholder='Display name') }}
 		</div>
-		<div class="col-md-4">
+		<div class="col-xl-4">
 		{{ render_field(upload_form.category, class_='form-control')}}
 		</div>
 	</div>
 	<div class="row"></div>
 	<div class="row form-group">
-		<div class="col-md-6">
+		<div class="col-xl-6">
 			{{ render_field(upload_form.information, class_='form-control', placeholder='Your website or IRC channel') }}
 		</div>
-		<div class="col-md-6">
+		<div class="col-xl-6">
 			<label class="control-label">Torrent flags</label><br>
 	
 			<div class="btn-group" data-toggle="buttons">
@@ -76,14 +76,14 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-xl-12">
 			{{ render_markdown_editor(upload_form.description, field_name='description') }}
 		</div>
 	</div>
 
 	{% if config.USE_RECAPTCHA and not g.user %}
 	<div class="row">
-		<div class="col-md-4">
+		<div class="col-xl-4">
 			{% for error in upload_form.recaptcha.errors %}
 			{{ error }}
 			{% endfor %}
@@ -95,7 +95,7 @@
 	<br>
 
 	<div class="row">
-		<div class="form-group col-md-6">
+		<div class="form-group col-xl-6">
 			<input type="submit" value="Upload" class="btn btn-primary">
 		</div>
 	</div>

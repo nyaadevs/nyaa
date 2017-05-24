@@ -1,8 +1,3 @@
-@media (min-width: 1480px) {
-	.container {
-		width: 1400px;
-	}
-}
 .panel-heading-collapse a:after {
 	font-family:'Glyphicons Halflings';
 	content:"\e114";
@@ -99,6 +94,10 @@ table.torrent-list tbody tr td a:visited {
 
 .markdown-editor label {
 	padding: 1em 0;
+}
+
+.markdown-source {
+	min-height: 360px;
 }
 
 @media (max-width: 991px){
@@ -282,3 +281,4 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 .btn.active span.glyphicon-unchecked {
 	display: none;
 }
+
