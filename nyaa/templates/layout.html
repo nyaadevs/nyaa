@@ -55,8 +55,174 @@
 		<![endif]-->
 	</head>
 	<body>
+		{% set nyaa_cats = [
+			{
+				'id': '1',
+				'name': 'Anime',
+				'title': 'Anime',
+				'sub_cats': [
+					{
+						'id': '1',
+						'name': 'Anime Music Video',
+						'title': 'Anime - AMV'
+					}, {
+						'id': '2',
+						'name': 'English-translated',
+						'title': 'Anime - English'
+					}, {
+						'id': '3',
+						'name': 'Non-English-translated',
+						'title': 'Anime - Non-English'
+					}, {
+						'id': '4',
+						'name': 'Raw',
+						'title': 'Anime - Raw'
+					}
+				]
+			}, {
+				'id': '2',
+				'name': 'Audio',
+				'title': 'Audio',
+				'sub_cats': [
+					{
+						'id': '1',
+						'name': 'Lossless',
+						'title': 'Audio - Lossless'
+					}, {
+						'id': '2',
+						'name': 'Lossy',
+						'title': 'Audio - Lossy'
+					}
+				]
+			}, {
+				'id': '3',
+				'name': 'Literature',
+				'title': 'Literature',
+				'sub_cats': [
+					{
+						'id': '1',
+						'name': 'English-translated',
+						'title': 'Literature - English'
+					}, {
+						'id': '2',
+						'name': 'Non-English-translated',
+						'title': 'Literature - Non-English'
+					}, {
+						'id': '3',
+						'name': 'Raw',
+						'title': 'Literature - Raw'
+					}
+				]
+			}, {
+				'id': '4',
+				'name': 'Live Action',
+				'title': 'Live Action',
+				'sub_cats': [
+					{
+						'id': '1',
+						'name': 'English-translated',
+						'title': 'Live Action - English'
+					}, {
+						'id': '2',
+						'name': 'Idol/Promotional Video',
+						'title': 'Live Action - Idol/PV'
+					}, {
+						'id': '3',
+						'name': 'Non-English-translated',
+						'title': 'Live Action - Non-English'
+					}, {
+						'id': '4',
+						'name': 'Raw',
+						'title': 'Live Action - Raw'
+					}
+				]
+			}, {
+				'id': '5',
+				'name': 'Pictures',
+				'title': 'Pictures',
+				'sub_cats': [
+					{
+						'id': '1',
+						'name': 'Graphics',
+						'title': 'Pictures - Graphics'
+					}, {
+						'id': '2',
+						'name': 'Photos',
+						'title': 'Pictures - Photos'
+					}
+				]
+			}, {
+				'id': '6',
+				'name': 'Software',
+				'title': 'Software',
+				'sub_cats': [
+					{
+						'id': '1',
+						'name': 'Applications',
+						'title': 'Software - Apps'
+					}, {
+						'id': '2',
+						'name': 'Games',
+						'title': 'Software - Games'
+					}
+				]
+			}
+		] %}
+
+		{% set suke_cats = [
+			{
+				'id': '1',
+				'name': 'Art',
+				'title': 'Art',
+				'sub_cat': [
+					{
+						'id': '1',
+						'name': 'Anime',
+						'title': 'Art - Anime'
+					}, {
+						'id': '2',
+						'name': 'Doujinshi',
+						'title': 'Art - Doujinshi'
+					}, {
+						'id': '3',
+						'name': 'Games',
+						'title': 'Art - Games'
+					}, {
+						'id': '4',
+						'name': 'Manga',
+						'title': 'Art - Manga'
+					}, {
+						'id': '5',
+						'name': 'Pictures',
+						'title': 'Art - Pictures'
+					}
+				]
+			}, {
+				'id': '2',
+				'name': 'Real Life',
+				'title': 'Real Life',
+				'sub_cat': [
+					{
+						'id': '1',
+						'name': 'Photobooks and Pictures',
+						'title': 'Real Life - Pictures'
+					}, {
+						'id': '2',
+						'name': 'Videos',
+						'title': 'Real Life - Videos'
+					}
+				]
+			}
+		] %}
+
+		{% if config.SITE_FLAVOR == 'nyaa' %}
+			{% set used_cats = nyaa_cats %}
+		{% elif config.SITE_FLAVOR == 'sukebei' %}
+			{% set used_cats = suke_cats %}
+		{% endif %}
+	
 		<!-- Fixed navbar -->
-		<nav class="navbar navbar-default navbar-static-top navbar-inverse">
+		<nav class="navbar navbar-default navbar-static-top navbar-inverse {% if search is defined %}has-cat-nav{% endif %}">
 			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -65,8 +231,11 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="{{ url_for('home') }}">{{ config.SITE_NAME }}</a>
+					<a class="navbar-brand" href="{{ url_for('home') }}">
+						<strong>{{ config.SITE_NAME }}</strong>
+					</a>
 				</div><!--/.navbar-header -->
+				
 				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
 				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
@@ -160,48 +329,7 @@
 						</li>
 						{% endif %}
 					</ul>
-					{% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
-						('1_1', '- Anime Music Video', 'Anime - AMV'),
-						('1_2', '- English-translated', 'Anime - English'),
-						('1_3', '- Non-English-translated', 'Anime - Non-English'),
-						('1_4', '- Raw', 'Anime - Raw'),
-						('2_0', 'Audio', 'Audio'),
-						('2_1', '- Lossless', 'Audio - Lossless'),
-						('2_2', '- Lossy', 'Audio - Lossy'),
-						('3_0', 'Literature', 'Literature'),
-						('3_1', '- English-translated', 'Literature - English'),
-						('3_2', '- Non-English-translated', 'Literature - Non-English'),
-						('3_3', '- Raw', 'Literature - Raw'),
-						('4_0', 'Live Action', 'Live Action'),
-						('4_1', '- English-translated', 'Live Action - English'),
-						('4_2', '- Idol/Promotional Video', 'Live Action - Idol/PV'),
-						('4_3', '- Non-English-translated', 'Live Action - Non-English'),
-						('4_4', '- Raw', 'Live Action - Raw'),
-						('5_0', 'Pictures', 'Pictures'),
-						('5_1', '- Graphics', 'Pictures - Graphics'),
-						('5_2', '- Photos', 'Pictures - Photos'),
-						('6_0', 'Software', 'Software'),
-						('6_1', '- Applications', 'Software - Apps'),
-						('6_2', '- Games', 'Software - Games')]
-					%}
-		
-					{% set suke_cats = [('1_0', 'Art', 'Art'),
-						('1_1', '- Anime', 'Art - Anime'),
-						('1_2', '- Doujinshi', 'Art - Doujinshi'),
-						('1_3', '- Games', 'Art - Games'),
-						('1_4', '- Manga', 'Art - Manga'),
-						('1_5', '- Pictures', 'Art - Pictures'),
-						('2_0', 'Real Life', 'Real Life'),
-						('2_1', '- Photobooks and Pictures', 'Real Life - Pictures'),
-						('2_2', '- Videos', 'Real Life - Videos')]
-					%}
-
-					{% if config.SITE_FLAVOR == 'nyaa' %}
-						{% set used_cats = nyaa_cats %}
-					{% elif config.SITE_FLAVOR == 'sukebei' %}
-						{% set used_cats = suke_cats %}
-					{% endif %}
-
+					
 					<div class="search-container visible-xs visible-sm">
 					{# The mobile menu #}
 						{% if user_page %}
@@ -225,10 +353,15 @@
 								<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 									All categories
 								</option>
-								{% for cat_id, cat_name, cat_title in used_cats %}
-								<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
-									{{ cat_name }}
+								{% for main_cat in used_cats %}
+								<option value="{{ main_cat['id'] }}_0" title="{{ main_cat['title'] }}" {% if search is defined and search.category[0] == main_cat['id'] %}selected{% endif %}>
+									{{ main_cat['name'] }}
 								</option>
+									{% for sub_cat in main_cat["sub_cats"] %}
+									<option value="{{ main_cat['id'] }}_{{ sub_cat['id'] }}" title="{{ sub_cat['title'] }}" {% if search is defined and search.category == main_cat['id'] + '_' + sub_cat['id'] %}selected{% endif %}>
+									- {{ sub_cat['name'] }}
+									</option>
+									{% endfor %}
 								{% endfor %}
 							</select>
 	
@@ -265,20 +398,30 @@
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
-									{% for cat_id, cat_name, cat_title in used_cats %}
-									<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
-										{{ cat_name }}
+									{% for main_cat in used_cats %}
+									<option value="{{ main_cat['id'] }}_0" title="{{ main_cat['title'] }}" {% if search is defined and search.category[0] == main_cat['id'] %}selected{% endif %}>
+										{{ main_cat['name'] }}
 									</option>
+										{% for sub_cat in main_cat["sub_cats"] %}
+										<option value="{{ main_cat['id'] }}_{{ sub_cat['id'] }}" title="{{ sub_cat['title'] }}" {% if search is defined and search.category == main_cat['id'] + '_' + sub_cat['id'] %}selected{% endif %}>
+										- {{ sub_cat['name'] }}
+										</option>
+										{% endfor %}
 									{% endfor %}
 								</select> #}
 								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
-									{% for cat_id, cat_name, cat_title in used_cats %}
-									<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
-										{{ cat_name }}
+									{% for main_cat in used_cats %}
+									<option value="{{ main_cat['id'] }}_0" title="{{ main_cat['title'] }}" {% if search is defined and search.category[0] == main_cat['id'] %}selected{% endif %}>
+										{{ main_cat['name'] }}
 									</option>
+										{% for sub_cat in main_cat["sub_cats"] %}
+										<option value="{{ main_cat['id'] }}_{{ sub_cat['id'] }}" title="{{ sub_cat['title'] }}" {% if search is defined and search.category == main_cat['id'] + '_' + sub_cat['id'] %}selected{% endif %}>
+										- {{ sub_cat['name'] }}
+										</option>
+										{% endfor %}
 									{% endfor %}
 								</select>
 							</div>
@@ -293,6 +436,35 @@
 			</div><!--/.container -->
 		</nav>
 
+		{% if search is defined %}
+		<nav class="navbar navbar-default category-shortcuts" role="navigation">
+			<div class="container">
+				<ul class="nav">
+					<li class="back-button{% if search is defined and search.category == '0_0' %} hidden {% endif %}">
+						<a href="/{% if search is defined and search.user is not none %}user/{{ user.username }}{% endif %}?q=&f=0&c={% if search is defined and search.category[-1] != '0' %}{{ search.category[0] }}_0{% else %}0_0{% endif %}">
+							<span class="glyphicon glyphicon-chevron-left"></span>
+						</a>
+					</li>
+					{% for main_cat in used_cats %}
+					<li class="{% if main_cat['name'] == main_cat['title'] %} main-cat {% else %} sub-cat {% endif %}
+								{% if search is defined and search.category != '0_0' and search.category[0] != main_cat['id'] %} hidden {% endif %}
+								{% if search is defined and search.category[0] == main_cat['id'] %} active {% endif %}
+								{% if search is defined and search.category[-1] == '0' %} last {% endif %}">
+						<a href="/{% if search is defined and search.user is not none %}user/{{ user.username }}{% endif %}?q=&f=0&c={{ main_cat['id'] }}_0">{{ main_cat['name'] }}</a>
+					</li>
+						{% for sub_cat in main_cat["sub_cats"] %}
+						<li class="{% if sub_cat['name'] == sub_cat['title'] %} main-cat {% else %} sub-cat {% endif %}
+									{% if search is defined and search.category[-1] == sub_cat['id'] %} active last {% endif %}
+									{% if search is defined and search.category[0] != main_cat['id'] %} hidden {% endif %}">
+							<a href="/{% if search is defined and search.user is not none %}user/{{ user.username }}{% endif %}?q=&f=0&c={{ main_cat['id'] }}_{{ sub_cat['id'] }}">{{ sub_cat['name'] }}</a>
+						</li>
+						{% endfor %}
+					{% endfor %}
+				</ul>
+			</div>
+		</nav>
+		{% endif %}
+		
 		<div class="container">
 			{% include "flashes.html" %}
 
