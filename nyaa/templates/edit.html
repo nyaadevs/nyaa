@@ -36,28 +36,33 @@
 				<label class="btn btn-default {% if torrent.anonymous %}active{% endif %}" title="Upload torrent anonymously (don't display your username)">
 					{{ form.is_anonymous }}
 					<span class="glyphicon glyphicon-ok"></span>
+					<span class="glyphicon glyphicon-remove"></span>
 					Anonymous
 				</label>
 				{% endif %}
 				<label class="btn btn-grey {% if torrent.hidden %}active{% endif %}" title="Hide torrent from listing">
 					{{ form.is_hidden }}
 					<span class="glyphicon glyphicon-ok"></span>
+					<span class="glyphicon glyphicon-remove"></span>
 					Hidden
 				</label>
 				<label class="btn btn-danger {% if torrent.remake %}active{% endif %}" title="This torrent is derived from another release">
 					{{ form.is_remake }}
 					<span class="glyphicon glyphicon-ok"></span>
+					<span class="glyphicon glyphicon-remove"></span>
 					Remake
 				</label>
 				<label class="btn btn-warning {% if torrent.complete %}active{% endif %}" title="This torrent is a complete batch (eg. season)">
 					{{ form.is_complete }}
 					<span class="glyphicon glyphicon-ok"></span>
+					<span class="glyphicon glyphicon-remove"></span>
 					Complete
 				</label>
 				{% if g.user.is_trusted %}
 				<label class="btn btn-success {% if torrent.trusted %}active{% endif %}" title="Mark torrent trusted">
 					{{ form.is_trusted }}
 					<span class="glyphicon glyphicon-ok"></span>
+					<span class="glyphicon glyphicon-remove"></span>
 					Trusted
 				</label>
 				{% endif %}
@@ -68,6 +73,7 @@
 				<label class="btn btn-primary {% if torrent.deleted %}active{% endif %}">
 					{{ form.is_deleted }}
 					<span class="glyphicon glyphicon-ok"></span>
+					<span class="glyphicon glyphicon-remove"></span>
 					Deleted
 				</label>
 				{% endif %}
