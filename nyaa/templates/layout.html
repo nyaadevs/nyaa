@@ -11,6 +11,8 @@
 		<link rel="mask-icon" href="/static/pinned-tab.svg" color="#3582F7">
 		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
 
+		<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","url":"{{ site_url }}","potentialAction":{"@type":"SearchAction","target":"{{ site_url }}?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+
 		<!-- Bootstrap core CSS -->
 		<!--
 			Note: This has been customized at http://getbootstrap.com/customize/ to
