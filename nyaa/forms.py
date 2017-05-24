@@ -176,7 +176,7 @@ class EditForm(FlaskForm):
 class UploadForm(FlaskForm):
     class Meta:
         csrf = False
-        
+
     torrent_file = FileField('Torrent file', [
         FileRequired()
     ])
@@ -325,7 +325,8 @@ class UserTorrentMassAction(FlaskForm):
     def validate(self, user=None):
         super(UserTorrentMassAction, self).validate()
 
-        torrents = db.session.query(models.Torrent).filter(models.Torrent.id.in_(self.selected_torrents)) \
+        torrents = db.session.query(models.Torrent) \
+            .filter(models.Torrent.id.in_(self.selected_torrents)) \
             .filter(models.Torrent.user == user).all()
 
         if len(torrents) != len(self.selected_torrents):
