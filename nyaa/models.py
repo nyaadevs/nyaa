@@ -205,6 +205,11 @@ class Torrent(db.Model):
     def by_info_hash(cls, info_hash):
         return cls.query.filter_by(info_hash=info_hash).first()
 
+    @classmethod
+    def by_info_hash_hex(cls, info_hash_hex):
+        info_hash_bytes = bytearray.fromhex(info_hash_hex)
+        return cls.by_info_hash(info_hash_bytes)
+
 
 class TorrentNameSearch(FullText, Torrent):
     __fulltext_columns__ = ('display_name',)
