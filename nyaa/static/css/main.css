@@ -281,4 +281,8 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 .btn.active span.glyphicon-unchecked {
 	display: none;
 }
-
+.center {
+	float: none;
+	margin: 0 auto;
+	text-align: center;
+}

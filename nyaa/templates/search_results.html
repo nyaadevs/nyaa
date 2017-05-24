@@ -56,7 +56,7 @@
 				{% else %}
 				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% endif %}
-					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
+					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png" alt="{{ category_name(cat_id) }}">
 				</a>
 				</td>
 				{% if use_elastic %}
@@ -99,7 +99,7 @@
 <h3>No results found</h3>
 {% endif %}
 
-<center>
+<div class="center">
 	{% if use_elastic %}
 	{{ pagination.info }}
 	{{ pagination.links }}
@@ -107,4 +107,4 @@
 	{% from "bootstrap/pagination.html" import render_pagination %}
 	{{ render_pagination(torrent_query) }}
 	{% endif %}
-</center>
+</div>
