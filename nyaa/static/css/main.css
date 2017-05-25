@@ -293,15 +293,16 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 }
 
 .torrent-file-list ul {
-	padding: 5px 20px;
+	padding: 5px 20px 0px 20px;
 	list-style: none;
 }
 
-.torrent-file-list > ul:first-child {
+.torrent-file-list > ul {
 	padding: 0;
+	margin: 0;
 }
 
-.torrent-file-list li {
+.torrent-file-list li:not(:last-of-type) {
 	margin-bottom: 5px;
 }
 
