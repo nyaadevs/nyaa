@@ -17,26 +17,29 @@
 			set the column breakpoint to tablet mode, instead of mobile. This is to
 			make the navbar not look awful on tablets.
 		-->
-		<link href="/static/css/bootstrap.min.css" rel="stylesheet" id="bsThemeLink">
-		<link href="/static/css/bootstrap-xl-mod.css" rel="stylesheet">
+		{# These are extracted here for the dark mode toggle #}
+		{% set bootstrap_light = static_cachebuster('/static/css/bootstrap.min.css') %}
+		{% set bootstrap_dark = static_cachebuster('/static/css/bootstrap-dark.min.css') %}
+		<link href="{{ bootstrap_light }}" rel="stylesheet" id="bsThemeLink">
+		<link href="{{ static_cachebuster('/static/css/bootstrap-xl-mod.css') }}" rel="stylesheet">
 		<!--
 			This theme changer script needs to be inline and right under the above stylesheet link to prevent FOUC (Flash Of Unstyled Content)
 			Development version is commented out in static/js/main.js at the bottom of the file
 		-->
-		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="/static/css/bootstrap-dark.min.css",localStorage.setItem("theme","dark")}function setThemeLight(){bsThemeLink.href="/static/css/bootstrap.min.css",localStorage.setItem("theme","light")}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
+		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="{{ bootstrap_dark }}",localStorage.setItem("theme","dark")}function setThemeLight(){bsThemeLink.href="{{ bootstrap_light }}",localStorage.setItem("theme","light")}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" integrity="sha256-an4uqLnVJ2flr7w0U74xiF4PJjO2N5Df91R2CUmCLCA=" crossorigin="anonymous" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
 		<!-- Custom styles for this template -->
-		<link href="/static/css/main.css?v=12" rel="stylesheet">
+		<link href="{{ static_cachebuster('/static/css/main.css') }}" rel="stylesheet">
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/commonmark/0.27.0/commonmark.min.js" integrity="sha256-10JreQhQG80GtKuzsioj0K46DlaB/CK/EG+NuG0q97E=" crossorigin="anonymous"></script>
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
-		<script src="/static/js/bootstrap-select.js"></script>
-		<script src="/static/js/main.js?v=2"></script>
+		<script src="{{ static_cachebuster('/static/js/bootstrap-select.js') }}"></script>
+		<script src="{{ static_cachebuster('/static/js/main.js') }}"></script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>

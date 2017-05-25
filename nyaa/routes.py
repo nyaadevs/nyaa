@@ -46,6 +46,30 @@ def redirect_url():
         return '/'
     return url
 
+_static_cache = {}
+@app.template_global()
+def static_cachebuster(static_filename):
+    ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
+        Results are cached in memory and persist until app restart! '''
+    # Instead of timestamps, we could use commit hashes (we already load it in __init__)
+    # But that'd mean every static resource would get cache busted. This lets unchanged items
+    # stay in the cache.
+
+    if app.debug:
+        # Do not bust cache on debug (helps debugging)
+        return static_filename
+
+    # Get file mtime if not already cached.
+    if static_filename not in _static_cache:
+        file_path = os.path.join(app.config['BASE_DIR'], 'nyaa', static_filename[1:])
+        if os.path.exists(file_path):
+            file_mtime = int(os.path.getmtime(file_path))
+            _static_cache[static_filename] = static_filename + '?t=' + str(file_mtime)
+        else:
+            # Throw a warning?
+            _static_cache[static_filename] = static_filename
+
+    return _static_cache[static_filename]
 
 @app.template_global()
 def modify_query(**new_values):
