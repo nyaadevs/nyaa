@@ -655,9 +655,11 @@ def view_torrent(torrent_id):
             db.session.add(comment)
             db.session.commit()
 
+            torrent_count = models.Comment.query.filter_by(torrent_id=torrent.id).count()
+
             flask.flash('Comment successfully posted.', 'success')
 
-            return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+            return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id, _anchor='com-'+str(torrent_count)))
 
     # Only allow owners and admins to edit torrents
     can_edit = flask.g.user and (flask.g.user is torrent.user or flask.g.user.is_moderator)
