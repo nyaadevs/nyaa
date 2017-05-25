@@ -193,6 +193,7 @@
 					{% endif %}
 
 					<div class="search-container visible-xs visible-sm">
+					{# The mobile menu #}
 						{% if user_page %}
 						<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
 						{% else %}
@@ -249,7 +250,8 @@
 								<!--
 									On narrow viewports, there isn't enough room to fit the full stuff in the selectpicker, so we show a full-width one on wide viewports, but squish it on narrow ones.
 								-->
-								<select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
+								{# XXX Search breaks with multiple fields with the same name: default to the shorter one so we don't break visuals. This is a hack! #}
+								{# <select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
@@ -258,8 +260,8 @@
 										{{ cat_name }}
 									</option>
 									{% endfor %}
-								</select>
-								<select class="selectpicker show-tick hidden-lg" title="Category" data-width="130px" name="c">
+								</select> #}
+								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
