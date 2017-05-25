@@ -52,7 +52,7 @@ def redirect_url():
 
 
 @app.template_global()
-def static_cachebuster(static_filename):
+def static_cachebuster(filename):
     ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
         Results are cached in memory and persist until app restart! '''
     # Instead of timestamps, we could use commit hashes (we already load it in __init__)
@@ -61,19 +61,18 @@ def static_cachebuster(static_filename):
 
     if app.debug:
         # Do not bust cache on debug (helps debugging)
-        return static_filename
+        return flask.url_for('static', filename=filename)
 
     # Get file mtime if not already cached.
-    if static_filename not in _static_cache:
-        file_path = os.path.join(app.config['BASE_DIR'], 'nyaa', static_filename[1:])
+    if filename not in _static_cache:
+        file_path = os.path.join(app.static_folder, filename)
+        file_mtime = None
         if os.path.exists(file_path):
             file_mtime = int(os.path.getmtime(file_path))
-            _static_cache[static_filename] = static_filename + '?t=' + str(file_mtime)
-        else:
-            # Throw a warning?
-            _static_cache[static_filename] = static_filename
 
-    return _static_cache[static_filename]
+        _static_cache[filename] = file_mtime
+
+    return flask.url_for('static', filename=filename, t=_static_cache[filename])
 
 
 @app.template_global()

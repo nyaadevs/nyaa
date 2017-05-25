@@ -25,10 +25,10 @@
 			make the navbar not look awful on tablets.
 		-->
 		{# These are extracted here for the dark mode toggle #}
-		{% set bootstrap_light = static_cachebuster('/static/css/bootstrap.min.css') %}
-		{% set bootstrap_dark = static_cachebuster('/static/css/bootstrap-dark.min.css') %}
+		{% set bootstrap_light = static_cachebuster('css/bootstrap.min.css') %}
+		{% set bootstrap_dark = static_cachebuster('css/bootstrap-dark.min.css') %}
 		<link href="{{ bootstrap_light }}" rel="stylesheet" id="bsThemeLink">
-		<link href="{{ static_cachebuster('/static/css/bootstrap-xl-mod.css') }}" rel="stylesheet">
+		<link href="{{ static_cachebuster('css/bootstrap-xl-mod.css') }}" rel="stylesheet">
 		<!--
 			This theme changer script needs to be inline and right under the above stylesheet link to prevent FOUC (Flash Of Unstyled Content)
 			Development version is commented out in static/js/main.js at the bottom of the file
@@ -38,15 +38,15 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
 		<!-- Custom styles for this template -->
-		<link href="{{ static_cachebuster('/static/css/main.css') }}" rel="stylesheet">
+		<link href="{{ static_cachebuster('css/main.css') }}" rel="stylesheet">
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/commonmark/0.27.0/commonmark.min.js" integrity="sha256-10JreQhQG80GtKuzsioj0K46DlaB/CK/EG+NuG0q97E=" crossorigin="anonymous"></script>
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
-		<script src="{{ static_cachebuster('/static/js/bootstrap-select.js') }}"></script>
-		<script src="{{ static_cachebuster('/static/js/main.js') }}"></script>
+		<script src="{{ static_cachebuster('js/bootstrap-select.js') }}"></script>
+		<script src="{{ static_cachebuster('js/main.js') }}"></script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
