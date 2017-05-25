@@ -350,10 +350,10 @@ class UserTorrentMassAction(FlaskForm):
                 self.selected_category['main'] = category
                 self.selected_category['sub'] = subcategory
                 return True
-
-            return False
-
-        return True
+            else:
+                return False
+        else:
+            return True
 
     def apply_user_action(self):
         def set_torrent_prop(prop, value):
