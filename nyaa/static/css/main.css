@@ -286,3 +286,46 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 	margin: 0 auto;
 	text-align: center;
 }
+
+/* Torrent file list */
+.torrent-file-list {
+	padding: 15px;
+}
+
+.torrent-file-list ul {
+	padding: 5px 20px 0px 20px;
+	list-style: none;
+	display: none;
+}
+
+.torrent-file-list > ul {
+	display: block; /* First level always visible */
+	padding: 0;
+	margin: 0;
+}
+
+.torrent-file-list ul[data-show] {
+	/* Used to show first level's items based on amount */
+	display: block;
+}
+
+.torrent-file-list li:not(:last-of-type) {
+	margin-bottom: 5px;
+}
+
+.torrent-file-list i.fa {
+	padding-right: 5px;
+}
+
+.torrent-file-list i.fa-folder-open {
+	padding-right: 3px;
+}
+
+.torrent-file-list a.folder {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.torrent-file-list .file-size {
+	font-weight: bold;
+}

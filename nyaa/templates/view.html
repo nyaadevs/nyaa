@@ -92,33 +92,20 @@
 		
 	</div>
 
-	<div class="panel-collapse collapse" id="collapseFileList">
-		<table class="table table-bordered table-hover table-striped">
-			<thead>
-				<tr>
-					<th style="width:auto;">Path</th>
-					<th style="width:auto;">Size</th>
-				</tr>
-			</thead>
-			<tbody>
-				{%- for key, value in files.items() recursive %}
-				{%- if value is iterable %}
-				<tr>
-					<td colspan="2" {% if loop.depth0 is greaterthan 0 %}style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
-						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;<b>{{ key }}</b>
-					</td>
-				</tr>
-				{{ loop(value.items()) }}
-				{%- else %}
-				<tr>
-					<td{% if loop.depth0 is greaterthan 0 %} style="padding-left: {{ loop.depth0 * 20 }}px"{% endif %}>
-						<i class="glyphicon glyphicon-file"></i>&nbsp;{{ key }}</td>
-					<td class="col-md-2">{{ value | filesizeformat(True) }}</td>
-				</tr>
-				{%- endif %}
-				{%- endfor %}
-			</tbody>
-		</table>
+	<div class="torrent-file-list panel-collapse collapse" id="collapseFileList">
+		<ul>
+		{% for key, value in files.items() recursive -%}
+		{% if value is iterable %}
+			<li>
+				<a href="" class="folder"><i class="fa fa-folder-open"></i>{{ key }}</a>
+				<ul{% if not loop.depth0 and value.items()|length <= 20 %} data-show="yes"{% endif %}>{{ '\n' + loop(value.items()) }}
+				</ul>
+			</li>
+		{% else %}
+			<li><i class="fa fa-file"></i>{{ key }} <span class="file-size">({{ value | filesizeformat(True) }})</span></a></li>
+		{% endif %}
+		{% endfor %}
+		</ul>
 	</div>
 </div>
 {% elif files %}
