@@ -745,6 +745,7 @@ def redirect_magnet(torrent_id):
 
 
 @app.route('/view/<int:torrent_id>/torrent')
+@app.route('/download/<int:torrent_id>.torrent')
 def download_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
 
@@ -753,7 +754,7 @@ def download_torrent(torrent_id):
 
     resp = flask.Response(_get_cached_torrent_file(torrent))
     resp.headers['Content-Type'] = 'application/x-bittorrent'
-    resp.headers['Content-Disposition'] = 'inline; filename*=UTF-8\'\'{}'.format(
+    resp.headers['Content-Disposition'] = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
         quote(torrent.torrent_name.encode('utf-8')))
 
     return resp

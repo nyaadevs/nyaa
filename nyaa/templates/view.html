@@ -68,7 +68,7 @@
 		</div>
 	</div>
 	<div class="panel-footer">
-		{% if torrent.has_torrent %}<a href="/view/{{ torrent.id }}/torrent"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
+		{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id )}}"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
 	</div>
 </div>
 
