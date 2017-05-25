@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}Upload Torrent :: {{ config.SITE_NAME }}{% endblock %}
+{% block metatags %}
+<meta property="og:description" content="Upload a torrent to {{ config.SITE_NAME }}">
+{% endblock %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 {% from "_formhelpers.html" import render_upload %}

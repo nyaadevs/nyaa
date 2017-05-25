@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% block title %}{% if search.term %}{{ search.term | e}}{% else %}Browse{% endif %} :: {{ config.SITE_NAME }}{% endblock %}
+{% block metatags %}
+{% if search.term %}
+<meta property="og:description" content="Search for '{{ search.term }}'">
+{% else %}
+<meta property="og:description" content="{{ config.SITE_NAME }} homepage">
+{% endif %}
+{% endblock %}
 {% block body %}
 
 {% if search["term"] == '' %}

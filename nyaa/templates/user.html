@@ -1,5 +1,14 @@
 {% extends "layout.html" %}
 {% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block meta_image %}{{ user.gravatar_url() }}{% endblock %}
+{% block metatags %}
+{% if search.term %}
+<meta property="og:description" content="Search for '{{ search.term }}' in torrents uploaded by {{ user.username }}">
+{% else %}
+<meta property="og:description" content="Torrents uploaded by {{ user.username }}">
+{% endif %}
+{% endblock %}
+
 {% block body %}
 {% from "_formhelpers.html" import render_menu_with_button %}
 

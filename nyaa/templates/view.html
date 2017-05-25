@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block title %}{{ torrent.display_name }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block metatags %}
+{% set uploader_name = torrent.user.username if (torrent.user and not torrent.anonymous) else 'Anonymous' %}
+<meta property="og:description" content="{{ category_name(torrent.sub_category.id_as_string) }} | {{ torrent.filesize | filesizeformat(True) }} | Uploaded by {{ uploader_name }} on {{ torrent.created_time.strftime('%Y-%m-%d') }}">
+{% endblock %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 <div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">

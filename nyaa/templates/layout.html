@@ -11,6 +11,13 @@
 		<link rel="mask-icon" href="/static/pinned-tab.svg" color="#3582F7">
 		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
 
+		<meta property="og:site_name" content="{{ config.SITE_NAME }}">
+		<meta property="og:title" content="{{ self.title() }}">
+		<meta property="og:image" content="{% block meta_image %}/static/img/avatar/default.png{% endblock %}">
+		{% block metatags %}
+		{# Filled by children #}
+		{% endblock %}
+
 		<!-- Bootstrap core CSS -->
 		<!--
 			Note: This has been customized at http://getbootstrap.com/customize/ to
