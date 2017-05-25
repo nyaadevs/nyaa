@@ -98,7 +98,7 @@
 		{% if value is iterable %}
 			<li>
 				<a href="" class="folder"><i class="fa fa-folder-open"></i>{{ key }}</a>
-				<ul>{{ '\n' + loop(value.items()) }}
+				<ul{% if not loop.depth0 and value.items()|length <= 20 %} data-show="yes"{% endif %}>{{ '\n' + loop(value.items()) }}
 				</ul>
 			</li>
 		{% else %}
