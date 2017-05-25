@@ -288,10 +288,6 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 }
 
 /* Torrent file list */
-.torrent-file-list {
-	padding: 15px;
-}
-
 .torrent-file-list ul {
 	padding: 5px 20px 0px 20px;
 	list-style: none;

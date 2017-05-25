@@ -85,14 +85,11 @@
 
 {% if files and files.__len__() <= config.MAX_FILES_VIEW %}
 <div class="panel panel-default">
-	<div class="panel-heading panel-heading-collapse">
-		<h3 class="panel-title">
-			<a class="collapsed" data-target="#collapseFileList" data-toggle="collapse" style="color:inherit;text-decoration:none;display:block;width:auto;">File list</a>
-		</h3>
-		
+	<div class="panel-heading">
+		<h3 class="panel-title">File list</h3>
 	</div>
 
-	<div class="torrent-file-list panel-collapse collapse" id="collapseFileList">
+	<div class="torrent-file-list panel-body">
 		<ul>
 		{% for key, value in files.items() recursive -%}
 		{% if value is iterable %}
