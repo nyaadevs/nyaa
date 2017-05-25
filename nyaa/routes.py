@@ -213,7 +213,6 @@ def home(rss):
         'per_page': results_per_page
     }
 
-
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
         if flask.g.user.is_moderator:  # God mode
