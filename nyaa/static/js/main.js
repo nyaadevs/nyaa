@@ -185,3 +185,9 @@ document.addEventListener("DOMContentLoaded", function() {
 // 		localStorage.setItem('theme', 'light');
 // 	}
 // }
+
+function addThemeClass(){
+	"dark" === localStorage.getItem("theme") && document.body.classList.add('dark')
+}
+
+window.onload=addThemeClass;
