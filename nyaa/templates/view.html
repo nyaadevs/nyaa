@@ -143,7 +143,7 @@
 			</div>
 			<div class="col-md-10">
 				<div class="row">
-					<a href="#com-{{ loop.index }}"><small>{{ comment.created_time | timesince }}</small></a>
+					<a href="#com-{{ loop.index }}"><small data-timestamp-swap data-timestamp="{{ comment.created_utc_timestamp|int }}">{{ comment.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</small></a>
 					{% if g.user.is_moderator or g.user.id == comment.user_id %}
 					<form class="delete-comment-form" action="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 						<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>

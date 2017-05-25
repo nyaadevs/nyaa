@@ -38,6 +38,10 @@ SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} 
                                'what you were looking for.')
 
 
+# For static_cachebuster
+_static_cache = {}
+
+
 def redirect_url():
     url = flask.request.args.get('next') or \
         flask.request.referrer or \
@@ -46,7 +50,7 @@ def redirect_url():
         return '/'
     return url
 
-_static_cache = {}
+
 @app.template_global()
 def static_cachebuster(static_filename):
     ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
@@ -70,6 +74,7 @@ def static_cachebuster(static_filename):
             _static_cache[static_filename] = static_filename
 
     return _static_cache[static_filename]
+
 
 @app.template_global()
 def modify_query(**new_values):
