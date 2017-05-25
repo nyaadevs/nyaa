@@ -43,6 +43,7 @@ $(document).ready(function() {
 		}
 	});
 
+	// Drag & Drop zone for upload page
 	$('body').on('dragenter', function(event) {
 		event.preventDefault();
 		dropZone.css({ 'visibility': 'visible', 'opacity': 1 });
@@ -62,6 +63,13 @@ $(document).ready(function() {
 		var files = event.originalEvent.dataTransfer.files;
 		$('#torrent_file')[0].files = files;
 		$(this).css({ 'visibility': 'hidden', 'opacity': 0 });
+	});
+	
+	// Collapsible file lists
+	$('.torrent-file-list a.folder').click(function(e) {
+		e.preventDefault();
+		$(this).blur().children('i').toggleClass('fa-folder-open fa-folder');
+		$(this).next().stop().slideToggle(250);
 	});
 });
 
