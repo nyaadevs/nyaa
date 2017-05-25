@@ -25,6 +25,7 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         'id': 'id',
         'size': 'filesize',
         # 'name': 'display_name',  # This is slow and buggy
+        'comments': 'comments_count',
         'seeders': 'seed_count',
         'leechers': 'leech_count',
         'downloads': 'download_count'
@@ -190,6 +191,7 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         'size': models.Torrent.filesize,
         # Disable this because we disabled this in search_elastic, for the sake of consistency:
         # 'name': models.Torrent.display_name,
+        'comments': models.Torrent.comment_count,
         'seeders': models.Statistic.seed_count,
         'leechers': models.Statistic.leech_count,
         'downloads': models.Statistic.download_count
