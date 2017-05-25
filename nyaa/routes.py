@@ -38,6 +38,10 @@ SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} 
                                'what you were looking for.')
 
 
+# For static_cachebuster
+_static_cache = {}
+
+
 def redirect_url():
     url = flask.request.args.get('next') or \
         flask.request.referrer or \
@@ -45,6 +49,31 @@ def redirect_url():
     if url == flask.request.url:
         return '/'
     return url
+
+
+@app.template_global()
+def static_cachebuster(static_filename):
+    ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
+        Results are cached in memory and persist until app restart! '''
+    # Instead of timestamps, we could use commit hashes (we already load it in __init__)
+    # But that'd mean every static resource would get cache busted. This lets unchanged items
+    # stay in the cache.
+
+    if app.debug:
+        # Do not bust cache on debug (helps debugging)
+        return static_filename
+
+    # Get file mtime if not already cached.
+    if static_filename not in _static_cache:
+        file_path = os.path.join(app.config['BASE_DIR'], 'nyaa', static_filename[1:])
+        if os.path.exists(file_path):
+            file_mtime = int(os.path.getmtime(file_path))
+            _static_cache[static_filename] = static_filename + '?t=' + str(file_mtime)
+        else:
+            # Throw a warning?
+            _static_cache[static_filename] = static_filename
+
+    return _static_cache[static_filename]
 
 
 @app.template_global()
@@ -631,9 +660,13 @@ def view_torrent(torrent_id):
             db.session.add(comment)
             db.session.commit()
 
+            torrent_count = models.Comment.query.filter_by(torrent_id=torrent.id).count()
+
             flask.flash('Comment successfully posted.', 'success')
 
-            return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+            return flask.redirect(flask.url_for('view_torrent',
+                                                torrent_id=torrent_id,
+                                                _anchor='com-' + str(torrent_count)))
 
     # Only allow owners and admins to edit torrents
     can_edit = flask.g.user and (flask.g.user is torrent.user or flask.g.user.is_moderator)
