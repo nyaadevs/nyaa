@@ -37,7 +37,7 @@ class Unique(object):
 
 
 _username_validator = Regexp(
-    r'[a-zA-Z0-9_\-]+',
+    r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
 
 
