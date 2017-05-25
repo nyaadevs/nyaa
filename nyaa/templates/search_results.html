@@ -76,7 +76,7 @@
 				<td style="white-space: nowrap;text-align: center;">
 					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
 					{% if use_elastic %}
-					<a href="{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}"><i class="fa fa-fw fa-magnet"></i></a>
+					<a href="{{ create_magnet_from_es_info(torrent.display_name, torrent.info_hash) }}"><i class="fa fa-fw fa-magnet"></i></a>
 					{% else %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
 					{% endif %}
@@ -85,7 +85,7 @@
 				{% if use_elastic %}
 				<td class="text-center" data-timestamp="{{ torrent.created_time | utc_time }}">{{ torrent.created_time | display_time }}</td>
 				{% else %}
-				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
+				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp | int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
 				{% endif %}
 				
 				{% if config.ENABLE_SHOW_STATS %}

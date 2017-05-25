@@ -58,7 +58,7 @@ def get_trackers(torrent):
     return list(trackers)
 
 
-def get_trackers_magnet():
+def get_default_trackers():
     trackers = OrderedSet()
 
     # Our main one first
@@ -73,8 +73,9 @@ def get_trackers_magnet():
 
 
 def create_magnet(torrent, max_trackers=5, trackers=None):
+    # Unless specified, we just use default trackers
     if trackers is None:
-        trackers = get_trackers_magnet()
+        trackers = get_default_trackers()
 
     magnet_parts = [
         ('dn', torrent.display_name)
@@ -88,10 +89,10 @@ def create_magnet(torrent, max_trackers=5, trackers=None):
 
 # For processing ES links
 @app.context_processor
-def create_magnet_from_info():
-    def _create_magnet_from_info(display_name, info_hash, max_trackers=5, trackers=None):
+def create_magnet_from_es_info():
+    def _create_magnet_from_es_info(display_name, info_hash, max_trackers=5, trackers=None):
         if trackers is None:
-            trackers = get_trackers_magnet()
+            trackers = get_default_trackers()
 
         magnet_parts = [
             ('dn', display_name)
@@ -101,7 +102,7 @@ def create_magnet_from_info():
 
         b32_info_hash = base64.b32encode(bytes.fromhex(info_hash)).decode('utf-8')
         return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
-    return dict(create_magnet_from_info=_create_magnet_from_info)
+    return dict(create_magnet_from_es_info=_create_magnet_from_es_info)
 
 
 def create_default_metadata_base(torrent, trackers=None):
