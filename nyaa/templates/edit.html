@@ -7,7 +7,7 @@
 {% set torrent_url = url_for('view_torrent', torrent_id=torrent.id) %}
 <h1>
 	Edit Torrent <a href="{{ torrent_url }}">#{{torrent.id}}</a>
-	{% if (torrent.user != None) and (torrent.user != editor) %}
+	{% if (torrent.user != None) and (torrent.user != g.user) %}
 	(by <a href="{{ url_for('view_user', user_name=torrent.user.username) }}">{{ torrent.user.username }}</a>)
 	{% endif %}
 </h1>
@@ -29,41 +29,54 @@
 		{{ render_field(form.information, class_='form-control', placeholder='Your website or IRC channel') }}
 		</div>
 		<div class="col-md-6">
-			<label class="control-label">Torrent flags</label>
-			<div>
-			{% if editor.is_admin %}
-			<label class="btn btn-primary">
-				{{ form.is_deleted }}
-				Deleted
-			</label>
-			{% endif %}
-
-			<label class="btn btn-default" style="background-color: darkgray; border-color: #ccc;" title="Hide torrent from listing">
-				{{ form.is_hidden }}
-				Hidden
-			</label>
-			<label class="btn btn-danger" title="This torrent is derived from another release">
-				{{ form.is_remake }}
-				Remake
-			</label>
-			<label class="btn btn-primary" title="This torrent is a complete batch (eg. season)">
-				{{ form.is_complete }}
-				Complete
-			</label>
-
-			{# Only allow changing anonymous status when an uploader exists #}
-			{% if torrent.uploader_id %}
-			<label class="btn btn-primary" title="Upload torrent anonymously (don't display your username)">
-				{{ form.is_anonymous }}
-				Anonymous
-			</label>
-			{% endif %}
-			{% if editor.is_trusted %}
-			<label class="btn btn-success" title="Mark torrent trusted">
-				{{ form.is_trusted }}
-				Trusted
-			</label>
-			{% endif %}
+			<label class="control-label">Torrent flags</label><br>
+			<div class="btn-group" data-toggle="buttons">
+				{# Only allow changing anonymous status when an uploader exists #}
+				{% if torrent.uploader_id %}
+				<label class="btn btn-default {% if torrent.anonymous %}active{% endif %}" title="Upload torrent anonymously (don't display your username)">
+					{{ form.is_anonymous }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Anonymous
+				</label>
+				{% endif %}
+				<label class="btn btn-grey {% if torrent.hidden %}active{% endif %}" title="Hide torrent from listing">
+					{{ form.is_hidden }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Hidden
+				</label>
+				{% if g.user.is_moderator %}
+				<label class="btn btn-primary {% if torrent.deleted %}active{% endif %}">
+					{{ form.is_deleted }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Deleted
+				</label>
+				{% endif %}
+			</div>
+			<div class="hidden-xl"><br></div>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-danger {% if torrent.remake %}active{% endif %}" title="This torrent is derived from another release">
+					{{ form.is_remake }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Remake
+				</label>
+				<label class="btn btn-warning {% if torrent.complete %}active{% endif %}" title="This torrent is a complete batch (eg. season)">
+					{{ form.is_complete }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Complete
+				</label>
+				{% if g.user.is_trusted %}
+				<label class="btn btn-success {% if torrent.trusted %}active{% endif %}" title="Mark torrent trusted">
+					{{ form.is_trusted }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Trusted
+				</label>
+				{% endif %}
 			</div>
 		</div>
 	</div>

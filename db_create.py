@@ -33,9 +33,3 @@ if not existing_cats:
         db.session.add(main_cat)
 
     db.session.commit()
-
-# Create fulltext index
-
-if app.config['USE_MYSQL']:
-    db.engine.execute('ALTER TABLE ' + app.config['TABLE_PREFIX'] + 'torrents ADD FULLTEXT KEY (display_name)')
-

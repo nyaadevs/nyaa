@@ -1,3 +1,4 @@
+import flask
 from nyaa import app, db
 from nyaa import models, forms
 from nyaa import bencode, utils
@@ -8,6 +9,7 @@ import json
 from werkzeug import secure_filename
 from collections import OrderedDict
 from orderedset import OrderedSet
+from ipaddress import ip_address
 
 
 def _replace_utf8_values(dict_or_list):
@@ -53,7 +55,8 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
                              description=description,
                              encoding=torrent_encoding,
                              filesize=torrent_filesize,
-                             user=uploading_user)
+                             user=uploading_user,
+                             uploader_ip=ip_address(flask.request.remote_addr).packed)
 
     # Store bencoded info_dict
     torrent.info = models.TorrentInfo(info_dict=torrent_data.bencoded_info_dict)
@@ -69,7 +72,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent.complete = upload_form.is_complete.data
     # Copy trusted status from user if possible
     can_mark_trusted = uploading_user and uploading_user.is_trusted
+    # To do, automatically mark trusted if user is trusted unless user specifies otherwise
     torrent.trusted = upload_form.is_trusted.data if can_mark_trusted else False
+
     # Set category ids
     torrent.main_category_id, torrent.sub_category_id = \
         upload_form.category.parsed_data.get_category_ids()
@@ -134,10 +139,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         if not tracker:
             tracker = models.Trackers(uri=announce)
             db.session.add(tracker)
+            db.session.flush()
 
         db_trackers.add(tracker)
-
-    db.session.flush()
 
     # Store tracker refs in DB
     for order, tracker in enumerate(db_trackers):

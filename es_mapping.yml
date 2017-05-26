@@ -21,6 +21,7 @@ settings:
           - resolution
           - lowercase
           - my_ngram
+          - word_delimit
     filter:
       my_ngram:
         type: edgeNGram
@@ -28,7 +29,11 @@ settings:
         max_gram: 15
       resolution:
         type: pattern_capture
-        patterns: ["(\\d+)x(\\d+)"]
+        patterns: ["(\\d+)[xX](\\d+)"]
+      word_delimit:
+        type: word_delimiter
+        preserve_original: true
+        split_on_numerics: false
     char_filter:
       my_char_filter:
         type: mapping

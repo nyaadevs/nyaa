@@ -43,6 +43,7 @@ $(document).ready(function() {
 		}
 	});
 
+	// Drag & Drop zone for upload page
 	$('body').on('dragenter', function(event) {
 		event.preventDefault();
 		dropZone.css({ 'visibility': 'visible', 'opacity': 1 });
@@ -63,6 +64,13 @@ $(document).ready(function() {
 		$('#torrent_file')[0].files = files;
 		$(this).css({ 'visibility': 'hidden', 'opacity': 0 });
 	});
+	
+	// Collapsible file lists
+	$('.torrent-file-list a.folder').click(function(e) {
+		e.preventDefault();
+		$(this).blur().children('i').toggleClass('fa-folder-open fa-folder');
+		$(this).next().stop().slideToggle(250);
+	});
 });
 
 function _format_time_difference(seconds) {
@@ -80,6 +88,8 @@ function _format_time_difference(seconds) {
 	if (seconds < 0) {
 		suffix = "";
 		prefix = "After ";
+	} else if (seconds == 0) {
+		return "Just now"
 	}
 
 	var parts = [];
@@ -96,11 +106,12 @@ function _format_time_difference(seconds) {
 	}
 	return prefix + parts.join(" ") + suffix;
 }
-function _format_date(date) {
+function _format_date(date, show_seconds) {
 	var pad = function (n) { return ("00" + n).slice(-2); }
 	var ymd = date.getFullYear() + "-" + pad(date.getMonth()+1) + "-" + pad(date.getDate());
 	var hm = pad(date.getHours()) + ":" + pad(date.getMinutes());
-	return ymd + " " + hm;
+	var s = show_seconds ? ":" + pad(date.getSeconds()) : ""
+	return ymd + " " + hm + s;
 }
 
 // Add title text to elements with data-timestamp attribute
@@ -111,11 +122,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	for (var i = 0; i < timestamp_targets.length; i++) {
 		var target = timestamp_targets[i];
 		var torrent_timestamp = parseInt(target.getAttribute('data-timestamp'));
+		var swap_flag = target.getAttribute('data-timestamp-swap') != null;
+
 		if (torrent_timestamp) {
 			var timedelta = now_timestamp - torrent_timestamp;
-			target.setAttribute('title', _format_time_difference(timedelta));
 
-			target.innerText = _format_date(new Date(torrent_timestamp*1000));
+			var formatted_date = _format_date(new Date(torrent_timestamp*1000), swap_flag);
+			var formatted_timedelta = _format_time_difference(timedelta);
+			if (swap_flag) {
+				target.setAttribute('title', formatted_date);
+				target.innerText = formatted_timedelta;
+			} else {
+				target.setAttribute('title', formatted_timedelta);
+				target.innerText = formatted_date;
+			}
 		}
 	};
 

@@ -1,3 +1,4 @@
+import flask
 from enum import Enum, IntEnum
 from datetime import datetime, timezone
 from nyaa import app, db
@@ -6,11 +7,13 @@ from sqlalchemy import func, ForeignKeyConstraint, Index
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_fulltext import FullText
+from ipaddress import ip_address
 
 import re
 import base64
 from markupsafe import escape as escape_markup
-from urllib.parse import unquote as unquote_url
+from urllib.parse import urlencode, unquote as unquote_url
+from hashlib import md5
 
 if app.config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql
@@ -61,6 +64,7 @@ class Torrent(db.Model):
     encoding = db.Column(db.String(length=32), nullable=False)
     flags = db.Column(db.Integer, default=0, nullable=False, index=True)
     uploader_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    uploader_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
     has_torrent = db.Column(db.Boolean, nullable=False, default=False)
 
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow, nullable=False)
@@ -92,11 +96,13 @@ class Torrent(db.Model):
     info = db.relationship('TorrentInfo', uselist=False,
                            cascade="all, delete-orphan", back_populates='torrent')
     filelist = db.relationship('TorrentFilelist', uselist=False,
-                           cascade="all, delete-orphan", back_populates='torrent')
+                               cascade="all, delete-orphan", back_populates='torrent')
     stats = db.relationship('Statistic', uselist=False,
-                           cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
-    trackers = db.relationship('TorrentTrackers', uselist=True,
-                           cascade="all, delete-orphan", lazy='joined')
+                            cascade="all, delete-orphan", back_populates='torrent', lazy='joined')
+    trackers = db.relationship('TorrentTrackers', uselist=True, cascade="all, delete-orphan",
+                               lazy='joined', order_by='TorrentTrackers.order')
+    comments = db.relationship('Comment', uselist=True,
+                               cascade="all, delete-orphan")
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
@@ -137,6 +143,11 @@ class Torrent(db.Model):
     @property
     def magnet_uri(self):
         return create_magnet(self)
+
+    @property
+    def uploader_ip_string(self):
+        if self.uploader_ip:
+            return str(ip_address(self.uploader_ip))
 
     @property
     def anonymous(self):
@@ -193,6 +204,11 @@ class Torrent(db.Model):
     @classmethod
     def by_info_hash(cls, info_hash):
         return cls.query.filter_by(info_hash=info_hash).first()
+
+    @classmethod
+    def by_info_hash_hex(cls, info_hash_hex):
+        info_hash_bytes = bytearray.fromhex(info_hash_hex)
+        return cls.by_info_hash(info_hash_bytes)
 
 
 class TorrentNameSearch(FullText, Torrent):
@@ -310,10 +326,31 @@ class SubCategory(db.Model):
         return cls.query.get((sub_cat_id, main_cat_id))
 
 
+class Comment(db.Model):
+    __tablename__ = DB_TABLE_PREFIX + 'comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    torrent_id = db.Column(db.Integer, db.ForeignKey(
+        DB_TABLE_PREFIX + 'torrents.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    text = db.Column(db.String(length=255, collation=COL_UTF8MB4_BIN), nullable=False)
+
+    user = db.relationship('User', uselist=False, back_populates='comments', lazy="joined")
+
+    def __repr__(self):
+        return '<Comment %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+
 class UserLevelType(IntEnum):
     REGULAR = 0
     TRUSTED = 1
-    ADMIN = 2
+    MODERATOR = 2
     SUPERADMIN = 3
 
 
@@ -339,8 +376,8 @@ class User(db.Model):
     last_login_date = db.Column(db.DateTime(timezone=False), default=None, nullable=True)
     last_login_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
 
-    torrents = db.relationship('Torrent', back_populates='user', lazy="dynamic")
-
+    torrents = db.relationship('Torrent', back_populates='user', lazy='dynamic')
+    comments = db.relationship('Comment', back_populates='user', lazy='dynamic')
     # session = db.relationship('Session', uselist=False, back_populates='user')
 
     def __init__(self, username, email, password):
@@ -363,6 +400,39 @@ class User(db.Model):
         ]
         return all(checks)
 
+    def gravatar_url(self):
+        # from http://en.gravatar.com/site/implement/images/python/
+        size = 120
+        # construct the url
+        default_avatar = flask.url_for('static', filename='img/avatar/default.png', _external=True)
+        gravatar_url = 'https://www.gravatar.com/avatar/{}?{}'.format(
+            md5(self.email.encode('utf-8').lower()).hexdigest(),
+            urlencode({'d': default_avatar, 's': str(size)}))
+        return gravatar_url
+
+    @property
+    def userlevel_str(self):
+        if self.level == UserLevelType.REGULAR:
+            return 'User'
+        elif self.level == UserLevelType.TRUSTED:
+            return 'Trusted'
+        elif self.level >= UserLevelType.MODERATOR:
+            return 'Moderator'
+
+    @property
+    def userlevel_color(self):
+        if self.level == UserLevelType.REGULAR:
+            return 'default'
+        elif self.level == UserLevelType.TRUSTED:
+            return 'success'
+        elif self.level >= UserLevelType.MODERATOR:
+            return 'purple'
+
+    @property
+    def ip_string(self):
+        if self.last_login_ip:
+            return str(ip_address(self.last_login_ip))
+
     @classmethod
     def by_id(cls, id):
         return cls.query.get(id)
@@ -382,8 +452,8 @@ class User(db.Model):
         return cls.by_username(username_or_email) or cls.by_email(username_or_email)
 
     @property
-    def is_admin(self):
-        return self.level >= UserLevelType.ADMIN
+    def is_moderator(self):
+        return self.level >= UserLevelType.MODERATOR
 
     @property
     def is_superadmin(self):

@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}Login :: {{ config.SITE_NAME }}{% endblock %}
+{% block metatags %}
+<meta property="og:description" content="Log in to {{ config.SITE_NAME }}!">
+{% endblock %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 

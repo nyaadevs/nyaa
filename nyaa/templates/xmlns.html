@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}XML Namespace :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+<div class="content">
+    <h1>Nyaa XML Namespace</h1>
+    <p>You found this page because our RSS feeds contain an URL that links here. Said URL is not an actual page but rather a unique identifier used to prevent name collisions with other XML namespaces.</p>
+    <p>The namespace contains the following additional, informational <b>tags</b>:</p>
+    <ul>
+        <li>
+            <p><code>&lt;nyaa:seeders&gt;</code> holds the current amount of seeders on the respective torrent.</p>
+        </li>
+        <li>
+            <p><code>&lt;nyaa:leechers&gt;</code> holds the current amount of leechers on the respective torrent.</p>
+        </li>
+        <li>
+            <p><code>&lt;nyaa:downloads&gt;</code> counts the downloads the torrent got up to the point the feed was refreshed.</p>
+        </li>
+        <li>
+            <p><code>&lt;nyaa:infoHash&gt;</code> is the torrent's infohash, a unique identifier, in hexadecimal.</p>
+        </li>
+        <li>
+            <p><code>&lt;nyaa:categoryId&gt;</code> contains the ID of the category containing the upload in the form <code>category_subcategory</code>.</p>
+        </li>
+        <li>
+            <p><code>&lt;nyaa:category&gt;</code> contains the written name of the torrent's category in the form <code>Category - Subcategory</code>.</p>
+        </li>
+        <li>
+            <p><code>&lt;nyaa:size&gt;</code> indicates the torrent's download size to one decimal place, using a magnitude prefix according to ISO/IEC 80000-13.</p>
+        </li>
+    </ul>
+</div>
+{% endblock %}

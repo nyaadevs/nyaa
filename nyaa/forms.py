@@ -1,3 +1,4 @@
+import flask
 from nyaa import db, app
 from nyaa.models import User
 from nyaa import bencode, utils, models
@@ -15,6 +16,7 @@ from wtforms.widgets import Select as SelectWidget
 from wtforms.widgets import html_params, HTMLString
 
 from flask_wtf.recaptcha import RecaptchaField
+from flask_wtf.recaptcha.validators import Recaptcha as RecaptchaValidator
 
 
 class Unique(object):
@@ -35,7 +37,7 @@ class Unique(object):
 
 
 _username_validator = Regexp(
-    r'[a-zA-Z0-9_\-]+',
+    r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
 
 
@@ -124,11 +126,18 @@ class DisabledSelectField(SelectField):
             raise ValueError(self.gettext('Not a valid choice'))
 
 
+class CommentForm(FlaskForm):
+    comment = TextAreaField('Make a comment', [
+        Length(min=3, max=255, message='Comment must be at least %(min)d characters '
+               'long and %(max)d at most.'),
+        DataRequired()
+    ])
+
+
 class EditForm(FlaskForm):
     display_name = StringField('Torrent display name', [
-        Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long '
-                       'and %(max)d at most.')
+        Length(min=3, max=255, message='Torrent display name must be at least %(min)d characters '
+               'long and %(max)d at most.')
     ])
 
     category = DisabledSelectField('Category')
@@ -164,10 +173,6 @@ class EditForm(FlaskForm):
 
 
 class UploadForm(FlaskForm):
-
-    class Meta:
-        csrf = False
-
     torrent_file = FileField('Torrent file', [
         FileRequired()
     ])
@@ -178,6 +183,16 @@ class UploadForm(FlaskForm):
                message='Torrent display name must be at least %(min)d characters long and '
                        '%(max)d at most.')
     ])
+
+    if app.config['USE_RECAPTCHA']:
+        # Captcha only for not logged in users
+        _recaptcha_validator = RecaptchaValidator()
+
+        def _validate_recaptcha(form, field):
+            if not flask.g.user:
+                return UploadForm._recaptcha_validator(form, field)
+
+        recaptcha = RecaptchaField(validators=[_validate_recaptcha])
 
     # category = SelectField('Category')
     category = DisabledSelectField('Category')
@@ -263,7 +278,7 @@ class UploadForm(FlaskForm):
 
 
 class UserForm(FlaskForm):
-    user_class = DisabledSelectField('Change User Class')
+    user_class = SelectField('Change User Class')
 
     def validate_user_class(form, field):
         if not field.data:
@@ -309,7 +324,8 @@ def _validate_trackers(torrent_dict, tracker_to_check_for=None):
         for announce in announce_list:
             _validate_list(announce, 'announce-list item')
 
-            announce_string = _validate_bytes(announce[0], 'announce-list item url', test_decode='utf-8')
+            announce_string = _validate_bytes(
+                announce[0], 'announce-list item url', test_decode='utf-8')
             if tracker_to_check_for and announce_string.lower() == tracker_to_check_for.lower():
                 tracker_found = True
 

@@ -8,6 +8,15 @@
 	{{ caller() }}
 </th>
 {% endmacro %}
+
+{% if special_results is defined and not search.user %}
+{% if special_results.first_word_user %}
+<div class="alert alert-info">
+	<a href="/user/{{ special_results.first_word_user.username }}{{ modify_query(q=special_results.query_sans_user)[1:] }}">Click here to see only results uploaded by {{ special_results.first_word_user.username }}</a>
+</div>
+{% endif %}
+{% endif %}
+
 {% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
@@ -56,7 +65,7 @@
 				{% else %}
 				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% endif %}
-					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png">
+					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png" alt="{{ category_name(cat_id) }}">
 				</a>
 				</td>
 				{% if use_elastic %}
@@ -67,7 +76,7 @@
 				<td style="white-space: nowrap;text-align: center;">
 					{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
 					{% if use_elastic %}
-					<a href="{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}"><i class="fa fa-fw fa-magnet"></i></a>
+					<a href="{{ create_magnet_from_es_info(torrent.display_name, torrent.info_hash) }}"><i class="fa fa-fw fa-magnet"></i></a>
 					{% else %}
 					<a href="{{ torrent.magnet_uri }}"><i class="fa fa-fw fa-magnet"></i></a>
 					{% endif %}
@@ -76,7 +85,7 @@
 				{% if use_elastic %}
 				<td class="text-center" data-timestamp="{{ torrent.created_time | utc_time }}">{{ torrent.created_time | display_time }}</td>
 				{% else %}
-				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp|int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
+				<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp | int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
 				{% endif %}
 				
 				{% if config.ENABLE_SHOW_STATS %}
@@ -99,7 +108,7 @@
 <h3>No results found</h3>
 {% endif %}
 
-<center>
+<div class="center">
 	{% if use_elastic %}
 	{{ pagination.info }}
 	{{ pagination.links }}
@@ -107,4 +116,4 @@
 	{% from "bootstrap/pagination.html" import render_pagination %}
 	{{ render_pagination(torrent_query) }}
 	{% endif %}
-</center>
+</div>

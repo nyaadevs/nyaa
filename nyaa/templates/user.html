@@ -1,34 +1,56 @@
 {% extends "layout.html" %}
 {% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block meta_image %}{{ user.gravatar_url() }}{% endblock %}
+{% block metatags %}
+{% if search.term %}
+<meta property="og:description" content="Search for '{{ search.term }}' in torrents uploaded by {{ user.username }}">
+{% else %}
+<meta property="og:description" content="Torrents uploaded by {{ user.username }}">
+{% endif %}
+{% endblock %}
+
 {% block body %}
 {% from "_formhelpers.html" import render_menu_with_button %}
 
-{% if superadmin %}
+{% if g.user and g.user.is_moderator %}
     <h2>User Information</h2><br>
-    <dl class="dl-horizontal">
-        <dt>User ID:</dt>
-        <dd>{{user.id}}</dd>
-        <dt>Account created on:</dt>
-        <dd>{{user.created_time}}</dd>
-        <dt>Email address:</dt>
-        <dd>{{user.email}}</dd>
-        <dt>User class:</dt>
-        <dd>{{level}}</dd><br>
-    </dl>
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col-sm-2" style="max-width: 150px;">
+            <img class="avatar" src="{{ user.gravatar_url() }}">
+        </div>
+        <div class="col-sm-10">
+            <dl class="dl-horizontal">
+                <dt>User ID:</dt>
+                <dd>{{ user.id }}</dd>
+                <dt>Account created on:</dt>
+                <dd>{{ user.created_time }}</dd>
+                <dt>Email address:</dt>
+                <dd>{{ user.email }}</dd>
+                <dt>User class:</dt>
+                <dd>{{ level }}</dd>
+                {%- if g.user.is_superadmin -%}
+                <dt>Last login IP:</dt>
+                <dd>{{ user.ip_string }}</dd><br>
+                {%- endif -%}
+            </dl>
+        </div>
+    </div>
+    {% if admin_form %}
     <form method="POST">
-        {{ form.csrf_token }}
+        {{ admin_form.csrf_token }}
 
         <div class="form-group row">
             <div class="col-md-6">
-                {{ render_menu_with_button(form.user_class)}}
+                {{ render_menu_with_button(admin_form.user_class) }}
             </div>
         </div>
     </form>
     <br>
+    {% endif %}
 {% endif %}
 
 <h3>
-    Browsing {{user.username}}'s torrents
+    Browsing <span class="text-{{ user.userlevel_color }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
 </h3>
 
 {% include "search_results.html" %}

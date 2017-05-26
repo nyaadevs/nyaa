@@ -96,6 +96,10 @@ table.torrent-list tbody tr td a:visited {
 	padding: 1em 0;
 }
 
+.markdown-source {
+	min-height: 360px;
+}
+
 @media (max-width: 991px){
 	.panel-body .col-md-5 {
 		margin-left: 20px;
@@ -217,4 +221,107 @@ table.torrent-list tbody tr td a:visited {
 
 ul.nav-tabs#profileTabs {
 	margin-bottom: 15px;
+}
+
+.comment-panel {
+	width: 99%;
+	margin: 0 auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.comment-panel:target {
+	border-color: black;
+	border-width: 2px;
+}
+
+.text-purple, a.text-purple:visited { color: #a760bc; }
+a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0; }
+
+.comment-content {
+	word-break: break-all;
+}
+.comment-content img {
+	max-width: 100%;
+	max-height: 600px;
+}
+
+.comment-box {
+	width: 95%;
+	margin: 0 auto;
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+.delete-comment-form {
+	position: relative;
+	float: right;
+}
+
+.avatar {
+	max-width: 120px;
+}
+
+.btn-grey {
+	color: #000000;
+	background-color: #cccfd2;
+	border-color: #ccc;
+}
+.btn-grey:hover, .btn-grey:focus, .btn-grey:active, .btn-grey.active, .open > .dropdown-toggle.btn-grey {
+	background-color: #aaaaaa;
+}
+.btn span.glyphicon-check {
+	display: none;
+}
+.btn.active span.glyphicon-check {
+	display: inline;
+}
+.btn span.glyphicon-unchecked {
+	display: inline;
+}
+.btn.active span.glyphicon-unchecked {
+	display: none;
+}
+.center {
+	float: none;
+	margin: 0 auto;
+	text-align: center;
+}
+
+/* Torrent file list */
+.torrent-file-list ul {
+	padding: 5px 20px 0px 20px;
+	list-style: none;
+	display: none;
+}
+
+.torrent-file-list > ul {
+	display: block; /* First level always visible */
+	padding: 0;
+	margin: 0;
+}
+
+.torrent-file-list ul[data-show] {
+	/* Used to show first level's items based on amount */
+	display: block;
+}
+
+.torrent-file-list li:not(:last-of-type) {
+	margin-bottom: 5px;
+}
+
+.torrent-file-list i.fa {
+	padding-right: 5px;
+}
+
+.torrent-file-list i.fa-folder-open {
+	padding-right: 3px;
+}
+
+.torrent-file-list a.folder {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.torrent-file-list .file-size {
+	font-weight: bold;
 }

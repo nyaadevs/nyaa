@@ -7,11 +7,13 @@ from nyaa import torrents
 from nyaa import backend
 from nyaa import api_handler
 from nyaa.search import search_elastic, search_db
+from sqlalchemy.orm import joinedload
 import config
 
+import re
 import json
 from datetime import datetime, timedelta
-import ipaddress
+from ipaddress import ip_address
 import os.path
 import base64
 from urllib.parse import quote
@@ -35,6 +37,10 @@ SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} 
                                'what you were looking for.')
 
 
+# For static_cachebuster
+_static_cache = {}
+
+
 def redirect_url():
     url = flask.request.args.get('next') or \
         flask.request.referrer or \
@@ -42,6 +48,31 @@ def redirect_url():
     if url == flask.request.url:
         return '/'
     return url
+
+
+@app.template_global()
+def static_cachebuster(static_filename):
+    ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
+        Results are cached in memory and persist until app restart! '''
+    # Instead of timestamps, we could use commit hashes (we already load it in __init__)
+    # But that'd mean every static resource would get cache busted. This lets unchanged items
+    # stay in the cache.
+
+    if app.debug:
+        # Do not bust cache on debug (helps debugging)
+        return static_filename
+
+    # Get file mtime if not already cached.
+    if static_filename not in _static_cache:
+        file_path = os.path.join(app.config['BASE_DIR'], 'nyaa', static_filename[1:])
+        if os.path.exists(file_path):
+            file_mtime = int(os.path.getmtime(file_path))
+            _static_cache[static_filename] = static_filename + '?t=' + str(file_mtime)
+        else:
+            # Throw a warning?
+            _static_cache[static_filename] = static_filename
+
+    return _static_cache[static_filename]
 
 
 @app.template_global()
@@ -132,8 +163,6 @@ def get_category_id_map():
 # Routes start here #
 
 
-app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
-
 def chain_get(source, *args):
     ''' Tries to return values from source by the given keys.
         Returns None if none match.
@@ -144,6 +173,7 @@ def chain_get(source, *args):
         if value is not sentinel:
             return value
     return None
+
 
 @app.route('/rss', defaults={'rss': True})
 @app.route('/', defaults={'rss': False})
@@ -180,6 +210,26 @@ def home(rss):
             flask.abort(404)
         user_id = user.id
 
+    special_results = {
+        'first_word_user': None,
+        'query_sans_user': None,
+        'infohash_torrent': None
+    }
+    # Add advanced features to searches (but not RSS or user searches)
+    if search_term and not render_as_rss and not user_id:
+        # Check if the first word of the search is an existing user
+        user_word_match = re.match(r'^([a-zA-Z0-9_-]+) *(.*|$)', search_term)
+        if user_word_match:
+            special_results['first_word_user'] = models.User.by_username(user_word_match.group(1))
+            special_results['query_sans_user'] = user_word_match.group(2)
+
+        # Check if search is a 40-char torrent hash
+        infohash_match = re.match(r'(?i)^([a-f0-9]{40})$', search_term)
+        if infohash_match:
+            # Check for info hash in database
+            matched_torrent = models.Torrent.by_info_hash_hex(infohash_match.group(1))
+            special_results['infohash_torrent'] = matched_torrent
+
     query_args = {
         'user': user_id,
         'sort': sort_key or 'id',
@@ -193,8 +243,16 @@ def home(rss):
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
-        if flask.g.user.is_admin:  # God mode
+        if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
+
+    infohash_torrent = special_results.get('infohash_torrent')
+    if infohash_torrent:
+        # infohash_torrent is only set if this is not RSS or userpage search
+        flask.flash(flask.Markup('You were redirected here because '
+                                 'the given hash matched this torrent.'), 'info')
+        # Redirect user from search to the torrent if we found one with the specific info_hash
+        return flask.redirect(flask.url_for('view_torrent', torrent_id=infohash_torrent.id))
 
     # If searching, we get results from elastic search
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
@@ -212,9 +270,12 @@ def home(rss):
         query_results = search_elastic(**query_args)
 
         if render_as_rss:
-            return render_rss('"{}"'.format(search_term), query_results, use_elastic=True, magnet_links=use_magnet_links)
+            return render_rss(
+                '"{}"'.format(search_term), query_results,
+                use_elastic=True, magnet_links=use_magnet_links)
         else:
-            rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
+            rss_query_string = _generate_query_string(
+                search_term, category, quality_filter, user_name)
             max_results = min(max_search_results, query_results['hits']['total'])
             # change p= argument to whatever you change page_parameter to or pagination breaks
             pagination = Pagination(p=query_args['page'], per_page=results_per_page,
@@ -225,7 +286,8 @@ def home(rss):
                                          pagination=pagination,
                                          torrent_query=query_results,
                                          search=query_args,
-                                         rss_filter=rss_query_string)
+                                         rss_filter=rss_query_string,
+                                         special_results=special_results)
     else:
         # If ES is enabled, default to db search for browsing
         if use_elastic:
@@ -237,7 +299,8 @@ def home(rss):
         if render_as_rss:
             return render_rss('Home', query, use_elastic=False, magnet_links=use_magnet_links)
         else:
-            rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
+            rss_query_string = _generate_query_string(
+                search_term, category, quality_filter, user_name)
             # Use elastic is always false here because we only hit this section
             # if we're browsing without a search term (which means we default to DB)
             # or if ES is disabled
@@ -245,7 +308,8 @@ def home(rss):
                                          use_elastic=False,
                                          torrent_query=query,
                                          search=query_args,
-                                         rss_filter=rss_query_string)
+                                         rss_filter=rss_query_string,
+                                         special_results=special_results)
 
 
 @app.route('/user/<user_name>', methods=['GET', 'POST'])
@@ -255,22 +319,23 @@ def view_user(user_name):
     if not user:
         flask.abort(404)
 
-    if flask.g.user and flask.g.user.id != user.id:
-        admin = flask.g.user.is_admin
-        superadmin = flask.g.user.is_superadmin
-    else:
-        admin = False
-        superadmin = False
+    admin_form = None
+    if flask.g.user and flask.g.user.is_moderator and flask.g.user.level > user.level:
+        admin_form = forms.UserForm()
+        default, admin_form.user_class.choices = _create_user_class_choices(user)
+        if flask.request.method == 'GET':
+            admin_form.user_class.data = default
 
-    form = forms.UserForm()
-    form.user_class.choices = _create_user_class_choices()
-    if flask.request.method == 'POST' and form.validate():
-        selection = form.user_class.data
+    if flask.request.method == 'POST' and admin_form and admin_form.validate():
+        selection = admin_form.user_class.data
 
         if selection == 'regular':
             user.level = models.UserLevelType.REGULAR
         elif selection == 'trusted':
             user.level = models.UserLevelType.TRUSTED
+        elif selection == 'moderator':
+            user.level = models.UserLevelType.MODERATOR
+
         db.session.add(user)
         db.session.commit()
 
@@ -310,7 +375,7 @@ def view_user(user_name):
 
     if flask.g.user:
         query_args['logged_in_user'] = flask.g.user
-        if flask.g.user.is_admin:  # God mode
+        if flask.g.user.is_moderator:  # God mode
             query_args['admin'] = True
 
     # Use elastic search for term searching
@@ -343,9 +408,7 @@ def view_user(user_name):
                                      user_page=True,
                                      rss_filter=rss_query_string,
                                      level=user_level,
-                                     admin=admin,
-                                     superadmin=superadmin,
-                                     form=form)
+                                     admin_form=admin_form)
     # Similar logic as home page
     else:
         if use_elastic:
@@ -361,9 +424,7 @@ def view_user(user_name):
                                      user_page=True,
                                      rss_filter=rss_query_string,
                                      level=user_level,
-                                     admin=admin,
-                                     superadmin=superadmin,
-                                     form=form)
+                                     admin_form=admin_form)
 
 
 @app.template_filter('rfc822')
@@ -416,7 +477,7 @@ def login():
             return flask.redirect(flask.url_for('login'))
 
         user.last_login_date = datetime.utcnow()
-        user.last_login_ip = ipaddress.ip_address(flask.request.remote_addr).packed
+        user.last_login_ip = ip_address(flask.request.remote_addr).packed
         db.session.add(user)
         db.session.commit()
 
@@ -450,7 +511,7 @@ def register():
     if flask.request.method == 'POST' and form.validate():
         user = models.User(username=form.username.data.strip(),
                            email=form.email.data.strip(), password=form.password.data)
-        user.last_login_ip = ipaddress.ip_address(flask.request.remote_addr).packed
+        user.last_login_ip = ip_address(flask.request.remote_addr).packed
         db.session.add(user)
         db.session.commit()
 
@@ -477,14 +538,6 @@ def profile():
         return flask.redirect('/')  # so we dont get stuck in infinite loop when signing out
 
     form = forms.ProfileForm(flask.request.form)
-
-    level = 'Regular'
-    if flask.g.user.is_admin:
-        level = 'Moderator'
-    if flask.g.user.is_superadmin:  # check this second because we can be admin AND superadmin
-        level = 'Administrator'
-    elif flask.g.user.is_trusted:
-        level = 'Trusted'
 
     if flask.request.method == 'POST' and form.validate():
         user = flask.g.user
@@ -515,12 +568,7 @@ def profile():
         flask.g.user = user
         return flask.redirect('/profile')
 
-    _user = models.User.by_id(flask.g.user.id)
-    username = _user.username
-    current_email = _user.email
-
-    return flask.render_template('profile.html', form=form, name=username, email=current_email,
-                                 level=level)
+    return flask.render_template('profile.html', form=form)
 
 
 @app.route('/user/activate/<payload>')
@@ -562,34 +610,65 @@ def _create_upload_category_choices():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
-    form.category.choices = _create_upload_category_choices()
+    upload_form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
+    upload_form.category.choices = _create_upload_category_choices()
 
-    if flask.request.method == 'POST' and form.validate():
-        torrent = backend.handle_torrent_upload(form, flask.g.user)
+    if flask.request.method == 'POST' and upload_form.validate():
+        torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
 
         return flask.redirect('/view/' + str(torrent.id))
     else:
         # If we get here with a POST, it means the form data was invalid: return a non-okay status
         status_code = 400 if flask.request.method == 'POST' else 200
-        return flask.render_template('upload.html', form=form, user=flask.g.user), status_code
+        return flask.render_template('upload.html', upload_form=upload_form), status_code
 
 
-@app.route('/view/<int:torrent_id>')
+@app.route('/view/<int:torrent_id>', methods=['GET', 'POST'])
 def view_torrent(torrent_id):
-    torrent = models.Torrent.by_id(torrent_id)
-
-    viewer = flask.g.user
-
+    if flask.request.method == 'POST':
+        torrent = models.Torrent.by_id(torrent_id)
+    else:
+        torrent = models.Torrent.query \
+                                .options(joinedload('filelist'),
+                                         joinedload('comments')) \
+                                .filter_by(id=torrent_id) \
+                                .first()
     if not torrent:
         flask.abort(404)
 
     # Only allow admins see deleted torrents
-    if torrent.deleted and not (viewer and viewer.is_admin):
+    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
         flask.abort(404)
 
+    comment_form = None
+    if flask.g.user:
+        comment_form = forms.CommentForm()
+
+    if flask.request.method == 'POST':
+        if not flask.g.user:
+            flask.abort(403)
+
+        if comment_form.validate():
+            comment_text = (comment_form.comment.data or '').strip()
+
+            comment = models.Comment(
+                torrent_id=torrent_id,
+                user_id=flask.g.user.id,
+                text=comment_text)
+
+            db.session.add(comment)
+            db.session.commit()
+
+            torrent_count = models.Comment.query.filter_by(torrent_id=torrent.id).count()
+
+            flask.flash('Comment successfully posted.', 'success')
+
+            return flask.redirect(flask.url_for('view_torrent',
+                                                torrent_id=torrent_id,
+                                                _anchor='com-' + str(torrent_count)))
+
     # Only allow owners and admins to edit torrents
-    can_edit = viewer and (viewer is torrent.user or viewer.is_admin)
+    can_edit = flask.g.user and (flask.g.user is torrent.user or flask.g.user.is_moderator)
 
     files = None
     if torrent.filelist:
@@ -598,9 +677,30 @@ def view_torrent(torrent_id):
     report_form = forms.ReportForm()
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
-                                 viewer=viewer,
+                                 comment_form=comment_form,
+                                 comments=torrent.comments,
                                  can_edit=can_edit,
                                  report_form=report_form)
+
+
+@app.route('/view/<int:torrent_id>/comment/<int:comment_id>/delete', methods=['POST'])
+def delete_comment(torrent_id, comment_id):
+    if not flask.g.user:
+        flask.abort(403)
+
+    comment = models.Comment.query.filter_by(id=comment_id).first()
+    if not comment:
+        flask.abort(404)
+
+    if not (comment.user.id == flask.g.user.id or flask.g.user.is_moderator):
+        flask.abort(403)
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    flask.flash('Comment successfully deleted.', 'success')
+
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
@@ -615,11 +715,11 @@ def edit_torrent(torrent_id):
         flask.abort(404)
 
     # Only allow admins edit deleted torrents
-    if torrent.deleted and not (editor and editor.is_admin):
+    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
         flask.abort(404)
 
     # Only allow torrent owners or admins edit torrents
-    if not editor or not (editor is torrent.user or editor.is_admin):
+    if not flask.g.user or not (flask.g.user is torrent.user or flask.g.user.is_moderator):
         flask.abort(403)
 
     if flask.request.method == 'POST' and form.validate():
@@ -635,15 +735,16 @@ def edit_torrent(torrent_id):
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
 
-        if editor.is_trusted:
+        if flask.g.user.is_trusted:
             torrent.trusted = form.is_trusted.data
-        if editor.is_admin:
+        if flask.g.user.is_moderator:
             torrent.deleted = form.is_deleted.data
 
         db.session.commit()
 
         flask.flash(flask.Markup(
-            'Torrent has been successfully edited! Changes might take a few minutes to show up.'), 'info')
+            'Torrent has been successfully edited! Changes might take a few minutes to show up.'),
+            'info')
 
         return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent.id))
     else:
@@ -664,8 +765,7 @@ def edit_torrent(torrent_id):
 
         return flask.render_template('edit.html',
                                      form=form,
-                                     torrent=torrent,
-                                     editor=editor)
+                                     torrent=torrent)
 
 
 @app.route('/view/<int:torrent_id>/magnet')
@@ -679,15 +779,16 @@ def redirect_magnet(torrent_id):
 
 
 @app.route('/view/<int:torrent_id>/torrent')
+@app.route('/download/<int:torrent_id>.torrent')
 def download_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
 
-    if not torrent:
+    if not torrent or not torrent.has_torrent:
         flask.abort(404)
 
     resp = flask.Response(_get_cached_torrent_file(torrent))
     resp.headers['Content-Type'] = 'application/x-bittorrent'
-    resp.headers['Content-Disposition'] = 'inline; filename*=UTF-8\'\'{}'.format(
+    resp.headers['Content-Disposition'] = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
         quote(torrent.torrent_name.encode('utf-8')))
 
     return resp
@@ -717,7 +818,7 @@ def submit_report(torrent_id):
 
 @app.route('/reports', methods=['GET', 'POST'])
 def view_reports():
-    if not flask.g.user or not flask.g.user.is_admin:
+    if not flask.g.user or not flask.g.user.is_moderator:
         flask.abort(403)
 
     page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
@@ -800,14 +901,55 @@ def send_verification_email(to_address, activ_link):
     server.quit()
 
 
-def _create_user_class_choices():
+def _create_user_class_choices(user):
     choices = [('regular', 'Regular')]
-    if flask.g.user and flask.g.user.is_superadmin:
-        choices.append(('trusted', 'Trusted'))
-    return choices
+    default = 'regular'
+    if flask.g.user:
+        if flask.g.user.is_moderator:
+            choices.append(('trusted', 'Trusted'))
+        if flask.g.user.is_superadmin:
+            choices.append(('moderator', 'Moderator'))
 
+        if user:
+            if user.is_moderator:
+                default = 'moderator'
+            elif user.is_trusted:
+                default = 'trusted'
+
+    return default, choices
+
+
+@app.template_filter()
+def timesince(dt, default='just now'):
+    """
+    Returns string representing "time since" e.g.
+    3 minutes ago, 5 hours ago etc.
+    Date and time (UTC) are returned if older than 1 day.
+    """
+
+    now = datetime.utcnow()
+    diff = now - dt
+
+    periods = (
+        (diff.days, 'day', 'days'),
+        (diff.seconds / 3600, 'hour', 'hours'),
+        (diff.seconds / 60, 'minute', 'minutes'),
+        (diff.seconds, 'second', 'seconds'),
+    )
+
+    if diff.days >= 1:
+        return dt.strftime('%Y-%m-%d %H:%M UTC')
+    else:
+        for period, singular, plural in periods:
+
+            if period >= 1:
+                return '%d %s ago' % (period, singular if int(period) == 1 else plural)
+
+    return default
 
 # #################################### STATIC PAGES ####################################
+
+
 @app.route('/rules', methods=['GET'])
 def site_rules():
     return flask.render_template('rules.html')
@@ -818,11 +960,11 @@ def site_help():
     return flask.render_template('help.html')
 
 
+@app.route('/xmlns/nyaa', methods=['GET'])
+def xmlns_nyaa():
+    return flask.render_template('xmlns.html')
+
+
 # #################################### API ROUTES ####################################
-@app.route('/api/upload', methods=['POST'])
-def api_upload():
-    is_valid_user, user, debug = api_handler.validate_user(flask.request)
-    if not is_valid_user:
-        return flask.make_response(flask.jsonify({"Failure": "Invalid username or password."}), 400)
-    api_response = api_handler.api_upload(flask.request, user)
-    return api_response
+
+app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')

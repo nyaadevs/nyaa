@@ -12,6 +12,7 @@ app.config.from_object('config')
 
 # Database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
 
 # Don't refresh cookie each request
 app.config['SESSION_REFRESH_EACH_REQUEST'] = False
@@ -37,7 +38,7 @@ if not app.config['DEBUG']:
     def internal_error(exception):
         app.logger.error(exception)
         flask.flash(flask.Markup(
-            '<strong>An error occured!</strong> Debugging information has been logged.'), 'danger')
+            '<strong>An error occurred!</strong> Debug information has been logged.'), 'danger')
         return flask.redirect('/')
 
 # Get git commit hash

@@ -1,13 +1,4 @@
-udp://oscar.reyesleon.xyz:6969/announce
-udp://tracker.cyberia.is:6969/announce
-udp://tracker.doko.moe:6969
-http://tracker.baka-sub.cf:80/announce
-udp://tracker.coppersurfer.tk:6969/announce
-udp://tracker.torrent.eu.org:451
 udp://tracker.opentrackr.org:1337/announce
+udp://tracker.coppersurfer.tk:6969/announce
+udp://tracker.doko.moe:6969
 udp://tracker.zer0day.to:1337/announce
-http://t.nyaatracker.com:80/announce
-https://open.kickasstracker.com:443/announce
-udp://tracker.safe.moe:6969/announce
-udp://p4p.arenabg.ch:1337/announce
-udp://tracker.justseed.it:1337/announce

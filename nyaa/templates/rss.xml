@@ -1,4 +1,4 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:nyaa="{{ url_for('xmlns_nyaa', _external=True) }}" version="2.0">
 	<channel>
 		<title>{{ config.SITE_NAME }} Torrent File RSS</title>
 		<description>RSS Feed for {{ term }}</description>
@@ -12,15 +12,15 @@
 				{% if torrent.has_torrent and not magnet_links %}
 				<link>{{ url_for('download_torrent', torrent_id=torrent.meta.id, _external=True) }}</link>
 				{% else %}
-				<link>{{ create_magnet_from_info(torrent.display_name, torrent.info_hash) }}</link>
+				<link>{{ create_magnet_from_es_info(torrent.display_name, torrent.info_hash) }}</link>
 				{% endif %}
 				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.meta.id, _external=True) }}</guid>
 				<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>
 
-				<seeders>  {{- torrent.seed_count     }}</seeders>
-				<leechers> {{- torrent.leech_count    }}</leechers>
-				<downloads>{{- torrent.download_count }}</downloads>
-				<infoHash> {{- torrent.info_hash      }}</infoHash>
+				<nyaa:seeders>  {{- torrent.seed_count     }}</nyaa:seeders>
+				<nyaa:leechers> {{- torrent.leech_count    }}</nyaa:leechers>
+				<nyaa:downloads>{{- torrent.download_count }}</nyaa:downloads>
+				<nyaa:infoHash> {{- torrent.info_hash      }}</nyaa:infoHash>
 			{% else %}
 				{% if torrent.has_torrent and not magnet_links %}
 				<link>{{ url_for('download_torrent', torrent_id=torrent.id, _external=True) }}</link>
@@ -30,15 +30,15 @@
 				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
 				<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
 
-				<seeders>  {{- torrent.stats.seed_count     }}</seeders>
-				<leechers> {{- torrent.stats.leech_count    }}</leechers>
-				<downloads>{{- torrent.stats.download_count }}</downloads>
-				<infoHash> {{- torrent.info_hash_as_hex     }}</infoHash>
+				<nyaa:seeders>  {{- torrent.stats.seed_count     }}</nyaa:seeders>
+				<nyaa:leechers> {{- torrent.stats.leech_count    }}</nyaa:leechers>
+				<nyaa:downloads>{{- torrent.stats.download_count }}</nyaa:downloads>
+				<nyaa:infoHash> {{- torrent.info_hash_as_hex     }}</nyaa:infoHash>
 			{% endif %}
 			{% set cat_id = use_elastic and ((torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string)) or torrent.sub_category.id_as_string %}
-			<categoryId>{{- cat_id }}</categoryId>
-			<category>  {{- category_name(cat_id) }}</category>
-			<size>      {{- torrent.filesize | filesizeformat(True) }}</size>
+			<nyaa:categoryId>{{- cat_id }}</nyaa:categoryId>
+			<nyaa:category>  {{- category_name(cat_id) }}</nyaa:category>
+			<nyaa:size>      {{- torrent.filesize | filesizeformat(True) }}</nyaa:size>
 		</item>
 		{% endfor %}
 	</channel>
