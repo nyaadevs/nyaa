@@ -65,6 +65,11 @@ table.torrent-list tbody tr td a:visited {
 /* comments count */
 table.torrent-list .hdr-comments {
 	border-left: hidden;
+	font-size: medium;
+}
+
+table.torrent-list .hdr-comments i {
+	margin-right: 6px;
 }
 
 table.torrent-list tbody .comments {
@@ -73,7 +78,8 @@ table.torrent-list tbody .comments {
 	border: 1px solid #d7d7d7;
 	border-radius: 3px;
 	color: #383838;
-	padding: 1px 5px;
+	padding: 0 5px;
+	font-size: small;
 	background-color: #ffffff;
 }
 table.torrent-list tbody .comments i {
