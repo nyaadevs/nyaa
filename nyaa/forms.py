@@ -42,7 +42,7 @@ _username_validator = Regexp(
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username or email address', [DataRequired(), _username_validator])
+    username = StringField('Username or email address', [DataRequired()])
     password = PasswordField('Password', [DataRequired()])
 
 
