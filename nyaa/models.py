@@ -67,6 +67,8 @@ class Torrent(db.Model):
     uploader_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
     has_torrent = db.Column(db.Boolean, nullable=False, default=False)
 
+    comment_count = db.Column(db.Integer, default=0, nullable=False, index=True)
+
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow, nullable=False)
     updated_time = db.Column(db.DateTime(timezone=False),
                              default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -106,6 +108,10 @@ class Torrent(db.Model):
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
+
+    def update_comment_count(self):
+        self.comment_count = Comment.query.filter_by(torrent_id = self.id).count()
+        return self.comment_count
 
     @property
     def created_utc_timestamp(self):
@@ -148,6 +154,8 @@ class Torrent(db.Model):
     def uploader_ip_string(self):
         if self.uploader_ip:
             return str(ip_address(self.uploader_ip))
+
+    # Flag getters and setters below
 
     @property
     def anonymous(self):
@@ -196,6 +204,8 @@ class Torrent(db.Model):
     @complete.setter
     def complete(self, value):
         self.flags = (self.flags & ~TorrentFlags.COMPLETE) | (value and TorrentFlags.COMPLETE)
+
+    # Class methods
 
     @classmethod
     def by_id(cls, id):
