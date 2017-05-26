@@ -51,6 +51,7 @@ def mk_es(t):
             "uploader_id": t.uploader_id,
             "main_category_id": t.main_category_id,
             "sub_category_id": t.sub_category_id,
+            "comment_count": t.comment_count,
             # XXX all the bitflags are numbers
             "anonymous": bool(t.anonymous),
             "trusted": bool(t.trusted),

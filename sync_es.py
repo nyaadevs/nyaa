@@ -86,6 +86,7 @@ def reindex_torrent(t, index_name):
         "uploader_id": t['uploader_id'],
         "main_category_id": t['main_category_id'],
         "sub_category_id": t['sub_category_id'],
+        "comment_count": t['comment_count'],
         # XXX all the bitflags are numbers
         "anonymous": bool(f & TorrentFlags.ANONYMOUS),
         "trusted": bool(f & TorrentFlags.TRUSTED),
