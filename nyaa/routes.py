@@ -658,9 +658,10 @@ def view_torrent(torrent_id):
                 text=comment_text)
 
             db.session.add(comment)
-            db.session.commit()
+            db.session.flush()
 
-            torrent_count = models.Comment.query.filter_by(torrent_id=torrent.id).count()
+            torrent_count = torrent.update_comment_count()
+            db.session.commit()
 
             flask.flash('Comment successfully posted.', 'success')
 
@@ -686,6 +687,9 @@ def view_torrent(torrent_id):
 def delete_comment(torrent_id, comment_id):
     if not flask.g.user:
         flask.abort(403)
+    torrent = models.Torrent.by_id(torrent_id)
+    if not torrent:
+        flask.abort(404)
 
     comment = models.Comment.query.filter_by(id=comment_id).first()
     if not comment:
@@ -695,6 +699,8 @@ def delete_comment(torrent_id, comment_id):
         flask.abort(403)
 
     db.session.delete(comment)
+    db.session.flush()
+    torrent.update_comment_count()
     db.session.commit()
 
     flask.flash('Comment successfully deleted.', 'success')
