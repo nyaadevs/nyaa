@@ -12,7 +12,7 @@
 {% if special_results is defined and not search.user %}
 {% if special_results.first_word_user %}
 <div class="alert alert-info">
-	<a href="/user/{{ special_results.first_word_user.username }}{{ modify_query(q=special_results.query_sans_user)[1:] }}">Click here to see only results uploaded by {{ special_results.first_word_user.username }}</a>
+	<a href="{{ url_for('view_user', user_name=special_results.first_word_user.username) }}{{ modify_query(q=special_results.query_sans_user)[1:] }}">Click here to see only results uploaded by {{ special_results.first_word_user.username }}</a>
 </div>
 {% endif %}
 {% endif %}
@@ -62,11 +62,11 @@
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
 				{% if use_elastic %}
-				<a href="/?c={{ cat_id }}" title="{{ category_name(cat_id) }}">
+				<a href="{{ url_for('home', c=cat_id) }}" title="{{ category_name(cat_id) }}">
 				{% else %}
-				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
+				<a href="{{ url_for('home', c=cat_id) }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% endif %}
-					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png" alt="{{ category_name(cat_id) }}">
+					<img src="{{ url_for('static', filename='img/icons/%s/%s.png'|format(icon_dir, cat_id)) }}" alt="{{ category_name(cat_id) }}">
 				</a>
 				</td>
 				<td colspan="2">
