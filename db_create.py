@@ -55,6 +55,6 @@ if __name__ == '__main__':
 
     if database_empty:
         print('Remember to run the following to mark the database up-to-date for Alembic:')
-        print('./db_migrate.py db stamp head')
+        print('./db_migrate.py stamp head')
         # Technically we should be able to do this here, but when you have
         # Flask-Migrate and Flask-SQA and everything... I didn't get it working.
