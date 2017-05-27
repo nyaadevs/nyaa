@@ -62,6 +62,30 @@ table.torrent-list tbody tr td a:visited {
 	color: #1d4568;
 }
 
+/* comments count */
+table.torrent-list .hdr-comments {
+	border-left: hidden;
+	font-size: medium;
+}
+
+table.torrent-list .hdr-comments i {
+	margin-right: 6px;
+}
+
+table.torrent-list tbody .comments {
+	position: relative;
+	float: right;
+	border: 1px solid #d7d7d7;
+	border-radius: 3px;
+	color: #383838;
+	padding: 0 5px;
+	font-size: small;
+	background-color: #ffffff;
+}
+table.torrent-list tbody .comments i {
+	padding-right: 2px;
+}
+
 #torrent-description img {
 	max-width: 100%;
 }
