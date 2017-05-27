@@ -23,7 +23,7 @@ def upgrade():
 
     try:
         op.add_column('sukebei_torrents', sa.Column('comment_count', sa.Integer(), nullable=False))
-        op.create_index(op.f('ix_sukebei_torrents_comment_count'), 'sukebei_torrents', ['comment_count'], unique=False)    
+        op.create_index(op.f('ix_sukebei_torrents_comment_count'), 'sukebei_torrents', ['comment_count'], unique=False)
     except (sa.exc.OperationalError, sa.exc.ProgrammingError):
         print('Could not upgrade sukebei!')
 
