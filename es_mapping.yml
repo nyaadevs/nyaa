@@ -91,6 +91,8 @@ mappings:
         type: long
       seed_count:
         type: long
+      comment_count:
+        type: long
       # these ids are really only for filtering, thus keyword
       uploader_id:
         type: keyword
