@@ -1,8 +1,8 @@
 # NyaaV2
 
 ## Setting up for development
-This project uses Python 3.6. There are features used that do not exist in 3.5, so make sure to use Python 3.6.
-This guide also assumes you 1) are using Linux and 2) are somewhat capable with the commandline.
+This project uses Python 3.6. There are features used that do not exist in 3.5, so make sure to use Python 3.6.   
+This guide also assumes you 1) are using Linux and 2) are somewhat capable with the commandline.   
 It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that.
 
 ### Code Quality:
@@ -40,7 +40,7 @@ You *may* use SQLite but the current support for it in this project is outdated 
 - Start the dev server with `python run.py`
 - When you are finished developing, deactivate your virtualenv with `pyenv deactivate` or `source deactivate` (or just close your shell session)
 
-You're now ready for simple testing and development!
+You're now ready for simple testing and development!   
 Continue below to learn about database migrations and enabling the advanced search engine, Elasticsearch.
 
 
@@ -79,8 +79,8 @@ Continue below to learn about database migrations and enabling the advanced sear
 - Run `python import_to_es.py` to import all the torrents (on nyaa and sukebei) into the ES indices.
     - This may take some time to run if you have plenty of torrents in your database.
 
-Enable the `USE_ELASTIC_SEARCH` flag in `config.py` and (re)start the application.
-Elasticsearch should now be functional! The ES indices won't be updated "live" with the current setup, continue below for instructions on how to hook Elasticsearch up to MySQL binlog.
+Enable the `USE_ELASTIC_SEARCH` flag in `config.py` and (re)start the application.   
+Elasticsearch should now be functional! The ES indices won't be updated "live" with the current setup, continue below for instructions on how to hook Elasticsearch up to MySQL binlog.   
 
 However, take note that binglog is not necessary for simple ES testing and development; you can simply run `import_to_es.py` from time to time to reindex all the torrents.
 
@@ -106,5 +106,5 @@ However, take note that binglog is not necessary for simple ES testing and devel
 - Run `sync_es.py` as-is *or*, for actual deployment, set it up as a service and run it, preferably as the system/root
     - Make sure `sync_es.py` runs within the venv with the right dependencies!
 
-You're done! The script should now be feeding updates from the database to Elasticsearch.
+You're done! The script should now be feeding updates from the database to Elasticsearch.   
 Take note, however, that the specified ES index refresh interval is 30 seconds, which may feel like a long time on local development. Feel free to adjust it or [poke Elasticsearch yourself!](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html)
