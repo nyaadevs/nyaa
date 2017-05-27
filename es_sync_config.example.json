@@ -1,0 +1,11 @@
+{
+    "save_loc": "/tmp/pos.json",
+    "mysql_host": "127.0.0.1",
+    "mysql_port": 3306,
+    "mysql_user": "nyaa",
+    "mysql_password": "some_password",
+    "database": "nyaav2",
+    "internal_queue_depth": 10000,
+    "es_chunk_size": 10000,
+    "flush_interval": 5
+}
