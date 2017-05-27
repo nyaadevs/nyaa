@@ -110,7 +110,7 @@ class Torrent(db.Model):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
 
     def update_comment_count(self):
-        self.comment_count = Comment.query.filter_by(torrent_id = self.id).count()
+        self.comment_count = Comment.query.filter_by(torrent_id=self.id).count()
         return self.comment_count
 
     @property
