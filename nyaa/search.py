@@ -25,7 +25,7 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         'id': 'id',
         'size': 'filesize',
         # 'name': 'display_name',  # This is slow and buggy
-        'comments': 'comments_count',
+        'comments': 'comment_count',
         'seeders': 'seed_count',
         'leechers': 'leech_count',
         'downloads': 'download_count'
