@@ -12,11 +12,6 @@ manager.add_command("db", MigrateCommand)
 
 if __name__ == "__main__":
 	# Patch sys.argv to default to 'db'
-	argv_contents = sys.argv[:]
-	
-	sys.argv.clear()
-	sys.argv.append(argv_contents[0])
-	sys.argv.append('db')
-	sys.argv.extend(argv_contents[1:])
+	sys.argv.insert(1, 'db')
 
 	manager.run()
