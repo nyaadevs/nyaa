@@ -71,8 +71,12 @@
 			<div class="col-md-5"><kbd>{{ torrent.info_hash_as_hex }}</kbd></div>
 		</div>
 	</div>
-	<div class="panel-footer">
+
+	<div class="panel-footer clearfix">
 		{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id )}}"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
+		<button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#reportModal">
+			Report
+		</button>
 	</div>
 </div>
 
@@ -179,6 +183,29 @@
 	</form>
 	{% endif %}
 </div>
+
+	<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+						aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Report torrent #{{ torrent.id }}</h4>
+			</div>
+			<div class="modal-body">
+				<form method="POST" action="{{ request.url }}/submit_report">
+					{{ report_form.csrf_token }}
+					{{ render_field(report_form.reason, class_='form-control', maxlength=255) }}
+					<div style="float: right;">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-danger">Report</button>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer" style="border-top: none;">
+			</div>
+		</div>
+	</div>
 
 <script>
 	var target = document.getElementById('torrent-description');

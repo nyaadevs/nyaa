@@ -580,6 +580,65 @@ class User(db.Model):
         return self.level >= UserLevelType.TRUSTED
 
 
+class ReportStatus(IntEnum):
+    IN_REVIEW = 0
+    VALID = 1
+    INVALID = 2
+
+
+class ReportBase(DeclarativeHelperBase):
+    __tablename_base__ = 'reports'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    reason = db.Column(db.String(length=255), nullable=False)
+    status = db.Column(ChoiceType(ReportStatus, impl=db.Integer()), nullable=False)
+
+    @declarative.declared_attr
+    def torrent_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(
+            cls._table_prefix('torrents.id'), ondelete='CASCADE'), nullable=False)
+
+    @declarative.declared_attr
+    def user_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @declarative.declared_attr
+    def user(cls):
+        return db.relationship('User', uselist=False, lazy="joined")
+
+    @declarative.declared_attr
+    def torrent(cls):
+        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False, lazy="joined")
+
+    def __init__(self, torrent_id, user_id, reason):
+        self.torrent_id = torrent_id
+        self.user_id = user_id
+        self.reason = reason
+        self.status = ReportStatus.IN_REVIEW
+
+    def __repr__(self):
+        return '<Report %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @classmethod
+    def by_id(cls, id):
+        return cls.query.get(id)
+
+    @classmethod
+    def not_reviewed(cls, page):
+        reports = cls.query.filter_by(status=0).paginate(page=page, per_page=20)
+        return reports
+
+    @classmethod
+    def remove_reviewed(cls, id):
+        return cls.query.filter(cls.torrent_id == id, cls.status == 0).delete()
+
+
 # Actually declare our site-specific classes
 
 # Torrent
@@ -672,6 +731,15 @@ class SukebeiComment(CommentBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
+# Report
+class NyaaReport(ReportBase, db.Model):
+    __flavor__ = 'Nyaa'
+
+
+class SukebeiReport(ReportBase, db.Model):
+    __flavor__ = 'Sukebei'
+
+
 # Choose our defaults for models.Torrent etc
 if app.config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
@@ -682,6 +750,7 @@ if app.config['SITE_FLAVOR'] == 'nyaa':
     MainCategory = NyaaMainCategory
     SubCategory = NyaaSubCategory
     Comment = NyaaComment
+    Report = NyaaReport
 
     TorrentNameSearch = NyaaTorrentNameSearch
 elif app.config['SITE_FLAVOR'] == 'sukebei':
@@ -693,5 +762,6 @@ elif app.config['SITE_FLAVOR'] == 'sukebei':
     MainCategory = SukebeiMainCategory
     SubCategory = SukebeiSubCategory
     Comment = SukebeiComment
+    Report = SukebeiReport
 
     TorrentNameSearch = SukebeiTorrentNameSearch

@@ -29,7 +29,6 @@ from email.utils import formatdate
 
 from flask_paginate import Pagination
 
-
 DEBUG_API = False
 DEFAULT_MAX_SEARCH_RESULT = 1000
 DEFAULT_PER_PAGE = 75
@@ -675,11 +674,13 @@ def view_torrent(torrent_id):
     if torrent.filelist:
         files = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
+    report_form = forms.ReportForm()
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
                                  comment_form=comment_form,
                                  comments=torrent.comments,
-                                 can_edit=can_edit)
+                                 can_edit=can_edit,
+                                 report_form=report_form)
 
 
 @app.route('/view/<int:torrent_id>/comment/<int:comment_id>/delete', methods=['POST'])
@@ -796,6 +797,66 @@ def download_torrent(torrent_id):
         quote(torrent.torrent_name.encode('utf-8')))
 
     return resp
+
+
+@app.route('/view/<int:torrent_id>/submit_report', methods=['POST'])
+def submit_report(torrent_id):
+    if not flask.g.user:
+        flask.abort(403)
+
+    form = forms.ReportForm(flask.request.form)
+
+    if flask.request.method == 'POST' and form.validate():
+        report_reason = form.reason.data
+        current_user_id = flask.g.user.id
+        report = models.Report(
+            torrent_id=torrent_id,
+            user_id=current_user_id,
+            reason=report_reason)
+
+        db.session.add(report)
+        db.session.commit()
+        flask.flash('Successfully reported torrent!', 'success')
+
+    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+
+
+@app.route('/reports', methods=['GET', 'POST'])
+def view_reports():
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    reports = models.Report.not_reviewed(page)
+    report_action = forms.ReportActionForm(flask.request.form)
+
+    if flask.request.method == 'POST' and report_action.validate():
+        action = report_action.action.data
+        torrent_id = report_action.torrent.data
+        report_id = report_action.report.data
+        torrent = models.Torrent.by_id(torrent_id)
+        report = models.Report.by_id(report_id)
+
+        if not torrent or not report or report.status != 0:
+            flask.abort(404)
+        else:
+            if action == 'delete':
+                torrent.deleted = True
+                report.status = 1
+            elif action == 'hide':
+                torrent.hidden = True
+                report.status = 1
+            else:
+                report.status = 2
+
+            models.Report.remove_reviewed(torrent_id)
+            db.session.commit()
+            flask.flash('Closed report #{}'.format(report.id), 'success')
+            return flask.redirect(flask.url_for('view_reports'))
+
+    return flask.render_template('reports.html',
+                                 reports=reports,
+                                 report_action=report_action)
 
 
 def _get_cached_torrent_file(torrent):

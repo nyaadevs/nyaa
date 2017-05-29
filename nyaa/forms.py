@@ -7,7 +7,8 @@ import os
 import re
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField,\
+    HiddenField
 from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError
 from wtforms.validators import Regexp
 
@@ -293,6 +294,21 @@ class TorrentFileData(object):
             setattr(self, k, v)
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
+
+
+class ReportForm(FlaskForm):
+    reason = TextAreaField('Report reason', [
+        Length(min=3, max=255,
+               message='Report reason must be at least %(min)d characters long '
+                       'and %(max)d at most.'),
+        DataRequired('You must provide a valid report reason.')
+    ])
+
+
+class ReportActionForm(FlaskForm):
+    action = SelectField(choices=[('close', 'Close'), ('hide', 'Hide'), ('delete', 'Delete')])
+    torrent = HiddenField()
+    report = HiddenField()
 
 
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):

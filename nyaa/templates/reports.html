@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Reports :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+	<div class="table-responsive">
+		<table class="table table-bordered table-hover table-striped">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Reported by</th>
+				<th>Torrent</th>
+				<th>Reason</th>
+				<th>Date</th>
+				<th>Action</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for report in reports.items %}
+			<tr>
+				<td>{{ report.id }}</td>
+				<td>
+					<a href="{{ url_for('view_user', user_name=report.user.username) }}">{{ report.user.username }}</a>
+				</td>
+				<td>
+					<a href="{{ url_for('view_torrent', torrent_id=report.torrent.id) }}">{{ report.torrent.display_name }}</a>
+				</td>
+				<td>{{ report.reason }}</td>
+				<td>{{ report.created_time }}</td>
+				<td style="width: 15%">
+					<form method="post">
+						{{ report_action.csrf_token }}
+						{{ report_action.action }}
+						{{ report_action.torrent(value=report.torrent.id) }}
+						{{ report_action.report(value=report.id) }}
+						<button type="submit" class="btn btn-primary pull-right">Review</button>
+					</form>
+				</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<div class=pagination>
+		{% from "bootstrap/pagination.html" import render_pagination %}
+		{{ render_pagination(reports) }}
+	</div>
+{% endblock %}

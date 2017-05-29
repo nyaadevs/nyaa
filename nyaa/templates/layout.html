@@ -88,6 +88,9 @@
 						{% elif config.SITE_FLAVOR == 'sukebei' %}
 						<li><a href="https://nyaa.si/">Fun</a></li>
 						{% endif %}
+						{% if g.user.is_moderator %}
+							<li><a href="{{ url_for('view_reports') }}">Reports</a> </li>
+						{% endif %}
 					</ul>
 
 					<ul class="nav navbar-nav navbar-right">
@@ -304,5 +307,3 @@
 		</footer>
 	</body>
 </html>
-
-
