@@ -72,7 +72,7 @@
 		</div>
 	</div>
 
-	<div class="panel-footer clearfix">
+	<div class="panel-footer clearfix" style="font-size: 1.5em;">
 		{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id )}}"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
 		<button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#reportModal">
 			Report
