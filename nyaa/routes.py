@@ -51,7 +51,7 @@ def redirect_url():
 
 
 @app.template_global()
-def static_cachebuster(static_filename):
+def static_cachebuster(filename):
     ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
         Results are cached in memory and persist until app restart! '''
     # Instead of timestamps, we could use commit hashes (we already load it in __init__)
@@ -60,19 +60,18 @@ def static_cachebuster(static_filename):
 
     if app.debug:
         # Do not bust cache on debug (helps debugging)
-        return static_filename
+        return flask.url_for('static', filename=filename)
 
     # Get file mtime if not already cached.
-    if static_filename not in _static_cache:
-        file_path = os.path.join(app.config['BASE_DIR'], 'nyaa', static_filename[1:])
+    if filename not in _static_cache:
+        file_path = os.path.join(app.static_folder, filename)
+        file_mtime = None
         if os.path.exists(file_path):
             file_mtime = int(os.path.getmtime(file_path))
-            _static_cache[static_filename] = static_filename + '?t=' + str(file_mtime)
-        else:
-            # Throw a warning?
-            _static_cache[static_filename] = static_filename
 
-    return _static_cache[static_filename]
+        _static_cache[filename] = file_mtime
+
+    return flask.url_for('static', filename=filename, t=_static_cache[filename])
 
 
 @app.template_global()
@@ -657,9 +656,10 @@ def view_torrent(torrent_id):
                 text=comment_text)
 
             db.session.add(comment)
-            db.session.commit()
+            db.session.flush()
 
-            torrent_count = models.Comment.query.filter_by(torrent_id=torrent.id).count()
+            torrent_count = torrent.update_comment_count()
+            db.session.commit()
 
             flask.flash('Comment successfully posted.', 'success')
 
@@ -687,6 +687,9 @@ def view_torrent(torrent_id):
 def delete_comment(torrent_id, comment_id):
     if not flask.g.user:
         flask.abort(403)
+    torrent = models.Torrent.by_id(torrent_id)
+    if not torrent:
+        flask.abort(404)
 
     comment = models.Comment.query.filter_by(id=comment_id).first()
     if not comment:
@@ -696,6 +699,8 @@ def delete_comment(torrent_id, comment_id):
         flask.abort(403)
 
     db.session.delete(comment)
+    db.session.flush()
+    torrent.update_comment_count()
     db.session.commit()
 
     flask.flash('Comment successfully deleted.', 'success')

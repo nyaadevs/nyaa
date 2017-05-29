@@ -6,9 +6,9 @@
 
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
-		<link rel="icon" type="image/png" href="/static/favicon.png">
-		<link rel="mask-icon" href="/static/pinned-tab.svg" color="#3582F7">
+		<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+		<link rel="mask-icon" href="{{ url_for('static', filename='pinned-tab.svg') }}" color="#3582F7">
 		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
 
 		<meta property="og:site_name" content="{{ config.SITE_NAME }}">
@@ -25,10 +25,10 @@
 			make the navbar not look awful on tablets.
 		-->
 		{# These are extracted here for the dark mode toggle #}
-		{% set bootstrap_light = static_cachebuster('/static/css/bootstrap.min.css') %}
-		{% set bootstrap_dark = static_cachebuster('/static/css/bootstrap-dark.min.css') %}
+		{% set bootstrap_light = static_cachebuster('css/bootstrap.min.css') %}
+		{% set bootstrap_dark = static_cachebuster('css/bootstrap-dark.min.css') %}
 		<link href="{{ bootstrap_light }}" rel="stylesheet" id="bsThemeLink">
-		<link href="{{ static_cachebuster('/static/css/bootstrap-xl-mod.css') }}" rel="stylesheet">
+		<link href="{{ static_cachebuster('css/bootstrap-xl-mod.css') }}" rel="stylesheet">
 		<!--
 			This theme changer script needs to be inline and right under the above stylesheet link to prevent FOUC (Flash Of Unstyled Content)
 			Development version is commented out in static/js/main.js at the bottom of the file
@@ -38,15 +38,15 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
 		<!-- Custom styles for this template -->
-		<link href="{{ static_cachebuster('/static/css/main.css') }}" rel="stylesheet">
+		<link href="{{ static_cachebuster('css/main.css') }}" rel="stylesheet">
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/commonmark/0.27.0/commonmark.min.js" integrity="sha256-10JreQhQG80GtKuzsioj0K46DlaB/CK/EG+NuG0q97E=" crossorigin="anonymous"></script>
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
-		<script src="{{ static_cachebuster('/static/js/bootstrap-select.js') }}"></script>
-		<script src="{{ static_cachebuster('/static/js/main.js') }}"></script>
+		<script src="{{ static_cachebuster('js/bootstrap-select.js') }}"></script>
+		<script src="{{ static_cachebuster('js/main.js') }}"></script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
@@ -65,21 +65,21 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/">{{ config.SITE_NAME }}</a>
+					<a class="navbar-brand" href="{{ url_for('home') }}">{{ config.SITE_NAME }}</a>
 				</div>
 				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
 				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li {% if request.path == "/upload" %} class="active"{% endif %}><a href="/upload">Upload</a></li>
+						<li {% if request.path == url_for('upload') %}class="active"{% endif %}><a href="{{ url_for('upload') }}">Upload</a></li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 								About
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li {% if request.path == "/rules" %} class="active"{% endif %}><a href="/rules">Rules</a></li>
-								<li {% if request.path == "/help" %} class="active"{% endif %}><a href="/help">Help</a></li>
+								<li {% if request.path == url_for('site_rules') %}class="active"{% endif %}><a href="{{ url_for('site_rules') }}">Rules</a></li>
+								<li {% if request.path == url_for('site_help') %}class="active"{% endif %}><a href="{{ url_for('site_help') }}">Help</a></li>
 							</ul>
 						</li>
 						<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
@@ -119,13 +119,13 @@
 									</a>
 								</li>
 								<li>
-									<a href="/profile">
+									<a href="{{ url_for('profile') }}">
 										<i class="fa fa-gear fa-fw"></i>
 										Profile
 									</a>
 								</li>
 								<li>
-									<a href="/logout">
+									<a href="{{ url_for('logout') }}">
 										<i class="fa fa-times fa-fw"></i>
 										Logout
 									</a>
@@ -145,13 +145,13 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li>
-									<a href="/login">
+									<a href="{{ url_for('login') }}">
 										<i class="fa fa-sign-in fa-fw"></i>
 										Login
 									</a>
 								</li>
 								<li>
-									<a href="/register">
+									<a href="{{ url_for('register') }}">
 										<i class="fa fa-pencil fa-fw"></i>
 										Register
 									</a>
@@ -207,7 +207,7 @@
 						{% if user_page %}
 						<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
 						{% else %}
-						<form class="navbar-form navbar-right form" action="/" method="get">
+						<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 						{% endif %}
 							
 							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
@@ -243,7 +243,7 @@
 					{% if user_page %}
 					<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
 					{% else %}
-					<form class="navbar-form navbar-right form" action="/" method="get">
+					<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
 							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">

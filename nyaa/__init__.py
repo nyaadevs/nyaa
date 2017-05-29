@@ -22,6 +22,15 @@ if app.config['DEBUG']:
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
     app.logger.setLevel(logging.DEBUG)
+
+    # Forbid caching
+    @app.after_request
+    def forbid_cache(request):
+        request.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        request.headers['Pragma'] = 'no-cache'
+        request.headers['Expires'] = '0'
+        return request
+
 else:
     app.logger.setLevel(logging.WARNING)
 
