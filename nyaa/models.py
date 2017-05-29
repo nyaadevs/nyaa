@@ -162,7 +162,7 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def trackers(cls):
         return db.relationship(cls._flavor_prefix('TorrentTrackers'), uselist=True,
-                               cascade="all, delete-orphan", lazy='joined',
+                               cascade="all, delete-orphan", lazy='select',
                                order_by=cls._flavor_prefix('TorrentTrackers.order'))
 
     @declarative.declared_attr
