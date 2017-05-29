@@ -5,13 +5,14 @@ import os
 import argparse
 import requests
 import json
+from pprint import pprint
 
 DEV_HOST = 'http://127.0.0.1:5500'
 NYAA_HOST = 'https://nyaa.si'
 SUKEBEI_HOST = 'https://sukebei.nyaa.si'
 
 API_BASE = '/api'
-API_INFO = API_BASE + '/v2/info'
+API_INFO = API_BASE + '/info'
 
 ID_PATTERN = '^[1-9][0-9]*$'
 INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'
@@ -60,4 +61,8 @@ if __name__ == '__main__':
     # Go!
     r = requests.get(api_info_url, auth=auth)
 
-    print(r.text)
+    #print(r.text)
+
+    # For printing unicode instead of unicode escape sequences
+    jr = json.loads(r.text)
+    pprint(jr)

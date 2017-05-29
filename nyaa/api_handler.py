@@ -280,7 +280,7 @@ ID_PATTERN = '^[1-9][0-9]*$'
 INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'  # INFO_HASH as string
 
 
-@api_blueprint.route('/v2/info/<torrent_id_or_hash>', methods=['GET'])
+@api_blueprint.route('/info/<torrent_id_or_hash>', methods=['GET'])
 @basic_auth_user
 @api_require_user
 def v2_api_info(torrent_id_or_hash):
@@ -326,7 +326,7 @@ def v2_api_info(torrent_id_or_hash):
         'id': torrent.id,
         'name': torrent.display_name,
         'hash_b32': torrent.info_hash_as_b32, #as used in magnet uri
-        'hash_hex': torrent.info_hash.hex(), #as shown in torrent client
+        'hash_hex': torrent.info_hash_as_hex, #.hex(), #as shown in torrent client
         'magnet': torrent.magnet_uri,
         'main_category': torrent.main_category.name,
         'main_category_id': torrent.main_category.id,
@@ -335,7 +335,11 @@ def v2_api_info(torrent_id_or_hash):
         'information': torrent.information,
         'description': torrent.description,
         'stats': {'seeders': torrent.stats.seed_count, 'leechers': torrent.stats.leech_count, 'downloads': torrent.stats.download_count},
-        'filelist': files
+        'files': files,
+        # reduce torrent flags to 0/1
+        'is_trusted': 1 if torrent.trusted else 0,
+        'is_complete': 1 if torrent.complete else 0,
+        'is_remake': 1 if torrent.remake else 0
     }
 
     return flask.jsonify(torrent_metadata), 200
