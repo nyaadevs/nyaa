@@ -638,7 +638,7 @@ class ReportBase(DeclarativeHelperBase):
     def remove_reviewed(cls, id):
         return cls.query.filter(cls.torrent_id == id, cls.status == 0).delete()
 
-        
+
 # Actually declare our site-specific classes
 
 # Torrent
