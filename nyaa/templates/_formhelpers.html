@@ -50,7 +50,25 @@
 		</ul>
 		<div class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="{{ field_name }}-tab" data-markdown-target="#{{ field_name }}-markdown-target">
-				{{ render_field(field, False, class_='form-control markdown-source') }}
+				{# Render this field manually, because we need to escape the inner text #}
+				<textarea class="form-control markdown-source" id="{{ field.id }}" name="{{ field.name }}">
+				{{- field.data | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}
+				</textarea>
+				{% if field.errors %}
+					<div class="help-block">
+						{% if field.errors|length < 2 %}
+							{% for error in field.errors %}
+								{{ error }}
+							{% endfor %}
+						{% else %}
+							<ul>
+								{% for error in field.errors %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
+					</div>
+				{% endif %}
 			</div>
 			<div role="tabpanel" class="tab-pane" id="{{ field_name }}-preview">
 				<div class="well" id="{{ field_name }}-markdown-target"></div>
