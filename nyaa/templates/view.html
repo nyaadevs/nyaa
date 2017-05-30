@@ -81,13 +81,13 @@
 </div>
 
 <div class="panel panel-default">
-	<div class="panel-body" id="torrent-description">
-		{% if torrent.description %}
+	<div markdown-text class="panel-body" id="torrent-description">
+		{%- if torrent.description -%}
 		{# Escape newlines into html entities because CF strips blank newlines #}
-		{{ torrent.description | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) }}
-		{% else %}
+		{{- torrent.description | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}
+		{%- else -%}
 		#### No description.
-		{% endif%}
+		{%- endif -%}
 	</div>
 </div>
 
@@ -161,19 +161,12 @@
 				</div>
 				<div class="row">
 					{# Escape newlines into html entities because CF strips blank newlines #}
-					<div class="comment-content" id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
+					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript">
-		var target = document.getElementById('torrent-comment{{ comment.id }}');
-		var text = target.innerHTML;
-		var reader = new commonmark.Parser({safe: true});
-		var writer = new commonmark.HtmlRenderer({safe: true, softbreak: '<br />'});
-		var parsed = reader.parse(text.trim());
-		target.innerHTML = writer.render(parsed);
-	</script>
+
 	{% endfor %}
 	{% if comment_form %}
 	<form class="comment-box" method="POST">
@@ -206,14 +199,5 @@
 			</div>
 		</div>
 	</div>
-
-<script>
-	var target = document.getElementById('torrent-description');
-	var text = target.innerHTML;
-	var reader = new commonmark.Parser({safe: true});
-	var writer = new commonmark.HtmlRenderer({safe: true, softbreak: '<br />'});
-	var parsed = reader.parse(text.trim());
-	target.innerHTML = writer.render(parsed);
-</script>
 
 {% endblock %}

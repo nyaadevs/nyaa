@@ -168,7 +168,7 @@ class EditForm(FlaskForm):
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
     ])
-    description = TextAreaField('Description (markdown supported)', [
+    description = TextAreaField('Description', [
         Length(max=10 * 1024, message='Description must be at most %(max)d characters long.')
     ])
 
@@ -222,7 +222,7 @@ class UploadForm(FlaskForm):
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
     ])
-    description = TextAreaField('Description (markdown supported)', [
+    description = TextAreaField('Description', [
         Length(max=10 * 1024, message='Description must be at most %(max)d characters long.')
     ])
 
