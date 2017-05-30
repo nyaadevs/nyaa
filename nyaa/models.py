@@ -73,6 +73,7 @@ class FlagProperty(object):
 
     def _get_flags(self, instance):
         return getattr(instance, self._flags_attr_name)
+
     def _set_flags(self, instance, value):
         return setattr(instance, self._flags_attr_name, value)
 
