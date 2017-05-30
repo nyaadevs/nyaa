@@ -64,6 +64,28 @@ class DeclarativeHelperBase(object):
         return cls._table_prefix(cls.__tablename_base__)
 
 
+class FlagProperty(object):
+    ''' This class will act as a wrapper between the given flag and the class's
+        flag collection. '''
+    def __init__(self, flag, flags_attr='flags'):
+        self._flag = flag
+        self._flags_attr_name = flags_attr
+
+    def _get_flags(self, instance):
+        return getattr(instance, self._flags_attr_name)
+    def _set_flags(self, instance, value):
+        return setattr(instance, self._flags_attr_name, value)
+
+    def __get__(self, instance, owner_class):
+        if instance is None:
+            raise AttributeError()
+        return bool(self._get_flags(instance) & self._flag)
+
+    def __set__(self, instance, value):
+        new_flags = (self._get_flags(instance) & ~self._flag) | (bool(value) and self._flag)
+        self._set_flags(instance, new_flags)
+
+
 class TorrentFlags(IntEnum):
     NONE = 0
     ANONYMOUS = 1
@@ -219,55 +241,14 @@ class TorrentBase(DeclarativeHelperBase):
         if self.uploader_ip:
             return str(ip_address(self.uploader_ip))
 
-    # Flag getters and setters below
+    # Flag properties below
 
-    @property
-    def anonymous(self):
-        return self.flags & TorrentFlags.ANONYMOUS
-
-    @anonymous.setter
-    def anonymous(self, value):
-        self.flags = (self.flags & ~TorrentFlags.ANONYMOUS) | (value and TorrentFlags.ANONYMOUS)
-
-    @property
-    def hidden(self):
-        return self.flags & TorrentFlags.HIDDEN
-
-    @hidden.setter
-    def hidden(self, value):
-        self.flags = (self.flags & ~TorrentFlags.HIDDEN) | (value and TorrentFlags.HIDDEN)
-
-    @property
-    def deleted(self):
-        return self.flags & TorrentFlags.DELETED
-
-    @deleted.setter
-    def deleted(self, value):
-        self.flags = (self.flags & ~TorrentFlags.DELETED) | (value and TorrentFlags.DELETED)
-
-    @property
-    def trusted(self):
-        return self.flags & TorrentFlags.TRUSTED
-
-    @trusted.setter
-    def trusted(self, value):
-        self.flags = (self.flags & ~TorrentFlags.TRUSTED) | (value and TorrentFlags.TRUSTED)
-
-    @property
-    def remake(self):
-        return self.flags & TorrentFlags.REMAKE
-
-    @remake.setter
-    def remake(self, value):
-        self.flags = (self.flags & ~TorrentFlags.REMAKE) | (value and TorrentFlags.REMAKE)
-
-    @property
-    def complete(self):
-        return self.flags & TorrentFlags.COMPLETE
-
-    @complete.setter
-    def complete(self, value):
-        self.flags = (self.flags & ~TorrentFlags.COMPLETE) | (value and TorrentFlags.COMPLETE)
+    anonymous = FlagProperty(TorrentFlags.ANONYMOUS)
+    hidden = FlagProperty(TorrentFlags.HIDDEN)
+    deleted = FlagProperty(TorrentFlags.DELETED)
+    trusted = FlagProperty(TorrentFlags.TRUSTED)
+    remake = FlagProperty(TorrentFlags.REMAKE)
+    complete = FlagProperty(TorrentFlags.COMPLETE)
 
     # Class methods
 
