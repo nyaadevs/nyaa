@@ -216,4 +216,11 @@
 	target.innerHTML = writer.render(parsed);
 </script>
 
+<script>
+	// Focus the report text field once the modal is opened.
+	$('#reportModal').on('shown.bs.modal', function () {
+		$('#reason').focus();
+	})
+</script>
+
 {% endblock %}
