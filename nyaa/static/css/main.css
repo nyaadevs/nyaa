@@ -349,3 +349,19 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 .torrent-file-list .file-size {
 	font-weight: bold;
 }
+
+.header-anchor {
+	padding-left: 0.5em;
+	visibility: hidden;
+	display: none;
+}
+
+h1:hover .header-anchor,
+h2:hover .header-anchor,
+h3:hover .header-anchor,
+h4:hover .header-anchor,
+h5:hover .header-anchor,
+h6:hover .header-anchor {
+	visibility: visible;
+	display: inline-block;
+}
