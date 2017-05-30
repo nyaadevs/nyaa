@@ -145,28 +145,46 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	}
 });
 
+var markdownOptions = {
+	html : false,
+	breaks : true,
+	typographer:  true
+}
+var markdown = window.markdownit(markdownOptions);
+markdown.renderer.rules.table_open = function (tokens, idx) {
+	// Format tables nicer (bootstrap). Force auto-width (default is 100%)
+	return '<table class="table table-striped table-bordered" style="width: auto;">';
+}
+
 // Initialise markdown editors on page
 document.addEventListener("DOMContentLoaded", function() {
-  var markdownEditors = Array.prototype.slice.call(document.querySelectorAll('.markdown-editor'));
+	var markdownEditors = Array.prototype.slice.call(document.querySelectorAll('.markdown-editor'));
 
-  markdownEditors.forEach(function (markdownEditor) {
-    var fieldName = markdownEditor.getAttribute('data-field-name');
+	markdownEditors.forEach(function (markdownEditor) {
+		var fieldName = markdownEditor.getAttribute('data-field-name');
 
-    var previewTabSelector = '#' + fieldName + '-preview-tab';
-    var targetSelector = '#' + fieldName + '-markdown-target';
-    var sourceSelector = markdownEditor.querySelector('.markdown-source');
+		var previewTabSelector = '#' + fieldName + '-preview-tab';
+		var targetSelector = '#' + fieldName + '-markdown-target';
+		var sourceSelector = markdownEditor.querySelector('.markdown-source');
 
-    var previewTabEl = markdownEditor.querySelector(previewTabSelector);
-    var targetEl = markdownEditor.querySelector(targetSelector);
+		var previewTabEl = markdownEditor.querySelector(previewTabSelector);
+		var targetEl = markdownEditor.querySelector(targetSelector);
 
-    var reader = new commonmark.Parser({safe: true});
-    var writer = new commonmark.HtmlRenderer({safe: true, softbreak: '<br />'});
+		previewTabEl.addEventListener('click', function () {
+			var rendered = markdown.render(sourceSelector.value.trim());
+			targetEl.innerHTML = rendered;
+		});
+	});
+});
 
-    previewTabEl.addEventListener('click', function () {
-      var parsed = reader.parse(sourceSelector.value.trim());
-      targetEl.innerHTML = writer.render(parsed);
-    });
-  });
+// Render markdown from elements with "markdown-text" attribute
+document.addEventListener("DOMContentLoaded", function() {
+
+	var markdownTargets = document.querySelectorAll('[markdown-text]');
+	for (var target of markdownTargets) {
+		var rendered = markdown.render(target.innerHTML);
+		target.innerHTML = rendered;
+	}
 });
 
 //
