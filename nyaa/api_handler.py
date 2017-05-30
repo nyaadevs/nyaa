@@ -335,11 +335,12 @@ def v2_api_info(torrent_id_or_hash):
         'information': torrent.information,
         'description': torrent.description,
         'stats': {'seeders': torrent.stats.seed_count, 'leechers': torrent.stats.leech_count, 'downloads': torrent.stats.download_count},
+        'filesize': torrent.filesize,
         'files': files,
-        # reduce torrent flags to 0/1
-        'is_trusted': 1 if torrent.trusted else 0,
-        'is_complete': 1 if torrent.complete else 0,
-        'is_remake': 1 if torrent.remake else 0
+        # reduce torrent flags to True/False
+        'is_trusted': True if torrent.trusted else False,
+        'is_complete': True if torrent.complete else False,
+        'is_remake': True if torrent.remake else False
     }
 
     return flask.jsonify(torrent_metadata), 200

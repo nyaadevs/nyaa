@@ -31,6 +31,8 @@ conn_group.add_argument('--host', help='Select another api host (for debugging p
 
 parser.add_argument('-q', '--query', required=True, help='Torrent by id or hash Required.')
 
+parser.add_argument('--raw', default=False, action='store_true', help='Print only raw response (JSON)')
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
@@ -61,8 +63,20 @@ if __name__ == '__main__':
     # Go!
     r = requests.get(api_info_url, auth=auth)
 
-    #print(r.text)
+    if args.raw:
+        print(r.text)
+    else:
+        try:
+            rj = r.json()
+        except ValueError:
+            print('Bad response:')
+            print(r.text)
+            exit(1)
 
-    # For printing unicode instead of unicode escape sequences
-    jr = json.loads(r.text)
-    pprint(jr)
+        errors = rj.get('errors')
+
+        if errors:
+            print('Info request failed:',  errors)
+            exit(1)
+        else:
+            print("Torrent #{} '{}' uploaded by '{}' ({} bytes) {} / {}\n{}".format(rj['id'], rj['name'], rj['submitter'], rj['filesize'], rj['main_category'], rj['sub_category'], rj['magnet']))
