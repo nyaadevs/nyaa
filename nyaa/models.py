@@ -67,6 +67,7 @@ class DeclarativeHelperBase(object):
 class FlagProperty(object):
     ''' This class will act as a wrapper between the given flag and the class's
         flag collection. '''
+
     def __init__(self, flag, flags_attr='flags'):
         self._flag = flag
         self._flags_attr_name = flags_attr
@@ -141,13 +142,13 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def __table_args__(cls):
         return (
-                Index(cls._table_prefix('uploader_flag_idx'), 'uploader_id', 'flags'),
-                ForeignKeyConstraint(
-                    ['main_category_id', 'sub_category_id'],
-                    [cls._table_prefix('sub_categories.main_category_id'),
-                        cls._table_prefix('sub_categories.id')]
-                ), {}
-            )
+            Index(cls._table_prefix('uploader_flag_idx'), 'uploader_id', 'flags'),
+            ForeignKeyConstraint(
+                ['main_category_id', 'sub_category_id'],
+                [cls._table_prefix('sub_categories.main_category_id'),
+                 cls._table_prefix('sub_categories.id')]
+            ), {}
+        )
 
     @declarative.declared_attr
     def user(cls):
@@ -420,7 +421,7 @@ class CommentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def torrent_id(cls):
         return db.Column(db.Integer, db.ForeignKey(
-                cls._table_prefix('torrents.id'), ondelete='CASCADE'), nullable=False)
+            cls._table_prefix('torrents.id'), ondelete='CASCADE'), nullable=False)
 
     @declarative.declared_attr
     def user_id(cls):
