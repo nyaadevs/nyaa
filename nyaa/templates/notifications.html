@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Notifications :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+	<div class="table-responsive">
+		<table class="table table-hover table-striped">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Date</th>
+				<th>Body</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for notification in notifications.items %}
+			<tr>
+				<td style="width: 5%">{{ notification.id }}</td>
+				<td style="width: 15%">{{ notification.created_time }}</td>
+				<td>{{ notification.body }}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class=pagination>
+		{% from "bootstrap/pagination.html" import render_pagination %}
+		{{ render_pagination(notifications) }}
+	</div>
+{% endblock %}

@@ -667,6 +667,41 @@ class ReportBase(DeclarativeHelperBase):
         return cls.query.filter(cls.torrent_id == id, cls.status == 0).delete()
 
 
+class NotificationBase(DeclarativeHelperBase):
+    __tablename_base__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    body = db.Column(db.Text(length=500), nullable=False)
+    read = db.Column(db.Boolean, default=False)
+
+    @declarative.declared_attr
+    def user_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @declarative.declared_attr
+    def user(cls):
+        return db.relationship('User', uselist=False, lazy="joined")
+
+    def __init__(self, user_id, body):
+        self.user_id = user_id
+        self.body = body
+
+    def __repr__(self):
+        return '<Notification %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @classmethod
+    def get_notifications(cls, user_id, page):
+        notifications = cls.query.filter_by(read=False, user_id=user_id).paginate(page=page, per_page=20)
+# notifications.update({'read': True})
+        return notifications
+
+
 # Actually declare our site-specific classes
 
 # Torrent
@@ -777,6 +812,15 @@ class SukebeiReport(ReportBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
+# Notification
+class NyaaNotification(NotificationBase, db.Model):
+    __flavor__ = 'Nyaa'
+
+
+class SukebeiNotification(NotificationBase, db.Model):
+    __flavor__ = 'Sukebei'
+
+
 # Choose our defaults for models.Torrent etc
 if app.config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
@@ -790,6 +834,7 @@ if app.config['SITE_FLAVOR'] == 'nyaa':
     AdminLog = NyaaAdminLog
     Report = NyaaReport
     TorrentNameSearch = NyaaTorrentNameSearch
+    Notification = NyaaNotification
 
 elif app.config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
@@ -803,3 +848,4 @@ elif app.config['SITE_FLAVOR'] == 'sukebei':
     AdminLog = SukebeiAdminLog
     Report = SukebeiReport
     TorrentNameSearch = SukebeiTorrentNameSearch
+    Notification = SukebeiNotification

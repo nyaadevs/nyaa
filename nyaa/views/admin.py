@@ -47,6 +47,14 @@ def view_reports():
                                  flask.url_for('torrents.view', torrent_id=torrent_id),
                                  report_user.username,
                                  flask.url_for('users.view_user', user_name=report_user.username))
+                notification = models.Notification(
+                    user_id=torrent.user.id,
+                    body='Your torrent {} has been deleted due to the following reason: "{}"'.format(
+                        torrent.display_name,
+                        report.reason
+                    )
+                )
+                db.session.add(notification)
             elif action == 'hide':
                 log = log.format(report_id, 'Hid', torrent_id,
                                  flask.url_for('torrents.view', torrent_id=torrent_id),
@@ -54,6 +62,14 @@ def view_reports():
                                  flask.url_for('users.view_user', user_name=report_user.username))
                 torrent.hidden = True
                 report.status = 1
+                notification = models.Notification(
+                    user_id=torrent.user.id,
+                    body='Your torrent {} has been hidden due to the following reason: "{}"'.format(
+                        torrent.display_name,
+                        report.reason
+                    )
+                )
+                db.session.add(notification)
             else:
                 log = log.format(report_id, 'Closed', torrent_id,
                                  flask.url_for('torrents.view', torrent_id=torrent_id),
