@@ -325,8 +325,9 @@ def v2_api_info(torrent_id_or_hash):
         'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
         'id': torrent.id,
         'name': torrent.display_name,
-        'hash_b32': torrent.info_hash_as_b32, #as used in magnet uri
-        'hash_hex': torrent.info_hash_as_hex, #.hex(), #as shown in torrent client
+        'creation_date': torrent.created_time.strftime('%Y-%m-%d %H:%M UTC'),
+        'hash_b32': torrent.info_hash_as_b32,  # as used in magnet uri
+        'hash_hex': torrent.info_hash_as_hex,  # .hex(), #as shown in torrent client
         'magnet': torrent.magnet_uri,
         'main_category': torrent.main_category.name,
         'main_category_id': torrent.main_category.id,
@@ -338,9 +339,9 @@ def v2_api_info(torrent_id_or_hash):
         'filesize': torrent.filesize,
         'files': files,
         # reduce torrent flags to True/False
-        'is_trusted': True if torrent.trusted else False,
-        'is_complete': True if torrent.complete else False,
-        'is_remake': True if torrent.remake else False
+        'is_trusted': torrent.trusted,
+        'is_complete': torrent.complete,
+        'is_remake': torrent.remake
     }
 
     return flask.jsonify(torrent_metadata), 200

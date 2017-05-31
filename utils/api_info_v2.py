@@ -33,6 +33,13 @@ parser.add_argument('-q', '--query', required=True, help='Torrent by id or hash 
 
 parser.add_argument('--raw', default=False, action='store_true', help='Print only raw response (JSON)')
 
+def easy_file_size(filesize):
+    for prefix in ['B','KiB','MiB','GiB','TiB']:
+        if filesize < 1024.0:
+            return '{0:.1f} {1}'.format(filesize, prefix)
+        filesize = filesize / 1024.0
+    return '{0:.1f} {1}'.format(filesize, prefix)
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
@@ -79,4 +86,10 @@ if __name__ == '__main__':
             print('Info request failed:',  errors)
             exit(1)
         else:
-            print("Torrent #{} '{}' uploaded by '{}' ({} bytes) {} / {}\n{}".format(rj['id'], rj['name'], rj['submitter'], rj['filesize'], rj['main_category'], rj['sub_category'], rj['magnet']))
+            rj['filesize'] = easy_file_size(rj['filesize'])
+            rj['is_trusted'] = 'Yes' if rj['is_trusted'] else 'No'
+            rj['is_complete'] = 'Yes' if rj['is_complete'] else 'No'
+            rj['is_remake'] = 'Yes' if rj['is_remake'] else 'No'
+            print("Torrent #{} '{}' uploaded by '{}' ({}) (Created on: {}) ({} - {}) (Trusted: {}, Complete: {}, Remake: {})\n{}".format(
+                rj['id'], rj['name'], rj['submitter'], rj['filesize'], rj['creation_date'], rj['main_category'], rj['sub_category'],
+                rj['is_trusted'], rj['is_complete'], rj['is_remake'], rj['magnet']))
