@@ -1,4 +1,4 @@
-autopep8 nyaa/ \
+autopep8 nyaa/ utils/ \
 	--recursive \
 	--in-place \
 	--pep8-passes 2000 \

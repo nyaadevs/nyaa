@@ -12,7 +12,7 @@ install:
   - pip install --upgrade pycodestyle
 
 script:
-  - pycodestyle nyaa/ --show-source --max-line-length=100
+  - pycodestyle nyaa/ utils/ --show-source --max-line-length=100
 
 notifications:
   email: false

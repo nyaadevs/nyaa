@@ -7,7 +7,7 @@ It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that
 
 ### Code Quality:
 - Before we get any deeper, remember to follow PEP8 style guidelines and run `./lint.sh` before committing.
-    - You may also use `pycodestyle nyaa/ --show-source --max-line-length=100´ to see a list of warnings/problems instead of having `lint.sh` making modifications for you
+    - You may also use `pycodestyle nyaa/ utils/ --show-source --max-line-length=100´ to see a list of warnings/problems instead of having `lint.sh` making modifications for you
 - Other than PEP8, try to keep your code clean and easy to understand, as well. It's only polite!
 
 ### Setting up Pyenv
