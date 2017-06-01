@@ -1,18 +1,18 @@
 language: python
 
-python:
-  - 3.6
+python: "3.6"
 
 dist: xenial
 sudo: false
 
+matrix:
+  fast_finish: true
+
 cache: pip
 
-install:
-  - pip install --upgrade pycodestyle
+install: pip install --upgrade pycodestyle
 
-script:
-  - pycodestyle nyaa/ --show-source --max-line-length=100
+script: ./lint.sh --check
 
 notifications:
   email: false

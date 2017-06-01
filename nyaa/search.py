@@ -186,6 +186,7 @@ def search_elastic(term='', user=None, sort='id', order='desc',
 
 class QueryPairCaller(object):
     ''' Simple stupid class to filter one or more queries with the same args '''
+
     def __init__(self, *items):
         self.items = list(items)
 
