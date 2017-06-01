@@ -194,6 +194,11 @@ class TorrentBase(DeclarativeHelperBase):
         return db.relationship(cls._flavor_prefix('Comment'), uselist=True,
                                cascade="all, delete-orphan")
 
+    @declarative.declared_attr
+    def reports(cls):
+        return db.relationship(cls._flavor_prefix('Report'), uselist=True,
+                               cascade="all, delete-orphan")
+
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
 
@@ -683,7 +688,7 @@ class NotificationBase(DeclarativeHelperBase):
 
     id = db.Column(db.Integer, primary_key=True)
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
-    body = db.Column(db.Text(length=500), nullable=False)
+    event = db.Column(db.String(length=15), nullable=False)
     read = db.Column(db.Boolean, default=False)
 
     @declarative.declared_attr
@@ -691,13 +696,23 @@ class NotificationBase(DeclarativeHelperBase):
         return db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @declarative.declared_attr
+    def torrent_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(
+            cls._table_prefix('torrents.id'), ondelete='CASCADE'), nullable=False)
+
+    @declarative.declared_attr
     def user(cls):
         return db.relationship('User', uselist=False,
                                back_populates=cls._table_prefix('notifications'), lazy="joined")
 
-    def __init__(self, user_id, body):
+    @declarative.declared_attr
+    def torrent(cls):
+        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False, lazy="joined")
+
+    def __init__(self, user_id, torrent_id, event):
         self.user_id = user_id
-        self.body = body
+        self.torrent_id = torrent_id
+        self.event = event
 
     def __repr__(self):
         return '<Notification %r>' % self.id

@@ -12,10 +12,22 @@
 			</thead>
 			<tbody>
 			{% for notification in notifications.items %}
+			{% if notification.read %}
 			<tr>
+			{% else %}
+			<tr style="font-weight: bold;">
+			{% endif %}
 				<td style="width: 5%">{{ notification.id }}</td>
 				<td style="width: 15%">{{ notification.created_time }}</td>
-				<td>{{ notification.body }}</td>
+				<td>
+					{% if notification.event == 'mention' %}
+					You were mentioned in a comment of torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a>
+					{% elif notification.event == 'delete' %}
+					Your torrent {{ notification.torrent.display_name }} was deleted due to the following reason: {{ notification.torrent.reports[0].reason }}
+					{% elif notification.event == 'hide' %}
+					Your torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a> was hidden due to the following reason: {{ notification.torrent.reports[0].reason }}
+					{% endif %}
+				</td>
 			</tr>
 			{% endfor %}
 			</tbody>

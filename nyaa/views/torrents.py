@@ -47,8 +47,8 @@ def view_torrent(torrent_id):
                 if user:
                     notification = models.Notification(
                         user_id=user.id,
-                        body='You have been mentioned by {} in {}.'.format(flask.g.user.username, torrent.display_name)
-                    )
+                        event='mention',
+                        torrent_id=torrent_id)
                     db.session.add(notification)
             comment = models.Comment(
                 torrent_id=torrent_id,
