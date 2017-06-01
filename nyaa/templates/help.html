@@ -2,7 +2,64 @@
 {% block title %}Help :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
 
-<h1>Coming soon (tm)</h1>
+{% macro linkable_header(heading, label) %}
+	<h3 id="{{ label }}">{{ heading }}<a class="header-anchor" href="#{{ label }}"><i class="fa fa-link" aria-hidden="true"></i></a></h3>
+{% endmacro %}
+
+<h1>Help</h1>
+
+<h2>Using the Site</h2>
+
+{{ linkable_header("How to Download", "how-to-dl") }}
+<p>
+	This site only offers torrent files and magnet links. To download the content of
+	the torrents, you will have to use a BitTorrent client such as qBitTorrent,
+	µTorrent, Transmission or Deluge.
+</p>
+
+{{ linkable_header("Using the Search Function", "using-search") }}
+<p>
+	You can combine search terms with the <kbd>|</kbd> operator, such as
+	<kbd>horrible|cartel</kbd>.
+</p>
+<p>
+	To exclude results matching a certain word, prefix them with <kbd>-</kbd>,
+	e.g. <kbd>FFF -memesubs</kbd>, which will return torrents with <em>FFF</em> in the
+	name, but not those which have <em>memesubs</em> in the name as well.
+</p>
+<p>
+	If you want to search for a several-word expression in its entirety, you can
+	surround searches with <kbd>"</kbd> (double quotes), such as
+	<kbd>"foo bar"</kbd>, which would match torrents named <em>foo bar</em> but not
+	those named <em>bar foo</em>.
+</p>
+
+{{ linkable_header("Reporting Torrents", "reporting") }}
+<p>
+	If you find a torrent that breaks the rules, click the
+	<button type="button" class="btn btn-danger">Report</button> button to the right
+	of the torrent's information page. Then, enter a reason for your report in the
+	dialog that opens, and hit the <button type="button" class="btn btn-danger">
+	Report</button> button to confirm.
+</p>
+
+{{ linkable_header("Styling Descriptions and Comments", "styling") }}
+<p>
+	You can style your comments and your torrent's description using
+	<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown
+	</a>. This includes adding images or linking to external websites.
+</p>
+<p>
+	To link to an external site, use <kbd>[label of link](https://example.com)</kbd>
+	where the text in the <kbd>[]</kbd> square brackets is the shown text of your
+	link, and the URL in the <kbd>()</kbd> parentheses is the URL your link will
+	point to.
+</p>
+<p>
+	Embedding an image is similar. Use <kbd>![alt text](https://example.com/image.jpg)</kbd>
+	to have an image embedded in your comment or description. Note the <kbd>!</kbd>
+	exclamation mark at the beginning, denoting that this link is an image.
+</p>
 {# <div class="content">
 	<h1>Help</h1>
 	<p><b>The search engine</b> is located at the top right, and it allows users to search through the torrent titles available on the site. Results matching either word A or B can be included by typing a vertical bar between them (|). Results matching a certain word can be excluded by prefixing that word with a hyphen-minus (-). Phrases can be matched by surrounding them with double-quotes (). Search results can be filtered by category, remake, trusted, and/or A+ status, and then narrowed down further by age and size ranges as well as excluding specific users. Sorting can be done in ascending or descending order by date, amount of seeders/leechers/downloads, size, or name. The search engine adapts to the current view and makes it possible to search for specific torrents in a specific subcategory from a specific user.</p>
