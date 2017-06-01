@@ -40,7 +40,16 @@ def view_torrent(torrent_id):
 
         if comment_form.validate():
             comment_text = (comment_form.comment.data or '').strip()
-
+            mentioned = [s for s in comment_text.split() if '@' in s]
+            if len(mentioned) == 1:
+                username = mentioned[0][1:]
+                user = models.User.by_username(username)
+                if user:
+                    notification = models.Notification(
+                        user_id=user.id,
+                        body='You have been mentioned by {} in {}.'.format(flask.g.user.username, torrent.display_name)
+                    )
+                    db.session.add(notification)
             comment = models.Comment(
                 torrent_id=torrent_id,
                 user_id=flask.g.user.id,

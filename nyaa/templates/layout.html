@@ -107,12 +107,15 @@
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle visible-lg visible-sm visible-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 								<i class="fa fa-user fa-fw"></i>
+								{% set notif_number = g.user.unread_notifications_number %}
+								{% if notif_number > 0 %}
 								<span class="badge" style="
 								background:red;
 								position:relative;
 								top: -1em;
 								left: -0.5em;
-								">3</span>
+								">{{ notif_number }}</span>
+								{% endif %}
 								{{ g.user.username }}
 								<span class="caret"></span>
 							</a>
@@ -143,7 +146,9 @@
 									<a href="{{ url_for('account.notifications') }}">
 										<i class="fa fa-envelope fa-fw"></i>
 										Notifications
-										<span class="badge" style="background:red;">3</span>
+										{% if notif_number > 0 %}
+										<span class="badge" style="background:red;">{{ notif_number }}</span>
+										{% endif %}
 									</a>
 								</li>
 								<li>

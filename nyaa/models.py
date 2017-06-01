@@ -475,9 +475,11 @@ class User(db.Model):
 
     nyaa_torrents = db.relationship('NyaaTorrent', back_populates='user', lazy='dynamic')
     nyaa_comments = db.relationship('NyaaComment', back_populates='user', lazy='dynamic')
+    nyaa_notifications = db.relationship('NyaaNotification', back_populates='user', lazy='dynamic')
 
     sukebei_torrents = db.relationship('SukebeiTorrent', back_populates='user', lazy='dynamic')
     sukebei_comments = db.relationship('SukebeiComment', back_populates='user', lazy='dynamic')
+    sukebei_notifications = db.relationship('SukebeiNotification', back_populates='user', lazy='dynamic')
 
     def __init__(self, username, email, password):
         self.username = username
@@ -558,6 +560,15 @@ class User(db.Model):
     @classmethod
     def by_username_or_email(cls, username_or_email):
         return cls.by_username(username_or_email) or cls.by_email(username_or_email)
+
+    @property
+    def unread_notifications_number(self):
+        flavor = app.config['SITE_FLAVOR']
+        if flavor == 'nyaa':
+            number = self.nyaa_notifications.count()
+        elif flavor == 'sukebei':
+            number = self.sukebei_notifications.count()
+        return number
 
     @property
     def is_moderator(self):
@@ -681,7 +692,8 @@ class NotificationBase(DeclarativeHelperBase):
 
     @declarative.declared_attr
     def user(cls):
-        return db.relationship('User', uselist=False, lazy="joined")
+        return db.relationship('User', uselist=False,
+                               back_populates=cls._table_prefix('notifications'), lazy="joined")
 
     def __init__(self, user_id, body):
         self.user_id = user_id
