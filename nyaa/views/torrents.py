@@ -41,7 +41,7 @@ def view_torrent(torrent_id):
         if comment_form.validate():
             comment_text = (comment_form.comment.data or '').strip()
             mentioned = [s for s in comment_text.split() if '@' in s]
-            if len(mentioned) == 1:
+            if len(mentioned) > 0:
                 username = mentioned[0][1:]
                 user = models.User.by_username(username)
                 if user:
