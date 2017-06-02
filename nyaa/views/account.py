@@ -134,6 +134,7 @@ def view_notifications():
 
     page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
     notifications = models.Notification.get_notifications(flask.g.user.id, page)
+    models.Notification.mark_notifications_read(flask.g.user.id)
 
     return flask.render_template('notifications.html',
                                  notifications=notifications)

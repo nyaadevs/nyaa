@@ -570,9 +570,9 @@ class User(db.Model):
     def unread_notifications_number(self):
         flavor = app.config['SITE_FLAVOR']
         if flavor == 'nyaa':
-            number = self.nyaa_notifications.count()
+            number = self.nyaa_notifications.filter(Notification.read == False).count()
         elif flavor == 'sukebei':
-            number = self.sukebei_notifications.count()
+            number = self.sukebei_notifications.filter(Notification.read == False).count()
         return number
 
     @property
@@ -725,8 +725,11 @@ class NotificationBase(DeclarativeHelperBase):
     @classmethod
     def get_notifications(cls, user_id, page):
         notifications = cls.query.filter_by(read=False, user_id=user_id).paginate(page=page, per_page=20)
-# notifications.update({'read': True})
         return notifications
+
+    @classmethod
+    def mark_notifications_read(cls, user_id):
+        return cls.query.filter_by(read=False, user_id=user_id).update({'read': True})
 
 
 # Actually declare our site-specific classes
