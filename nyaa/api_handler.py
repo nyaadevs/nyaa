@@ -50,22 +50,6 @@ def api_require_user(f):
 
 # #################################### API ROUTES ####################################
 
-    if upload_request.method == 'POST' and form.validate():
-        torrent = backend.handle_torrent_upload(form, user, True)
-
-        return flask.make_response(flask.jsonify({'Success': int('{0}'.format(torrent.id))}), 200)
-    else:
-        return_error_messages = []
-        for error_name, error_messages in form.errors.items():
-            return_error_messages.extend(error_messages)
-
-        return flask.make_response(flask.jsonify({'Failure': return_error_messages}), 400)
-
-# ##################################### V2 BELOW #####################################
-
-
-# ###################################### UPLOAD ######################################
-
 # Map UploadForm fields to API keys
 UPLOAD_API_FORM_KEYMAP = {
     'torrent_file': 'torrent',
