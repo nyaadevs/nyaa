@@ -13,10 +13,11 @@ SUKEBEI_HOST = 'https://sukebei.nyaa.si'
 API_BASE = '/api'
 API_INFO = API_BASE + '/info'
 
-ID_PATTERN = '^[1-9][0-9]*$'
+ID_PATTERN = '^[0-9]+$'
 INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'
 
-environment_epillog = '''You may also provide environment variables NYAA_API_HOST, NYAA_API_USERNAME and NYAA_API_PASSWORD for connection info.'''
+environment_epillog = ('You may also provide environment variables NYAA_API_HOST, NYAA_API_USERNAME'
+                       ' and NYAA_API_PASSWORD for connection info.')
 
 parser = argparse.ArgumentParser(
     description='Query torrent info on Nyaa.si', epilog=environment_epillog)
@@ -30,10 +31,17 @@ conn_group.add_argument('-u', '--user', help='Username or email')
 conn_group.add_argument('-p', '--password', help='Password')
 conn_group.add_argument('--host', help='Select another api host (for debugging purposes)')
 
-parser.add_argument('hash_or_id', help='Torrent by id or hash Required.')
+resp_group = parser.add_argument_group('Response options')
 
-parser.add_argument('--raw', default=False, action='store_true',
-                    help='Print only raw response (JSON)')
+resp_group.add_argument('--raw', default=False, action='store_true',
+                        help='Print only raw response (JSON)')
+resp_group.add_argument('-m', '--magnet', default=False,
+                        action='store_true', help='Print magnet uri')
+
+
+req_group = parser.add_argument_group('Required arguments')
+req_group.add_argument('hash_or_id', metavar='HASH_OR_ID',
+                       help='Torrent ID or hash (hex, 40 characters) to query for')
 
 
 def easy_file_size(filesize):
@@ -42,6 +50,15 @@ def easy_file_size(filesize):
             return '{0:.1f} {1}'.format(filesize, prefix)
         filesize = filesize / 1024.0
     return '{0:.1f} {1}'.format(filesize, prefix)
+
+
+def _as_yes_no(value):
+    return 'Yes' if value else 'No'
+
+
+INFO_TEMPLATE = ("Torrent #{id}: '{name}' ({formatted_filesize}) uploaded by {submitter}"
+                 "\n  {creation_date} [{main_category} - {sub_category}] [{flag_info}]")
+FLAG_NAMES = ['Trusted', 'Complete', 'Remake']
 
 
 if __name__ == '__main__':
@@ -54,11 +71,16 @@ if __name__ == '__main__':
     api_query = args.hash_or_id.lower().strip()
 
     # Verify query is either a valid id or valid hash
-    matchID = re.match(ID_PATTERN, api_query)
-    matchHASH = re.match(INFO_HASH_PATTERN, api_query)
+    id_match = re.match(ID_PATTERN, api_query)
+    hex_hash_match = re.match(INFO_HASH_PATTERN, api_query)
 
-    if not (matchID or matchHASH):
-        raise Exception('Query was not a valid id or valid hash.')
+    if not (id_match or hex_hash_match):
+        raise Exception("Given argument '{}' doesn't "
+                        "seem like an ID or a hex hash.".format(api_query))
+
+    if id_match:
+        # Remove leading zeroes
+        api_query = api_query.lstrip('0')
 
     api_info_url = api_host + API_INFO + '/' + api_query
 
@@ -77,21 +99,24 @@ if __name__ == '__main__':
         print(r.text)
     else:
         try:
-            rj = r.json()
+            response = r.json()
         except ValueError:
             print('Bad response:')
             print(r.text)
             exit(1)
 
-        errors = rj.get('errors')
+        errors = response.get('errors')
 
         if errors:
-            print('Info request failed:',  errors)
+            print('Info request failed:', errors)
             exit(1)
         else:
-            rj['filesize'] = easy_file_size(rj['filesize'])
-            rj['is_trusted'] = 'Yes' if rj['is_trusted'] else 'No'
-            rj['is_complete'] = 'Yes' if rj['is_complete'] else 'No'
-            rj['is_remake'] = 'Yes' if rj['is_remake'] else 'No'
-            print("Torrent #{} '{}' uploaded by '{}' ({}) (Created on: {}) ({} - {}) (Trusted: {}, Complete: {}, Remake: {})\n{}".format(
-                rj['id'], rj['name'], rj['submitter'], rj['filesize'], rj['creation_date'], rj['main_category'], rj['sub_category'], rj['is_trusted'], rj['is_complete'], rj['is_remake'], rj['magnet']))
+            formatted_filesize = easy_file_size(response.get('filesize', 0))
+            flag_info = ', '.join(n+': '+_as_yes_no(response['is_'+n.lower()]) for n in FLAG_NAMES)
+
+            info_str = INFO_TEMPLATE.format(formatted_filesize=formatted_filesize,
+                                            flag_info=flag_info, **response)
+
+            print(info_str)
+            if args.magnet:
+                print(response['magnet'])

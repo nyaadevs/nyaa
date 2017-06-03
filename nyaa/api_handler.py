@@ -260,7 +260,7 @@ def ghetto_import():
 
 
 # ####################################### INFO #######################################
-ID_PATTERN = '^[1-9][0-9]*$'
+ID_PATTERN = '^[0-9]+$'
 INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'  # INFO_HASH as string
 
 
@@ -270,14 +270,14 @@ INFO_HASH_PATTERN = '^[0-9a-fA-F]{40}$'  # INFO_HASH as string
 def v2_api_info(torrent_id_or_hash):
     torrent_id_or_hash = torrent_id_or_hash.lower().strip()
 
-    matchID = re.match(ID_PATTERN, torrent_id_or_hash)
-    matchHASH = re.match(INFO_HASH_PATTERN, torrent_id_or_hash)
+    id_match = re.match(ID_PATTERN, torrent_id_or_hash)
+    hex_hash_match = re.match(INFO_HASH_PATTERN, torrent_id_or_hash)
 
     torrent = None
 
-    if matchID:
+    if id_match:
         torrent = models.Torrent.by_id(int(torrent_id_or_hash))
-    elif matchHASH:
+    elif hex_hash_match:
         # Convert the string representation of a torrent hash back into a binary representation
         a2b_hash = binascii.unhexlify(torrent_id_or_hash)
         torrent = models.Torrent.by_info_hash(a2b_hash)
@@ -309,20 +309,23 @@ def v2_api_info(torrent_id_or_hash):
         'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
         'id': torrent.id,
         'name': torrent.display_name,
+
         'creation_date': torrent.created_time.strftime('%Y-%m-%d %H:%M UTC'),
         'hash_b32': torrent.info_hash_as_b32,  # as used in magnet uri
         'hash_hex': torrent.info_hash_as_hex,  # .hex(), #as shown in torrent client
         'magnet': torrent.magnet_uri,
+
         'main_category': torrent.main_category.name,
         'main_category_id': torrent.main_category.id,
         'sub_category': torrent.sub_category.name,
         'sub_category_id': torrent.sub_category.id,
+
         'information': torrent.information,
         'description': torrent.description,
         'stats': {'seeders': torrent.stats.seed_count, 'leechers': torrent.stats.leech_count, 'downloads': torrent.stats.download_count},
         'filesize': torrent.filesize,
         'files': files,
-        # reduce torrent flags to True/False
+
         'is_trusted': torrent.trusted,
         'is_complete': torrent.complete,
         'is_remake': torrent.remake
