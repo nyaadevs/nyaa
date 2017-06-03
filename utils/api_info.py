@@ -7,7 +7,6 @@ import requests
 import json
 from pprint import pprint
 
-DEV_HOST = 'http://127.0.0.1:5500'
 NYAA_HOST = 'https://nyaa.si'
 SUKEBEI_HOST = 'https://sukebei.nyaa.si'
 
@@ -25,13 +24,13 @@ parser = argparse.ArgumentParser(
 conn_group = parser.add_argument_group('Connection options')
 
 conn_group.add_argument('-s', '--sukebei', default=False,
-                        action='store_true', help='Upload to sukebei.nyaa.si')
+                        action='store_true', help='Query torrent info on sukebei.Nyaa.si')
 
 conn_group.add_argument('-u', '--user', help='Username or email')
 conn_group.add_argument('-p', '--password', help='Password')
 conn_group.add_argument('--host', help='Select another api host (for debugging purposes)')
 
-parser.add_argument('-q', '--query', required=True, help='Torrent by id or hash Required.')
+parser.add_argument('hash_or_id', help='Torrent by id or hash Required.')
 
 parser.add_argument('--raw', default=False, action='store_true',
                     help='Print only raw response (JSON)')
@@ -52,7 +51,7 @@ if __name__ == '__main__':
     debug_host = args.host or os.getenv('NYAA_API_HOST')
     api_host = (debug_host or (args.sukebei and SUKEBEI_HOST or NYAA_HOST)).rstrip('/')
 
-    api_query = args.query.lower().strip()
+    api_query = args.hash_or_id.lower().strip()
 
     # Verify query is either a valid id or valid hash
     matchID = re.match(ID_PATTERN, api_query)
