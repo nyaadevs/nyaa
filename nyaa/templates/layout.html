@@ -84,9 +84,9 @@
 						</li>
 						<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
 						{% if config.SITE_FLAVOR == 'nyaa' %}
-						<li><a href="https://sukebei.nyaa.si/">Fap</a></li>
+						<li><a href="//{{ config.EXTERNAL_URLS['fap'] }}">Fap</a></li>
 						{% elif config.SITE_FLAVOR == 'sukebei' %}
-						<li><a href="https://nyaa.si/">Fun</a></li>
+						<li><a href="//{{ config.EXTERNAL_URLS['main'] }}">Fun</a></li>
 						{% endif %}
 						{% if g.user.is_moderator %}
 							<li><a href="{{ url_for('view_reports') }}">Reports</a> </li>

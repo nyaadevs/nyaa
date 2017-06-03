@@ -21,7 +21,7 @@ SECRET_KEY = '***'
 
 # Prefix for running multiple sites, user table will not be prefixed.
 SITE_FLAVOR = 'nyaa' # 'nyaa' or 'sukebei'
-
+EXTERNAL_URLS = {'fap':'***', 'main':'***'}
 # for recaptcha and email verification:
 # keys for localhost. Change as appropriate when actual domain is registered.
 RECAPTCHA_PUBLIC_KEY = '***'
