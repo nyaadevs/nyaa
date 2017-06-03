@@ -2,10 +2,9 @@
 {% block title %}Rules :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
 
-<h1>Coming soon (tm)</h1>
-{# <div class="content">
+<div class="content">
 	<h1>Site Rules</h1><!-- <br> -->
-	<!-- <b>Spoilers:</b> Your account will be banned if you repeatedly post these without using the [spoiler] tag properly. -->
+	{# <b>Spoilers:</b> Your account will be banned if you repeatedly post these without using the [spoiler] tag properly. #}
 	<h1>Breaking any of the rules on this page may result in being banned</h1>
 	<p><b>Shitposting and Trolling:</b> Your account will be banned if you keep this up.</p>
 	<p><b>Bumping:</b> Your account will be banned if you keep deleting and reposting your torrents.</p>
@@ -14,7 +13,7 @@
 	<p><b>Advertising:</b> No.</p>
 	<p><b>Content restrictions:</b>This site is for content that originates from and/or is specific to China, Japan, and/or Korea.</p>
 	<p>Other content is not allowed without exceptions and will be removed.</p><br>
-	<p><a href="https://%3CURL%3E/"><b>NAME</b></a> is for <b>work-safe</b> content only. The following rules apply:</p>
+	<p><a href="//{{ config.EXTERNAL_URLS['main'] }}"><b>{{ config.EXTERNAL_URLS['main'] }}</b></a> is for <b>work-safe</b> content only. The following rules apply:</p>
 	<ul>
 		<li>
 			<p>No pornography of any kind.</p>
@@ -26,7 +25,7 @@
 			<p>Troll torrents are not allowed. These will be removed on sight.</p>
 		</li>
 	</ul><br>
-	<p><a href="https://%3CURL%3E"><b>NAME</b></a> is the place for <b>non-work-safe</b> content only. Still, the following rules apply:</p>
+	<p><a href="//{{ config.EXTERNAL_URLS['fap'] }}"><b>{{ config.EXTERNAL_URLS['fap'] }}</b></a> is the place for <b>non-work-safe</b> content only. Still, the following rules apply:</p>
 	<ul>
 		<li>
 			<p>No extreme real life visual content. This means no scat, gore, bestiality, or any other of such things.</p>
@@ -86,5 +85,5 @@
 			<p>Remakes of JPG/PNG-based releases are not allowed without exceptions since there is most often no point in making such.</p>
 		</li>
 	</ul>
-</div> #}
+</div> 
 {% endblock %}
