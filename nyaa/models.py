@@ -724,7 +724,7 @@ class NotificationBase(DeclarativeHelperBase):
 
     @classmethod
     def get_notifications(cls, user_id, page):
-        notifications = cls.query.filter_by(read=False, user_id=user_id).paginate(page=page, per_page=20)
+        notifications = cls.query.filter_by(user_id=user_id).paginate(page=page, per_page=20)
         return notifications
 
     @classmethod
