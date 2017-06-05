@@ -180,9 +180,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Render markdown from elements with "markdown-text" attribute
 document.addEventListener("DOMContentLoaded", function() {
-
 	var markdownTargets = document.querySelectorAll('[markdown-text]');
-	for (var target of markdownTargets) {
+	for (var i = 0; i < markdownTargets.length; i++) {
+		var target = markdownTargets[i];
 		var rendered = markdown.render(target.innerHTML);
 		target.innerHTML = rendered;
 	}
