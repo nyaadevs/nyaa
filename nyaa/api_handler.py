@@ -322,7 +322,11 @@ def v2_api_info(torrent_id_or_hash):
 
         'information': torrent.information,
         'description': torrent.description,
-        'stats': {'seeders': torrent.stats.seed_count, 'leechers': torrent.stats.leech_count, 'downloads': torrent.stats.download_count},
+        'stats': {
+            'seeders': torrent.stats.seed_count,
+            'leechers': torrent.stats.leech_count,
+            'downloads': torrent.stats.download_count
+        },
         'filesize': torrent.filesize,
         'files': files,
 
