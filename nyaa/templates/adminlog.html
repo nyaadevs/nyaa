@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}Admin Log :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+	<div class="table-responsive">
+		<table class="table table-bordered table-hover table-striped">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Moderator/Admin</th>
+				<th>Torrent/Comment/User</th>
+				<th>Date</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for log in adminlog.items %}
+			<tr>
+				<td>{{ log.id }}</td>
+				<td>
+					<a href="{{ url_for('view_user', user_name=log.admin.username) }}">{{ log.admin.username }}</a>
+				</td>
+				<td>
+                    {% if log.torrent_id %}
+					<a href="{{ url_for('view_torrent', torrent_id=log.torrent.id) }}">{{ log.logtype_str }}</a>
+                    {% endif %}
+                    {% if log.user_id %}
+                    <a href="{{ url_for('view_user', user_name=log.user.username) }}">{{ log.user.username }} {{ log.logtype_str }}</a>
+                    {% endif %}
+                    {% if log.comment_id %}
+                    {{ log.logtype_str }}
+                    {% endif %}
+				</td>
+				<td>{{ log.created_time }}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<div class=pagination>
+		{% from "bootstrap/pagination.html" import render_pagination %}
+		{{ render_pagination(adminlog) }}
+	</div>
+{% endblock %}

@@ -327,15 +327,22 @@ def view_user(user_name):
 
     if flask.request.method == 'POST' and admin_form and admin_form.validate():
         selection = admin_form.user_class.data
-
+        log_type = None
         if selection == 'regular':
             user.level = models.UserLevelType.REGULAR
+            log_type = models.AdminLogType.USER_EDIT_REGULAR
         elif selection == 'trusted':
             user.level = models.UserLevelType.TRUSTED
+            log_type = models.AdminLogType.USER_EDIT_TRUSTED
         elif selection == 'moderator':
             user.level = models.UserLevelType.MODERATOR
-
+            log_type = models.AdminLogType.USER_EDIT_MODERATOR
+        
+        adminlog = models.AdminLog(log_type=log_type,
+                                    admin_id=flask.g.user.id,
+                                    user_id=user.id)
         db.session.add(user)
+        db.session.add(adminlog)
         db.session.commit()
 
         return flask.redirect(flask.url_for('view_user', user_name=user.username))
@@ -698,9 +705,15 @@ def delete_comment(torrent_id, comment_id):
     if not (comment.user.id == flask.g.user.id or flask.g.user.is_moderator):
         flask.abort(403)
 
+    
     db.session.delete(comment)
     db.session.flush()
     torrent.update_comment_count()
+    if flask.g.user.is_moderator:
+        adminlog = models.AdminLog(log_type=models.AdminLogType.COMMENT_DELETED,
+                                admin_id=flask.g.user.id,
+                                comment_id=comment_id)
+        db.session.add(adminlog)
     db.session.commit()
 
     flask.flash('Comment successfully deleted.', 'success')
@@ -744,6 +757,12 @@ def edit_torrent(torrent_id):
             torrent.trusted = form.is_trusted.data
         if flask.g.user.is_moderator:
             torrent.deleted = form.is_deleted.data
+
+        if flask.g.user.is_moderator:
+            adminlog = models.AdminLog(log_type=models.AdminLogType.TORRENT_EDITED,
+                                    admin_id=flask.g.user.id,
+                                    torrent_id=torrent.id)
+            db.session.add(adminlog)
 
         db.session.commit()
 
@@ -819,6 +838,18 @@ def submit_report(torrent_id):
         flask.flash('Successfully reported torrent!', 'success')
 
     return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+
+
+@app.route('/adminlog', methods=['GET'])
+def view_adminlog():
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    logs = models.AdminLog.all_logs(page)
+
+    return flask.render_template('adminlog.html',
+                                 adminlog=logs)
 
 
 @app.route('/reports', methods=['GET', 'POST'])
