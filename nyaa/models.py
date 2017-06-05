@@ -585,11 +585,6 @@ class AdminLogBase(DeclarativeHelperBase):
             cls._table_prefix('torrents.id'), ondelete='CASCADE'))
 
     @declarative.declared_attr
-    def comment_id(cls):
-        return db.Column(db.Integer, db.ForeignKey(
-            cls._table_prefix('comments.id'), ondelete='CASCADE'))
-
-    @declarative.declared_attr
     def user_id(cls):
         return db.Column(db.Integer, db.ForeignKey('users.id'))
 
@@ -597,11 +592,10 @@ class AdminLogBase(DeclarativeHelperBase):
     def admin_id(cls):
         return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    def __init__(self, log_type, admin_id, torrent_id=None, user_id=None, comment_id=None):
+    def __init__(self, log_type, admin_id, torrent_id=None, user_id=None):
         self.log_type = log_type
         self.torrent_id = torrent_id
         self.user_id = user_id
-        self.comment_id = comment_id
         self.admin_id = admin_id
     
     def __repr__(self):
