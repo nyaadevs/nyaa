@@ -90,6 +90,7 @@
 						{% endif %}
 						{% if g.user.is_moderator %}
 							<li><a href="{{ url_for('view_reports') }}">Reports</a> </li>
+                            <li><a href="{{ url_for('view_adminlog') }}">Admin log</a> </li>
 						{% endif %}
 					</ul>
 
