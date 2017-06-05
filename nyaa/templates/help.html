@@ -6,9 +6,7 @@
 	<h3 id="{{ label }}">{{ heading }}<a class="header-anchor" href="#{{ label }}"><i class="fa fa-link" aria-hidden="true"></i></a></h3>
 {% endmacro %}
 
-<h1>Help</h1>
-
-<h2>Using the Site</h2>
+<h1>Using the Site</h1>
 
 {{ linkable_header("How to Download", "how-to-dl") }}
 <p>
@@ -17,7 +15,34 @@
 	µTorrent, Transmission or Deluge.
 </p>
 
-{{ linkable_header("Using the Search Function", "using-search") }}
+{{ linkable_header("Torrent Colors", "torrent-colors") }}
+<p>
+	<span style="color:green; font-weight: bold;">Green</span> entries (trusted) are:
+	<ul>
+		<li>Torrents uploaded by trusted users.</li>
+	</ul>
+	<span style="color:red; font-weight: bold;">Red</span> entries (remake) are torrents that matching any of the following:
+	<ul>
+		<li>Reencode of original release.</li>
+		<li>Remux of another uploader's original release for hardsubbing and/or fixing purposes.</li>
+		<li>Reupload of original release using non-original file names.</li>
+		<li>Reupload of original release with missing and/or unrelated additional files.</li>
+	</ul>
+	<span style="color:orange; font-weight: bold;">Orange</span> entries are:
+	<ul>
+		<li>Batches of completed series.</li>
+	</ul>
+	<span style="color:grey; font-weight: bold;">Grey</span> entries are:
+	<ul>
+		<li>Hidden torrents.</li>
+	</ul>
+</p>
+
+{{ linkable_header("Using the Search Engine", "using-search") }}
+<p>
+	Search results can be filtered by category, remake, trusted, and users.
+	The results can be further sorted by size, date, seeders, leechers, completed count, and comment count.
+</p>
 <p>
 	You can combine search terms with the <kbd>|</kbd> operator, such as
 	<kbd>horrible|cartel</kbd>.
@@ -33,24 +58,27 @@
 	<kbd>"foo bar"</kbd>, which would match torrents named <em>foo bar</em> but not
 	those named <em>bar foo</em>.
 </p>
+<p>
+	You can also use <kbd>(</kbd> and <kbd>)</kbd> to signify precedence.
+</p>
 
 {{ linkable_header("Reporting Torrents", "reporting") }}
 <p>
 	If you find a torrent that breaks the rules, click the
-	<button type="button" class="btn btn-danger">Report</button> button to the right
+	<button type="button" class="btn btn-xs btn-danger">Report</button> button to the right
 	of the torrent's information page. Then, enter a reason for your report in the
-	dialog that opens, and hit the <button type="button" class="btn btn-danger">
+	dialog that opens, and hit the <button type="button" class="btn btn-xs btn-danger">
 	Report</button> button to confirm.
 </p>
 
 {{ linkable_header("Styling Descriptions and Comments", "styling") }}
 <p>
 	You can style your comments and your torrent's description using
-	<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown
-	</a>. This includes adding images or linking to external websites.
+	<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown</a>.
+	This includes adding images or linking to external websites.
 </p>
 <p>
-	To link to an external site, use <kbd>[label of link](https://example.com)</kbd>
+	To link to an external site, use <kbd>[label](https://example.com)</kbd>
 	where the text in the <kbd>[]</kbd> square brackets is the shown text of your
 	link, and the URL in the <kbd>()</kbd> parentheses is the URL your link will
 	point to.
