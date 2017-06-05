@@ -22,6 +22,7 @@ settings:
           - lowercase
           - my_ngram
           - word_delimit
+          - trim_zero
     filter:
       my_ngram:
         type: edgeNGram
@@ -30,6 +31,9 @@ settings:
       resolution:
         type: pattern_capture
         patterns: ["(\\d+)[xX](\\d+)"]
+      trim_zero:
+        type: pattern_capture
+        patterns: ["0*([0-9]*)"]
       word_delimit:
         type: word_delimiter
         preserve_original: true
