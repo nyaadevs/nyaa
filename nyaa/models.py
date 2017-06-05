@@ -562,6 +562,80 @@ class User(db.Model):
     def is_trusted(self):
         return self.level >= UserLevelType.TRUSTED
 
+class AdminLogType(IntEnum):
+    TORRENT_DELETION = 1
+    TORRENT_EDIT = 2
+    COMMENT_DELETION = 3
+    USER_EDIT_REGULAR = 4
+    USER_EDIT_TRUSTED = 5
+    USER_EDIT_MODERATOR = 6
+    USER_BAN = 7
+
+
+class AdminLogBase(DeclarativeHelperBase):
+    __tablename_base__ = 'adminlog'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    log_type = db.Column(ChoiceType(AdminLogType, impl=db.Integer()), nullable=False)
+
+    @declarative.declared_attr
+    def torrent_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(
+            cls._table_prefix('torrents.id'), ondelete='CASCADE'))
+
+    @declarative.declared_attr
+    def comment_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(
+            cls._table_prefix('comments.id'), ondelete='CASCADE'))
+
+    @declarative.declared_attr
+    def user_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @declarative.declared_attr
+    def admin_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __init__(self, log_type, admin_id, torrent_id=None, user_id=None, comment_id=None):
+        self.log_type = log_type
+        self.torrent_id = torrent_id
+        self.user_id = user_id
+        self.comment_id = comment_id
+        self.admin_id = admin_id
+    
+    def __repr__(self):
+        return '<AdminLog %r>' % self.id
+    
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @property
+    def logtype_str(self):
+        if self.log_type == AdminLogType.USER_EDIT_REGULAR:
+            return 'changed to Regular'
+        elif self.log_type == AdminLogType.USER_EDIT_TRUSTED:
+            return 'changed to Trusted'
+        elif self.log_type == AdminLogType.USER_EDIT_MODERATOR:
+            return 'changed to Moderator'
+        elif self.log_type == AdminLogType.TORRNET_EDIT:
+            return 'Torrent Edited'
+        elif self.log_type == (AdminLogType.TORRENT_DELETED or AdminLogType.COMMENT_DELETED):
+            return 'Torrent Deleted'
+        elif self.log_type == AdminLogType.USER_BAN:
+            return 'User Banned'
+
+    @classmethod
+    def by_id(cls, id):
+        return cls.query.get(id)
+
+    @classmethod
+    def all_logs(cls, page):
+        logs = cls.query.paginate(page=page, per_page=20)
+        return logs
+
 
 class ReportStatus(IntEnum):
     IN_REVIEW = 0
@@ -714,6 +788,29 @@ class SukebeiComment(CommentBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
+# AdminLog
+class NyaaAdminLog(AdminLogBase, db.Model):
+    __flavor__ = 'Nyaa'
+    
+    @declarative.declared_attr
+    def user(cls):
+        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="NyaaAdminLog.user_id")
+
+    @declarative.declared_attr
+    def admin(cls):
+        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="NyaaAdminLog.admin_id")
+
+
+class SukebeiAdminLog(AdminLogBase, db.Model):
+    __flavor__ = 'Sukebei'
+    
+    @declarative.declared_attr
+    def user(cls):
+        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="SukebeiAdminLog.user_id")
+
+    @declarative.declared_attr
+    def admin(cls):
+        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="SukebeiAdminLog.admin_id")
 # Report
 class NyaaReport(ReportBase, db.Model):
     __flavor__ = 'Nyaa'
@@ -733,6 +830,7 @@ if app.config['SITE_FLAVOR'] == 'nyaa':
     MainCategory = NyaaMainCategory
     SubCategory = NyaaSubCategory
     Comment = NyaaComment
+    AdminLog = NyaaAdminLog
     Report = NyaaReport
 
     TorrentNameSearch = NyaaTorrentNameSearch
@@ -745,6 +843,7 @@ elif app.config['SITE_FLAVOR'] == 'sukebei':
     MainCategory = SukebeiMainCategory
     SubCategory = SukebeiSubCategory
     Comment = SukebeiComment
+    AdminLog = SukebeiAdminLog
     Report = SukebeiReport
 
     TorrentNameSearch = SukebeiTorrentNameSearch
