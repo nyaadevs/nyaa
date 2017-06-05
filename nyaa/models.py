@@ -620,10 +620,12 @@ class AdminLogBase(DeclarativeHelperBase):
             return 'changed to Trusted'
         elif self.log_type == AdminLogType.USER_EDIT_MODERATOR:
             return 'changed to Moderator'
-        elif self.log_type == AdminLogType.TORRNET_EDIT:
+        elif self.log_type == AdminLogType.TORRENT_EDIT:
             return 'Torrent Edited'
-        elif self.log_type == (AdminLogType.TORRENT_DELETED or AdminLogType.COMMENT_DELETED):
+        elif self.log_type == AdminLogType.TORRENT_DELETION:
             return 'Torrent Deleted'
+        elif self.log_type == AdminLogType.COMMENT_DELETION:
+            return 'Comment Deleted'
         elif self.log_type == AdminLogType.USER_BAN:
             return 'User Banned'
 
