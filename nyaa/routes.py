@@ -710,9 +710,9 @@ def delete_comment(torrent_id, comment_id):
     db.session.flush()
     torrent.update_comment_count()
     if flask.g.user.is_moderator:
-        adminlog = models.AdminLog(log_type=models.AdminLogType.COMMENT_DELETED,
+        adminlog = models.AdminLog(log_type=models.AdminLogType.COMMENT_DELETION,
                                 admin_id=flask.g.user.id,
-                                comment_id=comment_id)
+                                torrent_id=torrent_id)
         db.session.add(adminlog)
     db.session.commit()
 
@@ -759,7 +759,9 @@ def edit_torrent(torrent_id):
             torrent.deleted = form.is_deleted.data
 
         if flask.g.user.is_moderator:
-            adminlog = models.AdminLog(log_type=models.AdminLogType.TORRENT_EDITED,
+            adminlog = models.AdminLog(log_type=(models.AdminLogType.TORRENT_DELETION 
+                                                if torrent.deleted else 
+                                                models.AdminLogType.TORRENT_EDIT),
                                     admin_id=flask.g.user.id,
                                     torrent_id=torrent.id)
             db.session.add(adminlog)

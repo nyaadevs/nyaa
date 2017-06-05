@@ -21,13 +21,10 @@
 				</td>
 				<td>
                     {% if log.torrent_id %}
-					<a href="{{ url_for('view_torrent', torrent_id=log.torrent.id) }}">{{ log.logtype_str }}</a>
+					<a href="{{ url_for('view_torrent', torrent_id=log.torrent_id) }}">{{ log.logtype_str }}</a>
                     {% endif %}
                     {% if log.user_id %}
                     <a href="{{ url_for('view_user', user_name=log.user.username) }}">{{ log.user.username }} {{ log.logtype_str }}</a>
-                    {% endif %}
-                    {% if log.comment_id %}
-                    {{ log.logtype_str }}
                     {% endif %}
 				</td>
 				<td>{{ log.created_time }}</td>
