@@ -148,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 var markdownOptions = {
 	html : false,
 	breaks : true,
+	linkify: true,
 	typographer:  true
 }
 var markdown = window.markdownit(markdownOptions);
