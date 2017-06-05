@@ -190,43 +190,43 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Adds torrent mass action functionality when user is permitted to do so.
 document.addEventListener('DOMContentLoaded', function () {
-    var form = document.querySelector('#torrent-mass-action-form');
-    if (!form) {
-        return;
-    }
+	var form = document.querySelector('#torrent-mass-action-form');
+	if (!form) {
+		return;
+	}
 
-    var state = {};
-    var allSelected = false;
+	var state = {};
+	var allSelected = false;
 
-    var torrentActionSelectEl = form.querySelector('#action');
-    var categorySelectEl = form.querySelector('.category-select');
-    var selectAllBtn = form.querySelector('#select-all');
-    var torrentTable = document.querySelector('.torrent-list');
+	var torrentActionSelectEl = form.querySelector('#action');
+	var categorySelectEl = form.querySelector('.category-select');
+	var selectAllBtn = form.querySelector('#select-all');
+	var torrentTable = document.querySelector('.torrent-list');
 
-    Object.defineProperty(state, 'allSelected', {
-        get: function () { return allSelected; },
-        set: function (value) {
-            var checkboxes = Array.prototype.slice.call(torrentTable.querySelectorAll('input[type="checkbox"]'));
-            checkboxes.forEach(function (chkBox) {
-                chkBox.checked = value;
-            });
+	Object.defineProperty(state, 'allSelected', {
+		get: function () { return allSelected; },
+		set: function (value) {
+			var checkboxes = Array.prototype.slice.call(torrentTable.querySelectorAll('input[type="checkbox"]'));
+			checkboxes.forEach(function (chkBox) {
+				chkBox.checked = value;
+			});
 
-            allSelected = value;
-        }
-    });
+			allSelected = value;
+		}
+	});
 
-    torrentActionSelectEl.addEventListener('change', function (event) {
-        if (event.target.value === 'move_category') {
-            categorySelectEl.classList.remove('hidden');
-        } else {
-            categorySelectEl.classList.add('hidden');
-        }
-    });
+	torrentActionSelectEl.addEventListener('change', function (event) {
+		if (event.target.value === 'move_category') {
+			categorySelectEl.classList.remove('hidden');
+		} else {
+			categorySelectEl.classList.add('hidden');
+		}
+	});
 
-    selectAllBtn.addEventListener('click', function () {
-        event.preventDefault();
-        state.allSelected = !state.allSelected;
-    });
+	selectAllBtn.addEventListener('click', function () {
+		event.preventDefault();
+		state.allSelected = !state.allSelected;
+	});
 });
 
 // 
