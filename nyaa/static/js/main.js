@@ -188,6 +188,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 });
 
+// Adds torrent mass action functionality when user is permitted to do so.
 document.addEventListener('DOMContentLoaded', function () {
     var form = document.querySelector('#torrent-mass-action-form');
     if (!form) {

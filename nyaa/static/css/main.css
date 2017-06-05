@@ -448,7 +448,7 @@ h6:hover .header-anchor {
 }
 
 #torrent-mass-action-form .form-group > * {
-    margin: 0.5em 0;
+	margin: 0.5em 0;
 }
 
 @media (min-width: 768px) {
@@ -457,9 +457,8 @@ h6:hover .header-anchor {
 		-webkit-box-direction: normal;
 		-ms-flex-direction: row;
 		flex-direction: row;
-
 		width: 75%;
-        justify-content: flex-end;
+		justify-content: flex-end;
 	}
 
 	#torrent-mass-action-form .form-group > * {
@@ -475,9 +474,9 @@ h6:hover .header-anchor {
 	}
 
 	#torrent-mass-action-form .form-group .category-select select {
-        border-radius: 0;
+		border-radius: 0;
 		border-left: 0;
-    }
+	}
 
 	#torrent-mass-action-form #select-all {
 		border-radius: 0;
