@@ -421,10 +421,6 @@ h6:hover .header-anchor {
 	#torrent-mass-action-form > * {
 		margin-right: 1em;
 	}
-
-	#torrent-mass-action-form #select-all {
-		margin-right: 1em;
-	}
 }
 
 #torrent-mass-action-form > * {
@@ -471,7 +467,10 @@ h6:hover .header-anchor {
 	}
 
 	#torrent-mass-action-form select {
-        border-top-right-radius: 0;
+		-webkit-appearance: none;
+		-webkit-border-top-right-radius: 0;
+		-webkit-border-bottom-right-radius: 0;
+		border-top-right-radius: 0;
 		border-bottom-right-radius: 0;
 	}
 
