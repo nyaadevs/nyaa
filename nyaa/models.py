@@ -624,13 +624,8 @@ class AdminLogBase(DeclarativeHelperBase):
             return 'User Banned'
 
     @classmethod
-    def by_id(cls, id):
-        return cls.query.get(id)
-
-    @classmethod
-    def all_logs(cls, page):
-        logs = cls.query.paginate(page=page, per_page=20)
-        return logs
+    def all_logs(cls):
+        return cls.query
 
 
 class ReportStatus(IntEnum):
