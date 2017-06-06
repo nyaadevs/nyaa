@@ -1,5 +1,10 @@
+nav.navbar.has-cat-nav {
+	margin-bottom: 0;
+	border-bottom-width: 0;
+}
+
 .panel-heading-collapse a:after {
-	font-family:'Glyphicons Halflings';
+	font-family: 'Glyphicons Halflings';
 	content:"\e114";
 	float: right;
 	color: grey;
@@ -7,6 +12,116 @@
 
 .panel-heading-collapse a.collapsed:after {
 	content:"\e080";
+}
+
+.category-shortcuts {
+	min-height: initial;
+	border-top-width: 0;
+}
+
+.category-shortcuts ul.nav {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-justify-content: flex-start;
+	    -ms-flex-pack: start;
+	        justify-content: flex-start;
+}
+
+.category-shortcuts ul.nav > li {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-justify-content: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-align-items: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	opacity: 1;
+	-webkit-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	min-width: 100px;
+	text-align: center;
+}
+
+.category-shortcuts ul.nav > li > a {
+	height: 100%;
+	width: 100%;
+	position: relative;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-justify-content: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-align-items: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	padding: 12px 5px;
+}
+
+
+/* Reordering for active sub-category when cat nav scrolling is needed */
+@media (max-width: 601px){
+	.category-shortcuts ul.nav > li.main-cat {
+		-webkit-order: 1;
+		    -ms-flex-order: 1;
+		        order: 1;
+	}
+
+	.category-shortcuts ul.nav > li.sub-cat {
+		-webkit-order: 3;
+		    -ms-flex-order: 3;
+		        order: 3;
+	}
+
+	.category-shortcuts ul.nav > li.active.sub-cat {
+		-webkit-order: 2;
+		    -ms-flex-order: 2;
+		        order: 2;
+	}
+}
+
+.category-shortcuts ul.nav > li.active {
+	background-color: #dadada;
+}
+
+.category-shortcuts ul.nav > li.active > a {
+	color: #555;
+	font-weight: bold;
+}
+
+.category-shortcuts ul.nav > li.active.last {
+	background-color: #2d6da3;
+}
+
+.category-shortcuts ul.nav > li.active.last > a {
+	color: #ffffff;
+	font-weight: bold;
+}
+
+.category-shortcuts ul.nav > li.active.last:hover > a {
+	color: #333333;
+}
+
+.category-shortcuts ul.nav .hidden {
+	display: none;
+	min-width: 0;
+}
+
+.category-shortcuts ul.nav .back-button {
+	-webkit-flex: 0.25;
+	    -ms-flex: 0.25;
+	        flex: 0.25;
+	min-width: 50px;
+	-webkit-order: 0;
+	    -ms-flex-order: 0;
+	        order: 0;
 }
 
 .torrent-list > tbody > tr > td {
@@ -138,29 +253,29 @@ table.torrent-list tbody .comments i {
 }
 
 .search-container {
-	display: -webkit-box;
+	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	-ms-flex-direction: column;
-	flex-direction: column;
+	-webkit-flex-direction: column;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
 }
 
 .form-control.search-bar {
-	-webkit-box-ordinal-group: 2;
-	-ms-flex-order: 1;
-	order: 1;
+	-webkit-order: 1;
+	    -ms-flex-order: 1;
+	        order: 1;
 	width: 99%;
 	padding-right: 4em;
 }
 
 .search-btn {
-	-webkit-box-ordinal-group: 3;
-	-ms-flex-order: 2;
-	order: 2;
-	-ms-flex-item-align: end;
-	align-self: flex-end;
+	-webkit-order: 2;
+	    -ms-flex-order: 2;
+	        order: 2;
+	-webkit-align-self: flex-end;
+	    -ms-flex-item-align: end;
+	        align-self: flex-end;
 	top: -34px;
 	height: 0;
 	width: auto;
@@ -168,15 +283,15 @@ table.torrent-list tbody .comments i {
 }
 
 #navFilter-criteria {
-	-webkit-box-ordinal-group: 4;
 	-ms-flex-order: 3;
-	order: 3;
+	-webkit-order: 3;
+	        order: 3;
 }
 
 #navFilter-category {
-	-webkit-box-ordinal-group: 5;
 	-ms-flex-order: 4;
-	order: 4;
+	-webkit-order: 4;
+	        order: 4;
 }
 
 .nav-filter {
@@ -206,8 +321,7 @@ table.torrent-list tbody .comments i {
 }
 
 /* Upload page drop zone */
-#upload-drop-zone
-{
+#upload-drop-zone {
 	visibility: hidden;
 	opacity: 0;
 	position: absolute;
@@ -216,17 +330,15 @@ table.torrent-list tbody .comments i {
 	z-index: 9999999999;
 	width: 100%;
 	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
 	transition: visibility 175ms, opacity 175ms;
 	display: table;
 	text-shadow: 1px 1px 2px #000;
 	color: #fff;
-	background: rgba(0, 0, 0, 0.45);
+	background-color: rgba(0, 0, 0, 0.45);
 	font: bold 42px Tahoma, sans-serif;
 }
 
-#upload-drop-zone span
-{
+#upload-drop-zone span {
 	display: table-cell;
 	text-align: center;
 	vertical-align: middle;
