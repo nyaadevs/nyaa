@@ -19,7 +19,7 @@
 		<div class="row">
 			<div class="col-md-1">Category:</div>
 			<div class="col-md-5">
-				<a href="{{ url_for("home", c=torrent.main_category.id_as_string) }}">{{ torrent.main_category.name }}</a> - <a href="{{ url_for("home", c=torrent.sub_category.id_as_string) }}">{{ torrent.sub_category.name }}</a>
+				<a href="{{ url_for('home', c=torrent.main_category.id_as_string) }}">{{ torrent.main_category.name }}</a> - <a href="{{ url_for('home', c=torrent.sub_category.id_as_string) }}">{{ torrent.sub_category.name }}</a>
 			</div>
 
 			<div class="col-md-1">Date:</div>
@@ -70,7 +70,7 @@
 			<div class="col-md-offset-6 col-md-1">Info hash:</div>
 			<div class="col-md-5"><kbd>{{ torrent.info_hash_as_hex }}</kbd></div>
 		</div>
-	</div>
+	</div><!--/.panel-body -->
 
 	<div class="panel-footer clearfix">
 		{% if torrent.has_torrent %}<a href="{{ url_for('download_torrent', torrent_id=torrent.id )}}"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
@@ -78,7 +78,7 @@
 			Report
 		</button>
 	</div>
-</div>
+</div><!--/.panel -->
 
 <div class="panel panel-default">
 	<div markdown-text class="panel-body" id="torrent-description">
@@ -108,12 +108,12 @@
 				</ul>
 			</li>
 		{% else %}
-			<li><i class="fa fa-file"></i>{{ key }} <span class="file-size">({{ value | filesizeformat(True) }})</span></a></li>
+			<li><i class="fa fa-file"></i>{{ key }} <span class="file-size">({{ value | filesizeformat(True) }})</span></li>
 		{% endif %}
 		{% endfor %}
 		</ul>
 	</div>
-</div>
+</div><!--/.panel -->
 {% elif files %}
 <div class="panel panel-default">
 	<div class="panel-heading panel-heading-collapse">
@@ -177,7 +177,7 @@
 	{% endif %}
 </div>
 
-	<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
+<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -199,12 +199,13 @@
 			</div>
 		</div>
 	</div>
+</div>
 
 <script type="text/javascript">
 	// Focus the report text field once the modal is opened.
 	$('#reportModal').on('shown.bs.modal', function () {
 		$('#reason').focus();
-	})
+	});
 </script>
 
 {% endblock %}
