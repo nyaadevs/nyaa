@@ -848,7 +848,9 @@ def view_adminlog():
         flask.abort(403)
 
     page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
-    logs = models.AdminLog.all_logs(page)
+    logs = models.AdminLog.all_logs() \
+            .order_by(models.AdminLog.created_time.desc()) \
+            .paginate(page=page, per_page=20)
 
     return flask.render_template('adminlog.html',
                                  adminlog=logs)
