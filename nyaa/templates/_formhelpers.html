@@ -140,7 +140,7 @@
 	</div>
 {% endmacro %}
 
-{% macro render_category_select(name) %}
+{% macro render_category_options(selected_cat_id=None, has_selected_option=False) %}
 	{% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
 		('1_1', '- Anime Music Video', 'Anime - AMV'),
 		('1_2', '- English-translated', 'Anime - English'),
@@ -181,12 +181,13 @@
 		{% set used_cats = suke_cats %}
 	{% endif %}
 
-	<select class="form-control" title="Category" name="{{ name }}">
-		<option>Select Category</option>
-		{% for cat_id, cat_name, cat_title in used_cats %}
-			<option value="{{ cat_id }}" title="{{ cat_title }}">
-				{{ cat_name }}
-			</option>
-		{% endfor %}
-	</select>
+    {% for cat_id, cat_name, cat_title in used_cats %}
+        <option
+                value="{{ cat_id }}"
+                title="{{ cat_title }}"
+                {% if has_selected_option and selected_cat_id == cat_id %} selected{% endif %}
+        >
+            {{ cat_name }}
+        </option>
+    {% endfor %}
 {% endmacro %}

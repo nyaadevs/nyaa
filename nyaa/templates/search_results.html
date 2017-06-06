@@ -1,4 +1,4 @@
-{% from '_formhelpers.html' import render_category_select %}
+{% from '_formhelpers.html' import render_category_options %}
 
 {% macro render_column_header(header_class, header_style, center_text=False, sort_key=None, header_title=None) %}
 {% set class_suffix = (search.sort == sort_key) and ("_" + search.order) or "" %}
@@ -43,7 +43,10 @@
 					{% endif %}
 				</select>
 				<div class="category-select">
-					{{ render_category_select('category') }}
+					<select class="form-control" title="Category" name="{{ name }}">
+						<option>Select Category</option>
+						{{ render_category_options() }}
+					</select>
 				</div>
 				<div class="btn-container">
 					<button class="btn btn-success" id="select-all">Select Visible Items</button>
