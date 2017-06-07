@@ -185,7 +185,11 @@
 								<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 									All categories
 								</option>
-								{{ render_category_options(selected_cat_id=search.category, has_selected_option=search is defined) }}
+								{% if search is defined %}
+									{{ render_category_options(selected_cat_id=search.category, has_selected_option=search is defined) }}
+								{% else %}
+									{{ render_category_options() }}
+								{% endif %}
 							</select>
 
 							<br>
@@ -231,7 +235,11 @@
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
-									{{ render_category_options(selected_cat_id=search.category, has_selected_option=search is defined) }}
+									{% if search is defined %}
+										{{ render_category_options(selected_cat_id=search.category, has_selected_option=search is defined) }}
+									{% else %}
+										{{ render_category_options() }}
+									{% endif %}
 								</select>
 							</div>
 							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
