@@ -2,17 +2,29 @@ language: python
 
 python: "3.6"
 
-dist: xenial
-sudo: false
+dist: trusty
+sudo: required
 
 matrix:
   fast_finish: true
 
 cache: pip
 
-install: pip install --upgrade pycodestyle
+services:
+  mysql
 
-script: ./lint.sh --check
+before_install:
+  - mysql -u root -e 'CREATE DATABASE nyaav2 DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;'
+
+install:
+  - pip install -r requirements.txt
+  - sed "s/mysql:\/\/test:test123@/mysql:\/\/root:@/" config.example.py > config.py
+  - python db_create.py
+  - ./db_migrate.py stamp head
+
+script:
+  - python -m pytest tests/
+  - ./lint.sh --check
 
 notifications:
   email: false
