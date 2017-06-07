@@ -285,6 +285,10 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	float: right;
 }
 
+#comment {
+	height: 8em;
+}
+
 .avatar {
 	max-width: 120px;
 }
