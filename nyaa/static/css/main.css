@@ -51,9 +51,11 @@ table.torrent-list thead th.sorting:after {
 	color: #808080;
 	font-size: 0.85em;
 }
+
 table.torrent-list thead th.sorting_asc:after {
 	content: "\f0de";
 }
+
 table.torrent-list thead th.sorting_desc:after {
 	content: "\f0dd";
 }
@@ -97,21 +99,26 @@ table.torrent-list tbody .comments i {
 .table-hover > tbody > tr.deleted:hover > td, .table-hover > tbody > tr.deleted:hover > th, .table-hover > tbody > tr:hover > .deleted, .table-hover > tbody > tr > td.deleted:hover, .table-hover > tbody > tr > th.deleted:hover {
 	background-color:#bdbdbd;
 }
+
 .panel-deleted {
 	border-color:#757575;
 }
+
 .panel-deleted > .panel-heading {
 	color:#212121;
 	background-color:#9e9e9e;
 	border-color:#757575;
 }
+
 .panel-deleted > .panel-heading + .panel-collapse > .panel-body {
 	border-top-color:#757575;
 }
+
 .panel-deleted > .panel-heading .badge {
 	color:#9e9e9e;
 	background-color:#212121;
 }
+
 .panel-deleted > .panel-footer + .panel-collapse > .panel-body {
 	border-bottom-color:#757575;
 }
@@ -124,19 +131,6 @@ table.torrent-list tbody .comments i {
 	min-height: 360px;
 }
 
-@media (max-width: 991px){
-	.panel-body .col-md-5 {
-		margin-left: 20px;
-		margin-bottom: 10px;
-	}
-}
-
-@media (min-width: 992px){
-	.panel-body .col-md-5 {
-		word-wrap: break-word;
-	}
-}
-
 .search-container {
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -147,18 +141,33 @@ table.torrent-list tbody .comments i {
 	flex-direction: column;
 }
 
+.search-container > .search-bar {
+	border-left: 0;
+}
+
+#navFilter-criteria > .bootstrap-select:first-child {
+	border-right: solid 1px;
+}
+
+#navFilter-criteria > .bootstrap-select:first-child > button {
+	/* !important is used here to override the programmatically added style on element */
+	border-top-left-radius: 4px !important;
+	border-bottom-left-radius: 4px !important;
+}
+
 .form-control.search-bar {
-	-webkit-box-ordinal-group: 2;
-	-ms-flex-order: 1;
-	order: 1;
+	-webkit-box-ordinal-group: 4;
+	-ms-flex-order: 3;
+	order: 3;
 	width: 99%;
 	padding-right: 4em;
+	border-left: 0;
 }
 
 .search-btn {
-	-webkit-box-ordinal-group: 3;
-	-ms-flex-order: 2;
-	order: 2;
+	-webkit-box-ordinal-group: 5;
+	-ms-flex-order: 4;
+	order: 4;
 	-ms-flex-item-align: end;
 	align-self: flex-end;
 	top: -34px;
@@ -168,15 +177,15 @@ table.torrent-list tbody .comments i {
 }
 
 #navFilter-criteria {
-	-webkit-box-ordinal-group: 4;
-	-ms-flex-order: 3;
-	order: 3;
+	-webkit-box-ordinal-group: 2;
+	-ms-flex-order: 1;
+	order: 1;
 }
 
 #navFilter-category {
-	-webkit-box-ordinal-group: 5;
-	-ms-flex-order: 4;
-	order: 4;
+	-webkit-box-ordinal-group: 3;
+	-ms-flex-order: 2;
+	order: 2;
 }
 
 .nav-filter {
@@ -192,17 +201,6 @@ table.torrent-list tbody .comments i {
  collapsible section of the navigation */
 .navbar-collapse.in {
 	overflow-y: visible;
-}
-
-@media (min-width: 991px) {
-	.search-btn {
-		top: 0;
-		width: auto;
-	}
-
-	.bootstrap-select > button {
-		margin-top: auto;
-	}
 }
 
 /* Upload page drop zone */
@@ -253,13 +251,19 @@ ul.nav-tabs#profileTabs {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+
 .comment-panel:target {
 	border-color: black;
 	border-width: 2px;
 }
 
-.text-purple, a.text-purple:visited { color: #a760bc; }
-a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0; }
+.text-purple, a.text-purple:visited {
+	color: #a760bc; 
+}
+
+a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
+	color: #a760e0; 
+}
 
 .comment-content {
 	word-break: break-all;
@@ -290,21 +294,27 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus { color: #a760e0;
 	background-color: #cccfd2;
 	border-color: #ccc;
 }
+
 .btn-grey:hover, .btn-grey:focus, .btn-grey:active, .btn-grey.active, .open > .dropdown-toggle.btn-grey {
 	background-color: #aaaaaa;
 }
+
 .btn span.glyphicon-check {
 	display: none;
 }
+
 .btn.active span.glyphicon-check {
 	display: inline;
 }
+
 .btn span.glyphicon-unchecked {
 	display: inline;
 }
+
 .btn.active span.glyphicon-unchecked {
 	display: none;
 }
+
 .center {
 	float: none;
 	margin: 0 auto;
@@ -364,4 +374,36 @@ h5:hover .header-anchor,
 h6:hover .header-anchor {
 	visibility: visible;
 	display: inline-block;
+}
+
+@media (max-width: 991px){
+	.panel-body .col-md-5 {
+		margin-left: 20px;
+		margin-bottom: 10px;
+	}
+	
+	#navFilter-criteria > .bootstrap-select:first-child > button {
+		/* !important is used here to override the programmatically added style on element */
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+	}
+	
+	.search-container > .search-bar {
+		margin-top: 15px;
+	}
+}
+
+@media (min-width: 992px){
+	.panel-body .col-md-5 {
+		word-wrap: break-word;
+	}
+	
+	.search-btn {
+		top: 0;
+		width: auto;
+	}
+
+	.bootstrap-select > button {
+		margin-top: auto;
+	}
 }
