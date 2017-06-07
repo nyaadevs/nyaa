@@ -108,3 +108,8 @@ However, take note that binglog is not necessary for simple ES testing and devel
 
 You're done! The script should now be feeding updates from the database to Elasticsearch.   
 Take note, however, that the specified ES index refresh interval is 30 seconds, which may feel like a long time on local development. Feel free to adjust it or [poke Elasticsearch yourself!](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html)
+
+### Running Tests
+We have some basic tests that check if each page can render correctly. To run the tests:
+- Make sure that you are in the python virtual environment.
+- Run `python -m pytest tests/` while in the repository directory.
