@@ -17,7 +17,7 @@ class NyaaTestCase(unittest.TestCase):
 		os.close(self.db)
 		os.unlink(nyaa.app.config['DATABASE'])
 
-	def test_empty_db(self):
+	def test_index_url(self):
 		rv = self.app.get('/')
 		assert b'Browse :: Nyaa' in rv.data
 		assert b'Guest' in rv.data
