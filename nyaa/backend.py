@@ -13,19 +13,6 @@ from nyaa.extensions import db
 app = flask.current_app
 
 
-@utils.cached_function
-def get_category_id_map():
-    ''' Reads database for categories and turns them into a dict with
-        ids as keys and name list as the value, ala
-        {'1_0': ['Anime'], '1_2': ['Anime', 'English-translated'], ...} '''
-    cat_id_map = {}
-    for main_cat in models.MainCategory.query:
-        cat_id_map[main_cat.id_as_string] = [main_cat.name]
-        for sub_cat in main_cat.sub_categories:
-            cat_id_map[sub_cat.id_as_string] = [main_cat.name, sub_cat.name]
-    return cat_id_map
-
-
 def _replace_utf8_values(dict_or_list):
     ''' Will replace 'property' with 'property.utf-8' and remove latter if it exists.
         Thanks, bitcomet! :/ '''

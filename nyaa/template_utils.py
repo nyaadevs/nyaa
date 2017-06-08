@@ -7,8 +7,9 @@ from urllib.parse import urlencode
 import flask
 from werkzeug.urls import url_encode
 
-from nyaa.backend import get_category_id_map
+from nyaa import models
 from nyaa.torrents import get_default_trackers
+from nyaa.utils import cached_function
 
 app = flask.current_app
 bp = flask.Blueprint('template-utils', __name__)
@@ -76,6 +77,20 @@ def filter_truthy(input_list):
     """ Jinja2 can't into list comprehension so this is for
         the search_results.html template """
     return [item for item in input_list if item]
+
+
+@cached_function
+@bp.app_template_global()
+def get_category_id_map():
+    """ Reads database for categories and turns them into a dict with
+        ids as keys and name list as the value, ala
+        {'1_0': ['Anime'], '1_2': ['Anime', 'English-translated'], ...} """
+    cat_id_map = {}
+    for main_cat in models.MainCategory.query:
+        cat_id_map[main_cat.id_as_string] = [main_cat.name]
+        for sub_cat in main_cat.sub_categories:
+            cat_id_map[sub_cat.id_as_string] = [main_cat.name, sub_cat.name]
+    return cat_id_map
 
 
 @bp.app_template_global()
