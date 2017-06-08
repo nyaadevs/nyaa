@@ -1,4 +1,4 @@
-# NyaaV2
+# NyaaV2 [![Build Status](https://travis-ci.org/nyaadevs/nyaa.svg?branch=master)](https://travis-ci.org/nyaadevs/nyaa)
 
 ## Setting up for development
 This project uses Python 3.6. There are features used that do not exist in 3.5, so make sure to use Python 3.6.   
@@ -9,6 +9,11 @@ It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that
 - Before we get any deeper, remember to follow PEP8 style guidelines and run `./lint.sh` before committing.
     - You may also use `./lint.sh -c` to see a list of warnings/problems instead of having `lint.sh` making modifications for you
 - Other than PEP8, try to keep your code clean and easy to understand, as well. It's only polite!
+
+### Running Tests
+We have some basic tests that check if each page can render correctly. To run the tests:
+- Make sure that you are in the python virtual environment.
+- Run `python -m pytest tests/` while in the repository directory.
 
 ### Setting up Pyenv
 pyenv eases the use of different Python versions, and as not all Linux distros offer 3.6 packages, it's right up our alley.
