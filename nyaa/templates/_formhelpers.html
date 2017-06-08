@@ -181,13 +181,13 @@
 		{% set used_cats = suke_cats %}
 	{% endif %}
 
-    {% for cat_id, cat_name, cat_title in used_cats %}
-        <option
-                value="{{ cat_id }}"
-                title="{{ cat_title }}"
-                {% if has_selected_option and selected_cat_id == cat_id %} selected{% endif %}
-        >
-            {{ cat_name }}
-        </option>
-    {% endfor %}
+	{% for cat_id, cat_name, cat_title in used_cats %}
+		<option
+				value="{{ cat_id }}"
+				title="{{ cat_title }}"
+				{% if has_selected_option and selected_cat_id == cat_id %} selected{% endif %}
+		>
+			{{ cat_name }}
+		</option>
+	{% endfor %}
 {% endmacro %}
