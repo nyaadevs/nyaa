@@ -1,5 +1,7 @@
 import flask
 from werkzeug.datastructures import CombinedMultiDict
+from wtforms import ValidationError
+
 from nyaa import app, db
 from nyaa import models, forms
 from nyaa import bencode, utils
@@ -447,14 +449,18 @@ def update_torrents(user_name):
         user=flask.g.user,
         selected_torrents=selected_torrent_ids)
 
-    if form.validate(user=flask.g.user):
-        result = form.apply_user_action()
+    try:
         status = 'info'
-        if result['ok'] is False:
-            status = 'danger'
+        if form.validate(user=flask.g.user):
+            result = form.apply_user_action()
+            if result['ok'] is False:
+                status = 'danger'
 
         flask.flash(flask.Markup(
             f"<strong>{result['message']}</strong>."), status)
+    except ValidationError as err:
+        flask.flash(flask.Markup(
+            f"<strong>{str(err)}</strong>."), 'danger')
 
     return flask.redirect(f"/user/{user_name}")
 

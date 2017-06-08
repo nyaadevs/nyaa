@@ -327,28 +327,30 @@ class UserTorrentMassAction(FlaskForm):
             .filter(models.Torrent.user == user).all()
 
         if len(torrents) != len(self.selected_torrents):
-            return False
+            raise ValidationError('No torrents selected')
 
         self.selected_torrents = torrents
 
         if self.action.data == 'move_category':
-            [primary, secondary] = self.category.data.split('_')
-
-            # Category notation implies that these must be numbers. Reject everything else
-            if primary.isdigit() is False or secondary.isdigit() is False:
-                return False
+            (primary, secondary) = _validate_category_notation(self.category.data)
+            if primary == 0 and secondary == 0:
+                raise ValidationError('No category selected')
 
             category = models.MainCategory.by_id(primary)
-            subcategory = db.session.query(models.SubCategory) \
-                .filter(models.SubCategory.main_category_id == category.id) \
-                .filter(models.SubCategory.id == secondary).first()
 
-            if category is not None and subcategory is not None:
+            if secondary == 0:
+                subcategory = None
+            else:
+                subcategory = db.session.query(models.SubCategory) \
+                    .filter(models.SubCategory.main_category_id == category.id) \
+                    .filter(models.SubCategory.id == secondary).first()
+
+            if category is not None:
                 self.selected_category['main'] = category
                 self.selected_category['sub'] = subcategory
                 return True
             else:
-                return False
+                raise ValidationError('No category selected')
         else:
             return True
 
@@ -361,7 +363,8 @@ class UserTorrentMassAction(FlaskForm):
 
             def fn(torrent):
                 torrent.main_category = self.selected_category['main']
-                torrent.sub_category = self.selected_category['sub']
+                if self.selected_category['sub'] is not None:
+                    torrent.sub_category = self.selected_category['sub']
             return fn
 
         actions = {
@@ -499,6 +502,17 @@ def _validate_number(value, name='value', check_positive=False, check_positive_o
         assert value >= 0, name + ' is less than 0'
     elif check_positive:
         assert value > 0, name + ' is not positive'
+
+
+def _validate_category_notation(category):
+    cat_match = re.match(r'^(\d+)_(\d+)$', category)
+    if not cat_match:
+        raise ValidationError('Please select a category')
+
+    main_cat_id = int(cat_match.group(1))
+    sub_cat_id = int(cat_match.group(2))
+
+    return (main_cat_id, sub_cat_id)
 
 
 def _validate_list(value, name='value', check_empty=False):
