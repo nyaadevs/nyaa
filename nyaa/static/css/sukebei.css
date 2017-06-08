@@ -1,0 +1,14 @@
+.sukebei .navbar{
+  background-color: #d81b60;
+  border-bottom: #a00037;
+}
+.sukebei #navbar > ul > li > a, .sukebei .navbar-brand {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all .15s ease-in-out;
+}
+.sukebei #navbar > ul > li > a:hover {
+  color: #fff;
+}
+.sukebei #navbar li.active > a, .sukebei #navbar li.open > a{
+  background-color: #a00037;
+}
