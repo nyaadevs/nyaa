@@ -112,7 +112,8 @@ if __name__ == '__main__':
             exit(1)
         else:
             formatted_filesize = easy_file_size(response.get('filesize', 0))
-            flag_info = ', '.join(n+': '+_as_yes_no(response['is_'+n.lower()]) for n in FLAG_NAMES)
+            flag_info = ', '.join(
+                n + ': ' + _as_yes_no(response['is_' + n.lower()]) for n in FLAG_NAMES)
 
             info_str = INFO_TEMPLATE.format(formatted_filesize=formatted_filesize,
                                             flag_info=flag_info, **response)

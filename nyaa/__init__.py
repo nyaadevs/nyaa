@@ -70,4 +70,4 @@ assets = Environment(app)
 #             output='style.css', depends='**/*.scss')
 # assets.register('style_all', css)
 
-from nyaa import routes  # noqa
+from nyaa import routes  # noqa E402

@@ -49,3 +49,5 @@ if [[ ${action} == check_lint ]]; then
     echo "The code requires some changes."
   fi
 fi
+
+if [[ ${result} -ne 0 ]]; then exit 1; fi
