@@ -150,6 +150,17 @@
 					{% else %}
 						<td class="text-center" data-timestamp="{{ torrent.created_utc_timestamp | int }}">{{ torrent.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
 					{% endif %}
+					{% if config.ENABLE_SHOW_STATS %}
+						{% if use_elastic %}
+							<td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
+							<td class="text-center" style="color: red;">{{ torrent.leech_count }}</td>
+							<td class="text-center">{{ torrent.download_count }}</td>
+						{% else %}
+							<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
+							<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
+							<td class="text-center">{{ torrent.stats.download_count }}</td>
+						{% endif %}
+					{% endif %}
 				</tr>
 			{% endfor %}
 			</tbody>
