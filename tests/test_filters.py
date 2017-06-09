@@ -3,11 +3,12 @@ import datetime
 
 from email.utils import formatdate
 
+from tests import NyaaTestCase
 from nyaa.routes import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
                          get_display_time, timesince, filter_truthy, category_name)
 
 
-class TestFilters(unittest.TestCase):
+class TestFilters(NyaaTestCase):
 
     # def setUp(self):
     #     self.db, nyaa.app.config['DATABASE'] = tempfile.mkstemp()
@@ -75,13 +76,14 @@ class TestFilters(unittest.TestCase):
         self.assertEqual(filter_truthy(my_list), [item for item in my_list if item])
 
     def test_category_name(self):
-        # Nyaa categories only
-        self.assertEqual(category_name('1_0'), 'Anime')
-        self.assertEqual(category_name('1_2'), 'Anime - English-translated')
-        # Unknown category ids
-        self.assertEqual(category_name('100_0'), '???')
-        self.assertEqual(category_name('1_100'), '???')
-        self.assertEqual(category_name('0_0'), '???')
+        with self.app_context:
+            # Nyaa categories only
+            self.assertEqual(category_name('1_0'), 'Anime')
+            self.assertEqual(category_name('1_2'), 'Anime - English-translated')
+            # Unknown category ids
+            self.assertEqual(category_name('100_0'), '???')
+            self.assertEqual(category_name('1_100'), '???')
+            self.assertEqual(category_name('0_0'), '???')
 
 
 if __name__ == '__main__':
