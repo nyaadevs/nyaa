@@ -13,7 +13,7 @@ It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that
 ### Running Tests
 We have some basic tests that check if each page can render correctly. To run the tests:
 - Make sure that you are in the python virtual environment.
-- Run `python -m pytest tests/` while in the repository directory.
+- Run `pytest tests` while in the repository directory.
 
 ### Setting up Pyenv
 pyenv eases the use of different Python versions, and as not all Linux distros offer 3.6 packages, it's right up our alley.

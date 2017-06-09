@@ -23,7 +23,7 @@ install:
   - ./db_migrate.py stamp head
 
 script:
-  - python -m pytest tests/
+  - pytest tests
   - ./lint.sh --check
 
 notifications:
