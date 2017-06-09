@@ -4,7 +4,7 @@ import datetime
 from email.utils import formatdate
 
 from nyaa.routes import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
-                         get_display_time, timesince)
+                         get_display_time, timesince, filter_truthy, category_name)
 
 
 class TestFilters(unittest.TestCase):
@@ -62,13 +62,26 @@ class TestFilters(unittest.TestCase):
     def test_modify_query(self):
         pass
 
-    @unittest.skip('Not yet implemented')
     def test_filter_truthy(self):
-        pass
+        my_list = [
+            True, False,  # booleans
+            'hello!', '',  # strings
+            1, 0, -1,  # integers
+            1.0, 0.0, -1.0,  # floats
+            ['test'], [],  # lists
+            {'marco': 'polo'}, {},  # dictionaries
+            None
+        ]
+        self.assertEqual(filter_truthy(my_list), [item for item in my_list if item])
 
-    @unittest.skip('Not yet implemented')
     def test_category_name(self):
-        pass
+        # Nyaa categories only
+        self.assertEqual(category_name('1_0'), 'Anime')
+        self.assertEqual(category_name('1_2'), 'Anime - English-translated')
+        # Unknown category ids
+        self.assertEqual(category_name('100_0'), '???')
+        self.assertEqual(category_name('1_100'), '???')
+        self.assertEqual(category_name('0_0'), '???')
 
 
 if __name__ == '__main__':
