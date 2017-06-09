@@ -1,12 +1,30 @@
-*.sql
-/.vscode
-/venv
-*.swp
+# Cache
 __pycache__
 /nyaa/static/.webassets-cache
+
+# Virtual Environments
+/venv
+
+# Coverage
+.coverage
+/htmlcov
+
+# Editos / IDEs
+/.vscode
+/.idea
+
+# Databases
+*.sql
 test.db
-install/*
+
+# Webserver
 uwsgi.sock
-/test_torrent_batch
+
+# Application
+install/*
 config.py
+/test_torrent_batch
 torrents
+
+# Other
+*.swp
