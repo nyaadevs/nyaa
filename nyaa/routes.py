@@ -428,12 +428,12 @@ def view_user(user_name):
 
 @app.template_filter('rfc822')
 def _jinja2_filter_rfc822(date, fmt=None):
-    return formatdate(float(date.strftime('%s')))
+    return formatdate(date.timestamp())
 
 
 @app.template_filter('rfc822_es')
-def _jinja2_filter_rfc822(datestr, fmt=None):
-    return formatdate(float(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').strftime('%s')))
+def _jinja2_filter_rfc822_es(datestr, fmt=None):
+    return formatdate(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').timestamp())
 
 
 def render_rss(label, query, use_elastic, magnet_links=False):
