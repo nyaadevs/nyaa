@@ -42,6 +42,26 @@ class TestFilters(unittest.TestCase):
         test_date_str = '2017-02-15T11:15:34'
         self.assertEqual(get_display_time(test_date_str), '2017-02-15 11:15')
 
+    @unittest.skip('Not yet implemented')
+    def test_timesince(self):
+        pass
+
+    @unittest.skip('Not yet implemented')
+    def test_static_cachebuster(self):
+        pass
+
+    @unittest.skip('Not yet implemented')
+    def test_modify_query(self):
+        pass
+
+    @unittest.skip('Not yet implemented')
+    def test_filter_truthy(self):
+        pass
+
+    @unittest.skip('Not yet implemented')
+    def test_category_name(self):
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
