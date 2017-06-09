@@ -108,7 +108,7 @@ class TestUtils(unittest.TestCase):
             'utils.py': 14700,
             'torrents.py': 11948,
         }
-        self.assertDictEqual(utils.flattenDict(initial), expected)
+        self.assertDictEqual(utils.flatten_dict(initial), expected)
 
 
 if __name__ == '__main__':

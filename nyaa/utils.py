@@ -35,7 +35,7 @@ def cached_function(f):
     return decorator
 
 
-def flattenDict(d, result=None):
+def flatten_dict(d, result=None):
     if result is None:
         result = {}
     for key in d:
@@ -44,7 +44,7 @@ def flattenDict(d, result=None):
             value1 = {}
             for keyIn in value:
                 value1["/".join([key, keyIn])] = value[keyIn]
-            flattenDict(value1, result)
+            flatten_dict(value1, result)
         elif isinstance(value, (list, tuple)):
             for indexB, element in enumerate(value):
                 if isinstance(element, dict):
@@ -52,10 +52,10 @@ def flattenDict(d, result=None):
                     index = 0
                     for keyIn in element:
                         newkey = "/".join([key, keyIn])
-                        value1["/".join([key, keyIn])] = value[indexB][keyIn]
+                        value1[newkey] = value[indexB][keyIn]
                         index += 1
                     for keyA in value1:
-                        flattenDict(value1, result)
+                        flatten_dict(value1, result)
         else:
             result[key] = value
     return result
