@@ -35,7 +35,7 @@ class TestBackend(unittest.TestCase):
         }
 
         self.assertTrue(backend._replace_utf8_values(test_dict))
-        self.assertEqual(test_dict, expected_dict)
+        self.assertDictEqual(test_dict, expected_dict)
 
     @unittest.skip('Not yet implemented')
     def test_handle_torrent_upload(self):

@@ -73,7 +73,15 @@ class TestFilters(NyaaTestCase):
             {'marco': 'polo'}, {},  # dictionaries
             None
         ]
-        self.assertEqual(filter_truthy(my_list), [item for item in my_list if item])
+        expected_result = [
+            True,
+            'hello!',
+            1, -1,
+            1.0, -1.0,
+            ['test'],
+            {'marco': 'polo'}
+        ]
+        self.assertListEqual(filter_truthy(my_list), expected_result)
 
     def test_category_name(self):
         with self.app_context:
