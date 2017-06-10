@@ -250,17 +250,14 @@ def upload():
 
 @cached_function
 def _create_upload_category_choices():
-    ''' Turns categories in the database into a list of (id, name)s '''
+    """ Turns categories in the database into a list of (id, name, bool:is_main_category)s """
     choices = [('', '[Select a category]')]
     id_map = get_category_id_map()
 
     for key in sorted(id_map.keys()):
         cat_names = id_map[key]
         is_main_cat = key.endswith('_0')
-
-        # cat_name = is_main_cat and cat_names[0] or (' - ' + cat_names[1])
-        cat_name = ' - '.join(cat_names)
-        choices.append((key, cat_name, is_main_cat))
+        choices.append((key, cat_names['name'], is_main_cat))
     return choices
 
 

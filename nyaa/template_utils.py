@@ -82,21 +82,29 @@ def filter_truthy(input_list):
 @cached_function
 @bp.app_template_global()
 def get_category_id_map():
-    """ Reads database for categories and turns them into a dict with
-        ids as keys and name list as the value, ala
-        {'1_0': ['Anime'], '1_2': ['Anime', 'English-translated'], ...} """
+    """
+    Reads database for categories and turns them into a dict with
+    ids as keys and combined names and titles dict as the value, ala
+    {'1_0': {'name': 'Anime', 'title': 'Anime'},
+     '1_2': {'name': 'Anime - English-translated', 'title': 'Anime - English'},
+     ...}
+    """
     cat_id_map = {}
     for main_cat in models.MainCategory.query:
-        cat_id_map[main_cat.id_as_string] = [main_cat.name]
+        cat_id_map[main_cat.id_as_string] = dict(
+            name=main_cat.name,
+            title=main_cat.title)
         for sub_cat in main_cat.sub_categories:
-            cat_id_map[sub_cat.id_as_string] = [main_cat.name, sub_cat.name]
+            cat_id_map[sub_cat.id_as_string] = dict(
+                name=' - '.join((main_cat.name, sub_cat.name)),
+                title=' - '.join((main_cat.title, sub_cat.title)))
     return cat_id_map
 
 
 @bp.app_template_global()
 def category_name(cat_id):
     """ Given a category id (eg. 1_2), returns a category name (eg. Anime - English-translated) """
-    return ' - '.join(get_category_id_map().get(cat_id, ['???']))
+    return get_category_id_map().get(cat_id, {}).get('name', '???')
 
 
 # ######################### TEMPLATE FILTERS #########################
