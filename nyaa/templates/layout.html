@@ -191,7 +191,7 @@
 							<br>
 	
 							<select class="form-control" title="Category" data-width="200px" name="c">
-								{{ render_category_options(search) }}
+								{{ render_category_options(search) | tabindent(8) }}
 							</select>
 	
 							<br>
@@ -223,11 +223,11 @@
 								{# XXX Search breaks with multiple fields with the same name: default to the shorter one so we don't break visuals. This is a hack! #}
 								{# 
 								<select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
-									{{ render_category_options(search) }}
+									{{ render_category_options(search) | tabindent(9) }}
 								</select> 
 								#}
 								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
-									{{ render_category_options(search) }}
+									{{ render_category_options(search) | tabindent(9) }}
 								</select>
 							</div>
 							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />

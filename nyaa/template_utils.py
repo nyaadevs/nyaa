@@ -5,6 +5,7 @@ from email.utils import formatdate
 from urllib.parse import urlencode
 
 import flask
+from markupsafe import Markup
 from werkzeug.urls import url_encode
 
 from nyaa import models
@@ -158,3 +159,19 @@ def timesince(dt, default='just now'):
                 return '%d %s ago' % (period, singular if int(period) == 1 else plural)
 
     return default
+
+
+@bp.app_template_filter('tabindent')
+def indent_with_tabs(s, tabs=1, indentfirst=False):
+    """ Return a copy of the passed string, each line indented by
+        1 tab. The first line is not indented. If you want to
+        change the number of tabs or indent the first line too
+        you can pass additional parameters to the filter. """
+
+    # Adapted from `jinja2.filters.do_indent` [Jinja2==2.9.6]
+    # Can't use `do_indent` because it causes text to be marked unsafe an escapes it.
+    indention = Markup(u'\t' * tabs)
+    rv = (Markup(u'\n') + indention).join(s.splitlines())
+    if indentfirst:
+        rv = indention + rv
+    return rv
