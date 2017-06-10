@@ -9,9 +9,8 @@ __pycache__
 .coverage
 /htmlcov
 
-# Editos / IDEs
+# Editors
 /.vscode
-/.idea
 
 # Databases
 *.sql
