@@ -160,7 +160,7 @@ table.torrent-list tbody .comments i {
 	-ms-flex-order: 3;
 	order: 3;
 	width: 99%;
-	padding-right: 4em;
+	padding-right: 1em;
 	border-left: 0;
 }
 
@@ -380,7 +380,7 @@ h6:hover .header-anchor {
 	display: inline-block;
 }
 
-@media (max-width: 991px){
+@media (max-width: 991px) {
 	.panel-body .col-md-5 {
 		margin-left: 20px;
 		margin-bottom: 10px;
@@ -397,11 +397,11 @@ h6:hover .header-anchor {
 	}
 }
 
-@media (min-width: 992px){
+@media (min-width: 992px) {
 	.panel-body .col-md-5 {
 		word-wrap: break-word;
 	}
-	
+
 	.search-btn {
 		top: 0;
 		width: auto;
@@ -418,4 +418,11 @@ table.table > tbody > tr.reports-row > td {
 
 td.report-action-column {
 	min-width: 150px;
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+	/* Collapse navbar search form so it doesn't wrap to a new line */
+	.search-container {
+		width: 400px;
+	}
 }
