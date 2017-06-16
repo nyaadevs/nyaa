@@ -10,7 +10,8 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField,\
     HiddenField
-from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError, StopValidation
+from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError,\
+    StopValidation
 from wtforms.validators import Regexp
 
 # For DisabledSelectField
@@ -48,6 +49,7 @@ def stop_on_validation_error(f):
             # Replace the error with a StopValidation to stop the validation chain
             raise StopValidation(*e.args) from e
     return decorator
+
 
 _username_validator = Regexp(
     r'^[a-zA-Z0-9_\-]+$',
