@@ -41,7 +41,7 @@
 			</div>
 
 			<div class="col-md-1">Seeders:</div>
-			<div class="col-md-5"><span style="color: green;">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.seed_count }}{% else %}Coming soon{% endif %}</span></div>
+			<div class="col-md-5"><span class="text-success">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.seed_count }}{% else %}Coming soon{% endif %}</span></div>
 
 		</div>
 
@@ -56,7 +56,7 @@
 			</div>
 
 			<div class="col-md-1">Leechers:</div>
-			<div class="col-md-5"><span style="color: red;">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.leech_count }}{% else %}Coming soon{% endif %}</span></div>
+			<div class="col-md-5"><span class="text-success">{% if config.ENABLE_SHOW_STATS %}{{ torrent.stats.leech_count }}{% else %}Coming soon{% endif %}</span></div>
 		</div>
 
 		<div class="row">
