@@ -1,4 +1,5 @@
 import flask
+from sqlalchemy.exc import SQLAlchemyError
 from nyaa import db, app
 from nyaa.models import User
 from nyaa import bencode, utils, models
@@ -22,7 +23,6 @@ from flask_wtf.recaptcha.validators import Recaptcha as RecaptchaValidator
 
 
 class Unique(object):
-
     """ validator that checks field uniqueness """
 
     def __init__(self, model, field, message=None):
@@ -298,12 +298,122 @@ class UserForm(FlaskForm):
             raise ValidationError('Please select a proper user class')
 
 
+class UserTorrentMassAction(FlaskForm):
+    action = SelectField('action', choices=[
+        ('hide', 'Hide'),
+        ('unhide', 'Unhide'),
+        ('remake', 'Remake'),
+        ('unremake', 'Unremake'),
+        ('move_category', 'Move To Category')
+    ])
+
+    category = StringField('category')
+
+    selected_category = {'main': None, 'sub': None}
+
+    admin_actions = [
+        ('anonymise', 'Make Anonymous'),
+        ('delete', 'Delete'),
+        ('unanonymise', 'Remove Anonymity')
+    ]
+
+    is_admin = False
+
+    def __init__(self, *args, **kwargs):
+        super(UserTorrentMassAction, self).__init__(*args, **kwargs)
+        self.selected_torrents = [x for x in kwargs.get('selected_torrents', []) if x.isdigit()]
+        user = kwargs.get('user', None)
+
+        if user is None:
+            raise TypeError('User needs to be passed as a keyword parameter.')
+
+        if user.is_moderator or user.is_superadmin:
+            self.is_admin = True
+            self.action.choices = self.action.choices + self.admin_actions
+
+    def validate(self, user=None):
+        super(UserTorrentMassAction, self).validate()
+
+        torrents = db.session.query(models.Torrent) \
+            .filter(models.Torrent.id.in_(self.selected_torrents)) \
+            .filter(models.Torrent.user == user).all()
+
+        if len(torrents) != len(self.selected_torrents):
+            raise ValidationError('No torrents selected')
+
+        self.selected_torrents = torrents
+
+        if self.action.data == 'move_category':
+            (primary, secondary) = _validate_category_notation(self.category.data)
+            if primary == 0 and secondary == 0:
+                raise ValidationError('No category selected')
+
+            category = models.MainCategory.by_id(primary)
+
+            if secondary == 0:
+                subcategory = None
+            else:
+                subcategory = db.session.query(models.SubCategory) \
+                    .filter(models.SubCategory.main_category_id == category.id) \
+                    .filter(models.SubCategory.id == secondary).first()
+
+            if category is not None:
+                self.selected_category['main'] = category
+                self.selected_category['sub'] = subcategory
+                return True
+            else:
+                raise ValidationError('No category selected')
+        else:
+            return True
+
+    def apply_user_action(self):
+        def set_torrent_prop(prop, value):
+            if prop is not 'move_category':
+                def fn(torrent):
+                    setattr(torrent, prop, value)
+                return fn
+
+            def fn(torrent):
+                torrent.main_category = self.selected_category['main']
+                if self.selected_category['sub'] is not None:
+                    torrent.sub_category = self.selected_category['sub']
+            return fn
+
+        actions = {
+            'hide': set_torrent_prop('hidden', True),
+            'unhide': set_torrent_prop('hidden', False),
+            'remake': set_torrent_prop('remake', True),
+            'unremake': set_torrent_prop('remake', False),
+            'move_category': set_torrent_prop('move_category', None)
+        }
+
+        if self.is_admin:
+            actions['anonymise'] = set_torrent_prop('anonymous', True)
+            actions['unanonymise'] = set_torrent_prop('anonymous', False)
+            actions['delete'] = set_torrent_prop('deleted', True)
+
+        action = actions.get(self.action.data)
+
+        if action is None:
+            return {'ok': False, 'message': 'The action specified can not be found.'}
+
+        [action(torrent) for torrent in self.selected_torrents]
+
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            return {'ok': False, 'message': 'Failed to persisted changes.', 'exception': e}
+
+        return {'ok': True, 'message': 'Successfully persisted changes.'}
+
+
 class TorrentFileData(object):
     """Quick and dirty class to pass data from the validator"""
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+
 
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 
@@ -404,6 +514,17 @@ def _validate_number(value, name='value', check_positive=False, check_positive_o
         assert value >= 0, name + ' is less than 0'
     elif check_positive:
         assert value > 0, name + ' is not positive'
+
+
+def _validate_category_notation(category):
+    cat_match = re.match(r'^(\d+)_(\d+)$', category)
+    if not cat_match:
+        raise ValidationError('Please select a category')
+
+    main_cat_id = int(cat_match.group(1))
+    sub_cat_id = int(cat_match.group(2))
+
+    return (main_cat_id, sub_cat_id)
 
 
 def _validate_list(value, name='value', check_empty=False):

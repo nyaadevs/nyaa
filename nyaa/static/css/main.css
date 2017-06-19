@@ -411,3 +411,95 @@ h6:hover .header-anchor {
 		margin-top: auto;
 	}
 }
+
+#torrent-mass-action-form {
+	display: flex;
+	flex-direction: column;
+}
+
+@media (min-width: 768px) {
+	#torrent-mass-action-form > * {
+		margin-right: 1em;
+	}
+}
+
+#torrent-mass-action-form > * {
+	margin-bottom: 1em;
+}
+
+.btn-container {
+	display: flex
+}
+
+.btn-container > button {
+	flex: 1;
+}
+
+#torrent-mass-action-form .form-group {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+
+	padding: 1em 0;
+}
+
+#torrent-mass-action-form .form-group > * {
+	margin: 0.5em 0;
+}
+
+@media (min-width: 768px) {
+	#torrent-mass-action-form .form-group {
+		-webkit-box-orient: horizontal;
+		-webkit-box-direction: normal;
+		-ms-flex-direction: row;
+		flex-direction: row;
+		width: 75%;
+		justify-content: flex-end;
+	}
+
+	#torrent-mass-action-form .form-group > * {
+		margin: 0;
+	}
+
+	#torrent-mass-action-form select {
+		-webkit-appearance: none;
+		-webkit-border-top-right-radius: 0;
+		-webkit-border-bottom-right-radius: 0;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	#torrent-mass-action-form .form-group .category-select select {
+		border-radius: 0;
+		border-left: 0;
+	}
+
+	#torrent-mass-action-form #select-all {
+		border-radius: 0;
+	}
+
+	#torrent-mass-action-form #apply-action {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+}
+
+#torrent-mass-action-form .form-group #action {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1
+}
+
+#torrent-mass-action-form .form-group .category-select {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1
+}
+
+.checkbox-column {
+	width: 5px;
+}
