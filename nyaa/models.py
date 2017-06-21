@@ -562,6 +562,7 @@ class User(db.Model):
     def is_trusted(self):
         return self.level >= UserLevelType.TRUSTED
 
+
 class AdminLogType(IntEnum):
     TORRENT_DELETION = 1
     TORRENT_EDIT = 2
@@ -597,10 +598,10 @@ class AdminLogBase(DeclarativeHelperBase):
         self.torrent_id = torrent_id
         self.user_id = user_id
         self.admin_id = admin_id
-    
+
     def __repr__(self):
         return '<AdminLog %r>' % self.id
-    
+
     @property
     def created_utc_timestamp(self):
         ''' Returns a UTC POSIX timestamp, as seconds '''
@@ -782,7 +783,7 @@ class SukebeiComment(CommentBase, db.Model):
 # AdminLog
 class NyaaAdminLog(AdminLogBase, db.Model):
     __flavor__ = 'Nyaa'
-    
+
     @declarative.declared_attr
     def user(cls):
         return db.relationship('User', uselist=False, lazy="joined", foreign_keys="NyaaAdminLog.user_id")
@@ -794,7 +795,7 @@ class NyaaAdminLog(AdminLogBase, db.Model):
 
 class SukebeiAdminLog(AdminLogBase, db.Model):
     __flavor__ = 'Sukebei'
-    
+
     @declarative.declared_attr
     def user(cls):
         return db.relationship('User', uselist=False, lazy="joined", foreign_keys="SukebeiAdminLog.user_id")
@@ -803,6 +804,8 @@ class SukebeiAdminLog(AdminLogBase, db.Model):
     def admin(cls):
         return db.relationship('User', uselist=False, lazy="joined", foreign_keys="SukebeiAdminLog.admin_id")
 # Report
+
+
 class NyaaReport(ReportBase, db.Model):
     __flavor__ = 'Nyaa'
 

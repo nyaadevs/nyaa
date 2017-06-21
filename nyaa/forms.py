@@ -49,6 +49,7 @@ def stop_on_validation_error(f):
             raise StopValidation(*e.args) from e
     return decorator
 
+
 _username_validator = Regexp(
     r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')

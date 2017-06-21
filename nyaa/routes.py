@@ -337,10 +337,10 @@ def view_user(user_name):
         elif selection == 'moderator':
             user.level = models.UserLevelType.MODERATOR
             log_type = models.AdminLogType.USER_EDIT_MODERATOR
-        
+
         adminlog = models.AdminLog(log_type=log_type,
-                                    admin_id=flask.g.user.id,
-                                    user_id=user.id)
+                                   admin_id=flask.g.user.id,
+                                   user_id=user.id)
         db.session.add(user)
         db.session.add(adminlog)
         db.session.commit()
@@ -705,14 +705,13 @@ def delete_comment(torrent_id, comment_id):
     if not (comment.user.id == flask.g.user.id or flask.g.user.is_moderator):
         flask.abort(403)
 
-    
     db.session.delete(comment)
     db.session.flush()
     torrent.update_comment_count()
     if flask.g.user.is_moderator:
         adminlog = models.AdminLog(log_type=models.AdminLogType.COMMENT_DELETION,
-                                admin_id=flask.g.user.id,
-                                torrent_id=torrent_id)
+                                   admin_id=flask.g.user.id,
+                                   torrent_id=torrent_id)
         db.session.add(adminlog)
     db.session.commit()
 
@@ -759,11 +758,11 @@ def edit_torrent(torrent_id):
             torrent.deleted = form.is_deleted.data
 
         if flask.g.user.is_moderator:
-            adminlog = models.AdminLog(log_type=(models.AdminLogType.TORRENT_DELETION 
-                                                if torrent.deleted else 
-                                                models.AdminLogType.TORRENT_EDIT),
-                                    admin_id=flask.g.user.id,
-                                    torrent_id=torrent.id)
+            adminlog = models.AdminLog(log_type=(models.AdminLogType.TORRENT_DELETION
+                                                 if torrent.deleted else
+                                                 models.AdminLogType.TORRENT_EDIT),
+                                       admin_id=flask.g.user.id,
+                                       torrent_id=torrent.id)
             db.session.add(adminlog)
 
         db.session.commit()
@@ -849,8 +848,8 @@ def view_adminlog():
 
     page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
     logs = models.AdminLog.all_logs() \
-            .order_by(models.AdminLog.created_time.desc()) \
-            .paginate(page=page, per_page=20)
+        .order_by(models.AdminLog.created_time.desc()) \
+        .paginate(page=page, per_page=20)
 
     return flask.render_template('adminlog.html',
                                  adminlog=logs)
