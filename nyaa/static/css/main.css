@@ -160,7 +160,7 @@ table.torrent-list tbody .comments i {
 	-ms-flex-order: 3;
 	order: 3;
 	width: 99%;
-	padding-right: 1em;
+	padding-right: 4em;
 	border-left: 0;
 }
 
@@ -397,11 +397,11 @@ h6:hover .header-anchor {
 	}
 }
 
-@media (min-width: 992px) {
+@media (min-width: 992px){
 	.panel-body .col-md-5 {
 		word-wrap: break-word;
 	}
-
+	
 	.search-btn {
 		top: 0;
 		width: auto;
