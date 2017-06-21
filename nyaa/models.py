@@ -786,11 +786,13 @@ class NyaaAdminLog(AdminLogBase, db.Model):
 
     @declarative.declared_attr
     def user(cls):
-        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="NyaaAdminLog.user_id")
+        return db.relationship('User', uselist=False, lazy="joined",
+                               foreign_keys="NyaaAdminLog.user_id")
 
     @declarative.declared_attr
     def admin(cls):
-        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="NyaaAdminLog.admin_id")
+        return db.relationship('User', uselist=False, lazy="joined",
+                               foreign_keys="NyaaAdminLog.admin_id")
 
 
 class SukebeiAdminLog(AdminLogBase, db.Model):
@@ -798,11 +800,13 @@ class SukebeiAdminLog(AdminLogBase, db.Model):
 
     @declarative.declared_attr
     def user(cls):
-        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="SukebeiAdminLog.user_id")
+        return db.relationship('User', uselist=False, lazy="joined",
+                               foreign_keys="SukebeiAdminLog.user_id")
 
     @declarative.declared_attr
     def admin(cls):
-        return db.relationship('User', uselist=False, lazy="joined", foreign_keys="SukebeiAdminLog.admin_id")
+        return db.relationship('User', uselist=False, lazy="joined",
+                               foreign_keys="SukebeiAdminLog.admin_id")
 # Report
 
 
