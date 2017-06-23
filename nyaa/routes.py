@@ -1,4 +1,3 @@
-import base64
 import json
 import math
 import os.path
@@ -20,7 +19,7 @@ import config
 from itsdangerous import BadSignature, URLSafeSerializer
 from sqlalchemy.orm import joinedload
 
-from nyaa import api_handler, app, backend, bencode, db, forms, models, torrents, utils
+from nyaa import api_handler, app, backend, db, forms, models, torrents, utils
 from nyaa.search import search_db, search_elastic
 
 DEBUG_API = False
