@@ -1,33 +1,27 @@
-import flask
-from werkzeug.datastructures import CombinedMultiDict
-from nyaa import app, db
-from nyaa import models, forms
-from nyaa import bencode, utils
-from nyaa import torrents
-from nyaa import backend
-from nyaa import api_handler
-from nyaa.search import search_elastic, search_db
-from sqlalchemy.orm import joinedload
-import config
-
-import re
-import json
-from datetime import datetime, timedelta
-from ipaddress import ip_address
-import os.path
 import base64
-from urllib.parse import quote
+import json
 import math
-from werkzeug import url_encode
-
-from itsdangerous import URLSafeSerializer, BadSignature
-
+import os.path
+import re
 import smtplib
+from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
+from ipaddress import ip_address
+from urllib.parse import quote
 
+import flask
 from flask_paginate import Pagination
+from werkzeug import url_encode
+from werkzeug.datastructures import CombinedMultiDict
+
+import config
+from itsdangerous import BadSignature, URLSafeSerializer
+from sqlalchemy.orm import joinedload
+
+from nyaa import api_handler, app, backend, bencode, db, forms, models, torrents, utils
+from nyaa.search import search_db, search_elastic
 
 DEBUG_API = False
 DEFAULT_MAX_SEARCH_RESULT = 1000
