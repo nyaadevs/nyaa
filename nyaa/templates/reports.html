@@ -2,7 +2,7 @@
 {% block title %}Reports :: {{ config.SITE_NAME }}{% endblock %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
-	<div class="table-responsive">
+	<div class="table">
 		<table class="table table-bordered table-hover table-striped table-condensed">
 			<thead>
 			<tr>
@@ -37,7 +37,7 @@
 				</td>
 				<td>{{ report.reason }}</td>
 				<td>{{ report.created_time }}</td>
-				<td style="min-width: 150px">
+				<td class="report-action-column">
 					<form method="post">
 						{{ report_action.csrf_token }}
 						{{ report_action.torrent(value=report.torrent.id) }}
