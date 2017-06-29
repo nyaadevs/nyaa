@@ -189,6 +189,12 @@
 				<h4 class="modal-title">Report torrent #{{ torrent.id }}</h4>
 			</div>
 			<div class="modal-body">
+				<div class="alert alert-warning" role="alert">
+					Before submitting a report, please check that the torrent
+					actually breaks <a href="{{ url_for('site_rules') }}">the
+					rules</a>. Useless reports like "download is slow" or
+					"thanks" can get you banned from the site.
+				</div>
 				<form method="POST" action="{{ request.url }}/submit_report">
 					{{ report_form.csrf_token }}
 					{{ render_field(report_form.reason, class_='form-control', maxlength=255) }}

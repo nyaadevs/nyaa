@@ -411,3 +411,11 @@ h6:hover .header-anchor {
 		margin-top: auto;
 	}
 }
+
+table.table > tbody > tr.reports-row > td {
+	vertical-align: middle;
+}
+
+td.report-action-column {
+	min-width: 150px;
+}
