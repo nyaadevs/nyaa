@@ -1,0 +1,5 @@
+---
+- name: Install elasticsearch
+  hosts: nyaa
+  roles:
+    - { role: elasticsearch, es_instance_name: "nyaa" }

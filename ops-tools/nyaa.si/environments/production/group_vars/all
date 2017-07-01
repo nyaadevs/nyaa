@@ -1,0 +1,26 @@
+
+nyaa:
+  user: "nyaa"
+  home: "/opt/nyaa/"
+  site: "/opt/nyaa/site"
+
+  pyenv:
+    path: "/opt/nyaa/pyenv"
+    update_git_install: yes
+    enable_autocompletion: yes
+    python:
+      versions:
+        - 3.6.1
+    virtualenvs:
+      - { venv_name: "nyaa", py_version: "3.6.1" }
+
+mysql:
+  databases:
+    - name: nyaa
+  users:
+    - hosts:
+        - localhost
+        - "{{ansible_hostname}}"
+      name: "nyaa"
+      password: "nyaaa-very-long-password-with-$p3c14a11((8c73r$"
+

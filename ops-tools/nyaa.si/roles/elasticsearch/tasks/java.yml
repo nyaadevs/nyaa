@@ -1,0 +1,26 @@
+---
+
+- set_fact: java_state="present"
+
+- set_fact: java_state="latest"
+  when: update_java == true
+
+- name: Refresh java repo
+  apt: update_cache=yes
+  changed_when: false
+  when: ansible_os_family == 'Debian'
+
+- name: Debian - Ensure Java is installed
+  apt: name={{ java }} state={{java_state}}
+  when: ansible_os_family == 'Debian'
+
+- shell: java -version 2>&1 | grep OpenJDK
+  register: open_jdk
+  ignore_errors: yes
+  changed_when: false
+
+#https://github.com/docker-library/openjdk/issues/19 - ensures tests pass due to java 8 broken certs
+- name: refresh the java ca-certificates
+  command: /var/lib/dpkg/info/ca-certificates-java.postinst configure
+  when: ansible_distribution == 'Ubuntu' and open_jdk.rc == 0
+  changed_when: false

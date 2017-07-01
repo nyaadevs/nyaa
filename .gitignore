@@ -10,3 +10,4 @@ uwsgi.sock
 /test_torrent_batch
 config.py
 torrents
+.DS_Store

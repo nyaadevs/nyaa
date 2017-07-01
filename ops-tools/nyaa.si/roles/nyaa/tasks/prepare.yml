@@ -1,0 +1,21 @@
+---
+
+- name: clone nyaa
+  git:
+    repo: 'https://github.com/nyaadevs/nyaa.git'
+    dest: "{{nyaa.site}}"
+    force: yes
+
+- name: set owner
+  file:
+    path: "{{nyaa.site}}"
+    state: directory
+    owner: "{{nyaa.user}}"
+    group: "{{nyaa.user}}"
+    recurse: yes
+
+- name: install prerequisites
+  pip:
+    requirements: "{{nyaa.site}}/requirements.txt"
+    virtualenv: "{{nyaa.pyenv.path}}/versions/{{item.venv_name}}"
+  with_items: "{{nyaa.pyenv.virtualenvs}}"

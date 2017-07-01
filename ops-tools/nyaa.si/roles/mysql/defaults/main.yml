@@ -1,0 +1,30 @@
+## Default settings for mysql server
+
+mysql_root_password: ""
+
+mysql:
+  # Required databases: { name: "", encoding: "" }
+  databases: "{{ mysql_databases | default([]) }}"
+
+  # Required users: { name: "", hosts: [], password: "", privileges: "" }
+  users: "{{ mysql_users | default([]) }}"
+
+  # Name of System V daemon
+  daemon: mysql
+
+  # Installed packages
+  packages:
+    - mariadb-server
+    - mariadb-client
+    - python-mysqldb
+
+  # Local superuser accounts
+  root:
+    - host: "localhost"
+      password: "{{ mysql_root_password }}"
+    - host: "127.0.0.1"
+      password: "{{ mysql_root_password }}"
+#    - host: "{{ ansible_hostname | default('localhost') }}"
+#      password: "{{ mysql_root_password }}"
+#    - host: "{{ ansible_nodename | default('localhost') }}"
+#      password: "{{ mysql_root_password }}"

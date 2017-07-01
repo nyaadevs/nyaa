@@ -1,0 +1,64 @@
+[Unit]
+Description=Elasticsearch-{{es_instance_name}}
+Documentation=http://www.elastic.co
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=ES_HOME={{es_home}}
+Environment=CONF_DIR={{conf_dir}}
+Environment=DATA_DIR={{ data_dirs | array_to_str }}
+Environment=LOG_DIR={{log_dir}}
+Environment=PID_DIR={{pid_dir}}
+EnvironmentFile=-{{instance_default_file}}
+
+WorkingDirectory={{es_home}}
+
+User={{es_user}}
+Group={{es_group}}
+
+ExecStartPre=/usr/share/elasticsearch/bin/elasticsearch-systemd-pre-exec
+
+ExecStart={{es_home}}/bin/elasticsearch \
+                                    -p ${PID_DIR}/elasticsearch.pid \
+                                    --quiet \
+                                    -Edefault.path.logs=${LOG_DIR} \
+                                    -Edefault.path.data=${DATA_DIR} \
+                                    -Edefault.path.conf=${CONF_DIR}
+
+
+# StandardOutput is configured to redirect to journalctl since
+# some error messages may be logged in standard output before
+# elasticsearch logging system is initialized. Elasticsearch
+# stores its logs in /var/log/elasticsearch and does not use
+# journalctl by default. If you also want to enable journalctl
+# logging, you can simply remove the "quiet" option from ExecStart.
+StandardOutput=journal
+StandardError=inherit
+
+# Specifies the maximum file descriptor number that can be opened by this process
+{% if es_max_open_files is defined %}
+LimitNOFILE={{es_max_open_files}}
+{% endif %}
+
+# Specifies the maximum number of bytes of memory that may be locked into RAM
+# Set to "infinity" if you use the 'bootstrap.memory_lock: true' option
+# in elasticsearch.yml and 'MAX_LOCKED_MEMORY=unlimited' in {{instance_default_file}}
+{% if m_lock_enabled %}
+LimitMEMLOCK=infinity
+{% endif %}
+
+# Disable timeout logic and wait until process is stopped
+TimeoutStopSec=0
+
+# SIGTERM signal is used to stop the Java process
+KillSignal=SIGTERM
+
+# Java process is never killed
+SendSIGKILL=no
+
+# When a JVM receives a SIGTERM signal it exits with code 143
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

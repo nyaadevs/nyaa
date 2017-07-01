@@ -59,13 +59,12 @@ with open(sys.argv[1]) as f:
 stats = StatsClient('localhost', 8125, prefix="sync_es")
 
 #logging.getLogger('elasticsearch').setLevel(logging.DEBUG)
-
 # in prod want in /var/lib somewhere probably
 SAVE_LOC = config.get('save_loc', "/tmp/pos.json")
 MYSQL_HOST = config.get('mysql_host', '127.0.0.1')
 MYSQL_PORT = config.get('mysql_port', 3306)
-MYSQL_USER = config.get('mysql_user', 'root')
-MYSQL_PW = config.get('mysql_password', 'dunnolol')
+MYSQL_USER = config.get('mysql_user', 'nyaa')
+MYSQL_PW = config.get('mysql_password', 'whatever')
 NT_DB = config.get('database', 'nyaav2')
 INTERNAL_QUEUE_DEPTH = config.get('internal_queue_depth', 10000)
 ES_CHUNK_SIZE = config.get('es_chunk_size', 10000)

@@ -1,0 +1,45 @@
+---
+
+- name: "Start MySQL server"
+  service: name={{mysql.daemon}} state=started enabled=yes
+
+- name: "Set root password"
+  mysql_user: name=root
+              host={{ item.host }}
+              password={{ item.password }}
+  with_items: "{{ mysql.root }}"
+
+- name: "Update client settings"
+  template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
+
+- name: "Remove anonymous user"
+  mysql_user: name='' host={{ item.host }} state=absent
+  with_items: "{{mysql.root}}"
+
+- name: "Create required users"
+  mysql_user: host="{{ item.1 }}"
+              name="{{ item.0.name }}"
+              password="{{ item.0.password | default('ksjdhf34897598347rofh#$%$&$#') }}"
+              priv="{{ item.0.privileges | default('*.*:ALL') }}"
+              state=present
+  with_subelements:
+    - "{{mysql.users}}"
+    - hosts
+  when: mysql.users | length > 0
+  ignore_errors: True
+
+- name: "Create required databases"
+  mysql_db: name="{{ item.name }}"
+            encoding="{{ item.encoding | default('utf8') }}"
+            state=present
+  with_items: "{{mysql.databases}}"
+  when: mysql.databases | length > 0
+
+- name: "Temp fix if the installer is run more than 1"
+  file: path=/var/lib/mysql/{{ item }} state=absent force=yes
+  with_items:
+    - ib_logfile0
+    - ib_logfile1
+  notify:
+    - restart mysql
+  changed_when: true

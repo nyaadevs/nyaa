@@ -1,0 +1,18 @@
+---
+#Add the elasticsearch user before installing from packages.
+- name: Ensure optional elasticsearch group is created with the correct id.
+  group:
+    state: present
+    name: "{{ es_group }}"
+    system: yes
+    gid: "{{ es_group_id }}"
+
+- name: Ensure optional elasticsearch user is created with the correct id.
+  user:
+    state: present
+    name: "{{ es_user }}"
+    comment: elasticsearch system user
+    system: yes
+    createhome: no
+    uid: "{{ es_user_id }}"
+    group: "{{ es_group }}"

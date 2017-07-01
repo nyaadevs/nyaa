@@ -1,0 +1,15 @@
+---
+
+- name: "Install MySQL Server"
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ mysql.packages }}"
+
+- name: "Update /etc/my.cnf"
+  template: src=etc/my.cnf dest=/etc/my.cnf
+            owner=root group=root mode=0644
+  changed_when: true
+  notify:
+    - restart mysql
+

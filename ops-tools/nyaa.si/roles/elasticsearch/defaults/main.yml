@@ -1,0 +1,40 @@
+---
+es_major_version: "5.x"
+es_version: "5.2.2"
+es_version_lock: false
+es_use_repository: true
+es_apt_key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+es_apt_url: "deb https://artifacts.elastic.co/packages/{{ es_major_version }}/apt stable main"
+es_apt_url_old: "deb http://packages.elastic.co/elasticsearch/{{ es_major_version }}/debian stable main"
+es_start_service: true
+es_java_install: true
+update_java: false
+es_restart_on_change: true
+es_plugins_reinstall: false
+es_scripts: false
+es_templates: false
+es_user: elasticsearch
+es_group: elasticsearch
+es_config: {}
+#Need to provide default directories
+es_pid_dir: "/var/run/elasticsearch"
+es_data_dirs: "/var/lib/elasticsearch"
+es_log_dir: "/var/log/elasticsearch"
+es_max_open_files: 65536
+es_max_map_count: 262144
+es_allow_downgrades: false
+es_enable_xpack: false
+es_xpack_features: ["alerting","monitoring","graph","security"]
+#These are used for internal operations performed by ansible.
+#They do not effect the current configuration
+es_api_host: "localhost"
+es_api_port: 9200
+
+# Since ansible 2.2 the following variables need to be defined
+# to allow the role to be conditionally played with a when condition.
+pid_dir: ''
+log_dir: ''
+conf_dir: ''
+data_dirs: ''
+# JVM custom parameters
+es_jvm_custom_parameters: ''

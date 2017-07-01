@@ -1,0 +1,19 @@
+[Unit]
+Description=Es sync
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User={{nyaa.user}}
+Group={{nyaa.user}}
+WorkingDirectory={{nyaa.site}}
+
+ExecStart={{nyaa.pyenv.path}}/versions/{{item.venv_name}}/bin/python {{nyaa.site}}/sync_es.py {{nyaa.site}}/configs/es_sync_config.json
+
+ExecStop=/bin/kill -TERM $MAINPID
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

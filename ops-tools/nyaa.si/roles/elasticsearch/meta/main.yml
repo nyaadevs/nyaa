@@ -1,0 +1,26 @@
+---
+
+allow_duplicates: yes
+
+galaxy_info:
+  author: Robin Clarke, Jakob Reiter, Dale McDiarmid
+  description: Elasticsearch for Linux
+  company: "Elastic.co"
+  license: "license (Apache)"
+  # Require 1.6 for apt deb install
+  min_ansible_version: 2.2.0
+  platforms:
+  - name: EL
+    versions:
+    - 6
+    - 7
+  - name: Debian
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  categories:
+    - system
+
+dependencies: []
