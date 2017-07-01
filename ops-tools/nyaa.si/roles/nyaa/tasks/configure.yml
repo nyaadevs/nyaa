@@ -1,0 +1,53 @@
+---
+
+- name: Configure nyaa
+  template:
+    src: config.py.j2
+    dest: "{{nyaa.site}}/config.py"
+    owner: "{{nyaa.user}}"
+    group: "{{nyaa.user}}"
+    mode: 0600
+
+- name: Upload es_mapping nyaa
+  uri:
+    url: 'http://localhost:9200/nyaa?pretty'
+    method: PUT
+    headers:
+      Content-Type: "application/yaml"
+    body: "{{ lookup('file','es_mapping.yml') }}"
+    body_format: raw
+    status_code: 200
+    return_content: yes
+  ignore_errors: true
+
+- name: Upload es_mapping sukubei
+  uri:
+    url: 'http://localhost:9200/sukubei?pretty'
+    method: PUT
+    headers:
+      Content-Type: "application/yaml"
+    body: "{{ lookup('file','es_mapping.yml') }}"
+    body_format: raw
+    status_code: 200
+    return_content: yes
+  ignore_errors: true
+
+- name: Setup es sync config
+  template:
+    src: es_sync_config.json.j2
+    dest: "{{nyaa.site}}/configs/es_sync_config.json"
+    owner: "{{nyaa.user}}"
+    group: "{{nyaa.user}}"
+    mode: 0700
+
+- name: Create initial sync
+  command: "{{ nyaa.pyenv.path }}/versions/{{ item.venv_name }}/bin/python {{nyaa.site}}/import_to_es.py"
+  with_items: "{{nyaa.pyenv.virtualenvs}}"
+  ignore_errors: true
+  
+- name: Set start up for es sync
+  systemd:
+    name: sync_es
+    state: started
+    enabled: yes
+    daemon-reload: yes

@@ -1,0 +1,75 @@
+---
+# Configure Elasticsearch Node
+
+#Create required directories
+- name: Create Directories
+  file: path={{ item }} state=directory owner={{ es_user }} group={{ es_group }}
+  with_items:
+    - "{{pid_dir}}"
+    - "{{log_dir}}"
+    - "{{conf_dir}}"
+
+- name: Create Data Directories
+  file: path={{ item }} state=directory owner={{ es_user }} group={{ es_group }}
+  with_items:
+    - "{{data_dirs}}"
+
+
+#Copy the config template
+- name: Copy Configuration File
+  template: src=elasticsearch.yml.j2 dest={{conf_dir}}/elasticsearch.yml owner={{ es_user }} group={{ es_group }} mode=0644 force=yes
+  register: config_updated
+  notify: restart elasticsearch
+
+#Copy the instance specific default file
+- name: Copy Default File for Instance
+  template: src=elasticsearch.j2 dest={{instance_default_file}} mode=0644 force=yes
+  notify: restart elasticsearch
+
+#Copy the instance specific init file
+- name: Copy Debian Init File for Instance
+  template: src=init/debian/elasticsearch.j2 dest={{instance_init_script}} mode=0755 force=yes
+  when: ansible_os_family == 'Debian' and not use_system_d
+  notify: restart elasticsearch
+
+#Copy the systemd specific file if systemd is installed
+- name: Copy Systemd File for Instance
+  template: src=systemd/elasticsearch.j2 dest={{instance_sysd_script}} mode=0644 force=yes
+  when: use_system_d
+  notify:
+  - reload systemd configuration
+  - restart elasticsearch
+
+#Copy the logging.yml
+- name: Copy log4j2.properties File for Instance
+  template: src=log4j2.properties.j2 dest={{conf_dir}}/log4j2.properties owner={{ es_user }} group={{ es_group }} mode=0644 force=yes
+  notify: restart elasticsearch
+
+- name: Copy jvm.options File for Instance
+  template: src=jvm.options.j2 dest={{conf_dir}}/jvm.options owner={{ es_user }} group={{ es_group }} mode=0644 force=yes
+  notify: restart elasticsearch
+
+#Clean up un-wanted package scripts to avoid confusion
+
+- name: Delete Default Init
+  file: dest=/etc/init.d/elasticsearch state=absent
+
+- name: Delete Default Environment File
+  file: dest=/etc/default/elasticsearch state=absent
+  when: ansible_os_family == 'Debian'
+
+- name: Delete Default Sysconfig File
+  file: dest="{{ sysd_script }}" state=absent
+
+- name: Delete Default Configuration File
+  file: dest=/etc/elasticsearch/elasticsearch.yml state=absent
+
+- name: Delete Default Logging File
+  file: dest=/etc/elasticsearch/logging.yml state=absent
+
+- name: Delete Default Logging File
+  file: dest=/etc/elasticsearch/log4j2.properties state=absent
+
+- name: Delete Default JVM Options File
+  file: dest=/etc/elasticsearch/jvm.options state=absent
+

@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Customer identifier
+PROJECT=${PROJECT:-'nyaa.si'}
+ENV=${ENV:-'production'}
+ROLE=${ROLE:-''}
+
+# Location for ansible playbooks
+WORKSPACE="$(cd "$(dirname "$0")" && pwd -P)" #"
+
+usage()
+{
+cat << EOF
+Usage: $0 [-i <inventory-name>] [-p <project>] [-r <role-name>] [-e <variables>] [goal]
+
+OPTIONS:
+   -i      the name of environment where tasks will be performed;
+   -p      string identifier of a project;
+   -r      the name of Ansible playbook with tasks for given role [/etc/ansible/hosts];
+   -e      Ansible-style definition for external variables;
+   -v      version of the installed artefacts;
+EOF
+}
+
+while getopts ":i:p:r:v:e:" OPTION; do
+     case $OPTION in
+         i)
+             ENV="$OPTARG"
+             ;;
+         p)
+             PROJECT="$OPTARG"
+             ;;
+         r)
+             ROLE="$OPTARG"
+             ;;
+         v)
+             VER="version=$OPTARG"
+             ;;
+         e)
+             EXTVARS="$OPTARG"
+             ;;
+         ?)
+            echo "Error: Invalid option -$OPTARG" >&2
+            usage
+            exit
+            ;;
+     esac
+done
+shift $((OPTIND - 1))
+
+## Check for ansible
+command -v ansible-playbook >/dev/null 2>&1 || {
+  echo >&2 "Please install ansible."
+  exit 1
+}
+
+ACTION=${1:-info}
+
+# Create Ansible config to set path to roles
+export ANSIBLE_CONFIG="/tmp/ansible.cfg.tmp"
+cat > ${ANSIBLE_CONFIG} <<EOL
+[defaults]
+hash_behaviour=merge
+roles_path=${WORKSPACE}/roles
+host_key_checking=False
+library = /usr/share/ansible:${WORKSPACE}/library
+
+[privilege_escalation]
+become = yes
+become_method = sudo
+EOL
+
+export ANSIBLE_HOST_KEY_CHECKING=False
+mkdir -p ~/.ansible && touch ~/.ansible/vault.${PROJECT}
+ansible-playbook --become \
+                 --inventory-file "${WORKSPACE}/${PROJECT}/environments/${ENV}" \
+                 --tags=${ACTION} \
+                 --extra-vars "project=${PROJECT} env=${ENV} workspace=${WORKSPACE}/.. ${VER} ${EXTVARS}" \
+                 --vault-password-file ~/.ansible/vault.${PROJECT} \
+                 "${WORKSPACE}/${PROJECT}/$ROLE.yml"

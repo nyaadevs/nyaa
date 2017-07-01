@@ -1,0 +1,12 @@
+
+[all:vars]
+env=production
+
+[nyaa]
+192.168.100.3
+
+[mysql]
+192.168.100.3
+
+[elasticsearch]
+192.168.100.3

@@ -1,0 +1,33 @@
+
+{% if es_config %}
+{{ es_config | to_nice_yaml }}
+{% endif %}
+
+{% if es_config['cluster.name'] is not defined %}
+cluster.name: elasticsearch
+{% endif %}
+
+{% if es_config['node.name'] is not defined %}
+node.name: {{inventory_hostname}}-{{es_instance_name}}
+{% endif %}
+
+#################################### Paths ####################################
+
+# Path to directory containing configuration (this file and logging.yml):
+path.conf: {{ conf_dir }}
+
+path.data: {{ data_dirs | array_to_str }}
+
+path.logs: {{ log_dir }}
+
+{% if not "security" in es_xpack_features %}
+xpack.security.enabled: false
+{% endif %}
+
+{% if not "monitoring" in es_xpack_features %}
+xpack.monitoring.enabled: false
+{% endif %}
+
+{% if not "alerting" in es_xpack_features %}
+xpack.watcher.enabled: false
+{% endif %}

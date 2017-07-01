@@ -1,0 +1,11 @@
+---
+nyaa:
+  pyenv:
+    path: "/opt/nyaa/pyenv"
+    owner: "nyaa"
+    update_git_install: no
+    enable_autocompletion: no
+    python_versions:
+      - 3.6.1
+    virtualenvs:
+      - { venv_name: "latest", py_version: "3.6.1" }

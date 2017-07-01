@@ -1,0 +1,5 @@
+---
+
+- hosts: nyaa
+  roles:
+    - nyaa

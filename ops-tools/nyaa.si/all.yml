@@ -1,0 +1,18 @@
+---
+- name: Install elasticsearch
+  hosts: nyaa
+  roles:
+    - { role: elasticsearch, es_instance_name: "nyaa" }
+
+- hosts: mysql
+  roles:
+    - role: mysql
+
+- hosts: nyaa
+  roles: 
+    - pyenv
+
+- hosts: nyaa
+  roles:
+    - nyaa
+

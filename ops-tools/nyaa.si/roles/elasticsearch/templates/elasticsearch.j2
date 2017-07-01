@@ -1,0 +1,73 @@
+################################
+# Elasticsearch
+################################
+
+# Elasticsearch home directory
+ES_HOME={{es_home}}
+
+# Elasticsearch configuration directory
+CONF_DIR={{conf_dir}}
+
+# Elasticsearch data directory
+DATA_DIR={{ data_dirs | array_to_str }}
+
+# Elasticsearch logs directory
+LOG_DIR={{log_dir}}
+
+# Elasticsearch PID directory
+PID_DIR={{pid_dir}}
+
+ES_JVM_OPTIONS={{conf_dir}}/jvm.options
+
+# Configure restart on package upgrade (true, every other setting will lead to not restarting)
+#ES_RESTART_ON_UPGRADE=true
+
+# Path to the GC log file
+#ES_GC_LOG_FILE=/var/log/elasticsearch/gc.log
+
+################################
+# Elasticsearch service
+################################
+
+# SysV init.d
+#
+# When executing the init script, this user will be used to run the elasticsearch service.
+# The default value is 'elasticsearch' and is declared in the init.d file.
+# Note that this setting is only used by the init script. If changed, make sure that
+# the configured user can read and write into the data, work, plugins and log directories.
+# For systemd service, the user is usually configured in file /usr/lib/systemd/system/elasticsearch.service
+ES_USER={{es_user}}
+ES_GROUP={{es_group}}
+
+# The number of seconds to wait before checking if Elasticsearch started successfully as a daemon process
+ES_STARTUP_SLEEP_TIME=5
+
+################################
+# System properties
+################################
+
+# Specifies the maximum file descriptor number that can be opened by this process
+# When using Systemd, this setting is ignored and the LimitNOFILE defined in
+# /usr/lib/systemd/system/elasticsearch.service takes precedence
+{% if es_max_open_files is defined %}
+#MAX_OPEN_FILES
+MAX_OPEN_FILES={{es_max_open_files}}
+{% endif %}
+
+# The maximum number of bytes of memory that may be locked into RAM
+# Set to "unlimited" if you use the 'bootstrap.memory_lock: true' option
+# in elasticsearch.yml (ES_HEAP_SIZE  must also be set).
+# When using Systemd, the LimitMEMLOCK property must be set
+# in /usr/lib/systemd/system/elasticsearch.service
+#MAX_LOCKED_MEMORY=
+{% if m_lock_enabled %}
+MAX_LOCKED_MEMORY=unlimited
+{% endif %}
+
+# Maximum number of VMA (Virtual Memory Areas) a process can own
+# When using Systemd, this setting is ignored and the 'vm.max_map_count'
+# property is set at boot time in /usr/lib/sysctl.d/elasticsearch.conf
+#MAX_MAP_COUNT=262144
+{% if es_max_map_count is defined %}
+MAX_MAP_COUNT={{es_max_map_count}}
+{% endif %}

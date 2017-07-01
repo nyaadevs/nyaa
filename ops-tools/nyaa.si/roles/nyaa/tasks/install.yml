@@ -1,0 +1,26 @@
+---
+
+- name: Setup es sync
+  copy:
+    src: sync_es.py
+    dest: "{{nyaa.site}}/sync_es.py"
+    owner: "{{nyaa.user}}"
+    group: "{{nyaa.user}}"
+    mode: 0700
+
+- name: Setup es sync start-up
+  template:
+    src: sync_es.service.j2
+    dest: "/usr/lib/systemd/system/sync_es.service"
+    owner: "{{nyaa.user}}"
+    group: "{{nyaa.user}}"
+    mode: 0700
+  with_items: "{{nyaa.pyenv.virtualenvs}}"
+
+- name: Setup es import
+  copy:
+    src: import_to_es.py
+    dest: "{{nyaa.site}}/import_to_es.py"
+    owner: "{{nyaa.user}}"
+    group: "{{nyaa.user}}"
+    mode: 0700

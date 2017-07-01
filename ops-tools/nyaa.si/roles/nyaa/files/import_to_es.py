@@ -102,6 +102,8 @@ position_json = {
 
 print('Save the following in the file configured in your ES sync config JSON:')
 print(json.dumps(position_json))
+with open('/tmp/pos.json', 'w') as outfile:
+    json.dump(position_json, outfile)
 
 for flavor, torrent_class in FLAVORS:
     print('Importing torrents for index', flavor, 'from', torrent_class)

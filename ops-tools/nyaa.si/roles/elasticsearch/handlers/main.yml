@@ -1,0 +1,14 @@
+- name: reload systemd configuration
+  command: systemctl daemon-reload
+
+# Restart service and ensure it is enabled
+- name: restart elasticsearch
+  service: name={{instance_init_script | basename}} state=restarted enabled=yes
+
+#Templates are a handler as they need to come after a restart e.g. suppose user removes security on a running node and doesn't
+#specify es_api_basic_auth_username and es_api_basic_auth_password.  The templates will subsequently not be removed if we don't wait for the node to restart.
+#Templates done after restart therefore - as a handler.
+
+- name: load-templates
+  include: ./handlers/elasticsearch-templates.yml
+  when: es_templates

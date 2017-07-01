@@ -1,0 +1,90 @@
+---
+- name: Ensure apt cache is up to date
+  apt:
+    update_cache: yes
+
+- name: Install prerequisite packages
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - make
+    - build-essential
+    - libssl-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libreadline-dev
+    - libsqlite3-dev
+    - wget
+    - curl
+    - llvm
+    - libncurses5-dev
+    - libncursesw5-dev
+    - xz-utils
+    - tk-dev
+    - libmysqlclient-dev
+    - python-dev
+
+- name: Group for nyaa
+  group:
+    name: "{{ nyaa.user }}"
+    state: present
+- name: Create nyaa user
+  user:
+    name: "{{ nyaa.user }}"
+    home: "{{ nyaa.home }}"
+    group: "{{ nyaa.user }}"
+    state: present
+  ignore_errors: true
+
+- name: Install PyEnv
+  git:
+    repo: 'https://github.com/yyuu/pyenv.git'
+    dest: "{{ nyaa.pyenv.path }}"
+    update: "{{ nyaa.pyenv.update_git_install}}"
+    force: true
+  become_user: "{{ nyaa.user }}"
+
+- name: Install PyEnv-virtualenv plugin
+  git:
+    repo: 'https://github.com/yyuu/pyenv-virtualenv.git'
+    dest: "{{ nyaa.pyenv.path }}/plugins/pyenv-virtualenv"
+    update: "{{nyaa.pyenv.update_git_install}}"
+    force: true
+  become_user: "{{nyaa.user}}"
+
+- name: Install .pyenvrc
+  template:
+    src: ".pyenvrc.j2"
+    dest: "{{ nyaa.pyenv.path }}/.pyenvrc"
+    owner: "{{ nyaa.user }}"
+    group: "{{ nyaa.user }}"
+    mode: "0644"
+
+- name: Load pyenv env variables in .bashrc
+  lineinfile: dest="~/.bashrc"
+              regexp="\.pyenvrc$"
+              line="source {{ nyaa.pyenv.path }}/.pyenvrc"
+              state=present
+              create=yes
+  become_user: "{{nyaa.user}}"
+
+- name: Add pyenv autocomplete in .bashrc
+  lineinfile: dest="~/.bashrc"
+              regexp="pyenv\.bash$"
+              line="source {{ nyaa.pyenv.path }}/completions/pyenv.bash"
+              state=present
+  when: nyaa.pyenv.enable_autocompletion
+  become_user: "{{nyaa.user}}"
+
+- name: Install Python interpreters "{{ nyaa.pyenv.python.versions }}"
+  shell: . {{ nyaa.pyenv.path }}/.pyenvrc && pyenv install {{ item }}
+         creates="{{ nyaa.pyenv.path }}/versions/{{ item }}/bin/python"
+  with_items: "{{nyaa.pyenv.python.versions}}"
+  become_user: "{{nyaa.user}}"
+
+- name: Create virtual environments
+  shell: . {{ nyaa.pyenv.path }}/.pyenvrc && pyenv virtualenv {{ item.py_version }} {{ item.venv_name }}
+         creates="{{ nyaa.pyenv.path }}/versions/{{ item.venv_name }}/bin/python"
+  with_items: "{{nyaa.pyenv.virtualenvs}}"
+  become_user: "{{nyaa.user}}"

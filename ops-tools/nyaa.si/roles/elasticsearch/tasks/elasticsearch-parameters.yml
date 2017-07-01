@@ -1,0 +1,49 @@
+# Check for mandatory parameters
+
+- fail: msg="es_instance_name must be specified and cannot be blank"
+  when: es_instance_name is not defined or es_instance_name == ''
+
+- fail: msg="es_proxy_port must be specified and cannot be blank when es_proxy_host is defined"
+  when: (es_proxy_port is not defined or es_proxy_port == '') and (es_proxy_host is defined and es_proxy_host != '')
+
+- debug: msg="WARNING - It is recommended you specify the parameter 'http.port'"
+  when: es_config['http.port'] is not defined
+
+- debug: msg="WARNING - It is recommended you specify the parameter 'transport.tcp.port'"
+  when: es_config['transport.tcp.port'] is not defined
+
+- debug: msg="WARNING - It is recommended you specify the parameter 'discovery.zen.ping.unicast.hosts'"
+  when: es_config['discovery.zen.ping.unicast.hosts'] is not defined
+
+#If the user attempts to lock memory they must specify a heap size
+- fail: msg="If locking memory with bootstrap.memory_lock a heap size must be specified"
+  when: es_config['bootstrap.memory_lock'] is defined and es_config['bootstrap.memory_lock'] == True and es_heap_size is not defined
+
+#Check if working with security we have an es_api_basic_auth_username and es_api_basic_auth_username - otherwise any http calls wont work
+- fail: msg="Enabling security requires an es_api_basic_auth_username and es_api_basic_auth_password to be provided to allow cluster operations"
+  when: es_enable_xpack and ("security" in es_xpack_features) and es_api_basic_auth_username is not defined and es_api_basic_auth_password is not defined
+
+- set_fact: instance_default_file={{default_file | dirname}}/{{es_instance_name}}_{{default_file | basename}}
+- set_fact: instance_init_script={{init_script | dirname }}/{{es_instance_name}}_{{init_script | basename}}
+- set_fact: conf_dir={{ es_conf_dir }}/{{es_instance_name}}
+- set_fact: m_lock_enabled={{ es_config['bootstrap.memory_lock'] is defined and es_config['bootstrap.memory_lock'] == True }}
+
+#TODO - if transport.host is not local maybe error on boostrap checks
+
+
+#Use systemd for the following distributions:
+#Ubuntu 15 and up
+#Debian 8 and up
+#Centos 7 and up
+#Relies on elasticsearch distribution installing a serviced script to determine whether one should be copied.
+
+- set_fact: use_system_d={{(ansible_distribution == 'Debian' and ansible_distribution_version | version_compare('8', '>=')) or (ansible_distribution in ['RedHat','CentOS'] and ansible_distribution_version | version_compare('7', '>=')) or (ansible_distribution == 'Ubuntu' and ansible_distribution_version | version_compare('15', '>=')) }}
+
+- set_fact: instance_sysd_script={{sysd_script | dirname }}/{{es_instance_name}}_{{sysd_script | basename}}
+  when: use_system_d
+#For directories we also use the {{inventory_hostname}}-{{ es_instance_name }} - this helps if we have a shared SAN.
+
+- set_fact: instance_suffix={{inventory_hostname}}-{{ es_instance_name }}
+- set_fact: pid_dir={{ es_pid_dir }}/{{instance_suffix}}
+- set_fact: log_dir={{ es_log_dir }}/{{instance_suffix}}
+- set_fact: data_dirs={{ es_data_dirs | append_to_list('/'+instance_suffix) }}

@@ -1,0 +1,28 @@
+---
+- name: os-specific vars
+  include_vars: "Debian.yml"
+  tags:
+      - always
+
+- name: check-set-parameters
+  include: elasticsearch-parameters.yml
+  tags:
+      - always
+
+- include: java.yml
+  when: es_java_install
+  tags:
+      - prepare
+
+- include: elasticsearch.yml
+  tags:
+      - install
+
+- include: elasticsearch-config.yml
+  tags:
+      - configure
+
+- meta: flush_handlers
+
+- name: Wait for elasticsearch to startup
+  wait_for: host={{es_api_host}} port={{es_api_port}} delay=5 connect_timeout=1

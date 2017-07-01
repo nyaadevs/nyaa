@@ -1,0 +1,11 @@
+{
+    "save_loc": "/tmp/pos.json",
+    "mysql_host": "{{mysql.users[0].hosts[0]}}",
+    "mysql_port": 3306,
+    "mysql_user": "{{mysql.users[0].name}}",
+    "mysql_password": "{{mysql.users[0].password}}",
+    "database": "{{mysql.databases[0].name}}",
+    "internal_queue_depth": 10000,
+    "es_chunk_size": 10000,
+    "flush_interval": 5
+}
