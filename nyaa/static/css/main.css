@@ -417,4 +417,11 @@ h6:hover .header-anchor {
 	.search-container {
 		width: 400px;
 	}
-}
+  
+	table.table > tbody > tr.reports-row > td {
+		vertical-align: middle;
+	}
+
+	td.report-action-column {
+		min-width: 150px;
+	}
