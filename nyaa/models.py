@@ -563,6 +563,38 @@ class User(db.Model):
         return self.level >= UserLevelType.TRUSTED
 
 
+class AdminLogBase(DeclarativeHelperBase):
+    __tablename_base__ = 'adminlog'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    log = db.Column(db.String(length=1024), nullable=False)
+
+    @declarative.declared_attr
+    def admin_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __init__(self, log, admin_id):
+        self.log = log
+        self.admin_id = admin_id
+
+    def __repr__(self):
+        return '<AdminLog %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @declarative.declared_attr
+    def admin(cls):
+        return db.relationship('User', uselist=False, lazy="joined")
+
+    @classmethod
+    def all_logs(cls):
+        return cls.query
+
+
 class ReportStatus(IntEnum):
     IN_REVIEW = 0
     VALID = 1
@@ -714,6 +746,15 @@ class SukebeiComment(CommentBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
+# AdminLog
+class NyaaAdminLog(AdminLogBase, db.Model):
+    __flavor__ = 'Nyaa'
+
+
+class SukebeiAdminLog(AdminLogBase, db.Model):
+    __flavor__ = 'Sukebei'
+
+
 # Report
 class NyaaReport(ReportBase, db.Model):
     __flavor__ = 'Nyaa'
@@ -733,9 +774,10 @@ if app.config['SITE_FLAVOR'] == 'nyaa':
     MainCategory = NyaaMainCategory
     SubCategory = NyaaSubCategory
     Comment = NyaaComment
+    AdminLog = NyaaAdminLog
     Report = NyaaReport
-
     TorrentNameSearch = NyaaTorrentNameSearch
+
 elif app.config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
     TorrentFilelist = SukebeiTorrentFilelist
@@ -745,6 +787,6 @@ elif app.config['SITE_FLAVOR'] == 'sukebei':
     MainCategory = SukebeiMainCategory
     SubCategory = SukebeiSubCategory
     Comment = SukebeiComment
+    AdminLog = SukebeiAdminLog
     Report = SukebeiReport
-
     TorrentNameSearch = SukebeiTorrentNameSearch

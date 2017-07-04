@@ -380,18 +380,18 @@ h6:hover .header-anchor {
 	display: inline-block;
 }
 
-@media (max-width: 991px){
+@media (max-width: 991px) {
 	.panel-body .col-md-5 {
 		margin-left: 20px;
 		margin-bottom: 10px;
 	}
-	
+
 	#navFilter-criteria > .bootstrap-select:first-child > button {
 		/* !important is used here to override the programmatically added style on element */
 		border-top-left-radius: 0 !important;
 		border-bottom-left-radius: 0 !important;
 	}
-	
+
 	.search-container > .search-bar {
 		margin-top: 15px;
 	}
@@ -412,10 +412,9 @@ h6:hover .header-anchor {
 	}
 }
 
-table.table > tbody > tr.reports-row > td {
-	vertical-align: middle;
-}
-
-td.report-action-column {
-	min-width: 150px;
+@media (min-width: 992px) and (max-width: 1199px) {
+	/* Collapse navbar search form so it doesn't wrap to a new line */
+	.search-container {
+		width: 400px;
+	}
 }
