@@ -758,11 +758,11 @@ def edit_torrent(torrent_id):
             torrent.deleted = form.is_deleted.data
 
         if flask.g.user.is_moderator:
-            log = "Torrent [#{}]({}) marked as {}"
+            log = "Torrent [#{}]({}) marked as ".format(torrent.id, url)
             url = flask.url_for('view_torrent', torrent_id=torrent.id)
-            adminlog = models.AdminLog(log=(log.format(torrent.id, url, "deleted")
+            adminlog = models.AdminLog(log=(log+"deleted"
                                             if torrent.deleted else
-                                            log.format(torrent.id, url, "undeleted")),
+                                            log+"undeleted"),
                                        admin_id=flask.g.user.id)
             db.session.add(adminlog)
 
