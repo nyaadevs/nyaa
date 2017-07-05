@@ -732,11 +732,11 @@ def edit_torrent(torrent_id):
         flask.abort(404)
 
     # Only allow admins edit deleted torrents
-    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
+    if torrent.deleted and not (editor and editor.is_moderator):
         flask.abort(404)
 
     # Only allow torrent owners or admins edit torrents
-    if not flask.g.user or not (flask.g.user is torrent.user or flask.g.user.is_moderator):
+    if not editor or not (editor is torrent.user or editor.is_moderator):
         flask.abort(403)
 
     if flask.request.method == 'POST' and form.validate():
@@ -752,18 +752,18 @@ def edit_torrent(torrent_id):
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
 
-        if flask.g.user.is_trusted:
+        if editor.is_trusted:
             torrent.trusted = form.is_trusted.data
-        if flask.g.user.is_moderator:
+
+        deleted_changed = torrent.deleted != form.is_deleted.data
+        if editor.is_moderator:
             torrent.deleted = form.is_deleted.data
 
-        if flask.g.user.is_moderator:
-            log = "Torrent [#{}]({}) marked as ".format(torrent.id, url)
-            url = flask.url_for('view_torrent', torrent_id=torrent.id)
-            adminlog = models.AdminLog(log=(log+"deleted"
-                                            if torrent.deleted else
-                                            log+"undeleted"),
-                                       admin_id=flask.g.user.id)
+        url = flask.url_for('view_torrent', torrent_id=torrent.id)
+        if deleted_changed and editor.is_moderator:
+            log = "Torrent [#{0}]({1}) marked as {2}".format(
+                torrent.id, url, "deleted" if torrent.deleted else "undeleted")
+            adminlog = models.AdminLog(log=log, admin_id=editor.id)
             db.session.add(adminlog)
 
         db.session.commit()
