@@ -122,7 +122,7 @@
 	
 								</li>
 								<li>
-									<a href="{{ url_for('view_user', user_name=g.user.username) }}">
+									<a href="{{ url_for('users.view_user', user_name=g.user.username) }}">
 										<i class="fa fa-user fa-fw"></i>
 										Torrents
 									</a>
@@ -214,7 +214,7 @@
 					<div class="search-container visible-xs visible-sm">
 					{# The mobile menu #}
 						{% if user_page %}
-						<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
+						<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
 						{% else %}
 						<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 						{% endif %}
@@ -250,7 +250,7 @@
 					</div><!--/.search-container -->
 
 					{% if user_page %}
-					<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
+					<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
 					{% else %}
 					<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 					{% endif %}

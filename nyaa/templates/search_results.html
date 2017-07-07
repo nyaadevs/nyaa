@@ -12,7 +12,7 @@
 {% if special_results is defined and not search.user %}
 {% if special_results.first_word_user %}
 <div class="alert alert-info">
-	<a href="{{ url_for('view_user', user_name=special_results.first_word_user.username) }}{{ modify_query(q=special_results.query_sans_user)[1:] }}">Click here to see only results uploaded by {{ special_results.first_word_user.username }}</a>
+	<a href="{{ url_for('users.view_user', user_name=special_results.first_word_user.username) }}{{ modify_query(q=special_results.query_sans_user)[1:] }}">Click here to see only results uploaded by {{ special_results.first_word_user.username }}</a>
 </div>
 {% endif %}
 {% endif %}
