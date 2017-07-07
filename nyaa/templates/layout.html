@@ -95,8 +95,8 @@
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li {% if request.path == url_for('view_reports') %}class="active"{% endif %}><a href="{{ url_for('view_reports') }}">Reports</a></li>
-								<li {% if request.path == url_for('view_adminlog') %}class="active"{% endif %}><a href="{{ url_for('view_adminlog') }}">Log</a></li>
+								<li {% if request.path == url_for('admin.reports') %}class="active"{% endif %}><a href="{{ url_for('admin.reports') }}">Reports</a></li>
+								<li {% if request.path == url_for('admin.log') %}class="active"{% endif %}><a href="{{ url_for('admin.log') }}">Log</a></li>
 							</ul>
 						</li>
 						{% endif %}
