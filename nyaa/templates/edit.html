@@ -8,7 +8,7 @@
 <h1>
 	Edit Torrent <a href="{{ torrent_url }}">#{{torrent.id}}</a>
 	{% if (torrent.user != None) and (torrent.user != g.user) %}
-	(by <a href="{{ url_for('view_user', user_name=torrent.user.username) }}">{{ torrent.user.username }}</a>)
+	(by <a href="{{ url_for('users.view_user', user_name=torrent.user.username) }}">{{ torrent.user.username }}</a>)
 	{% endif %}
 </h1>
 
