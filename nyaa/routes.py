@@ -2,12 +2,8 @@ import json
 import math
 import os.path
 import re
-import smtplib
 from datetime import datetime, timedelta
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from email.utils import formatdate
-from ipaddress import ip_address
 from urllib.parse import quote
 
 import flask
@@ -15,7 +11,6 @@ from flask_paginate import Pagination
 from werkzeug import url_encode
 from werkzeug.datastructures import CombinedMultiDict
 
-import config
 from itsdangerous import BadSignature, URLSafeSerializer
 from sqlalchemy.orm import joinedload
 
@@ -32,15 +27,6 @@ SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} 
 
 # For static_cachebuster
 _static_cache = {}
-
-
-def redirect_url():
-    url = flask.request.args.get('next') or \
-        flask.request.referrer or \
-        '/'
-    if url == flask.request.url:
-        return '/'
-    return url
 
 
 @app.template_global()
@@ -101,7 +87,7 @@ def before_request():
     if 'user_id' in flask.session:
         user = models.User.by_id(flask.session['user_id'])
         if not user:
-            return logout()
+            return views.account.logout()
 
         flask.g.user = user
 
@@ -450,121 +436,6 @@ def render_rss(label, query, use_elastic, magnet_links=False):
     # Cache for an hour
     response.headers['Cache-Control'] = 'max-age={}'.format(1 * 5 * 60)
     return response
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if flask.g.user:
-        return flask.redirect(redirect_url())
-
-    form = forms.LoginForm(flask.request.form)
-    if flask.request.method == 'POST' and form.validate():
-        username = form.username.data.strip()
-        password = form.password.data
-        user = models.User.by_username(username)
-
-        if not user:
-            user = models.User.by_email(username)
-
-        if (not user or password != user.password_hash
-                or user.status == models.UserStatusType.INACTIVE):
-            flask.flash(flask.Markup(
-                '<strong>Login failed!</strong> Incorrect username or password.'), 'danger')
-            return flask.redirect(flask.url_for('login'))
-
-        user.last_login_date = datetime.utcnow()
-        user.last_login_ip = ip_address(flask.request.remote_addr).packed
-        db.session.add(user)
-        db.session.commit()
-
-        flask.g.user = user
-        flask.session['user_id'] = user.id
-        flask.session.permanent = True
-        flask.session.modified = True
-
-        return flask.redirect(redirect_url())
-
-    return flask.render_template('login.html', form=form)
-
-
-@app.route('/logout')
-def logout():
-    flask.g.user = None
-    flask.session.permanent = False
-    flask.session.modified = False
-
-    response = flask.make_response(flask.redirect(redirect_url()))
-    response.set_cookie(app.session_cookie_name, expires=0)
-    return response
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if flask.g.user:
-        return flask.redirect(redirect_url())
-
-    form = forms.RegisterForm(flask.request.form)
-    if flask.request.method == 'POST' and form.validate():
-        user = models.User(username=form.username.data.strip(),
-                           email=form.email.data.strip(), password=form.password.data)
-        user.last_login_ip = ip_address(flask.request.remote_addr).packed
-        db.session.add(user)
-        db.session.commit()
-
-        if config.USE_EMAIL_VERIFICATION:  # force verification, enable email
-            activ_link = get_activation_link(user)
-            send_verification_email(user.email, activ_link)
-            return flask.render_template('waiting.html')
-        else:  # disable verification, set user as active and auto log in
-            user.status = models.UserStatusType.ACTIVE
-            db.session.add(user)
-            db.session.commit()
-            flask.g.user = user
-            flask.session['user_id'] = user.id
-            flask.session.permanent = True
-            flask.session.modified = True
-            return flask.redirect(redirect_url())
-
-    return flask.render_template('register.html', form=form)
-
-
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
-    if not flask.g.user:
-        return flask.redirect('/')  # so we dont get stuck in infinite loop when signing out
-
-    form = forms.ProfileForm(flask.request.form)
-
-    if flask.request.method == 'POST' and form.validate():
-        user = flask.g.user
-        new_email = form.email.data.strip()
-        new_password = form.new_password.data
-
-        if new_email:
-            # enforce password check on email change too
-            if form.current_password.data != user.password_hash:
-                flask.flash(flask.Markup(
-                    '<strong>Email change failed!</strong> Incorrect password.'), 'danger')
-                return flask.redirect('/profile')
-            user.email = form.email.data
-            flask.flash(flask.Markup(
-                '<strong>Email successfully changed!</strong>'), 'success')
-        if new_password:
-            if form.current_password.data != user.password_hash:
-                flask.flash(flask.Markup(
-                    '<strong>Password change failed!</strong> Incorrect password.'), 'danger')
-                return flask.redirect('/profile')
-            user.password_hash = form.new_password.data
-            flask.flash(flask.Markup(
-                '<strong>Password successfully changed!</strong>'), 'success')
-
-        db.session.add(user)
-        db.session.commit()
-
-        flask.g.user = user
-        return flask.redirect('/profile')
-
-    return flask.render_template('profile.html', form=form)
 
 
 @app.route('/user/activate/<payload>')
@@ -925,30 +796,6 @@ def get_activation_link(user):
     return flask.url_for('activate_user', payload=payload, _external=True)
 
 
-def send_verification_email(to_address, activ_link):
-    ''' this is until we have our own mail server, obviously.
-     This can be greatly cut down if on same machine.
-     probably can get rid of all but msg formatting/building,
-     init line and sendmail line if local SMTP server '''
-
-    msg_body = 'Please click on: ' + activ_link + ' to activate your account.\n\n\nUnsubscribe:'
-
-    msg = MIMEMultipart()
-    msg['Subject'] = 'Verification Link'
-    msg['From'] = config.MAIL_FROM_ADDRESS
-    msg['To'] = to_address
-    msg.attach(MIMEText(msg_body, 'plain'))
-
-    server = smtplib.SMTP(config.SMTP_SERVER, config.SMTP_PORT)
-    server.set_debuglevel(1)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-    server.login(config.SMTP_USERNAME, config.SMTP_PASSWORD)
-    server.sendmail(config.SMTP_USERNAME, to_address, msg.as_string())
-    server.quit()
-
-
 def _create_user_class_choices(user):
     choices = [('regular', 'Regular')]
     default = 'regular'
@@ -1005,6 +852,7 @@ def register_blueprints(flask_app):
     # API routes
     flask_app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
     # Site routes
+    flask_app.register_blueprint(views.account_bp)
     flask_app.register_blueprint(views.site_bp)
 
 
