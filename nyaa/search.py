@@ -13,6 +13,25 @@ from sqlalchemy_fulltext import FullTextSearch
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 
+DEFAULT_MAX_SEARCH_RESULT = 1000
+DEFAULT_PER_PAGE = 75
+SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} results.<br>\n'
+                               'Please refine your search results if you can\'t find '
+                               'what you were looking for.')
+
+
+def _generate_query_string(term, category, filter, user):
+    params = {}
+    if term:
+        params['q'] = str(term)
+    if category:
+        params['c'] = str(category)
+    if filter:
+        params['f'] = str(filter)
+    if user:
+        params['u'] = str(user)
+    return params
+
 
 def search_elastic(term='', user=None, sort='id', order='desc',
                    category='0_0', quality_filter='0', page=1,

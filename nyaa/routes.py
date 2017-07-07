@@ -14,15 +14,12 @@ from werkzeug.datastructures import CombinedMultiDict
 from itsdangerous import BadSignature, URLSafeSerializer
 from sqlalchemy.orm import joinedload
 
-from nyaa import api_handler, app, backend, db, forms, models, torrents, utils, views
-from nyaa.search import search_db, search_elastic
+from nyaa import api_handler, app, backend, db, forms, models, torrents, views
+from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
+                         _generate_query_string, search_db, search_elastic)
+from nyaa.utils import cached_function, chain_get
 
 DEBUG_API = False
-DEFAULT_MAX_SEARCH_RESULT = 1000
-DEFAULT_PER_PAGE = 75
-SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} results.<br>\n'
-                               'Please refine your search results if you can\'t find '
-                               'what you were looking for.')
 
 
 # For static_cachebuster
@@ -100,19 +97,6 @@ def before_request():
             return 'You are banned.', 403
 
 
-def _generate_query_string(term, category, filter, user):
-    params = {}
-    if term:
-        params['q'] = str(term)
-    if category:
-        params['c'] = str(category)
-    if filter:
-        params['f'] = str(filter)
-    if user:
-        params['u'] = str(user)
-    return params
-
-
 @app.template_filter('utc_time')
 def get_utc_timestamp(datetime_str):
     ''' Returns a UTC POSIX timestamp, as seconds '''
@@ -125,7 +109,7 @@ def get_display_time(datetime_str):
     return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
 
 
-@utils.cached_function
+@cached_function
 def get_category_id_map():
     ''' Reads database for categories and turns them into a dict with
         ids as keys and name list as the value, ala
@@ -139,18 +123,6 @@ def get_category_id_map():
 
 
 # Routes start here #
-
-
-def chain_get(source, *args):
-    ''' Tries to return values from source by the given keys.
-        Returns None if none match.
-        Note: can return a None from the source. '''
-    sentinel = object()
-    for key in args:
-        value = source.get(key, sentinel)
-        if value is not sentinel:
-            return value
-    return None
 
 
 @app.route('/rss', defaults={'rss': True})
@@ -290,130 +262,6 @@ def home(rss):
                                          special_results=special_results)
 
 
-@app.route('/user/<user_name>', methods=['GET', 'POST'])
-def view_user(user_name):
-    user = models.User.by_username(user_name)
-
-    if not user:
-        flask.abort(404)
-
-    admin_form = None
-    if flask.g.user and flask.g.user.is_moderator and flask.g.user.level > user.level:
-        admin_form = forms.UserForm()
-        default, admin_form.user_class.choices = _create_user_class_choices(user)
-        if flask.request.method == 'GET':
-            admin_form.user_class.data = default
-
-    url = flask.url_for('view_user', user_name=user.username)
-    if flask.request.method == 'POST' and admin_form and admin_form.validate():
-        selection = admin_form.user_class.data
-        log = None
-        if selection == 'regular':
-            user.level = models.UserLevelType.REGULAR
-            log = "[{}]({}) changed to regular user".format(user_name, url)
-        elif selection == 'trusted':
-            user.level = models.UserLevelType.TRUSTED
-            log = "[{}]({}) changed to trusted user".format(user_name, url)
-        elif selection == 'moderator':
-            user.level = models.UserLevelType.MODERATOR
-            log = "[{}]({}) changed to moderator user".format(user_name, url)
-        elif selection == 'banned':
-            user.status = models.UserStatusType.BANNED
-            log = "[{}]({}) changed to banned user".format(user_name, url)
-
-        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
-        db.session.add(user)
-        db.session.add(adminlog)
-        db.session.commit()
-
-        return flask.redirect(url)
-
-    user_level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][user.level]
-
-    req_args = flask.request.args
-
-    search_term = chain_get(req_args, 'q', 'term')
-
-    sort_key = req_args.get('s')
-    sort_order = req_args.get('o')
-
-    category = chain_get(req_args, 'c', 'cats')
-    quality_filter = chain_get(req_args, 'f', 'filter')
-
-    page_number = chain_get(req_args, 'p', 'page', 'offset')
-    try:
-        page_number = max(1, int(page_number))
-    except (ValueError, TypeError):
-        page_number = 1
-
-    results_per_page = app.config.get('RESULTS_PER_PAGE', DEFAULT_PER_PAGE)
-
-    query_args = {
-        'term': search_term or '',
-        'user': user.id,
-        'sort': sort_key or 'id',
-        'order': sort_order or 'desc',
-        'category': category or '0_0',
-        'quality_filter': quality_filter or '0',
-        'page': page_number,
-        'rss': False,
-        'per_page': results_per_page
-    }
-
-    if flask.g.user:
-        query_args['logged_in_user'] = flask.g.user
-        if flask.g.user.is_moderator:  # God mode
-            query_args['admin'] = True
-
-    # Use elastic search for term searching
-    rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
-    use_elastic = app.config.get('USE_ELASTIC_SEARCH')
-    if use_elastic and search_term:
-        query_args['term'] = search_term
-
-        max_search_results = app.config.get('ES_MAX_SEARCH_RESULT', DEFAULT_MAX_SEARCH_RESULT)
-
-        # Only allow up to (max_search_results / page) pages
-        max_page = min(query_args['page'], int(math.ceil(max_search_results / results_per_page)))
-
-        query_args['page'] = max_page
-        query_args['max_search_results'] = max_search_results
-
-        query_results = search_elastic(**query_args)
-
-        max_results = min(max_search_results, query_results['hits']['total'])
-        # change p= argument to whatever you change page_parameter to or pagination breaks
-        pagination = Pagination(p=query_args['page'], per_page=results_per_page,
-                                total=max_results, bs_version=3, page_parameter='p',
-                                display_msg=SERACH_PAGINATE_DISPLAY_MSG)
-        return flask.render_template('user.html',
-                                     use_elastic=True,
-                                     pagination=pagination,
-                                     torrent_query=query_results,
-                                     search=query_args,
-                                     user=user,
-                                     user_page=True,
-                                     rss_filter=rss_query_string,
-                                     level=user_level,
-                                     admin_form=admin_form)
-    # Similar logic as home page
-    else:
-        if use_elastic:
-            query_args['term'] = ''
-        else:
-            query_args['term'] = search_term or ''
-        query = search_db(**query_args)
-        return flask.render_template('user.html',
-                                     use_elastic=False,
-                                     torrent_query=query,
-                                     search=query_args,
-                                     user=user,
-                                     user_page=True,
-                                     rss_filter=rss_query_string,
-                                     level=user_level,
-                                     admin_form=admin_form)
-
-
 @app.template_filter('rfc822')
 def _jinja2_filter_rfc822(date, fmt=None):
     return formatdate(date.timestamp())
@@ -459,7 +307,7 @@ def activate_user(payload):
     return flask.redirect('/login')
 
 
-@utils.cached_function
+@cached_function
 def _create_upload_category_choices():
     ''' Turns categories in the database into a list of (id, name)s '''
     choices = [('', '[Select a category]')]
@@ -730,27 +578,6 @@ def get_activation_link(user):
     return flask.url_for('activate_user', payload=payload, _external=True)
 
 
-def _create_user_class_choices(user):
-    choices = [('regular', 'Regular')]
-    default = 'regular'
-    if flask.g.user:
-        if flask.g.user.is_moderator:
-            choices.append(('trusted', 'Trusted'))
-        if flask.g.user.is_superadmin:
-            choices.append(('moderator', 'Moderator'))
-            choices.append(('banned', 'Banned'))
-
-        if user:
-            if user.is_moderator:
-                default = 'moderator'
-            elif user.is_trusted:
-                default = 'trusted'
-            elif user.is_banned:
-                default = 'banned'
-
-    return default, choices
-
-
 @app.template_filter()
 def timesince(dt, default='just now'):
     """
@@ -791,6 +618,7 @@ def register_blueprints(flask_app):
     flask_app.register_blueprint(views.account_bp)
     flask_app.register_blueprint(views.admin_bp)
     flask_app.register_blueprint(views.site_bp)
+    flask_app.register_blueprint(views.users_bp)
 
 
 # When done, this can be moved to nyaa/__init__.py instead of importing this file
