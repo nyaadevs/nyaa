@@ -519,6 +519,15 @@ class User(db.Model):
             return 'Moderator'
 
     @property
+    def userstatus_str(self):
+        if self.status == UserStatusType.INACTIVE:
+            return 'Inactive'
+        elif self.status == UserStatusType.ACTIVE:
+            return 'Active'
+        elif self.status == UserStatusType.BANNED:
+            return 'Banned'
+
+    @property
     def userlevel_color(self):
         if self.level == UserLevelType.REGULAR:
             return 'default'
