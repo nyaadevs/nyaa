@@ -13,44 +13,46 @@
 {% from "_formhelpers.html" import render_menu_with_button %}
 
 {% if g.user and g.user.is_moderator %}
-    <h2>User Information</h2><br>
-    <div class="row" style="margin-bottom: 20px;">
-        <div class="col-sm-2" style="max-width: 150px;">
-            <img class="avatar" src="{{ user.gravatar_url() }}">
-        </div>
-        <div class="col-sm-10">
-            <dl class="dl-horizontal">
-                <dt>User ID:</dt>
-                <dd>{{ user.id }}</dd>
-                <dt>Account created on:</dt>
-                <dd>{{ user.created_time }}</dd>
-                <dt>Email address:</dt>
-                <dd>{{ user.email }}</dd>
-                <dt>User class:</dt>
-                <dd>{{ level }}</dd>
-                {%- if g.user.is_superadmin -%}
-                <dt>Last login IP:</dt>
-                <dd>{{ user.ip_string }}</dd><br>
-                {%- endif -%}
-            </dl>
-        </div>
-    </div>
-    {% if admin_form %}
-    <form method="POST">
-        {{ admin_form.csrf_token }}
+	<h2>User Information</h2><br>
+	<div class="row" style="margin-bottom: 20px;">
+		<div class="col-sm-2" style="max-width: 150px;">
+			<img class="avatar" src="{{ user.gravatar_url() }}">
+		</div>
+		<div class="col-sm-10">
+			<dl class="dl-horizontal">
+				<dt>User ID:</dt>
+				<dd>{{ user.id }}</dd>
+				<dt>Account created on:</dt>
+				<dd>{{ user.created_time }}</dd>
+				<dt>Email address:</dt>
+				<dd>{{ user.email }}</dd>
+				<dt>User class:</dt>
+				<dd>{{ level }}</dd>
+				<dt>User status:</dt>
+				<dd>{{ user.userstatus_str }}</dt>
+				{%- if g.user.is_superadmin -%}
+				<dt>Last login IP:</dt>
+				<dd>{{ user.ip_string }}</dd><br>
+				{%- endif -%}
+			</dl>
+		</div>
+	</div>
+	{% if admin_form %}
+	<form method="POST">
+		{{ admin_form.csrf_token }}
 
-        <div class="form-group row">
-            <div class="col-md-6">
-                {{ render_menu_with_button(admin_form.user_class) }}
-            </div>
-        </div>
-    </form>
-    <br>
-    {% endif %}
+		<div class="form-group row">
+			<div class="col-md-6">
+				{{ render_menu_with_button(admin_form.user_class) }}
+			</div>
+		</div>
+	</form>
+	<br>
+	{% endif %}
 {% endif %}
 
 <h3>
-    Browsing <span class="text-{{ user.userlevel_color }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
+	Browsing <span class="text-{{ user.userlevel_color }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
 </h3>
 
 {% include "search_results.html" %}
