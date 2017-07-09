@@ -266,7 +266,7 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 }
 
 .comment-content {
-	word-break: break-all;
+	overflow-wrap: break-word;
 }
 .comment-content img {
 	max-width: 100%;
