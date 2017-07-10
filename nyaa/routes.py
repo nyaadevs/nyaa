@@ -1,6 +1,5 @@
 import json
 import os.path
-from datetime import datetime, timedelta
 from urllib.parse import quote
 
 import flask
@@ -23,25 +22,6 @@ def category_name(cat_id):
 @app.errorhandler(404)
 def not_found(error):
     return flask.render_template('404.html'), 404
-
-
-@app.before_request
-def before_request():
-    flask.g.user = None
-    if 'user_id' in flask.session:
-        user = models.User.by_id(flask.session['user_id'])
-        if not user:
-            return views.account.logout()
-
-        flask.g.user = user
-
-        if 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
-            flask.session['timeout'] = datetime.now() + timedelta(days=7)
-            flask.session.permanent = True
-            flask.session.modified = True
-
-        if flask.g.user.status == models.UserStatusType.BANNED:
-            return 'You are banned.', 403
 
 
 @cached_function
