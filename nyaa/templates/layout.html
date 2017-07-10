@@ -78,8 +78,8 @@
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li {% if request.path == url_for('site_rules') %}class="active"{% endif %}><a href="{{ url_for('site_rules') }}">Rules</a></li>
-								<li {% if request.path == url_for('site_help') %}class="active"{% endif %}><a href="{{ url_for('site_help') }}">Help</a></li>
+								<li {% if request.path == url_for('site.rules') %}class="active"{% endif %}><a href="{{ url_for('site.rules') }}">Rules</a></li>
+								<li {% if request.path == url_for('site.help') %}class="active"{% endif %}><a href="{{ url_for('site.help') }}">Help</a></li>
 							</ul>
 						</li>
 						<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
