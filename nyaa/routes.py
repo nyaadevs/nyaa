@@ -11,7 +11,6 @@ from flask_paginate import Pagination
 from werkzeug import url_encode
 from werkzeug.datastructures import CombinedMultiDict
 
-from itsdangerous import BadSignature, URLSafeSerializer
 from sqlalchemy.orm import joinedload
 
 from nyaa import api_handler, app, backend, db, forms, models, torrents, views
@@ -286,27 +285,6 @@ def render_rss(label, query, use_elastic, magnet_links=False):
     return response
 
 
-@app.route('/user/activate/<payload>')
-def activate_user(payload):
-    s = get_serializer()
-    try:
-        user_id = s.loads(payload)
-    except BadSignature:
-        flask.abort(404)
-
-    user = models.User.by_id(user_id)
-
-    if not user:
-        flask.abort(404)
-
-    user.status = models.UserStatusType.ACTIVE
-
-    db.session.add(user)
-    db.session.commit()
-
-    return flask.redirect('/login')
-
-
 @cached_function
 def _create_upload_category_choices():
     ''' Turns categories in the database into a list of (id, name)s '''
@@ -564,18 +542,6 @@ def _get_cached_torrent_file(torrent):
             out_file.write(torrents.create_bencoded_torrent(torrent))
 
     return open(cached_torrent, 'rb'), os.path.getsize(cached_torrent)
-
-
-def get_serializer(secret_key=None):
-    if secret_key is None:
-        secret_key = app.secret_key
-    return URLSafeSerializer(secret_key)
-
-
-def get_activation_link(user):
-    s = get_serializer()
-    payload = s.dumps(user.id)
-    return flask.url_for('activate_user', payload=payload, _external=True)
 
 
 @app.template_filter()

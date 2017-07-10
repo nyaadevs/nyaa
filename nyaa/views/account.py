@@ -6,8 +6,8 @@ from ipaddress import ip_address
 
 import flask
 
-# Importing nyaa.routes for get_activation_link
-from nyaa import app, db, forms, models, routes
+from nyaa import app, db, forms, models
+from nyaa.views.users import get_activation_link
 
 bp = flask.Blueprint('account', __name__)
 
@@ -72,7 +72,7 @@ def register():
         db.session.commit()
 
         if app.config['USE_EMAIL_VERIFICATION']:  # force verification, enable email
-            activ_link = routes.get_activation_link(user)
+            activ_link = get_activation_link(user)
             send_verification_email(user.email, activ_link)
             return flask.render_template('waiting.html')
         else:  # disable verification, set user as active and auto log in
