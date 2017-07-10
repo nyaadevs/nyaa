@@ -3,6 +3,8 @@ import math
 import flask
 from flask_paginate import Pagination
 
+from itsdangerous import BadSignature, URLSafeSerializer
+
 from nyaa import app, db, forms, models
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
@@ -135,6 +137,27 @@ def view_user(user_name):
                                      admin_form=admin_form)
 
 
+@bp.route('/user/activate/<payload>')
+def activate_user(payload):
+    s = get_serializer()
+    try:
+        user_id = s.loads(payload)
+    except BadSignature:
+        flask.abort(404)
+
+    user = models.User.by_id(user_id)
+
+    if not user:
+        flask.abort(404)
+
+    user.status = models.UserStatusType.ACTIVE
+
+    db.session.add(user)
+    db.session.commit()
+
+    return flask.redirect(flask.url_for('account.login'))
+
+
 def _create_user_class_choices(user):
     choices = [('regular', 'Regular')]
     default = 'regular'
@@ -152,3 +175,15 @@ def _create_user_class_choices(user):
                 default = 'trusted'
 
     return default, choices
+
+
+def get_serializer(secret_key=None):
+    if secret_key is None:
+        secret_key = app.secret_key
+    return URLSafeSerializer(secret_key)
+
+
+def get_activation_link(user):
+    s = get_serializer()
+    payload = s.dumps(user.id)
+    return flask.url_for('users.activate_user', payload=payload, _external=True)
