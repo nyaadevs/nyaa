@@ -109,7 +109,7 @@ def v2_api_upload():
 
         # Create a response dict with relevant data
         torrent_metadata = {
-            'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+            'url': flask.url_for('torrents.view', torrent_id=torrent.id, _external=True),
             'id': torrent.id,
             'name': torrent.display_name,
             'hash': torrent.info_hash.hex(),
@@ -306,7 +306,7 @@ def v2_api_info(torrent_id_or_hash):
     # Create a response dict with relevant data
     torrent_metadata = {
         'submitter': submitter,
-        'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+        'url': flask.url_for('torrents.view', torrent_id=torrent.id, _external=True),
         'id': torrent.id,
         'name': torrent.display_name,
 

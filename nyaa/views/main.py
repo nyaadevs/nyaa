@@ -115,7 +115,7 @@ def home(rss):
         flask.flash(flask.Markup('You were redirected here because '
                                  'the given hash matched this torrent.'), 'info')
         # Redirect user from search to the torrent if we found one with the specific info_hash
-        return flask.redirect(flask.url_for('view_torrent', torrent_id=infohash_torrent.id))
+        return flask.redirect(flask.url_for('torrents.view', torrent_id=infohash_torrent.id))
 
     # If searching, we get results from elastic search
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
