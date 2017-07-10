@@ -1,4 +1,4 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:nyaa="{{ url_for('xmlns_nyaa', _external=True) }}" version="2.0">
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:nyaa="{{ url_for('site.xmlns_nyaa', _external=True) }}" version="2.0">
 	<channel>
 		<title>{{ config.SITE_NAME }} - {{ term }} - {% if not magnet_links %}Torrent File{% else %}Magnet URI{% endif %} RSS</title>
 		<description>RSS Feed for {{ term }}</description>
