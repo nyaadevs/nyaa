@@ -14,6 +14,11 @@ from nyaa.views.account import logout
 bp = flask.Blueprint('main', __name__)
 
 
+@bp.app_errorhandler(404)
+def not_found(error):
+    return flask.render_template('404.html'), 404
+
+
 @bp.before_app_request
 def before_request():
     flask.g.user = None
