@@ -19,7 +19,7 @@
 		<div class="row">
 			<div class="col-md-1">Category:</div>
 			<div class="col-md-5">
-				<a href="{{ url_for('home', c=torrent.main_category.id_as_string) }}">{{ torrent.main_category.name }}</a> - <a href="{{ url_for('home', c=torrent.sub_category.id_as_string) }}">{{ torrent.sub_category.name }}</a>
+				<a href="{{ url_for('main.home', c=torrent.main_category.id_as_string) }}">{{ torrent.main_category.name }}</a> - <a href="{{ url_for('main.home', c=torrent.sub_category.id_as_string) }}">{{ torrent.sub_category.name }}</a>
 			</div>
 
 			<div class="col-md-1">Date:</div>
