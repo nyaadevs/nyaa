@@ -4,8 +4,9 @@ import datetime
 from email.utils import formatdate
 
 from tests import NyaaTestCase
-from nyaa.routes import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
-                         get_display_time, timesince, filter_truthy, category_name)
+from nyaa.routes import category_name
+from nyaa.filters import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
+                          get_display_time, timesince, filter_truthy)
 
 
 class TestFilters(NyaaTestCase):

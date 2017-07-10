@@ -3,67 +3,20 @@ import math
 import os.path
 import re
 from datetime import datetime, timedelta
-from email.utils import formatdate
 from urllib.parse import quote
 
 import flask
 from flask_paginate import Pagination
-from werkzeug import url_encode
 from werkzeug.datastructures import CombinedMultiDict
 
 from sqlalchemy.orm import joinedload
 
-from nyaa import api_handler, app, backend, db, forms, models, torrents, views
+from nyaa import api_handler, app, backend, db, filters, forms, models, torrents, views
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import cached_function, chain_get
 
 DEBUG_API = False
-
-
-# For static_cachebuster
-_static_cache = {}
-
-
-@app.template_global()
-def static_cachebuster(filename):
-    ''' Adds a ?t=<mtime> cachebuster to the given path, if the file exists.
-        Results are cached in memory and persist until app restart! '''
-    # Instead of timestamps, we could use commit hashes (we already load it in __init__)
-    # But that'd mean every static resource would get cache busted. This lets unchanged items
-    # stay in the cache.
-
-    if app.debug:
-        # Do not bust cache on debug (helps debugging)
-        return flask.url_for('static', filename=filename)
-
-    # Get file mtime if not already cached.
-    if filename not in _static_cache:
-        file_path = os.path.join(app.static_folder, filename)
-        file_mtime = None
-        if os.path.exists(file_path):
-            file_mtime = int(os.path.getmtime(file_path))
-
-        _static_cache[filename] = file_mtime
-
-    return flask.url_for('static', filename=filename, t=_static_cache[filename])
-
-
-@app.template_global()
-def modify_query(**new_values):
-    args = flask.request.args.copy()
-
-    for key, value in new_values.items():
-        args[key] = value
-
-    return '{}?{}'.format(flask.request.path, url_encode(args))
-
-
-@app.template_global()
-def filter_truthy(input_list):
-    ''' Jinja2 can't into list comprehension so this is for
-        the search_results.html template '''
-    return [item for item in input_list if item]
 
 
 @app.template_global()
@@ -94,18 +47,6 @@ def before_request():
 
         if flask.g.user.status == models.UserStatusType.BANNED:
             return 'You are banned.', 403
-
-
-@app.template_filter('utc_time')
-def get_utc_timestamp(datetime_str):
-    ''' Returns a UTC POSIX timestamp, as seconds '''
-    UTC_EPOCH = datetime.utcfromtimestamp(0)
-    return int((datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S') - UTC_EPOCH).total_seconds())
-
-
-@app.template_filter('display_time')
-def get_display_time(datetime_str):
-    return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
 
 
 @cached_function
@@ -259,16 +200,6 @@ def home(rss):
                                          search=query_args,
                                          rss_filter=rss_query_string,
                                          special_results=special_results)
-
-
-@app.template_filter('rfc822')
-def _jinja2_filter_rfc822(date, fmt=None):
-    return formatdate(date.timestamp())
-
-
-@app.template_filter('rfc822_es')
-def _jinja2_filter_rfc822_es(datestr, fmt=None):
-    return formatdate(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').timestamp())
 
 
 def render_rss(label, query, use_elastic, magnet_links=False):
@@ -541,40 +472,13 @@ def _get_cached_torrent_file(torrent):
     return open(cached_torrent, 'rb')
 
 
-@app.template_filter()
-def timesince(dt, default='just now'):
-    """
-    Returns string representing "time since" e.g.
-    3 minutes ago, 5 hours ago etc.
-    Date and time (UTC) are returned if older than 1 day.
-    """
-
-    now = datetime.utcnow()
-    diff = now - dt
-
-    periods = (
-        (diff.days, 'day', 'days'),
-        (diff.seconds / 3600, 'hour', 'hours'),
-        (diff.seconds / 60, 'minute', 'minutes'),
-        (diff.seconds, 'second', 'seconds'),
-    )
-
-    if diff.days >= 1:
-        return dt.strftime('%Y-%m-%d %H:%M UTC')
-    else:
-        for period, singular, plural in periods:
-
-            if period >= 1:
-                return '%d %s ago' % (period, singular if int(period) == 1 else plural)
-
-    return default
-
-
 # #################################### BLUEPRINTS ####################################
 
 def register_blueprints(flask_app):
     """ Register the blueprints using the flask_app object """
 
+    # Template filters and globals
+    flask_app.register_blueprint(filters.bp)
     # API routes
     flask_app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
     # Site routes
