@@ -19,11 +19,6 @@ def category_name(cat_id):
     return ' - '.join(get_category_id_map().get(cat_id, ['???']))
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return flask.render_template('404.html'), 404
-
-
 @cached_function
 def get_category_id_map():
     ''' Reads database for categories and turns them into a dict with
