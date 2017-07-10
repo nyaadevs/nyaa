@@ -1,5 +1,6 @@
 import math
 import re
+from datetime import datetime, timedelta
 
 import flask
 from flask_paginate import Pagination
@@ -8,8 +9,28 @@ from nyaa import app, models
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import chain_get
+from nyaa.views.account import logout
 
 bp = flask.Blueprint('main', __name__)
+
+
+@bp.before_app_request
+def before_request():
+    flask.g.user = None
+    if 'user_id' in flask.session:
+        user = models.User.by_id(flask.session['user_id'])
+        if not user:
+            return logout()
+
+        flask.g.user = user
+
+        if 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
+            flask.session['timeout'] = datetime.now() + timedelta(days=7)
+            flask.session.permanent = True
+            flask.session.modified = True
+
+        if flask.g.user.status == models.UserStatusType.BANNED:
+            return 'You are banned.', 403
 
 
 @bp.route('/rss', defaults={'rss': True})
