@@ -19,7 +19,7 @@ import config
 from itsdangerous import BadSignature, URLSafeSerializer
 from sqlalchemy.orm import joinedload
 
-from nyaa import api_handler, app, backend, db, forms, models, torrents, utils
+from nyaa import api_handler, app, backend, db, forms, models, torrents, utils, views
 from nyaa.search import search_db, search_elastic
 
 DEBUG_API = False
@@ -450,11 +450,6 @@ def render_rss(label, query, use_elastic, magnet_links=False):
     # Cache for an hour
     response.headers['Cache-Control'] = 'max-age={}'.format(1 * 5 * 60)
     return response
-
-
-# @app.route('/about', methods=['GET'])
-# def about():
-    # return flask.render_template('about.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -1001,24 +996,17 @@ def timesince(dt, default='just now'):
 
     return default
 
-# #################################### STATIC PAGES ####################################
+
+# #################################### BLUEPRINTS ####################################
+
+def register_blueprints(flask_app):
+    """ Register the blueprints using the flask_app object """
+
+    # API routes
+    flask_app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
+    # Site routes
+    flask_app.register_blueprint(views.site_bp)
 
 
-@app.route('/rules', methods=['GET'])
-def site_rules():
-    return flask.render_template('rules.html')
-
-
-@app.route('/help', methods=['GET'])
-def site_help():
-    return flask.render_template('help.html')
-
-
-@app.route('/xmlns/nyaa', methods=['GET'])
-def xmlns_nyaa():
-    return flask.render_template('xmlns.html')
-
-
-# #################################### API ROUTES ####################################
-
-app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
+# When done, this can be moved to nyaa/__init__.py instead of importing this file
+register_blueprints(app)
