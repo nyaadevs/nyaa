@@ -9,7 +9,7 @@
 		<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 		<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 		<link rel="mask-icon" href="{{ url_for('static', filename='pinned-tab.svg') }}" color="#3582F7">
-		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
+		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('main.home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('main.home', page='rss', _external=True) }}{% endif %}" />
 
 		<meta property="og:site_name" content="{{ config.SITE_NAME }}">
 		<meta property="og:title" content="{{ self.title() }}">
@@ -65,7 +65,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="{{ url_for('home') }}">{{ config.SITE_NAME }}</a>
+					<a class="navbar-brand" href="{{ url_for('main.home') }}">{{ config.SITE_NAME }}</a>
 				</div><!--/.navbar-header -->
 				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
 				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
@@ -82,7 +82,7 @@
 								<li {% if request.path == url_for('site.help') %}class="active"{% endif %}><a href="{{ url_for('site.help') }}">Help</a></li>
 							</ul>
 						</li>
-						<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
+						<li><a href="{% if rss_filter %}{{ url_for('main.home', page='rss', **rss_filter) }}{% else %}{{ url_for('main.home', page='rss') }}{% endif %}">RSS</a></li>
 						{% if config.SITE_FLAVOR == 'nyaa' %}
 						<li><a href="//{{ config.EXTERNAL_URLS['fap'] }}">Fap</a></li>
 						{% elif config.SITE_FLAVOR == 'sukebei' %}
@@ -216,7 +216,7 @@
 						{% if user_page %}
 						<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
 						{% else %}
-						<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
+						<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
 						{% endif %}
 							
 							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}" autofocus>
@@ -252,7 +252,7 @@
 					{% if user_page %}
 					<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
 					{% else %}
-					<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
+					<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
 							<div class="input-group-btn nav-filter" id="navFilter-criteria">
