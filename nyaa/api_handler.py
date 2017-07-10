@@ -24,7 +24,7 @@ api_blueprint = flask.Blueprint('api', __name__)
 def basic_auth_user(f):
     ''' A decorator that will try to validate the user into g.user from basic auth.
         Note: this does not set user to None on failure, so users can also authorize
-        themselves with the cookie (handled in routes.before_request). '''
+        themselves with the cookie (handled in views.main.before_request). '''
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         auth = flask.request.authorization
