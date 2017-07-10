@@ -14,7 +14,7 @@
 				{% else %}
 				<link>{{ create_magnet_from_es_info(torrent.display_name, torrent.info_hash) }}</link>
 				{% endif %}
-				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.meta.id, _external=True) }}</guid>
+				<guid isPermaLink="true">{{ url_for('torrents.view', torrent_id=torrent.meta.id, _external=True) }}</guid>
 				<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>
 
 				<nyaa:seeders>  {{- torrent.seed_count     }}</nyaa:seeders>
@@ -27,7 +27,7 @@
 				{% else %}
 				<link>{{ torrent.magnet_uri }}</link>
 				{% endif %}
-				<guid isPermaLink="true">{{ url_for('view_torrent', torrent_id=torrent.id, _external=True) }}</guid>
+				<guid isPermaLink="true">{{ url_for('torrents.view', torrent_id=torrent.id, _external=True) }}</guid>
 				<pubDate>{{ torrent.created_time|rfc822 }}</pubDate>
 
 				<nyaa:seeders>  {{- torrent.stats.seed_count     }}</nyaa:seeders>

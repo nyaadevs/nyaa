@@ -4,7 +4,7 @@
 {% from "_formhelpers.html" import render_field %}
 {% from "_formhelpers.html" import render_markdown_editor %}
 
-{% set torrent_url = url_for('view_torrent', torrent_id=torrent.id) %}
+{% set torrent_url = url_for('torrents.view', torrent_id=torrent.id) %}
 <h1>
 	Edit Torrent <a href="{{ torrent_url }}">#{{torrent.id}}</a>
 	{% if (torrent.user != None) and (torrent.user != g.user) %}
