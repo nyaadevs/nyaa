@@ -25,7 +25,7 @@
 					{% endif %}
 				</td>
 				<td>
-					<a href="{{ url_for('view_torrent', torrent_id=report.torrent.id) }}">{{ report.torrent.display_name }}</a>
+					<a href="{{ url_for('torrents.view', torrent_id=report.torrent.id) }}">{{ report.torrent.display_name }}</a>
 					by <a href="{{ url_for('users.view_user', user_name=report.torrent.user.username) }}">
 					{{ report.torrent.user.username }}</a>
 					{% if g.user.is_superadmin and report.torrent.uploader_ip %}
