@@ -2,8 +2,8 @@
 	<channel>
 		<title>{{ config.SITE_NAME }} - {{ term }} - {% if not magnet_links %}Torrent File{% else %}Magnet URI{% endif %} RSS</title>
 		<description>RSS Feed for {{ term }}</description>
-		<link>{{ url_for('home', _external=True) }}</link>
-		<atom:link href="{{ url_for('home', page='rss', _external=True) }}" rel="self" type="application/rss+xml" />
+		<link>{{ url_for('main.home', _external=True) }}</link>
+		<atom:link href="{{ url_for('main.home', page='rss', _external=True) }}" rel="self" type="application/rss+xml" />
 		{% for torrent in torrent_query %}
 		<item>
 			<title>{{ torrent.display_name }}</title>
