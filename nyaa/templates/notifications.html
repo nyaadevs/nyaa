@@ -23,9 +23,9 @@
 					{% if notification.event == 'mention' %}
 					You were mentioned in a comment of torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a>
 					{% elif notification.event == 'delete' %}
-					Your torrent {{ notification.torrent.display_name }} was deleted due to the following reason: {{ notification.torrent.reports[0].reason }}
+					Your torrent {{ notification.torrent.display_name }} was deleted.
 					{% elif notification.event == 'hide' %}
-					Your torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a> was hidden due to the following reason: {{ notification.torrent.reports[0].reason }}
+					Your torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a> was hidden.
 					{% endif %}
 				</td>
 			</tr>
