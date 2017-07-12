@@ -5,11 +5,13 @@ from nyaa import bencode, utils, models
 
 import os
 import re
+import functools
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField,\
     HiddenField
-from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError,\
+    StopValidation
 from wtforms.validators import Regexp
 
 # For DisabledSelectField
@@ -37,6 +39,18 @@ class Unique(object):
             raise ValidationError(self.message)
 
 
+def stop_on_validation_error(f):
+    ''' A decorator which will turn raised ValidationErrors into StopValidations '''
+    @functools.wraps(f)
+    def decorator(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except ValidationError as e:
+            # Replace the error with a StopValidation to stop the validation chain
+            raise StopValidation(*e.args) from e
+    return decorator
+
+
 _username_validator = Regexp(
     r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
@@ -51,7 +65,7 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', [
         DataRequired(),
         Length(min=3, max=32),
-        _username_validator,
+        stop_on_validation_error(_username_validator),
         Unique(User, User.username, 'Username not availiable')
     ])
 

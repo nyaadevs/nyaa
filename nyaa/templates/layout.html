@@ -66,7 +66,7 @@
 					<span class="icon-bar"></span>
 					</button>
 					<a class="navbar-brand" href="{{ url_for('home') }}">{{ config.SITE_NAME }}</a>
-				</div>
+				</div><!--/.navbar-header -->
 				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
 				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
@@ -84,12 +84,21 @@
 						</li>
 						<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
 						{% if config.SITE_FLAVOR == 'nyaa' %}
-						<li><a href="https://sukebei.nyaa.si/">Fap</a></li>
+						<li><a href="//{{ config.EXTERNAL_URLS['fap'] }}">Fap</a></li>
 						{% elif config.SITE_FLAVOR == 'sukebei' %}
-						<li><a href="https://nyaa.si/">Fun</a></li>
+						<li><a href="//{{ config.EXTERNAL_URLS['main'] }}">Fun</a></li>
 						{% endif %}
 						{% if g.user.is_moderator %}
-							<li><a href="{{ url_for('view_reports') }}">Reports</a> </li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								Admin
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li {% if request.path == url_for('view_reports') %}class="active"{% endif %}><a href="{{ url_for('view_reports') }}">Reports</a></li>
+								<li {% if request.path == url_for('view_adminlog') %}class="active"{% endif %}><a href="{{ url_for('view_adminlog') }}">Log</a></li>
+							</ul>
+						</li>
 						{% endif %}
 					</ul>
 
@@ -210,7 +219,7 @@
 						<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 						{% endif %}
 							
-							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
+							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}" autofocus>
 							<br>
 
 							<select class="form-control" title="Filter" data-width="120px" name="f">
@@ -238,16 +247,14 @@
 								<i class="fa fa-search fa-fw"></i> Search
 							</button>
 						</form>
-					</div>
-	
+					</div><!--/.search-container -->
+
 					{% if user_page %}
 					<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
 					{% else %}
 					<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
-							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
-					
 							<div class="input-group-btn nav-filter" id="navFilter-criteria">
 								<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
 									<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
@@ -261,7 +268,8 @@
 									On narrow viewports, there isn't enough room to fit the full stuff in the selectpicker, so we show a full-width one on wide viewports, but squish it on narrow ones.
 								-->
 								{# XXX Search breaks with multiple fields with the same name: default to the shorter one so we don't break visuals. This is a hack! #}
-								{# <select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
+								{# 
+								<select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
@@ -270,7 +278,8 @@
 										{{ cat_name }}
 									</option>
 									{% endfor %}
-								</select> #}
+								</select> 
+								#}
 								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
@@ -282,6 +291,7 @@
 									{% endfor %}
 								</select>
 							</div>
+							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" autofocus />
 							<div class="input-group-btn search-btn">
 								<button class="btn btn-primary" type="submit">
 									<i class="fa fa-search fa-fw"></i>
@@ -289,8 +299,8 @@
 							</div>
 						</div>
 					</form>
-				</div>
-			</div><!--/.nav-collapse -->
+				</div><!--/.nav-collapse -->
+			</div><!--/.container -->
 		</nav>
 
 		<div class="container">

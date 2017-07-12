@@ -4,6 +4,8 @@
 {% if search.term %}
 <meta property="og:description" content="Search for '{{ search.term }}'">
 {% else %}
+<meta name="description" content="A BitTorrent community focused on Eastern Asian media including anime, manga, music, and more">
+<meta name="keywords" content="torrents, bittorrent, torrent, anime, manga, sukebei, download, nyaa, magnet, magnets">
 <meta property="og:description" content="{{ config.SITE_NAME }} homepage">
 {% endif %}
 {% endblock %}
@@ -11,10 +13,8 @@
 
 {% if search["term"] == '' %}
 <div class="alert alert-info">
-	<p><strong>2017-05-22 Update:</strong> We've added comments. You can change your avatar using <a href="http://en.gravatar.com">Gravatar</a> or if you don't like gravatar you can just stick with our spify default avatar.</p>
-	<p><strong>2017-05-22 Update:</strong> We've updated our upload API to v2 (v1 <b>is now disabled!</b>). See documentation <b><a href="https://github.com/nyaadevs/nyaa/blob/master/utils/api_uploader_v2.py">here</a></b>.</p> 
 	<p>We welcome you to provide feedback at <a href="irc://irc.rizon.net/nyaa-dev">#nyaa-dev@irc.rizon.net</a></p>
-	<p>Our GitHub: <a href="https://github.com/nyaadevs" target="_blank">https://github.com/nyaadevs</a> - creating <a href="https://github.com/nyaadevs/nyaa/issues">issues</a> for features and faults is recommendable!</p>
+	<p>Our GitHub: <a href="https://github.com/nyaadevs" target="_blank">https://github.com/nyaadevs</a> - creating <a href="https://github.com/nyaadevs/nyaa/issues">issues</a> for features and faults is recommended!</p>
 </div>
 {% endif %}
 

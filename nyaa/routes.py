@@ -325,20 +325,29 @@ def view_user(user_name):
         if flask.request.method == 'GET':
             admin_form.user_class.data = default
 
+    url = flask.url_for('view_user', user_name=user.username)
     if flask.request.method == 'POST' and admin_form and admin_form.validate():
         selection = admin_form.user_class.data
-
+        log = None
         if selection == 'regular':
             user.level = models.UserLevelType.REGULAR
+            log = "[{}]({}) changed to regular user".format(user_name, url)
         elif selection == 'trusted':
             user.level = models.UserLevelType.TRUSTED
+            log = "[{}]({}) changed to trusted user".format(user_name, url)
         elif selection == 'moderator':
             user.level = models.UserLevelType.MODERATOR
+            log = "[{}]({}) changed to moderator user".format(user_name, url)
+        elif selection == 'disabled':
+            user.status = models.UserStatusType.BANNED
+            log = "[{}]({}) changed to banned user".format(user_name, url)
 
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
         db.session.add(user)
+        db.session.add(adminlog)
         db.session.commit()
 
-        return flask.redirect(flask.url_for('view_user', user_name=user.username))
+        return flask.redirect(url)
 
     user_level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][user.level]
 
@@ -428,12 +437,12 @@ def view_user(user_name):
 
 @app.template_filter('rfc822')
 def _jinja2_filter_rfc822(date, fmt=None):
-    return formatdate(float(date.strftime('%s')))
+    return formatdate(date.timestamp())
 
 
 @app.template_filter('rfc822_es')
-def _jinja2_filter_rfc822(datestr, fmt=None):
-    return formatdate(float(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').strftime('%s')))
+def _jinja2_filter_rfc822_es(datestr, fmt=None):
+    return formatdate(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S').timestamp())
 
 
 def render_rss(label, query, use_elastic, magnet_links=False):
@@ -701,11 +710,17 @@ def delete_comment(torrent_id, comment_id):
     db.session.delete(comment)
     db.session.flush()
     torrent.update_comment_count()
+
+    url = flask.url_for('view_torrent', torrent_id=torrent.id)
+    if flask.g.user.is_moderator:
+        log = "Comment deleted on torrent [#{}]({})".format(torrent.id, url)
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
     db.session.commit()
 
     flask.flash('Comment successfully deleted.', 'success')
 
-    return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
+    return flask.redirect(url)
 
 
 @app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
@@ -720,11 +735,11 @@ def edit_torrent(torrent_id):
         flask.abort(404)
 
     # Only allow admins edit deleted torrents
-    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
+    if torrent.deleted and not (editor and editor.is_moderator):
         flask.abort(404)
 
     # Only allow torrent owners or admins edit torrents
-    if not flask.g.user or not (flask.g.user is torrent.user or flask.g.user.is_moderator):
+    if not editor or not (editor is torrent.user or editor.is_moderator):
         flask.abort(403)
 
     if flask.request.method == 'POST' and form.validate():
@@ -740,10 +755,19 @@ def edit_torrent(torrent_id):
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
 
-        if flask.g.user.is_trusted:
+        if editor.is_trusted:
             torrent.trusted = form.is_trusted.data
-        if flask.g.user.is_moderator:
+
+        deleted_changed = torrent.deleted != form.is_deleted.data
+        if editor.is_moderator:
             torrent.deleted = form.is_deleted.data
+
+        url = flask.url_for('view_torrent', torrent_id=torrent.id)
+        if deleted_changed and editor.is_moderator:
+            log = "Torrent [#{0}]({1}) marked as {2}".format(
+                torrent.id, url, "deleted" if torrent.deleted else "undeleted")
+            adminlog = models.AdminLog(log=log, admin_id=editor.id)
+            db.session.add(adminlog)
 
         db.session.commit()
 
@@ -751,7 +775,7 @@ def edit_torrent(torrent_id):
             'Torrent has been successfully edited! Changes might take a few minutes to show up.'),
             'info')
 
-        return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent.id))
+        return flask.redirect(url)
     else:
         if flask.request.method != 'POST':
             # Fill form data only if the POST didn't fail
@@ -821,6 +845,20 @@ def submit_report(torrent_id):
     return flask.redirect(flask.url_for('view_torrent', torrent_id=torrent_id))
 
 
+@app.route('/adminlog', methods=['GET'])
+def view_adminlog():
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    logs = models.AdminLog.all_logs() \
+        .order_by(models.AdminLog.created_time.desc()) \
+        .paginate(page=page, per_page=20)
+
+    return flask.render_template('adminlog.html',
+                                 adminlog=logs)
+
+
 @app.route('/reports', methods=['GET', 'POST'])
 def view_reports():
     if not flask.g.user or not flask.g.user.is_moderator:
@@ -836,18 +874,35 @@ def view_reports():
         report_id = report_action.report.data
         torrent = models.Torrent.by_id(torrent_id)
         report = models.Report.by_id(report_id)
+        report_user = models.User.by_id(report.user_id)
 
         if not torrent or not report or report.status != 0:
             flask.abort(404)
         else:
+            log = "Report #{}: {} [#{}]({}), reported by [{}]({})"
             if action == 'delete':
                 torrent.deleted = True
                 report.status = 1
+                log = log.format(report_id, 'Deleted', torrent_id,
+                                 flask.url_for('view_torrent', torrent_id=torrent_id),
+                                 report_user.username,
+                                 flask.url_for('view_user', user_name=report_user.username))
             elif action == 'hide':
+                log = log.format(report_id, 'Hid', torrent_id,
+                                 flask.url_for('view_torrent', torrent_id=torrent_id),
+                                 report_user.username,
+                                 flask.url_for('view_user', user_name=report_user.username))
                 torrent.hidden = True
                 report.status = 1
             else:
+                log = log.format(report_id, 'Closed', torrent_id,
+                                 flask.url_for('view_torrent', torrent_id=torrent_id),
+                                 report_user.username,
+                                 flask.url_for('view_user', user_name=report_user.username))
                 report.status = 2
+
+            adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+            db.session.add(adminlog)
 
             models.Report.remove_reviewed(torrent_id)
             db.session.commit()
@@ -914,6 +969,7 @@ def _create_user_class_choices(user):
             choices.append(('trusted', 'Trusted'))
         if flask.g.user.is_superadmin:
             choices.append(('moderator', 'Moderator'))
+            choices.append(('disabled', 'Disabled'))
 
         if user:
             if user.is_moderator:

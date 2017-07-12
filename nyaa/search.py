@@ -109,6 +109,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
     # Apply search term
     if term:
         s = s.query('simple_query_string',
+                    # Query both fields, latter for words with >15 chars
+                    fields=['display_name', 'display_name.fullword'],
                     analyzer='my_search_analyzer',
                     default_operator="AND",
                     query=term)

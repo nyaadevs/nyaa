@@ -1,7 +1,7 @@
 """Add uploader_ip column to torrents table.
 
 Revision ID: 3001f79b7722
-Revises: 
+Revises:
 Create Date: 2017-05-21 18:01:35.472717
 
 """
@@ -19,6 +19,7 @@ TABLE_PREFIXES = ('nyaa', 'sukebei')
 
 
 def upgrade():
+
     for prefix in TABLE_PREFIXES:
         op.add_column(prefix + '_torrents', sa.Column('uploader_ip', sa.Binary(), nullable=True))
         # ### end Alembic commands ###
