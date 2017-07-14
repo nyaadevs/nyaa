@@ -4,7 +4,10 @@ import os
 import flask
 from flask_assets import Bundle  # noqa F401
 
+from nyaa.api_handler import api_blueprint
 from nyaa.extensions import assets, db, fix_paginate, toolbar
+from nyaa.template_utils import bp as template_utils_bp
+from nyaa.views import register_views
 
 app = flask.Flask(__name__)
 app.config.from_object('config')
@@ -70,4 +73,7 @@ assets.init_app(app)
 # assets.register('style_all', css)
 
 with app.app_context():  # Temporary
-    from nyaa import routes  # noqa E402 isort:skip
+    # Register blueprints
+    app.register_blueprint(template_utils_bp)
+    app.register_blueprint(api_blueprint, url_prefix='/api')
+    register_views(app)
