@@ -7,10 +7,10 @@ from urllib.parse import urlencode
 import flask
 from werkzeug.urls import url_encode
 
-from nyaa import app
 from nyaa.backend import get_category_id_map
 from nyaa.torrents import get_default_trackers
 
+app = flask.current_app
 bp = flask.Blueprint('template-utils', __name__)
 _static_cache = {}  # For static_cachebuster
 

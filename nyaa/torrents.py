@@ -3,9 +3,11 @@ import os
 import time
 from urllib.parse import urlencode
 
+from flask import current_app as app
+
 from orderedset import OrderedSet
 
-from nyaa import app, bencode
+from nyaa import bencode
 
 USED_TRACKERS = OrderedSet()
 

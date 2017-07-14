@@ -69,4 +69,5 @@ assets.init_app(app)
 #             output='style.css', depends='**/*.scss')
 # assets.register('style_all', css)
 
-from nyaa import routes  # noqa E402 isort:skip
+with app.app_context():  # Temporary
+    from nyaa import routes  # noqa E402 isort:skip

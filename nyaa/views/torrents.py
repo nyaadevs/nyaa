@@ -7,10 +7,11 @@ from werkzeug.datastructures import CombinedMultiDict
 
 from sqlalchemy.orm import joinedload
 
-from nyaa import app, backend, forms, models, torrents
+from nyaa import backend, forms, models, torrents
 from nyaa.extensions import db
 from nyaa.utils import cached_function
 
+app = flask.current_app
 bp = flask.Blueprint('torrents', __name__)
 
 

@@ -15,9 +15,10 @@ from sqlalchemy.ext import declarative
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 
-from nyaa import app
 from nyaa.extensions import config, db
 from nyaa.torrents import create_magnet
+
+app = flask.current_app
 
 if config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql

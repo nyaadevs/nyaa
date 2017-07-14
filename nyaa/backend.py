@@ -7,8 +7,10 @@ from werkzeug import secure_filename
 
 from orderedset import OrderedSet
 
-from nyaa import app, models, utils
+from nyaa import models, utils
 from nyaa.extensions import db
+
+app = flask.current_app
 
 
 @utils.cached_function

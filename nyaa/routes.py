@@ -1,4 +1,6 @@
-from nyaa import app, template_utils, views
+from flask import current_app as app
+
+from nyaa import template_utils, views
 from nyaa.api_handler import api_blueprint
 
 # Register all template filters and template globals
