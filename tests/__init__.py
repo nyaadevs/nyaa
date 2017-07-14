@@ -14,7 +14,6 @@ class NyaaTestCase(unittest.TestCase):
     def setUpClass(cls):
         app = create_app('config')
         app.config['TESTING'] = True
-        cls.app_context = app.app_context()
 
         # Use a seperate database for testing
         # if USE_MYSQL:
@@ -28,8 +27,11 @@ class NyaaTestCase(unittest.TestCase):
         #     app.config['USE_MYSQL'] = USE_MYSQL
         #     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
+        cls.app = app
+        cls.app_context = app.app_context()
+
         with cls.app_context:
-            cls.app = app.test_client()
+            cls.client = app.test_client()
 
     @classmethod
     def tearDownClass(cls):

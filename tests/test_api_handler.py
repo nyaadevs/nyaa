@@ -18,14 +18,14 @@ class ApiHandlerTests(NyaaTestCase):
 
     def test_no_authorization(self):
         """ Test that API is locked unless you're logged in """
-        rv = self.app.get('/api/info/1')
+        rv = self.client.get('/api/info/1')
         data = json.loads(rv.get_data())
         self.assertDictEqual({'errors': ['Bad authorization']}, data)
 
     @unittest.skip('Not yet implemented')
     def test_bad_credentials(self):
         """ Test that API is locked unless you're logged in """
-        rv = self.app.get('/api/info/1')
+        rv = self.client.get('/api/info/1')
         data = json.loads(rv.get_data())
         self.assertDictEqual({'errors': ['Bad authorization']}, data)
 
