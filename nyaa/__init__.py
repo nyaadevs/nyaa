@@ -2,10 +2,10 @@ import logging
 import os
 
 import flask
-from flask_assets import Bundle, Environment  # noqa F401
+from flask_assets import Bundle  # noqa F401
 from flask_debugtoolbar import DebugToolbarExtension
 
-from nyaa.extensions import db, fix_paginate
+from nyaa.extensions import assets, db, fix_paginate
 
 app = flask.Flask(__name__)
 app.config.from_object('config')
@@ -64,7 +64,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
 db.init_app(app)
 
-assets = Environment(app)
+assets.init_app(app)
 
 # css = Bundle('style.scss', filters='libsass',
 #             output='style.css', depends='**/*.scss')
