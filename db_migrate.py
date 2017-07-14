@@ -5,9 +5,10 @@ import sys
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from nyaa import app
+from nyaa import create_app
 from nyaa.extensions import db
 
+app = create_app('config')
 migrate = Migrate(app, db)
 
 manager = Manager(app)

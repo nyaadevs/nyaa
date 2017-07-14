@@ -14,9 +14,10 @@ from elasticsearch import Elasticsearch
 from elasticsearch.client import IndicesClient
 from elasticsearch import helpers
 
-from nyaa import app, models
+from nyaa import create_app, models
 from nyaa.extensions import db
 
+app = create_app('config')
 es = Elasticsearch(timeout=30)
 ic = IndicesClient(es)
 
