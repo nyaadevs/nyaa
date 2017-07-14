@@ -5,8 +5,7 @@ import flask
 from flask_assets import Bundle, Environment  # noqa F401
 from flask_debugtoolbar import DebugToolbarExtension
 
-from nyaa import fix_paginate  # noqa F401
-from nyaa.extensions import db
+from nyaa.extensions import db, fix_paginate
 
 app = flask.Flask(__name__)
 app.config.from_object('config')
@@ -60,6 +59,7 @@ app.jinja_env.lstrip_blocks = True
 app.jinja_env.trim_blocks = True
 
 # Database
+fix_paginate()  # This has to be before the database is initialized
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
 db.init_app(app)
