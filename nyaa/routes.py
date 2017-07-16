@@ -338,7 +338,7 @@ def view_user(user_name):
         elif selection == 'moderator':
             user.level = models.UserLevelType.MODERATOR
             log = "[{}]({}) changed to moderator user".format(user_name, url)
-        elif selection == 'disabled':
+        elif selection == 'banned':
             user.status = models.UserStatusType.BANNED
             log = "[{}]({}) changed to banned user".format(user_name, url)
 
@@ -969,13 +969,15 @@ def _create_user_class_choices(user):
             choices.append(('trusted', 'Trusted'))
         if flask.g.user.is_superadmin:
             choices.append(('moderator', 'Moderator'))
-            choices.append(('disabled', 'Disabled'))
+            choices.append(('banned', 'Banned'))
 
         if user:
             if user.is_moderator:
                 default = 'moderator'
             elif user.is_trusted:
                 default = 'trusted'
+            elif user.is_banned:
+                default = 'banned'
 
     return default, choices
 

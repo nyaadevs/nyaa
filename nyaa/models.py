@@ -571,6 +571,10 @@ class User(db.Model):
     def is_trusted(self):
         return self.level >= UserLevelType.TRUSTED
 
+    @property
+    def is_banned(self):
+        return self.status == UserStatusType.BANNED
+
 
 class AdminLogBase(DeclarativeHelperBase):
     __tablename_base__ = 'adminlog'
