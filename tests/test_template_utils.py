@@ -1,11 +1,13 @@
-import unittest
 import datetime
-
+import os.path
+import posixpath
+import unittest
 from email.utils import formatdate
 
 from tests import NyaaTestCase
 from nyaa.template_utils import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
-                                 get_display_time, timesince, filter_truthy, category_name)
+                                 get_display_time, timesince, filter_truthy, category_name,
+                                 static_cachebuster, _static_cache)
 
 
 class TestTemplateUtils(NyaaTestCase):
@@ -14,9 +16,32 @@ class TestTemplateUtils(NyaaTestCase):
     def test_create_magnet_from_es_info(self):
         pass
 
-    @unittest.skip('Not yet implemented')
     def test_static_cachebuster(self):
-        pass
+        with self.request_context:
+            # Save this value in order to restore it in the end.
+            orig_debug = self.app.debug
+
+            static_file = 'js/main.js'
+            static_url = posixpath.join(self.app.static_url_path, static_file)
+
+            # Test no cache-busting (disabled on debug = True)
+            self.app.debug = True
+            self.assertEqual(static_cachebuster(static_file), static_url)
+
+            # Test actual cache-busting
+            self.app.debug = False
+            static_file_path = os.path.abspath(os.path.join(self.app.static_folder, static_file))
+            modified = int(os.path.getmtime(static_file_path))
+
+            self.assertEqual(static_cachebuster(static_file),
+                             '{0}?t={1}'.format(static_url, modified))
+            self.assertEqual(_static_cache.get(static_file), modified)
+
+            # Test a static file that doesn't exist
+            self.assertEqual(static_cachebuster('notarealfile.ext'),
+                             posixpath.join(self.app.static_url_path, 'notarealfile.ext'))
+
+            self.app.debug = orig_debug
 
     @unittest.skip('Not yet implemented')
     def test_modify_query(self):

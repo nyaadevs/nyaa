@@ -29,6 +29,7 @@ class NyaaTestCase(unittest.TestCase):
 
         cls.app = app
         cls.app_context = app.app_context()
+        cls.request_context = app.test_request_context()
 
         with cls.app_context:
             cls.client = app.test_client()
