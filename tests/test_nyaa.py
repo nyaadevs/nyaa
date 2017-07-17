@@ -6,16 +6,18 @@ import nyaa
 
 class NyaaTestCase(unittest.TestCase):
 
+    nyaa_app = nyaa.create_app('config')
+
     def setUp(self):
-        self.db, nyaa.app.config['DATABASE'] = tempfile.mkstemp()
-        nyaa.app.config['TESTING'] = True
-        self.app = nyaa.app.test_client()
-        with nyaa.app.app_context():
+        self.db, self.nyaa_app.config['DATABASE'] = tempfile.mkstemp()
+        self.nyaa_app.config['TESTING'] = True
+        self.app = self.nyaa_app.test_client()
+        with self.nyaa_app.app_context():
             nyaa.db.create_all()
 
     def tearDown(self):
         os.close(self.db)
-        os.unlink(nyaa.app.config['DATABASE'])
+        os.unlink(self.nyaa_app.config['DATABASE'])
 
     def test_index_url(self):
         rv = self.app.get('/')

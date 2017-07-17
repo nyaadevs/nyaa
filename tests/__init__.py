@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from nyaa import app
+from nyaa import create_app
 
 USE_MYSQL = True
 
@@ -12,6 +12,7 @@ class NyaaTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        app = create_app('config')
         app.config['TESTING'] = True
         cls.app_context = app.app_context()
 
