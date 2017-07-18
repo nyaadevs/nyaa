@@ -219,7 +219,7 @@
 						<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
 						{% endif %}
 							
-							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}" autofocus>
+							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
 							<br>
 
 							<select class="form-control" title="Filter" data-width="120px" name="f">
@@ -291,7 +291,7 @@
 									{% endfor %}
 								</select>
 							</div>
-							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" autofocus />
+							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
 							<div class="input-group-btn search-btn">
 								<button class="btn btn-primary" type="submit">
 									<i class="fa fa-search fa-fw"></i>
