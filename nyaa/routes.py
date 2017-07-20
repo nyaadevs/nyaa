@@ -815,11 +815,14 @@ def download_torrent(torrent_id):
     if not torrent or not torrent.has_torrent:
         flask.abort(404)
 
-    resp = flask.Response(_get_cached_torrent_file(torrent))
-    resp.headers['Content-Type'] = 'application/x-bittorrent'
-    resp.headers['Content-Disposition'] = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
+    torrent_file, torrent_file_size = _get_cached_torrent_file(torrent)
+    disposition = 'attachment; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
         quote(torrent.torrent_name.encode('utf-8')))
 
+    resp = flask.Response(torrent_file)
+    resp.headers['Content-Type'] = 'application/x-bittorrent'
+    resp.headers['Content-Disposition'] = disposition
+    resp.headers['Content-Length'] = torrent_file_size
     return resp
 
 
@@ -922,7 +925,7 @@ def _get_cached_torrent_file(torrent):
         with open(cached_torrent, 'wb') as out_file:
             out_file.write(torrents.create_bencoded_torrent(torrent))
 
-    return open(cached_torrent, 'rb')
+    return open(cached_torrent, 'rb'), os.path.getsize(cached_torrent)
 
 
 def get_serializer(secret_key=None):
