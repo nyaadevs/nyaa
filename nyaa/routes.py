@@ -1,13 +1,6 @@
 from nyaa import api_handler, app, template_utils, views
-from nyaa.backend import get_category_id_map
 
 DEBUG_API = False
-
-
-@app.template_global()
-def category_name(cat_id):
-    ''' Given a category id (eg. 1_2), returns a category name (eg. Anime - English-translated) '''
-    return ' - '.join(get_category_id_map().get(cat_id, ['???']))
 
 
 # #################################### BLUEPRINTS ####################################
