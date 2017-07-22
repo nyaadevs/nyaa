@@ -6,6 +6,7 @@ import flask
 from werkzeug.urls import url_encode
 
 from nyaa import app
+from nyaa.backend import get_category_id_map
 
 bp = flask.Blueprint('template-utils', __name__)
 _static_cache = {}  # For static_cachebuster
@@ -52,6 +53,12 @@ def filter_truthy(input_list):
     """ Jinja2 can't into list comprehension so this is for
         the search_results.html template """
     return [item for item in input_list if item]
+
+
+@bp.app_template_global()
+def category_name(cat_id):
+    """ Given a category id (eg. 1_2), returns a category name (eg. Anime - English-translated) """
+    return ' - '.join(get_category_id_map().get(cat_id, ['???']))
 
 
 # ######################### TEMPLATE FILTERS #########################
