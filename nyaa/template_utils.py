@@ -7,7 +7,7 @@ from werkzeug.urls import url_encode
 
 from nyaa import app
 
-bp = flask.Blueprint('filters', __name__)
+bp = flask.Blueprint('template-utils', __name__)
 _static_cache = {}  # For static_cachebuster
 
 

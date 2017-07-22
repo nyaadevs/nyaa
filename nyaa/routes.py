@@ -11,7 +11,7 @@ from werkzeug.datastructures import CombinedMultiDict
 
 from sqlalchemy.orm import joinedload
 
-from nyaa import api_handler, app, backend, db, filters, forms, models, torrents, views
+from nyaa import api_handler, app, backend, db, template_utils, forms, models, torrents, views
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import cached_function, chain_get
@@ -478,7 +478,7 @@ def register_blueprints(flask_app):
     """ Register the blueprints using the flask_app object """
 
     # Template filters and globals
-    flask_app.register_blueprint(filters.bp)
+    flask_app.register_blueprint(template_utils.bp)
     # API routes
     flask_app.register_blueprint(api_handler.api_blueprint, url_prefix='/api')
     # Site routes
