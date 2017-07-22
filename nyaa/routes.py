@@ -11,7 +11,7 @@ from werkzeug.datastructures import CombinedMultiDict
 
 from sqlalchemy.orm import joinedload
 
-from nyaa import api_handler, app, backend, db, template_utils, forms, models, torrents, views
+from nyaa import api_handler, app, backend, db, forms, models, template_utils, torrents, views
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import cached_function, chain_get
