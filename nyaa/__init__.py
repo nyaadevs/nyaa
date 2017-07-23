@@ -3,9 +3,8 @@ import os
 
 import flask
 from flask_assets import Bundle  # noqa F401
-from flask_debugtoolbar import DebugToolbarExtension
 
-from nyaa.extensions import assets, db, fix_paginate
+from nyaa.extensions import assets, db, fix_paginate, toolbar
 
 app = flask.Flask(__name__)
 app.config.from_object('config')
@@ -16,7 +15,7 @@ app.config['SESSION_REFRESH_EACH_REQUEST'] = False
 # Debugging
 if app.config['DEBUG']:
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    toolbar = DebugToolbarExtension(app)
+    toolbar.init_app(app)
     app.logger.setLevel(logging.DEBUG)
 
     # Forbid caching

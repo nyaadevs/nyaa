@@ -1,9 +1,11 @@
 from flask import abort
 from flask_assets import Environment
+from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import BaseQuery, Pagination, SQLAlchemy
 
 assets = Environment()
 db = SQLAlchemy()
+toolbar = DebugToolbarExtension()
 
 
 def fix_paginate():
