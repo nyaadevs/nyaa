@@ -14,7 +14,7 @@ from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, 
 from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
 from wtforms.widgets import HTMLString, html_params  # For DisabledSelectField
 
-from nyaa import app, bencode, db, models, utils
+from nyaa import app, bencode, models, utils
 from nyaa.models import User
 
 

@@ -2,7 +2,7 @@ import logging
 import os
 
 import flask
-from flask_assets import Bundle, Environment
+from flask_assets import Bundle, Environment  # noqa F401
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 

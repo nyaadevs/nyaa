@@ -1,6 +1,6 @@
 import base64
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum, IntEnum
 from hashlib import md5
 from ipaddress import ip_address
@@ -9,9 +9,8 @@ from urllib.parse import urlencode
 
 import flask
 from markupsafe import escape as escape_markup
-from werkzeug.security import check_password_hash, generate_password_hash
 
-from sqlalchemy import ForeignKeyConstraint, Index, func
+from sqlalchemy import ForeignKeyConstraint, Index
 from sqlalchemy.ext import declarative
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType

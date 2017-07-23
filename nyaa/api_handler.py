@@ -5,11 +5,10 @@ import os.path
 import re
 
 import flask
-from werkzeug.datastructures import CombinedMultiDict, ImmutableMultiDict
 
 from orderedset import OrderedSet  # noqa: E402
 
-from nyaa import app, backend, bencode, db, forms, models, torrents, utils
+from nyaa import backend, bencode, db, forms, models, utils
 from nyaa.views.torrents import _create_upload_category_choices
 
 api_blueprint = flask.Blueprint('api', __name__)
@@ -120,7 +119,6 @@ def v2_api_upload():
 
 
 # #################################### TEMPORARY ####################################
-
 
 
 @api_blueprint.route('/ghetto_import', methods=['POST'])

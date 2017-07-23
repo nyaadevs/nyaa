@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 from orderedset import OrderedSet
 
-from nyaa import app, bencode, models
+from nyaa import app, bencode
 
 USED_TRACKERS = OrderedSet()
 

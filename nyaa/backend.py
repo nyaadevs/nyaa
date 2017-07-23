@@ -1,6 +1,5 @@
 import json
 import os
-from collections import OrderedDict
 from ipaddress import ip_address
 
 import flask
@@ -8,7 +7,7 @@ from werkzeug import secure_filename
 
 from orderedset import OrderedSet
 
-from nyaa import app, bencode, db, forms, models, utils
+from nyaa import app, db, models, utils
 
 
 @utils.cached_function
