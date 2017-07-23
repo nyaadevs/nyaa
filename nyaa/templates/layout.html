@@ -312,10 +312,7 @@
 		<footer style="text-align: center;">
 			<p>Dark Mode: <a href="#" id="themeToggle">Toggle</a></p>
 			{% if config.COMMIT_HASH %}
-			<p>
-				Commit: <a href="https://github.com/nyaadevs/nyaa/tree/{{ config.COMMIT_HASH }}" title="{{ config.COMMIT_HASH }}">{{ config.COMMIT_HASH[:7] }}</a><br>
-				<a class="small" href="https://github.com/nyaadevs/nyaa/compare/{{ config.COMMIT_HASH }}...master" title="Compare site-revision to Github master">(Pending changes)</a>	
-			</p>
+			<p>Commit: <a href="https://github.com/nyaadevs/nyaa/tree/{{ config.COMMIT_HASH }}">{{ config.COMMIT_HASH[:7] }}</a></p>
 			{% endif %}
 		</footer>
 	</body>
