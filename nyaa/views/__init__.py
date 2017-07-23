@@ -1,4 +1,4 @@
-from nyaa.views import (
+from nyaa.views import (  # isort:skip
     account,
     admin,
     main,

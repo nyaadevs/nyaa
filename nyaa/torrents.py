@@ -1,13 +1,11 @@
-import os
 import base64
+import os
 import time
 from urllib.parse import urlencode
-from orderedset import OrderedSet
-from nyaa import app
 
-from nyaa import bencode
-from nyaa import app
-from nyaa import models
+from orderedset import OrderedSet
+
+from nyaa import app, bencode, models
 
 USED_TRACKERS = OrderedSet()
 

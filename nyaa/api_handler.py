@@ -1,19 +1,16 @@
-import flask
-from werkzeug.datastructures import ImmutableMultiDict, CombinedMultiDict
-
-from nyaa import app, db
-from nyaa import models, forms
-from nyaa import bencode, backend, utils
-from nyaa import torrents
-
-from nyaa.views.torrents import _create_upload_category_choices
-
+import binascii
 import functools
 import json
 import os.path
 import re
 
-import binascii
+import flask
+from werkzeug.datastructures import CombinedMultiDict, ImmutableMultiDict
+
+from orderedset import OrderedSet  # noqa: E402
+
+from nyaa import app, backend, bencode, db, forms, models, torrents, utils
+from nyaa.views.torrents import _create_upload_category_choices
 
 api_blueprint = flask.Blueprint('api', __name__)
 
@@ -124,7 +121,6 @@ def v2_api_upload():
 
 # #################################### TEMPORARY ####################################
 
-from orderedset import OrderedSet  # noqa: E402
 
 
 @api_blueprint.route('/ghetto_import', methods=['POST'])
