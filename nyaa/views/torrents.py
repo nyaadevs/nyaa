@@ -1,11 +1,13 @@
 import json
+import os.path
+from urllib.parse import quote
 
 import flask
 from werkzeug.datastructures import CombinedMultiDict
 
 from sqlalchemy.orm import joinedload
 
-from nyaa import backend, db, forms, models
+from nyaa import app, backend, db, forms, models, torrents
 from nyaa.utils import cached_function
 
 bp = flask.Blueprint('torrents', __name__)
@@ -146,6 +148,32 @@ def edit_torrent(torrent_id):
                                      torrent=torrent)
 
 
+@bp.route('/view/<int:torrent_id>/magnet')
+def redirect_magnet(torrent_id):
+    torrent = models.Torrent.by_id(torrent_id)
+
+    if not torrent:
+        flask.abort(404)
+
+    return flask.redirect(torrents.create_magnet(torrent))
+
+
+@bp.route('/view/<int:torrent_id>/torrent')
+@bp.route('/download/<int:torrent_id>.torrent', endpoint='download')
+def download_torrent(torrent_id):
+    torrent = models.Torrent.by_id(torrent_id)
+
+    if not torrent or not torrent.has_torrent:
+        flask.abort(404)
+
+    resp = flask.Response(_get_cached_torrent_file(torrent))
+    resp.headers['Content-Type'] = 'application/x-bittorrent'
+    resp.headers['Content-Disposition'] = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
+        quote(torrent.torrent_name.encode('utf-8')))
+
+    return resp
+
+
 @bp.route('/upload', methods=['GET', 'POST'])
 def upload():
     upload_form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
@@ -175,3 +203,14 @@ def _create_upload_category_choices():
         cat_name = ' - '.join(cat_names)
         choices.append((key, cat_name, is_main_cat))
     return choices
+
+
+def _get_cached_torrent_file(torrent):
+    # Note: obviously temporary
+    cached_torrent = os.path.join(app.config['BASE_DIR'],
+                                  'torrent_cache', str(torrent.id) + '.torrent')
+    if not os.path.exists(cached_torrent):
+        with open(cached_torrent, 'wb') as out_file:
+            out_file.write(torrents.create_bencoded_torrent(torrent))
+
+    return open(cached_torrent, 'rb')
