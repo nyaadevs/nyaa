@@ -156,7 +156,7 @@
 				<div class="row">
 					<a href="#com-{{ loop.index }}"><small data-timestamp-swap data-timestamp="{{ comment.created_utc_timestamp|int }}">{{ comment.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</small></a>
 					{% if g.user.is_moderator or g.user.id == comment.user_id %}
-					<form class="delete-comment-form" action="{{ url_for('delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
+					<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 						<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
 					</form>
 					{% endif %}
@@ -195,7 +195,7 @@
 					rules</a>. Useless reports like "download is slow" or
 					"thanks" can get you banned from the site.
 				</div>
-				<form method="POST" action="{{ request.url }}/submit_report">
+				<form method="POST" action="{{ url_for('torrents.report', torrent_id=torrent.id) }}">
 					{{ report_form.csrf_token }}
 					{{ render_field(report_form.reason, class_='form-control', maxlength=255) }}
 					<div style="float: right;">
