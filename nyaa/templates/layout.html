@@ -71,7 +71,7 @@
 				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li {% if request.path == url_for('upload') %}class="active"{% endif %}><a href="{{ url_for('upload') }}">Upload</a></li>
+						<li {% if request.path == url_for('torrents.upload') %}class="active"{% endif %}><a href="{{ url_for('torrents.upload') }}">Upload</a></li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 								About
