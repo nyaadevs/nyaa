@@ -2,10 +2,9 @@ import os.path
 from urllib.parse import quote
 
 import flask
-from werkzeug.datastructures import CombinedMultiDict
 
-from nyaa import api_handler, app, backend, db, forms, models, template_utils, torrents, views
-from nyaa.utils import cached_function
+from nyaa import api_handler, app, db, forms, models, template_utils, torrents, views
+from nyaa.backend import get_category_id_map
 
 DEBUG_API = False
 
@@ -16,51 +15,7 @@ def category_name(cat_id):
     return ' - '.join(get_category_id_map().get(cat_id, ['???']))
 
 
-@cached_function
-def get_category_id_map():
-    ''' Reads database for categories and turns them into a dict with
-        ids as keys and name list as the value, ala
-        {'1_0': ['Anime'], '1_2': ['Anime', 'English-translated'], ...} '''
-    cat_id_map = {}
-    for main_cat in models.MainCategory.query:
-        cat_id_map[main_cat.id_as_string] = [main_cat.name]
-        for sub_cat in main_cat.sub_categories:
-            cat_id_map[sub_cat.id_as_string] = [main_cat.name, sub_cat.name]
-    return cat_id_map
-
-
 # Routes start here #
-
-@cached_function
-def _create_upload_category_choices():
-    ''' Turns categories in the database into a list of (id, name)s '''
-    choices = [('', '[Select a category]')]
-    id_map = get_category_id_map()
-
-    for key in sorted(id_map.keys()):
-        cat_names = id_map[key]
-        is_main_cat = key.endswith('_0')
-
-        # cat_name = is_main_cat and cat_names[0] or (' - ' + cat_names[1])
-        cat_name = ' - '.join(cat_names)
-        choices.append((key, cat_name, is_main_cat))
-    return choices
-
-
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
-    upload_form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
-    upload_form.category.choices = _create_upload_category_choices()
-
-    if flask.request.method == 'POST' and upload_form.validate():
-        torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
-
-        return flask.redirect(flask.url_for('torrents.view', torrent_id=torrent.id))
-    else:
-        # If we get here with a POST, it means the form data was invalid: return a non-okay status
-        status_code = 400 if flask.request.method == 'POST' else 200
-        return flask.render_template('upload.html', upload_form=upload_form), status_code
-
 
 @app.route('/view/<int:torrent_id>/comment/<int:comment_id>/delete', methods=['POST'])
 def delete_comment(torrent_id, comment_id):
@@ -91,80 +46,6 @@ def delete_comment(torrent_id, comment_id):
     flask.flash('Comment successfully deleted.', 'success')
 
     return flask.redirect(url)
-
-
-@app.route('/view/<int:torrent_id>/edit', methods=['GET', 'POST'])
-def edit_torrent(torrent_id):
-    torrent = models.Torrent.by_id(torrent_id)
-    form = forms.EditForm(flask.request.form)
-    form.category.choices = _create_upload_category_choices()
-
-    editor = flask.g.user
-
-    if not torrent:
-        flask.abort(404)
-
-    # Only allow admins edit deleted torrents
-    if torrent.deleted and not (editor and editor.is_moderator):
-        flask.abort(404)
-
-    # Only allow torrent owners or admins edit torrents
-    if not editor or not (editor is torrent.user or editor.is_moderator):
-        flask.abort(403)
-
-    if flask.request.method == 'POST' and form.validate():
-        # Form has been sent, edit torrent with data.
-        torrent.main_category_id, torrent.sub_category_id = \
-            form.category.parsed_data.get_category_ids()
-        torrent.display_name = (form.display_name.data or '').strip()
-        torrent.information = (form.information.data or '').strip()
-        torrent.description = (form.description.data or '').strip()
-
-        torrent.hidden = form.is_hidden.data
-        torrent.remake = form.is_remake.data
-        torrent.complete = form.is_complete.data
-        torrent.anonymous = form.is_anonymous.data
-
-        if editor.is_trusted:
-            torrent.trusted = form.is_trusted.data
-
-        deleted_changed = torrent.deleted != form.is_deleted.data
-        if editor.is_moderator:
-            torrent.deleted = form.is_deleted.data
-
-        url = flask.url_for('torrents.view', torrent_id=torrent.id)
-        if deleted_changed and editor.is_moderator:
-            log = "Torrent [#{0}]({1}) marked as {2}".format(
-                torrent.id, url, "deleted" if torrent.deleted else "undeleted")
-            adminlog = models.AdminLog(log=log, admin_id=editor.id)
-            db.session.add(adminlog)
-
-        db.session.commit()
-
-        flask.flash(flask.Markup(
-            'Torrent has been successfully edited! Changes might take a few minutes to show up.'),
-            'info')
-
-        return flask.redirect(url)
-    else:
-        if flask.request.method != 'POST':
-            # Fill form data only if the POST didn't fail
-            form.category.data = torrent.sub_category.id_as_string
-            form.display_name.data = torrent.display_name
-            form.information.data = torrent.information
-            form.description.data = torrent.description
-
-            form.is_hidden.data = torrent.hidden
-            form.is_remake.data = torrent.remake
-            form.is_complete.data = torrent.complete
-            form.is_anonymous.data = torrent.anonymous
-
-            form.is_trusted.data = torrent.trusted
-            form.is_deleted.data = torrent.deleted
-
-        return flask.render_template('edit.html',
-                                     form=form,
-                                     torrent=torrent)
 
 
 @app.route('/view/<int:torrent_id>/magnet')

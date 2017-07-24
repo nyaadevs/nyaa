@@ -6,8 +6,7 @@ from nyaa import models, forms
 from nyaa import bencode, backend, utils
 from nyaa import torrents
 
-# For _create_upload_category_choices
-from nyaa import routes
+from nyaa.views.torrents import _create_upload_category_choices
 
 import functools
 import json
@@ -102,7 +101,7 @@ def v2_api_upload():
 
     # Flask-WTF (very helpfully!!) automatically grabs the request form, so force a None formdata
     upload_form = forms.UploadForm(None, data=mapped_dict, meta={'csrf': False})
-    upload_form.category.choices = routes._create_upload_category_choices()
+    upload_form.category.choices = _create_upload_category_choices()
 
     if upload_form.validate():
         torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
