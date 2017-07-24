@@ -10,7 +10,7 @@
 			{% if use_elastic %}
 				{# ElasticSearch Torrent instances #}
 				{% if torrent.has_torrent and not magnet_links %}
-				<link>{{ url_for('download_torrent', torrent_id=torrent.meta.id, _external=True) }}</link>
+				<link>{{ url_for('torrents.download', torrent_id=torrent.meta.id, _external=True) }}</link>
 				{% else %}
 				<link>{{ create_magnet_from_es_info(torrent.display_name, torrent.info_hash) }}</link>
 				{% endif %}
@@ -24,7 +24,7 @@
 			{% else %}
 				{# Database Torrent rows #}
 				{% if torrent.has_torrent and not magnet_links %}
-				<link>{{ url_for('download_torrent', torrent_id=torrent.id, _external=True) }}</link>
+				<link>{{ url_for('torrents.download', torrent_id=torrent.id, _external=True) }}</link>
 				{% else %}
 				<link>{{ torrent.magnet_uri }}</link>
 				{% endif %}
