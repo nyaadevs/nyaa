@@ -10,7 +10,7 @@
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
 			{% if can_edit %}
-			<a href="{{ url_for('edit_torrent', torrent_id=torrent.id) }}" title="Edit torrent"><i class="fa fa-fw fa-pencil"></i></a>
+			<a href="{{ url_for('torrents.edit', torrent_id=torrent.id) }}" title="Edit torrent"><i class="fa fa-fw fa-pencil"></i></a>
 			{% endif %}
 			{{ torrent.display_name }}
 		</h3>
