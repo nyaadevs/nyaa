@@ -55,13 +55,15 @@ def _bencode_decode(file_object, decode_keys_as_utf8=True):
         return items
 
     kind = file_object.read(1)
+    if not kind:
+        raise create_ex('EOF, expecting kind')
 
     if kind == _B_INT:  # Integer
         int_bytes = b''
         while True:
             c = file_object.read(1)
             if not c:
-                raise create_ex('Unexpected end while reading an integer')
+                raise create_ex('EOF, expecting more integer')
             elif c == _B_END:
                 try:
                     return int(int_bytes.decode('utf8'))
@@ -97,6 +99,8 @@ def _bencode_decode(file_object, decode_keys_as_utf8=True):
         # Read string length until a ':'
         while True:
             c = file_object.read(1)
+            if not c:
+                raise create_ex('EOF, expecting more string len')
             if c in _DIGITS:
                 str_len_bytes += c
             elif c == b':':
