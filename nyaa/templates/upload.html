@@ -19,25 +19,7 @@
 <form method="POST" enctype="multipart/form-data">
 	{{ upload_form.csrf_token }}
 
-	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}
-	<div class="row">
-		<div class="col-md-10">
-			<div class="alert alert-info" role="alert">
-				<p><strong>Important:</strong> Please include <kbd>{{ config.MAIN_ANNOUNCE_URL }}</kbd> in your trackers</p>
-			</div>
-		</div>
-	</div>
-	{% endif %}
-	<div class="row">
-		<div class="col-md-10">
-			<div class="alert alert-warning" role="alert">
-				<p>Make sure you've read <a href="{{ url_for('site_rules') }}">
-				the rules</a> before uploading your torrent.</p>
-				<p><strong>Only upload torrents for content that originates
-				from and/or is specific to China, Japan, and/or Korea.</strong></p>
-			</div>
-		</div>
-	</div>
+	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{ config.MAIN_ANNOUNCE_URL }}</kbd> in your trackers</p>{% endif %}
 	<div class="row">
 		<div class="col-md-10">
 		{{ render_upload(upload_form.torrent_file, accept=".torrent") }}
