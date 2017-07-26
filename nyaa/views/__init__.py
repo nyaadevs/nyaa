@@ -7,9 +7,12 @@ from nyaa.views import (
     users,
 )
 
-account_bp = account.bp
-admin_bp = admin.bp
-main_bp = main.bp
-site_bp = site.bp
-torrents_bp = torrents.bp
-users_bp = users.bp
+
+def register(flask_app):
+    """ Register the blueprints using the flask_app object """
+    flask_app.register_blueprint(account.bp)
+    flask_app.register_blueprint(admin.bp)
+    flask_app.register_blueprint(main.bp)
+    flask_app.register_blueprint(site.bp)
+    flask_app.register_blueprint(torrents.bp)
+    flask_app.register_blueprint(users.bp)
