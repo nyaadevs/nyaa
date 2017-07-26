@@ -1,0 +1,36 @@
+#
+# Makes sure all files detected as text have LF as the EOL character,
+# and leaves all files detected as binary untouched.
+#
+
+* text=auto eol=lf
+
+#
+# Text files
+#
+
+# Example
+# *.ext			text
+
+#
+# Binary files (binary is a macro for -text -diff)
+#
+
+# Minified web files
+*.min.css		binary
+*.min.js		binary
+
+# Images
+*.png			binary
+*.jpg			binary
+*.jpeg			binary
+*.gif			binary
+*.ico			binary
+
+# Fonts
+*.svg			binary
+*.ttf			binary
+*.woff			binary
+*.woff2			binary
+*.eot			binary
+*.otf			binary
