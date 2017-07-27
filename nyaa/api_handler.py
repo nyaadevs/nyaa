@@ -6,8 +6,6 @@ import re
 
 import flask
 
-from orderedset import OrderedSet  # noqa: E402
-
 from nyaa import backend, bencode, db, forms, models, utils
 from nyaa.views.torrents import _create_upload_category_choices
 
@@ -120,6 +118,8 @@ def v2_api_upload():
 
 # #################################### TEMPORARY ####################################
 
+from orderedset import OrderedSet  # noqa: E402 isort:skip
+
 
 @api_blueprint.route('/ghetto_import', methods=['POST'])
 def ghetto_import():
@@ -140,7 +140,7 @@ def ghetto_import():
         return 'Malformed torrent metadata ({})'.format(e.args[0]), 500
 
     try:
-        tracker_found = forms._validate_trackers(torrent_dict)
+        tracker_found = forms._validate_trackers(torrent_dict)  # noqa F841
     except AssertionError as e:
         return 'Malformed torrent trackers ({})'.format(e.args[0]), 500
 
