@@ -59,3 +59,15 @@ def flatten_dict(d, result=None):
         else:
             result[key] = value
     return result
+
+
+def chain_get(source, *args):
+    ''' Tries to return values from source by the given keys.
+        Returns None if none match.
+        Note: can return a None from the source. '''
+    sentinel = object()
+    for key in args:
+        value = source.get(key, sentinel)
+        if value is not sentinel:
+            return value
+    return None

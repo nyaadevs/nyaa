@@ -9,7 +9,7 @@
 		<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 		<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 		<link rel="mask-icon" href="{{ url_for('static', filename='pinned-tab.svg') }}" color="#3582F7">
-		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
+		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('main.home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('main.home', page='rss', _external=True) }}{% endif %}" />
 
 		<meta property="og:site_name" content="{{ config.SITE_NAME }}">
 		<meta property="og:title" content="{{ self.title() }}">
@@ -65,24 +65,24 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="{{ url_for('home') }}">{{ config.SITE_NAME }}</a>
+					<a class="navbar-brand" href="{{ url_for('main.home') }}">{{ config.SITE_NAME }}</a>
 				</div><!--/.navbar-header -->
 				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
 				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li {% if request.path == url_for('upload') %}class="active"{% endif %}><a href="{{ url_for('upload') }}">Upload</a></li>
+						<li {% if request.path == url_for('torrents.upload') %}class="active"{% endif %}><a href="{{ url_for('torrents.upload') }}">Upload</a></li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 								About
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li {% if request.path == url_for('site_rules') %}class="active"{% endif %}><a href="{{ url_for('site_rules') }}">Rules</a></li>
-								<li {% if request.path == url_for('site_help') %}class="active"{% endif %}><a href="{{ url_for('site_help') }}">Help</a></li>
+								<li {% if request.path == url_for('site.rules') %}class="active"{% endif %}><a href="{{ url_for('site.rules') }}">Rules</a></li>
+								<li {% if request.path == url_for('site.help') %}class="active"{% endif %}><a href="{{ url_for('site.help') }}">Help</a></li>
 							</ul>
 						</li>
-						<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
+						<li><a href="{% if rss_filter %}{{ url_for('main.home', page='rss', **rss_filter) }}{% else %}{{ url_for('main.home', page='rss') }}{% endif %}">RSS</a></li>
 						{% if config.SITE_FLAVOR == 'nyaa' %}
 						<li><a href="//{{ config.EXTERNAL_URLS['fap'] }}">Fap</a></li>
 						{% elif config.SITE_FLAVOR == 'sukebei' %}
@@ -95,8 +95,8 @@
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li {% if request.path == url_for('view_reports') %}class="active"{% endif %}><a href="{{ url_for('view_reports') }}">Reports</a></li>
-								<li {% if request.path == url_for('view_adminlog') %}class="active"{% endif %}><a href="{{ url_for('view_adminlog') }}">Log</a></li>
+								<li {% if request.path == url_for('admin.reports') %}class="active"{% endif %}><a href="{{ url_for('admin.reports') }}">Reports</a></li>
+								<li {% if request.path == url_for('admin.log') %}class="active"{% endif %}><a href="{{ url_for('admin.log') }}">Log</a></li>
 							</ul>
 						</li>
 						{% endif %}
@@ -122,19 +122,19 @@
 	
 								</li>
 								<li>
-									<a href="{{ url_for('view_user', user_name=g.user.username) }}">
+									<a href="{{ url_for('users.view_user', user_name=g.user.username) }}">
 										<i class="fa fa-user fa-fw"></i>
 										Torrents
 									</a>
 								</li>
 								<li>
-									<a href="{{ url_for('profile') }}">
+									<a href="{{ url_for('account.profile') }}">
 										<i class="fa fa-gear fa-fw"></i>
 										Profile
 									</a>
 								</li>
 								<li>
-									<a href="{{ url_for('logout') }}">
+									<a href="{{ url_for('account.logout') }}">
 										<i class="fa fa-times fa-fw"></i>
 										Logout
 									</a>
@@ -154,13 +154,13 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li>
-									<a href="{{ url_for('login') }}">
+									<a href="{{ url_for('account.login') }}">
 										<i class="fa fa-sign-in fa-fw"></i>
 										Login
 									</a>
 								</li>
 								<li>
-									<a href="{{ url_for('register') }}">
+									<a href="{{ url_for('account.register') }}">
 										<i class="fa fa-pencil fa-fw"></i>
 										Register
 									</a>
@@ -214,12 +214,12 @@
 					<div class="search-container visible-xs visible-sm">
 					{# The mobile menu #}
 						{% if user_page %}
-						<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
+						<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
 						{% else %}
-						<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
+						<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
 						{% endif %}
 							
-							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}" autofocus>
+							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
 							<br>
 
 							<select class="form-control" title="Filter" data-width="120px" name="f">
@@ -250,9 +250,9 @@
 					</div><!--/.search-container -->
 
 					{% if user_page %}
-					<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
+					<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
 					{% else %}
-					<form class="navbar-form navbar-right form" action="{{ url_for('home') }}" method="get">
+					<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
 							<div class="input-group-btn nav-filter" id="navFilter-criteria">
@@ -291,7 +291,7 @@
 									{% endfor %}
 								</select>
 							</div>
-							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" autofocus />
+							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
 							<div class="input-group-btn search-btn">
 								<button class="btn btn-primary" type="submit">
 									<i class="fa fa-search fa-fw"></i>

@@ -6,8 +6,7 @@ from nyaa import models, forms
 from nyaa import bencode, backend, utils
 from nyaa import torrents
 
-# For _create_upload_category_choices
-from nyaa import routes
+from nyaa.views.torrents import _create_upload_category_choices
 
 import functools
 import json
@@ -24,7 +23,7 @@ api_blueprint = flask.Blueprint('api', __name__)
 def basic_auth_user(f):
     ''' A decorator that will try to validate the user into g.user from basic auth.
         Note: this does not set user to None on failure, so users can also authorize
-        themselves with the cookie (handled in routes.before_request). '''
+        themselves with the cookie (handled in views.main.before_request). '''
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         auth = flask.request.authorization
@@ -102,14 +101,14 @@ def v2_api_upload():
 
     # Flask-WTF (very helpfully!!) automatically grabs the request form, so force a None formdata
     upload_form = forms.UploadForm(None, data=mapped_dict, meta={'csrf': False})
-    upload_form.category.choices = routes._create_upload_category_choices()
+    upload_form.category.choices = _create_upload_category_choices()
 
     if upload_form.validate():
         torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
 
         # Create a response dict with relevant data
         torrent_metadata = {
-            'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+            'url': flask.url_for('torrents.view', torrent_id=torrent.id, _external=True),
             'id': torrent.id,
             'name': torrent.display_name,
             'hash': torrent.info_hash.hex(),
@@ -306,7 +305,7 @@ def v2_api_info(torrent_id_or_hash):
     # Create a response dict with relevant data
     torrent_metadata = {
         'submitter': submitter,
-        'url': flask.url_for('view_torrent', torrent_id=torrent.id, _external=True),
+        'url': flask.url_for('torrents.view', torrent_id=torrent.id, _external=True),
         'id': torrent.id,
         'name': torrent.display_name,
 

@@ -17,7 +17,7 @@
 			<tr>
 				<td>{{ log.id }}</td>
 				<td>
-					<a href="{{ url_for('view_user', user_name=log.admin.username) }}">{{ log.admin.username }}</a>
+					<a href="{{ url_for('users.view_user', user_name=log.admin.username) }}">{{ log.admin.username }}</a>
 				</td>
 				<td><div markdown-text>{{ log.log }}</div></td>
 				<td>{{ log.created_time }}</td>
