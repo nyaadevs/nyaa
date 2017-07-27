@@ -480,11 +480,13 @@ class User(db.Model):
 
     nyaa_torrents = db.relationship('NyaaTorrent', back_populates='user', lazy='dynamic')
     nyaa_comments = db.relationship('NyaaComment', back_populates='user', lazy='dynamic')
-    nyaa_notifications = db.relationship('NyaaNotification', back_populates='user', lazy='dynamic')
+    nyaa_notifications = db.relationship(
+        'NyaaNotification', back_populates='user', lazy='dynamic')
 
     sukebei_torrents = db.relationship('SukebeiTorrent', back_populates='user', lazy='dynamic')
     sukebei_comments = db.relationship('SukebeiComment', back_populates='user', lazy='dynamic')
-    sukebei_notifications = db.relationship('SukebeiNotification', back_populates='user', lazy='dynamic')
+    sukebei_notifications = db.relationship(
+        'SukebeiNotification', back_populates='user', lazy='dynamic')
 
     def __init__(self, username, email, password):
         self.username = username
@@ -570,9 +572,9 @@ class User(db.Model):
     def unread_notifications_number(self):
         flavor = app.config['SITE_FLAVOR']
         if flavor == 'nyaa':
-            number = self.nyaa_notifications.filter(Notification.read == False).count()
+            number = self.nyaa_notifications.filter(Notification.read is False).count()
         elif flavor == 'sukebei':
-            number = self.sukebei_notifications.filter(Notification.read == False).count()
+            number = self.sukebei_notifications.filter(Notification.read is False).count()
         return number
 
     @property
