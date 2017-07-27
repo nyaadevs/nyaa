@@ -501,13 +501,17 @@ class User(db.Model):
 
     def gravatar_url(self):
         # from http://en.gravatar.com/site/implement/images/python/
-        size = 120
+        params = {
+            # Image size (https://en.gravatar.com/site/implement/images/#size)
+            's': 120,
+            # Default image (https://en.gravatar.com/site/implement/images/#default-image)
+            'd': flask.url_for('static', filename='img/avatar/default.png', _external=True),
+            # Image rating (https://en.gravatar.com/site/implement/images/#rating)
+            'r': 'pg' if app.SITE_FLAVOR['nyaa'] else 'x',  # Nyaa: PG-rated, Sukebei: X-rated
+        }
         # construct the url
-        default_avatar = flask.url_for('static', filename='img/avatar/default.png', _external=True)
-        gravatar_url = 'https://www.gravatar.com/avatar/{}?{}'.format(
-            md5(self.email.encode('utf-8').lower()).hexdigest(),
-            urlencode({'d': default_avatar, 's': str(size)}))
-        return gravatar_url
+        return 'https://www.gravatar.com/avatar/{}?{}'.format(
+            md5(self.email.encode('utf-8').lower()).hexdigest(), urlencode(params))
 
     @property
     def userlevel_str(self):
