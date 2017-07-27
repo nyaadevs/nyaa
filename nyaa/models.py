@@ -507,7 +507,8 @@ class User(db.Model):
             # Default image (https://en.gravatar.com/site/implement/images/#default-image)
             'd': flask.url_for('static', filename='img/avatar/default.png', _external=True),
             # Image rating (https://en.gravatar.com/site/implement/images/#rating)
-            'r': 'pg' if app.SITE_FLAVOR['nyaa'] else 'x',  # Nyaa: PG-rated, Sukebei: X-rated
+            'r': ('pg' if app.config['SITE_FLAVOR'] == 'nyaa' else
+                  'x'),  # Nyaa: PG-rated, Sukebei: X-rated
         }
         # construct the url
         return 'https://www.gravatar.com/avatar/{}?{}'.format(
