@@ -1,11 +1,12 @@
-import os
 import logging
-import flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_assets import Environment, Bundle
-from flask_debugtoolbar import DebugToolbarExtension
-from nyaa import fix_paginate
+import os
 
+import flask
+from flask_assets import Bundle, Environment  # noqa F401
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_sqlalchemy import SQLAlchemy
+
+from nyaa import fix_paginate  # noqa F401
 
 app = flask.Flask(__name__)
 app.config.from_object('config')
@@ -70,4 +71,4 @@ assets = Environment(app)
 #             output='style.css', depends='**/*.scss')
 # assets.register('style_all', css)
 
-from nyaa import routes  # noqa E402
+from nyaa import routes  # noqa E402 isort:skip

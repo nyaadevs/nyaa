@@ -1,6 +1,5 @@
-import sqlalchemy
-from flask_sqlalchemy import Pagination, BaseQuery
 from flask import abort
+from flask_sqlalchemy import BaseQuery, Pagination
 
 
 def paginate_faste(self, page=1, per_page=50, max_page=None, step=5, count_query=None):

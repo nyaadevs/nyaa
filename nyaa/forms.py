@@ -1,25 +1,21 @@
-import flask
-from nyaa import db, app
-from nyaa.models import User
-from nyaa import bencode, utils, models
-
+import functools
 import os
 import re
-import functools
+
+import flask
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField,\
-    HiddenField
-from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError,\
-    StopValidation
-from wtforms.validators import Regexp
-
-# For DisabledSelectField
-from wtforms.widgets import Select as SelectWidget
-from wtforms.widgets import html_params, HTMLString
-
 from flask_wtf.recaptcha import RecaptchaField
 from flask_wtf.recaptcha.validators import Recaptcha as RecaptchaValidator
+from wtforms import (BooleanField, HiddenField, PasswordField, SelectField, StringField,
+                     TextAreaField)
+from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, Regexp,
+                                StopValidation, ValidationError)
+from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
+from wtforms.widgets import HTMLString, html_params  # For DisabledSelectField
+
+from nyaa import app, bencode, models, utils
+from nyaa.models import User
 
 
 class Unique(object):

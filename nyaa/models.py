@@ -1,22 +1,22 @@
-import flask
+import base64
+import re
+from datetime import datetime
 from enum import Enum, IntEnum
-from datetime import datetime, timezone
+from hashlib import md5
+from ipaddress import ip_address
+from urllib.parse import unquote as unquote_url
+from urllib.parse import urlencode
+
+import flask
+from markupsafe import escape as escape_markup
+
+from sqlalchemy import ForeignKeyConstraint, Index
+from sqlalchemy.ext import declarative
+from sqlalchemy_fulltext import FullText
+from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
+
 from nyaa import app, db
 from nyaa.torrents import create_magnet
-
-from sqlalchemy import func, ForeignKeyConstraint, Index
-from sqlalchemy.ext import declarative
-from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
-from sqlalchemy_fulltext import FullText
-
-from werkzeug.security import generate_password_hash, check_password_hash
-from ipaddress import ip_address
-
-import re
-import base64
-from markupsafe import escape as escape_markup
-from urllib.parse import urlencode, unquote as unquote_url
-from hashlib import md5
 
 if app.config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql

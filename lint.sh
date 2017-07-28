@@ -1,6 +1,7 @@
 # Lint checker/fixer
 
 check_paths="nyaa/ utils/"
+isort_paths="nyaa/" # just nyaa/ for now
 max_line_length=100
 
 function auto_pep8() {
@@ -9,14 +10,21 @@ function auto_pep8() {
     --in-place \
     --pep8-passes 2000 \
     --max-line-length ${max_line_length} \
-    --verbose
+    --verbose \
+  && \
+  isort ${isort_paths}
 }
 
 function check_lint() {
   pycodestyle ${check_paths} \
     --show-source \
     --max-line-length=${max_line_length} \
-    --format '%(path)s [%(row)s:%(col)s] %(code)s: %(text)s'
+    --format '%(path)s [%(row)s:%(col)s] %(code)s: %(text)s' \
+  && \
+  isort ${isort_paths} \
+    --recursive \
+    --diff \
+    --check-only
 }
 
 # MAIN

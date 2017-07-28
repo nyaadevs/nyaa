@@ -1,19 +1,13 @@
-import flask
-from werkzeug.datastructures import ImmutableMultiDict, CombinedMultiDict
-
-from nyaa import app, db
-from nyaa import models, forms
-from nyaa import bencode, backend, utils
-from nyaa import torrents
-
-from nyaa.views.torrents import _create_upload_category_choices
-
+import binascii
 import functools
 import json
 import os.path
 import re
 
-import binascii
+import flask
+
+from nyaa import backend, bencode, db, forms, models, utils
+from nyaa.views.torrents import _create_upload_category_choices
 
 api_blueprint = flask.Blueprint('api', __name__)
 
@@ -124,7 +118,7 @@ def v2_api_upload():
 
 # #################################### TEMPORARY ####################################
 
-from orderedset import OrderedSet  # noqa: E402
+from orderedset import OrderedSet  # noqa: E402 isort:skip
 
 
 @api_blueprint.route('/ghetto_import', methods=['POST'])
@@ -146,7 +140,7 @@ def ghetto_import():
         return 'Malformed torrent metadata ({})'.format(e.args[0]), 500
 
     try:
-        tracker_found = forms._validate_trackers(torrent_dict)
+        tracker_found = forms._validate_trackers(torrent_dict)  # noqa F841
     except AssertionError as e:
         return 'Malformed torrent trackers ({})'.format(e.args[0]), 500
 

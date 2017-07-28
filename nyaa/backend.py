@@ -1,15 +1,13 @@
-import flask
-from nyaa import app, db
-from nyaa import models, forms
-from nyaa import bencode, utils
-
-import os
-
 import json
-from werkzeug import secure_filename
-from collections import OrderedDict
-from orderedset import OrderedSet
+import os
 from ipaddress import ip_address
+
+import flask
+from werkzeug import secure_filename
+
+from orderedset import OrderedSet
+
+from nyaa import app, db, models, utils
 
 
 @utils.cached_function

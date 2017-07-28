@@ -1,17 +1,16 @@
-import flask
-import re
 import math
-import json
+import re
 import shlex
 
-from nyaa import app, db
-from nyaa import models
+import flask
 
 import sqlalchemy
 import sqlalchemy_fulltext.modes as FullTextMode
-from sqlalchemy_fulltext import FullTextSearch
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Q, Search
+from sqlalchemy_fulltext import FullTextSearch
+
+from nyaa import app, db, models
 
 DEFAULT_MAX_SEARCH_RESULT = 1000
 DEFAULT_PER_PAGE = 75
