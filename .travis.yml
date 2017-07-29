@@ -1,6 +1,6 @@
 # https://blog.travis-ci.com/2017-06-21-trusty-updates-2017-Q2-launch
 # Reverts Trusty build environment version, because 2017Q2 is broken for OrderedDict.
-group: deprecated-2017Q2
+# group: deprecated-2017Q2
 
 language: python
 
