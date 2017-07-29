@@ -1,7 +1,3 @@
-# https://blog.travis-ci.com/2017-06-21-trusty-updates-2017-Q2-launch
-# Reverts Trusty build environment version, because 2017Q2 is broken for OrderedDict.
-# group: deprecated-2017Q2
-
 language: python
 
 python: "3.6"
@@ -18,7 +14,7 @@ services:
   mysql
 
 before_install:
-  - mysql -u root -e 'CREATE DATABASE nyaav2 DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;'
+  - mysql -u root -e 'CREATE DATABASE nyaav2 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
 
 install:
   - pip install -r requirements.txt
