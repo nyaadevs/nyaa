@@ -343,6 +343,16 @@ def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     return tracker_found
 
 
+# http://www.bittorrent.org/beps/bep_0019.html
+def _validate_webseeds(torrent_dict):
+    webseed_list = torrent_dict.get('url-list')
+    if webseed_list is not None:
+        _validate_list(webseed_list, 'url-list')
+
+        for webseed_url in webseed_list:
+            _validate_bytes(webseed_url, 'url-list item', test_decode='utf-8')
+
+
 def _validate_torrent_metadata(torrent_dict):
     ''' Validates a torrent metadata dict, raising AssertionError on errors '''
     assert isinstance(torrent_dict, dict), 'torrent metadata is not a dict'
@@ -383,6 +393,8 @@ def _validate_torrent_metadata(torrent_dict):
     else:
         length = info_dict.get('length')
         _validate_number(length, 'length', check_positive=True)
+
+    _validate_webseeds(torrent_dict)
 
 
 def _validate_bytes(value, name='value', check_empty=True, test_decode=None):

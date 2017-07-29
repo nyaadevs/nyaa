@@ -327,6 +327,7 @@ class Trackers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uri = db.Column(db.String(length=255, collation=COL_UTF8_GENERAL_CI),
                     nullable=False, unique=True)
+    is_webseed = db.Column(db.Boolean, nullable=False, default=False)
     disabled = db.Column(db.Boolean, nullable=False, default=False)
 
     @classmethod

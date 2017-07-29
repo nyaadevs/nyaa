@@ -139,6 +139,10 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     for announce in announce_list:
         trackers.add(announce[0].decode('ascii'))
 
+    # Store webseeds
+    webseed_list = torrent_data.torrent_dict.get('url-list', [])
+    webseeds = OrderedSet(webseed.decode('utf-8') for webseed in webseed_list)
+
     # Remove our trackers, maybe? TODO ?
 
     # Search for/Add trackers in DB
@@ -151,8 +155,26 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
             tracker = models.Trackers(uri=announce)
             db.session.add(tracker)
             db.session.flush()
+        elif tracker.is_webseed:
+            # If we have an announce marked webseed (user error, malicy?), reset it.
+            # Better to have "bad" announces than "hiding" proper announces in webseeds/url-list.
+            tracker.is_webseed = False
+            db.session.flush()
 
         db_trackers.add(tracker)
+
+    # Same for webseeds
+    for webseed_url in webseeds:
+        webseed = models.Trackers.by_uri(webseed_url)
+
+        if not webseed:
+            webseed = models.Trackers(uri=webseed_url, is_webseed=True)
+            db.session.add(webseed)
+            db.session.flush()
+
+        # Don't add trackers into webseeds
+        if webseed.is_webseed:
+            db_trackers.add(webseed)
 
     # Store tracker refs in DB
     for order, tracker in enumerate(db_trackers):
