@@ -37,8 +37,9 @@ def default_trackers():
     return USED_TRACKERS[:]
 
 
-def get_trackers(torrent):
+def get_trackers_and_webseeds(torrent):
     trackers = OrderedSet()
+    webseeds = OrderedSet()
 
     # Our main one first
     main_announce_url = app.config.get('MAIN_ANNOUNCE_URL')
@@ -46,14 +47,20 @@ def get_trackers(torrent):
         trackers.add(main_announce_url)
 
     # then the user ones
-    torrent_trackers = torrent.trackers
+    torrent_trackers = torrent.trackers  # here be webseeds too
     for torrent_tracker in torrent_trackers:
-        trackers.add(torrent_tracker.tracker.uri)
+        tracker = torrent_tracker.tracker
+
+        # separate potential webseeds
+        if tracker.is_webseed:
+            webseeds.add(tracker.uri)
+        else:
+            trackers.add(tracker.uri)
 
     # and finally our tracker list
     trackers.update(default_trackers())
 
-    return list(trackers)
+    return list(trackers), list(webseeds)
 
 
 def get_default_trackers():
@@ -85,9 +92,12 @@ def create_magnet(torrent, max_trackers=5, trackers=None):
     return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
 
 
-def create_default_metadata_base(torrent, trackers=None):
-    if trackers is None:
-        trackers = get_trackers(torrent)
+def create_default_metadata_base(torrent, trackers=None, webseeds=None):
+    if trackers is None or webseeds is None:
+        db_trackers, db_webseeds = get_trackers_and_webseeds(torrent)
+
+        trackers = db_trackers if trackers is None else trackers
+        webseeds = db_webseeds if webseeds is None else webseeds
 
     metadata_base = {
         'created by': 'NyaaV2',
@@ -101,6 +111,10 @@ def create_default_metadata_base(torrent, trackers=None):
     if len(trackers) > 1:
         # Yes, it's a list of lists with a single element inside.
         metadata_base['announce-list'] = [[tracker] for tracker in trackers[:MAX_TRACKERS]]
+
+    # Add webseeds
+    if webseeds:
+        metadata_base['url-list'] = webseeds
 
     return metadata_base
 
