@@ -7,14 +7,15 @@ with a cron job or some binlog-reading thing (TODO)
 """
 import sys
 import json
-from nyaa import app, db, models
 
+# This should be progressbar33
+import progressbar
 from elasticsearch import Elasticsearch
 from elasticsearch.client import IndicesClient
 from elasticsearch import helpers
 
-# This should be progressbar33
-import progressbar
+from nyaa import app, models
+from nyaa.extensions import db
 
 es = Elasticsearch(timeout=30)
 ic = IndicesClient(es)
@@ -93,7 +94,8 @@ FLAVORS = [
 ]
 
 # Get binlog status from mysql
-master_status = db.engine.execute('SHOW MASTER STATUS;').fetchone()
+with app.app_context():
+    master_status = db.engine.execute('SHOW MASTER STATUS;').fetchone()
 
 position_json = {
     'log_file': master_status[0], 

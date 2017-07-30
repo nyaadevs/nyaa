@@ -6,7 +6,8 @@ from ipaddress import ip_address
 
 import flask
 
-from nyaa import app, db, forms, models
+from nyaa import app, forms, models
+from nyaa.extensions import db
 from nyaa.views.users import get_activation_link
 
 bp = flask.Blueprint('account', __name__)

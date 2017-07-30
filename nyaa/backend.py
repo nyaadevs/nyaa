@@ -7,7 +7,8 @@ from werkzeug import secure_filename
 
 from orderedset import OrderedSet
 
-from nyaa import app, db, models, utils
+from nyaa import app, models, utils
+from nyaa.extensions import db
 
 
 @utils.cached_function

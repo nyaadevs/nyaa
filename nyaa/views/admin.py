@@ -1,6 +1,7 @@
 import flask
 
-from nyaa import db, forms, models
+from nyaa import forms, models
+from nyaa.extensions import db
 
 bp = flask.Blueprint('admin', __name__)
 
