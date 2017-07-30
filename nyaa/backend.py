@@ -142,6 +142,8 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     # Store webseeds
     # qBittorrent doesn't omit url-list but sets it as '' even when there are no webseeds
     webseed_list = torrent_data.torrent_dict.get('url-list') or []
+    if isinstance(webseed_list, bytes):
+        webseed_list = [webseed_list]  # qB doesn't contain a sole url in a list
     webseeds = OrderedSet(webseed.decode('utf-8') for webseed in webseed_list)
 
     # Remove our trackers, maybe? TODO ?

@@ -346,7 +346,15 @@ def _validate_trackers(torrent_dict, tracker_to_check_for=None):
 # http://www.bittorrent.org/beps/bep_0019.html
 def _validate_webseeds(torrent_dict):
     webseed_list = torrent_dict.get('url-list')
-    # qBittorrent has an empty field instead of omitting the key, so just check for truthiness
+    if isinstance(webseed_list, bytes):
+        # url-list should be omitted in case of no webseeds. However.
+        # qBittorrent has an empty bytestring for no webseeds,
+        # a bytestring for one and a list for multiple, so:
+        # In case of a empty, keep as-is for next if.
+        # In case of one, wrap it in a list.
+        webseed_list = webseed_list and [webseed_list]
+
+    # Merely check for truthiness ([], '' or a list with items)
     if webseed_list:
         _validate_list(webseed_list, 'url-list')
 
