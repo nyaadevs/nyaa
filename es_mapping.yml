@@ -12,6 +12,7 @@ settings:
         filter:
           - standard
           - lowercase
+          - asciifolding
       my_index_analyzer:
         type: custom
         tokenizer: standard
