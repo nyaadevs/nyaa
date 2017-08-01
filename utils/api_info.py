@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-
-import re
-import os
 import argparse
+import os
+import re
+
 import requests
-import json
-from pprint import pprint
 
 NYAA_HOST = 'https://nyaa.si'
 SUKEBEI_HOST = 'https://sukebei.nyaa.si'

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import os
-import requests
-import json
-
 import argparse
+import json
+import os
+
+import requests
 
 NYAA_HOST = 'https://nyaa.si'
 SUKEBEI_HOST = 'https://sukebei.nyaa.si'
