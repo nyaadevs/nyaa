@@ -6,14 +6,14 @@ This guide also assumes you 1) are using Linux and 2) are somewhat capable with 
 It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that.
 
 ### Code Quality:
-- Before we get any deeper, remember to follow PEP8 style guidelines and run `./lint.sh` before committing.
-    - You may also use `./lint.sh -c` to see a list of warnings/problems instead of having `lint.sh` making modifications for you
+- Before we get any deeper, remember to follow PEP8 style guidelines and run `./dev.py lint` before committing to see a list of warnings/problems.
+    - You may also use `./dev.py autolint` and `./dev.py isort` to automatically fix some of the issues reported by the previous command.
 - Other than PEP8, try to keep your code clean and easy to understand, as well. It's only polite!
 
 ### Running Tests
 The `tests` folder contains tests for the the `nyaa` module and the webserver. To run the tests:
 - Make sure that you are in the python virtual environment.
-- Run `pytest tests` while in the repository directory.
+- Run `./dev.py test` while in the repository directory.
 
 ### Setting up Pyenv
 pyenv eases the use of different Python versions, and as not all Linux distros offer 3.6 packages, it's right up our alley.

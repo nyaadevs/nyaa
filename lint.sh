@@ -1,31 +1,14 @@
+#!/bin/bash
 # Lint checker/fixer
-
-check_paths="nyaa/ utils/"
-isort_paths="nyaa/" # just nyaa/ for now
-max_line_length=100
+# This script is deprecated, but still works.
 
 function auto_pep8() {
-  autopep8 ${check_paths} \
-    --recursive \
-    --in-place \
-    --pep8-passes 2000 \
-    --max-line-length ${max_line_length} \
-    --verbose \
-  && \
-  isort ${isort_paths} \
-    --recursive
+  ./dev.py autolint && ./dev.py isort
 }
 
+
 function check_lint() {
-  pycodestyle ${check_paths} \
-    --show-source \
-    --max-line-length=${max_line_length} \
-    --format '%(path)s [%(row)s:%(col)s] %(code)s: %(text)s' \
-  && \
-  isort ${isort_paths} \
-    --recursive \
-    --diff \
-    --check-only
+  ./dev.py lint
 }
 
 # MAIN
@@ -34,6 +17,11 @@ for arg in "$@"
 do
   case "$arg" in
   "-h" | "--help")
+    echo "+ ========================= +"
+    echo "+ This script is deprecated +"
+    echo "+    Please use ./dev.py    +"
+    echo "+ ========================= +"
+    echo ""
     echo "Lint checker/fixer"
     echo ""
     echo "Usage: $0 [-c|--check] [-h|--help]"
@@ -49,14 +37,4 @@ do
 done
 
 ${action} # run selected action
-result=$?
-
-if [[ ${action} == check_lint ]]; then
-  if [[ ${result} == 0 ]]; then
-    echo "Looks good!"
-  else
-    echo "The code requires some changes."
-  fi
-fi
-
-if [[ ${result} -ne 0 ]]; then exit 1; fi
+if [[ $? -ne 0 ]]; then exit 1; fi
