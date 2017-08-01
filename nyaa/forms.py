@@ -14,8 +14,11 @@ from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, 
 from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
 from wtforms.widgets import HTMLString, html_params  # For DisabledSelectField
 
-from nyaa import app, bencode, models, utils
+from nyaa import bencode, models, utils
+from nyaa.extensions import config
 from nyaa.models import User
+
+app = flask.current_app
 
 
 class Unique(object):
@@ -81,7 +84,7 @@ class RegisterForm(FlaskForm):
 
     password_confirm = PasswordField('Password (confirm)')
 
-    if app.config['USE_RECAPTCHA']:
+    if config['USE_RECAPTCHA']:
         recaptcha = RecaptchaField()
 
 
@@ -195,7 +198,7 @@ class UploadForm(FlaskForm):
                        '%(max)d at most.')
     ])
 
-    if app.config['USE_RECAPTCHA']:
+    if config['USE_RECAPTCHA']:
         # Captcha only for not logged in users
         _recaptcha_validator = RecaptchaValidator()
 

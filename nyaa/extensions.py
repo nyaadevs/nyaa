@@ -1,4 +1,7 @@
+import os.path
+
 from flask import abort
+from flask.config import Config
 from flask_assets import Environment
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import BaseQuery, Pagination, SQLAlchemy
@@ -32,3 +35,16 @@ def fix_paginate():
         return Pagination(self, page, per_page, total_query_count, items)
 
     BaseQuery.paginate_faste = paginate_faste
+
+
+def _get_config():
+    # Workaround to get an available config object before the app is initiallized
+    # Only needed/used in top-level and class statements
+    # https://stackoverflow.com/a/18138250/7597273
+    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    config = Config(root_path)
+    config.from_object('config')
+    return config
+
+
+config = _get_config()

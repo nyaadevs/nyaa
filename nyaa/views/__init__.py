@@ -8,7 +8,7 @@ from nyaa.views import (  # isort:skip
 )
 
 
-def register(flask_app):
+def register_views(flask_app):
     """ Register the blueprints using the flask_app object """
     flask_app.register_blueprint(account.bp)
     flask_app.register_blueprint(admin.bp)

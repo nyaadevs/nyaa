@@ -15,11 +15,12 @@ from sqlalchemy.ext import declarative
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 
-from nyaa import app
-from nyaa.extensions import db
+from nyaa.extensions import config, db
 from nyaa.torrents import create_magnet
 
-if app.config['USE_MYSQL']:
+app = flask.current_app
+
+if config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql
     BinaryType = mysql.BINARY
     DescriptionTextType = mysql.TEXT
@@ -686,7 +687,7 @@ class SukebeiTorrent(TorrentBase, db.Model):
 
 
 # Fulltext models for MySQL
-if app.config['USE_MYSQL']:
+if config['USE_MYSQL']:
     class NyaaTorrentNameSearch(FullText, NyaaTorrent):
         __fulltext_columns__ = ('display_name',)
         __table_args__ = {'extend_existing': True}
@@ -785,7 +786,7 @@ class SukebeiReport(ReportBase, db.Model):
 
 
 # Choose our defaults for models.Torrent etc
-if app.config['SITE_FLAVOR'] == 'nyaa':
+if config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
     TorrentFilelist = NyaaTorrentFilelist
     TorrentInfo = NyaaTorrentInfo
@@ -798,7 +799,7 @@ if app.config['SITE_FLAVOR'] == 'nyaa':
     Report = NyaaReport
     TorrentNameSearch = NyaaTorrentNameSearch
 
-elif app.config['SITE_FLAVOR'] == 'sukebei':
+elif config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
     TorrentFilelist = SukebeiTorrentFilelist
     TorrentInfo = SukebeiTorrentInfo

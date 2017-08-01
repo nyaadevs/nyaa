@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import sqlalchemy
 
-from nyaa import app, models
+from nyaa import create_app, models
 from nyaa.extensions import db
+
+app = create_app('config')
 
 NYAA_CATEGORIES = [
     ('Anime', ['Anime Music Video', 'English-translated', 'Non-English-translated', 'Raw']),

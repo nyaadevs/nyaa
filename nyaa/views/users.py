@@ -5,12 +5,13 @@ from flask_paginate import Pagination
 
 from itsdangerous import BadSignature, URLSafeSerializer
 
-from nyaa import app, forms, models
+from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import chain_get
 
+app = flask.current_app
 bp = flask.Blueprint('users', __name__)
 
 

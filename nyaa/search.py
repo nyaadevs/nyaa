@@ -10,8 +10,10 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
 from sqlalchemy_fulltext import FullTextSearch
 
-from nyaa import app, models
+from nyaa import models
 from nyaa.extensions import db
+
+app = flask.current_app
 
 DEFAULT_MAX_SEARCH_RESULT = 1000
 DEFAULT_PER_PAGE = 75

@@ -5,12 +5,13 @@ from datetime import datetime, timedelta
 import flask
 from flask_paginate import Pagination
 
-from nyaa import app, models
+from nyaa import models
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import chain_get
 from nyaa.views.account import logout
 
+app = flask.current_app
 bp = flask.Blueprint('main', __name__)
 
 
