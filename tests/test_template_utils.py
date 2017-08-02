@@ -2,19 +2,47 @@ import datetime
 import os.path
 import posixpath
 import unittest
+from base64 import b32encode
 from email.utils import formatdate
+from urllib.parse import urlencode
 
 from tests import NyaaTestCase
 from nyaa.template_utils import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
                                  get_display_time, timesince, filter_truthy, category_name,
-                                 static_cachebuster, _static_cache)
+                                 static_cachebuster, _static_cache, modify_query,
+                                 create_magnet_from_es_info)
+from nyaa.torrents import get_default_trackers
 
 
 class TestTemplateUtils(NyaaTestCase):
 
-    @unittest.skip('Not yet implemented')
     def test_create_magnet_from_es_info(self):
-        pass
+        with self.request_context():
+            outer_func = create_magnet_from_es_info()
+            self.assertIn('create_magnet_from_es_info', outer_func)
+            magnet_creator = outer_func['create_magnet_from_es_info']
+            self.assertTrue(callable(magnet_creator))
+
+            download_name = 'ubuntu-16.04.2-desktop-amd64.iso'
+            es_info_hash = 'DA775E4AAF5635EF72583A391977E5ED6F14617E'
+            max_trackers = 5
+            trackers = None
+
+            magnet_hash = b32encode(bytes.fromhex(es_info_hash)).decode('utf-8')
+            magnet_parts = [
+                ('dn', download_name)
+            ]
+            for tracker in get_default_trackers()[:5]:
+                magnet_parts.append(('tr', tracker))
+
+            expected_magnet = 'magnet:?xt=urn:btih:' + magnet_hash + '&' + urlencode(magnet_parts)
+            magnet_uri = magnet_creator(
+                display_name=download_name,
+                info_hash=es_info_hash,
+                max_trackers=max_trackers,
+                trackers=trackers
+            )
+            self.assertEquals(magnet_uri, expected_magnet)
 
     def test_static_cachebuster(self):
         with self.request_context():
@@ -43,9 +71,10 @@ class TestTemplateUtils(NyaaTestCase):
 
             self.app.debug = orig_debug
 
-    @unittest.skip('Not yet implemented')
     def test_modify_query(self):
-        pass
+        with self.request_context(path='/?q=hello&c=1_0'):
+            self.assertEqual(modify_query(q='world', u='HorribleSubs'),
+                             '/?q=world&c=1_0&u=HorribleSubs')
 
     def test_filter_truthy(self):
         my_list = [
