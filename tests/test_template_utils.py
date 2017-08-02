@@ -17,7 +17,7 @@ class TestTemplateUtils(NyaaTestCase):
         pass
 
     def test_static_cachebuster(self):
-        with self.request_context:
+        with self.request_context():
             # Save this value in order to restore it in the end.
             orig_debug = self.app.debug
 
