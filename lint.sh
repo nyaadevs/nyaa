@@ -12,7 +12,8 @@ function auto_pep8() {
     --max-line-length ${max_line_length} \
     --verbose \
   && \
-  isort ${isort_paths}
+  isort ${isort_paths} \
+    --recursive
 }
 
 function check_lint() {
