@@ -169,7 +169,7 @@ def download_torrent(torrent_id):
         flask.abort(404)
 
     torrent_file, torrent_file_size = _get_cached_torrent_file(torrent)
-    disposition = 'attachment; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
+    disposition = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
         quote(torrent.torrent_name.encode('utf-8')))
 
     resp = flask.Response(torrent_file)
