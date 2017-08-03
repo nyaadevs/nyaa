@@ -25,5 +25,8 @@ config.py
 /test_torrent_batch
 torrents
 
+# Unit Tests
+/tests/*.log
+
 # Other
 *.swp
