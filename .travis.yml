@@ -20,12 +20,12 @@ install:
   - pip install -r requirements.txt
   - pip install pytest-cov
   - sed "s/mysql:\/\/test:test123@/mysql:\/\/root:@/" config.example.py > config.py
-  - python db_create.py
+  - ./db_create.py
   - ./db_migrate.py stamp head
 
 script:
-  - pytest --cov=nyaa --cov-report=term tests
-  - ./lint.sh --check
+  - ./dev.py test --cov=nyaa --cov-report=term tests
+  - ./dev.py lint
 
 notifications:
   email: false
