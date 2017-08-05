@@ -7,7 +7,7 @@ It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that
 
 ### Code Quality:
 - Before we get any deeper, remember to follow PEP8 style guidelines and run `./dev.py lint` before committing to see a list of warnings/problems.
-    - You may also use `./dev.py autolint` and `./dev.py isort` to automatically fix some of the issues reported by the previous command.
+    - You may also use `./dev.py fix && ./dev.py isort` to automatically fix some of the issues reported by the previous command.
 - Other than PEP8, try to keep your code clean and easy to understand, as well. It's only polite!
 
 ### Running Tests

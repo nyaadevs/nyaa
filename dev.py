@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This tool is designed to assist developers run common tasks, such as
+checking the code for lint issues, auto fixing some lint issues and running tests.
+It imports modules lazily (as-needed basis), so it runs faster!
+"""
 import sys
 
 LINT_PATHS = [
@@ -23,20 +28,9 @@ def check_config_values():
     config.read('setup.cfg')
 
     # Max line length:
-    try:
-        flake8 = config['flake8']['max_line_length']
-    except KeyError:
-        flake8 = None
-
-    try:
-        autopep8 = config['pycodestyle']['max_line_length']
-    except KeyError:
-        autopep8 = None
-
-    try:
-        isort = config['isort']['line_length']
-    except KeyError:
-        isort = None
+    flake8 = config.get('flake8', 'max_line_length', fallback=None)
+    autopep8 = config.get('pycodestyle', 'max_line_length', fallback=None)
+    isort = config.get('isort', 'line_length', fallback=None)
 
     values = (v for v in (flake8, autopep8, isort) if v is not None)
     found = next(values, False)
@@ -55,8 +49,8 @@ def print_help():
     print('=======================\n')
     print('Usage: {0} command [different arguments]'.format(sys.argv[0]))
     print('Command can be one of the following:\n')
-    print('  lint | check       : do a lint check (flake8)')
-    print('  autolint | fix     : try and auto-fix lint (autopep8)')
+    print('  lint | check       : do a lint check (flake8 + flake8-isort)')
+    print('  fix  | autolint    : try and auto-fix lint (autopep8)')
     print('  isort              : fix import sorting (isort)')
     print('  test | pytest      : run tests (pytest)')
     print('  help | -h | --help : show this help and exit')
@@ -110,7 +104,7 @@ if __name__ == '__main__':
             sys.exit(int(not result))
 
     # AutoPEP8 - auto code linter for most simple errors.
-    if cmd in ('autolint', 'fix'):
+    if cmd in ('fix', 'autolint'):
         if run_default:
             args = LINT_PATHS + args
 

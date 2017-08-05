@@ -2,8 +2,8 @@
 # Lint checker/fixer
 # This script is deprecated, but still works.
 
-function auto_pep8() {
-  ./dev.py autolint && ./dev.py isort
+function auto_fix() {
+  ./dev.py fix && ./dev.py isort
 }
 
 
@@ -12,7 +12,7 @@ function check_lint() {
 }
 
 # MAIN
-action=auto_pep8 # default action
+action=auto_fix # default action
 for arg in "$@"
 do
   case "$arg" in
