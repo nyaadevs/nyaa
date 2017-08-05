@@ -120,7 +120,11 @@
 					<p>This torrent is <strong>deleted</strong>{% if torrent.banned %} and <strong>banned</strong>{% endif %}.</p>
 					<p class="lead">
 						Undelete{% if torrent.banned %} and unban{% endif %} torrent.
+						{% if torrent.banned %}
+						{{ delete_form.undelete(value="Undelete & Unban", class="btn btn-info pull-right") }}
+						{% else %}
 						{{ delete_form.undelete(class="btn btn-info pull-right") }}
+						{% endif %}
 					</p>
 					<p>
 						Undeletes{% if torrent.banned %} and unbans{% endif %} this torrent.
