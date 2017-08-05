@@ -8,7 +8,7 @@ from flask_wtf.file import FileField, FileRequired
 from flask_wtf.recaptcha import RecaptchaField
 from flask_wtf.recaptcha.validators import Recaptcha as RecaptchaValidator
 from wtforms import (BooleanField, HiddenField, PasswordField, SelectField, StringField,
-                     TextAreaField)
+                     SubmitField, TextAreaField)
 from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, Regexp,
                                 StopValidation, ValidationError)
 from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
@@ -186,6 +186,13 @@ class EditForm(FlaskForm):
     ])
 
 
+class DeleteForm(FlaskForm):
+    delete = SubmitField("Delete")
+    ban = SubmitField("Delete & Ban")
+    undelete = SubmitField("Undelete")
+    unban = SubmitField("Unban")
+
+
 class UploadForm(FlaskForm):
     torrent_file = FileField('Torrent file', [
         FileRequired()
@@ -281,14 +288,18 @@ class UploadForm(FlaskForm):
 
         # Check if the info_hash exists already in the database
         existing_torrent = models.Torrent.by_info_hash(info_hash)
-        if existing_torrent:
-            raise ValidationError('That torrent already exists (#{})'.format(existing_torrent.id))
+        existing_torrent_id = existing_torrent.id if existing_torrent else None
+        if existing_torrent and not existing_torrent.deleted:
+            raise ValidationError('This torrent already exists (#{})'.format(existing_torrent.id))
+        if existing_torrent and existing_torrent.banned:
+            raise ValidationError('This torrent is banned'.format(existing_torrent.id))
 
         # Torrent is legit, pass original filename and dict along
         field.parsed_data = TorrentFileData(filename=os.path.basename(field.data.filename),
                                             torrent_dict=torrent_dict,
                                             info_hash=info_hash,
-                                            bencoded_info_dict=bencoded_info_dict)
+                                            bencoded_info_dict=bencoded_info_dict,
+                                            db_id=existing_torrent_id)
 
 
 class UserForm(FlaskForm):

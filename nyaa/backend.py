@@ -45,6 +45,11 @@ def _replace_utf8_values(dict_or_list):
 def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent_data = upload_form.torrent_file.parsed_data
 
+    # Delete exisiting torrent which is marked as deleted
+    if torrent_data.db_id is not None:
+        models.Torrent.query.filter_by(id=torrent_data.db_id).delete()
+        db.session.commit()
+
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
     # keys and values have been checked for (see UploadForm in forms.py for details)
     info_dict = torrent_data.torrent_dict['info']
@@ -62,7 +67,8 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     # In case no encoding, assume UTF-8.
     torrent_encoding = torrent_data.torrent_dict.get('encoding', b'utf-8').decode('utf-8')
 
-    torrent = models.Torrent(info_hash=torrent_data.info_hash,
+    torrent = models.Torrent(id=torrent_data.db_id,
+                             info_hash=torrent_data.info_hash,
                              display_name=display_name,
                              torrent_name=torrent_data.filename,
                              information=information,
