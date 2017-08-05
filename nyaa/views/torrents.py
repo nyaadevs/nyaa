@@ -80,6 +80,7 @@ def view_torrent(torrent_id):
 def edit_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
     form = forms.EditForm(flask.request.form)
+    delete_form = forms.DeleteForm()
     form.category.choices = _create_upload_category_choices()
 
     editor = flask.g.user
@@ -147,7 +148,71 @@ def edit_torrent(torrent_id):
 
         return flask.render_template('edit.html',
                                      form=form,
+                                     delete_form=delete_form,
                                      torrent=torrent)
+
+
+@bp.route('/view/<int:torrent_id>/delete', endpoint='delete', methods=['POST'])
+def delete_torrent(torrent_id):
+    torrent = models.Torrent.by_id(torrent_id)
+    form = forms.DeleteForm(flask.request.form)
+
+    editor = flask.g.user
+
+    if not torrent:
+        flask.abort(404)
+
+    # Only allow admins edit deleted torrents
+    if torrent.deleted and not (editor and editor.is_moderator):
+        flask.abort(404)
+
+    # Only allow torrent owners or admins edit torrents
+    if not editor or not (editor is torrent.user or editor.is_moderator):
+        flask.abort(403)
+
+    action = None
+    url = flask.url_for('main.home')
+
+    if form.delete.data and not torrent.deleted:
+        action = 'deleted'
+        torrent.deleted = True
+        db.session.add(torrent)
+
+    elif form.ban.data and not torrent.banned and editor.is_moderator:
+        torrent.banned = True
+        if not torrent.deleted:
+            torrent.deleted = True
+            action = 'deleted and banned'
+        else:
+            action = 'banned'
+        db.session.add(torrent)
+
+    elif form.undelete.data and torrent.deleted:
+        action = 'undeleted'
+        torrent.deleted = False
+        torrent.banned = False
+        db.session.add(torrent)
+
+    elif form.unban.data and torrent.banned:
+        action = 'unbanned'
+        torrent.banned = False
+        db.session.add(torrent)
+
+    if not action:
+        flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
+        return flask.redirect(flask.url_for('torrents.edit', torrent_id=torrent.id))
+
+    if editor.is_moderator:
+        url = flask.url_for('torrents.view', torrent_id=torrent.id)
+        if editor is not torrent.user:
+            log = "Torrent [#{0}]({1}) has been {2}".format(torrent.id, url, action)
+            adminlog = models.AdminLog(log=log, admin_id=editor.id)
+            db.session.add(adminlog)
+
+    db.session.commit()
+
+    flask.flash(flask.Markup('Torrent has been successfully {0}.'.format(action)), 'info')
+    return flask.redirect(url)
 
 
 @bp.route('/view/<int:torrent_id>/magnet')

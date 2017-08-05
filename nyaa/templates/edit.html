@@ -15,7 +15,6 @@
 <form method="POST" enctype="multipart/form-data">
 	{{ form.csrf_token }}
 
-
 	<div class="row">
 		<div class="col-md-6">
 		{{ render_field(form.display_name, class_='form-control', placeholder='Display name') }}
@@ -46,14 +45,6 @@
 					<span class="glyphicon glyphicon-unchecked"></span>
 					Hidden
 				</label>
-				{% if g.user.is_moderator %}
-				<label class="btn btn-primary {% if torrent.deleted %}active{% endif %}">
-					{{ form.is_deleted }}
-					<span class="glyphicon glyphicon-check"></span>
-					<span class="glyphicon glyphicon-unchecked"></span>
-					Deleted
-				</label>
-				{% endif %}
 			</div>
 			<div class="hidden-xl"><br></div>
 			<div class="btn-group" data-toggle="buttons">
@@ -93,4 +84,75 @@
 		</div>
 	</div>
 </form>
+<hr>
+
+<div class="row">
+	<div class="col-md-5"">
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h3 class="panel-title">Danger Zone</h3>
+			</div>
+			<div class="panel-body">
+				<form method="POST" action="{{ url_for('torrents.delete', torrent_id=torrent.id) }}">
+					{{ delete_form.csrf_token }}
+
+					{% if not torrent.deleted %}
+					<p class="lead">
+						Delete torrent.
+						{{ delete_form.delete(class="btn btn-danger pull-right") }}
+					</p>
+					<p>
+						Deleted torrents are retained for backup purposes.<br>
+						You (or someone else) will be able to reupload the torrent.
+					</p>
+
+					{% if g.user.is_moderator %}
+					<hr>
+					<p class="lead">
+						Delete and ban torrent.
+						{{ delete_form.ban(class="btn btn-danger pull-right") }}
+					</p>
+					<p>
+						Soft deletes the torrent and disallows reuploading it.
+					</p>
+					{% endif %}
+					{% else %}
+					<p>This torrent is <strong>deleted</strong>{% if torrent.banned %} and <strong>banned</strong>{% endif %}.</p>
+					<p class="lead">
+						Undelete{% if torrent.banned %} and unban{% endif %} torrent.
+						{{ delete_form.undelete(class="btn btn-info pull-right") }}
+					</p>
+					<p>
+						Undeletes{% if torrent.banned %} and unbans{% endif %} this torrent.
+					</p>
+
+					{% if torrent.banned %}
+					<hr>
+					<p class="lead">
+						Unban torrent.
+						{{ delete_form.unban(class="btn btn-info pull-right") }}
+					</p>
+					<p>
+						Unbans torrent without undeleting it.<br>
+						Allows reuploading this torrent again.
+					</p>
+					{% else%}
+					<hr>
+					<p class="lead">
+						Ban torrent.
+						{{ delete_form.ban(value="Ban", class="btn btn-danger pull-right") }}
+					</p>
+					<p>
+						Bans the torrent.<br>
+						Disallows reuploading this torrent.
+					</p>
+					{% endif %}
+
+					{% endif %}
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
 {% endblock %}
