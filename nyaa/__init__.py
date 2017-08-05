@@ -49,7 +49,7 @@ def create_app(config):
             app.logger.error(exception)
             flask.flash(flask.Markup(
                 '<strong>An error occurred!</strong> Debug information has been logged.'), 'danger')
-            return flask.redirect('/')
+            return flask.redirect(flask.url_for('main.home'))
 
     # Get git commit hash
     app.config['COMMIT_HASH'] = None

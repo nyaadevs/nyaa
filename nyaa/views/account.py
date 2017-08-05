@@ -93,7 +93,8 @@ def register():
 @bp.route('/profile', methods=['GET', 'POST'])
 def profile():
     if not flask.g.user:
-        return flask.redirect('/')  # so we dont get stuck in infinite loop when signing out
+        # so we dont get stuck in infinite loop when signing out
+        return flask.redirect(flask.url_for('main.home'))
 
     form = forms.ProfileForm(flask.request.form)
 
@@ -130,11 +131,13 @@ def profile():
 
 
 def redirect_url():
+    home_url = flask.url_for('main.home')
+
     url = flask.request.args.get('next') or \
         flask.request.referrer or \
-        '/'
+        home_url
     if url == flask.request.url:
-        return '/'
+        return home_url
     return url
 
 
