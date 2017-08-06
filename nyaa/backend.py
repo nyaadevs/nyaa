@@ -51,6 +51,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     if torrent_data.db_id is not None:
         models.Torrent.query.filter_by(id=torrent_data.db_id).delete()
         db.session.commit()
+        _delete_cached_torrent_file(torrent_data.db_id)
 
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
     # keys and values have been checked for (see UploadForm in forms.py for details)
@@ -235,3 +236,11 @@ def tracker_api(info_hashes, method):
         return False
 
     return req.status == 200
+
+
+def _delete_cached_torrent_file(torrent_id):
+    # Note: obviously temporary
+    cached_torrent = os.path.join(app.config['BASE_DIR'],
+                                  'torrent_cache', str(torrent_id) + '.torrent')
+    if os.path.exists(cached_torrent):
+        os.remove(cached_torrent)
