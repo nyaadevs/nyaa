@@ -43,7 +43,9 @@ MAX_FILES_VIEW = 1000
 # Setting to make sure main announce url is present in torrent
 #
 ENFORCE_MAIN_ANNOUNCE_URL = False
-MAIN_ANNOUNCE_URL = ''
+MAIN_ANNOUNCE_URL = 'http://127.0.0.1:6881/announce'
+TRACKER_API_URL = 'http://127.0.0.1:6881/api'
+TRACKER_API_AUTH = 'topsecret'
 
 BACKUP_TORRENT_FOLDER = 'torrents'
 

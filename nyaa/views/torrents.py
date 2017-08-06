@@ -179,23 +179,27 @@ def delete_torrent(torrent_id):
         db.session.add(torrent)
 
     elif form.ban.data and not torrent.banned and editor.is_moderator:
+        action = 'banned'
         torrent.banned = True
         if not torrent.deleted:
             torrent.deleted = True
             action = 'deleted and banned'
-        else:
-            action = 'banned'
+        backend.tracker_api([torrent.info_hash], 'ban')
         db.session.add(torrent)
 
     elif form.undelete.data and torrent.deleted:
         action = 'undeleted'
         torrent.deleted = False
-        torrent.banned = False
+        if torrent.banned:
+            action = 'undeleted and unbanned'
+            torrent.banned = False
+            backend.tracker_api([torrent.info_hash], 'unban')
         db.session.add(torrent)
 
     elif form.unban.data and torrent.banned:
         action = 'unbanned'
         torrent.banned = False
+        backend.tracker_api([torrent.info_hash], 'unban')
         db.session.add(torrent)
 
     if not action:

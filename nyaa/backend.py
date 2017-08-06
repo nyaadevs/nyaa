@@ -1,6 +1,8 @@
 import json
 import os
 from ipaddress import ip_address
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 import flask
 from werkzeug import secure_filename
@@ -211,3 +213,25 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent_file.close()
 
     return torrent
+
+
+def tracker_api(info_hashes, method):
+    url = app.config.get('TRACKER_API_URL')
+    if not url:
+        return False
+
+    qs = []
+    qs.append(('auth', app.config.get('TRACKER_API_AUTH')))
+    qs.append(('method', method))
+
+    for infohash in info_hashes:
+        qs.append(('info_hash', infohash))
+
+    qs = urlencode(qs)
+    url += '?' + qs
+    try:
+        req = urlopen(url)
+    except:
+        return False
+
+    return req.status == 200
