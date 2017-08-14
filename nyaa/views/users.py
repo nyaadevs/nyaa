@@ -166,9 +166,9 @@ def _create_user_class_choices(user):
     if flask.g.user:
         if flask.g.user.is_moderator:
             choices.append(('trusted', 'Trusted'))
+            choices.append(('banned', 'Banned'))
         if flask.g.user.is_superadmin:
             choices.append(('moderator', 'Moderator'))
-            choices.append(('banned', 'Banned'))
 
         if user:
             if user.is_moderator:
