@@ -27,18 +27,20 @@
 		{# These are extracted here for the dark mode toggle #}
 		{% set bootstrap_light = static_cachebuster('css/bootstrap.min.css') %}
 		{% set bootstrap_dark = static_cachebuster('css/bootstrap-dark.min.css') %}
+		{% set main_light = static_cachebuster('css/main-light.css') %}
+		{% set main_dark = static_cachebuster('css/main-dark.css') %}
 		<link href="{{ bootstrap_light }}" rel="stylesheet" id="bsThemeLink">
 		<link href="{{ static_cachebuster('css/bootstrap-xl-mod.css') }}" rel="stylesheet">
 		<!--
 			This theme changer script needs to be inline and right under the above stylesheet link to prevent FOUC (Flash Of Unstyled Content)
 			Development version is commented out in static/js/main.js at the bottom of the file
 		-->
-		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="{{ bootstrap_dark }}",localStorage.setItem("theme","dark")}function setThemeLight(){bsThemeLink.href="{{ bootstrap_light }}",localStorage.setItem("theme","light")}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
+		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="{{ bootstrap_dark }}",bsMainLink.href="{{ main_dark }}",localStorage.setItem("theme","dark")}function setThemeLight(){bsThemeLink.href="{{ bootstrap_light }}",bsMainLink.href="{{ main_light }}",localStorage.setItem("theme","light")}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" integrity="sha256-an4uqLnVJ2flr7w0U74xiF4PJjO2N5Df91R2CUmCLCA=" crossorigin="anonymous" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
 		<!-- Custom styles for this template -->
-		<link href="{{ static_cachebuster('css/main.css') }}" rel="stylesheet">
+		<link href="{{ main_light }}" rel="stylesheet" id="bsMainLink">
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>

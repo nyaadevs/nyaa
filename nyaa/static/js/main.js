@@ -208,11 +208,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 	function setThemeDark() {
 // 		bsThemeLink.href = '/static/css/bootstrap-dark.min.css';
+// 		bsMainLink.href = '/static/css/main-dark.css';
 // 		localStorage.setItem('theme', 'dark');
 // 	}
 
 // 	function setThemeLight() {
 // 		bsThemeLink.href = '/static/css/bootstrap.min.css';
+// 		bsMainLink.href = '/static/css/main-light.css';
 // 		localStorage.setItem('theme', 'light');
 // 	}
 // }

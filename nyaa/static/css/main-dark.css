@@ -1,0 +1,428 @@
+.panel-heading-collapse a:after {
+	font-family:'Glyphicons Halflings';
+	content:"\e114";
+	float: right;
+	color: grey;
+}
+
+.panel-heading-collapse a.collapsed:after {
+	content:"\e080";
+}
+
+.torrent-list > tbody > tr > td {
+	vertical-align: middle;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 603px;	/*Will this break something?*/
+}
+
+table.torrent-list thead th {
+	position: relative;
+	background-image: none !important;
+}
+
+table.torrent-list thead th a {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	text-decoration: none;
+	z-index: 10;
+	/* IE Workaround */
+	background-color: white;
+	opacity: 0;
+	filter: alpha(opacity=1);
+}
+
+table.torrent-list thead th.sorting:after,
+table.torrent-list thead th.sorting_asc:after,
+table.torrent-list thead th.sorting_desc:after {
+	position: absolute;
+	top: 12px;
+	right: 8px;
+	display: block;
+	font-family: FontAwesome;
+}
+
+table.torrent-list thead th.sorting:after {
+	content: "\f0dc";
+	color: #808080;
+	font-size: 0.85em;
+}
+
+table.torrent-list thead th.sorting_asc:after {
+	content: "\f0de";
+}
+
+table.torrent-list thead th.sorting_desc:after {
+	content: "\f0dd";
+}
+
+table.torrent-list tbody tr td a:visited {
+	color: #1c64a1;
+}
+
+/* comments count */
+table.torrent-list .hdr-comments {
+	border-left: hidden;
+	font-size: medium;
+}
+
+table.torrent-list .hdr-comments i {
+	margin-right: 6px;
+}
+
+table.torrent-list tbody .comments {
+	position: relative;
+	float: right;
+	border: 1px solid #d7d7d7;
+	border-radius: 3px;
+	color: #383838;
+	padding: 0 5px;
+	font-size: small;
+	background-color: #ffffff;
+}
+table.torrent-list tbody .comments i {
+	padding-right: 2px;
+}
+
+#torrent-description img {
+	max-width: 100%;
+}
+
+.table > tbody > tr.deleted > td, .table > tbody > tr.deleted > th, .table > tbody > tr > td.deleted, .table > tbody > tr > th.deleted, .table > tfoot > tr.deleted > td, .table > tfoot > tr.deleted > th, .table > tfoot > tr > td.deleted, .table > tfoot > tr > th.deleted, .table > thead > tr.deleted > td, .table > thead > tr.deleted > th, .table > thead > tr > td.deleted, .table > thead > tr > th.deleted {
+	background-color:#9e9e9e;
+}
+
+.table-hover > tbody > tr.deleted:hover > td, .table-hover > tbody > tr.deleted:hover > th, .table-hover > tbody > tr:hover > .deleted, .table-hover > tbody > tr > td.deleted:hover, .table-hover > tbody > tr > th.deleted:hover {
+	background-color:#bdbdbd;
+}
+
+.panel-deleted {
+	border-color:#757575;
+}
+
+.panel-deleted > .panel-heading {
+	color:#212121;
+	background-color:#9e9e9e;
+	border-color:#757575;
+}
+
+.panel-deleted > .panel-heading + .panel-collapse > .panel-body {
+	border-top-color:#757575;
+}
+
+.panel-deleted > .panel-heading .badge {
+	color:#9e9e9e;
+	background-color:#212121;
+}
+
+.panel-deleted > .panel-footer + .panel-collapse > .panel-body {
+	border-bottom-color:#757575;
+}
+
+.markdown-editor label {
+	padding: 1em 0;
+}
+
+.markdown-source {
+	min-height: 360px;
+}
+
+.search-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+}
+
+.search-container > .search-bar {
+	border-left: 0;
+}
+
+#navFilter-criteria > .bootstrap-select:first-child {
+	border-right: solid 1px;
+}
+
+#navFilter-criteria > .bootstrap-select:first-child > button {
+	/* !important is used here to override the programmatically added style on element */
+	border-top-left-radius: 4px !important;
+	border-bottom-left-radius: 4px !important;
+}
+
+.form-control.search-bar {
+	-webkit-box-ordinal-group: 4;
+	-ms-flex-order: 3;
+	order: 3;
+	width: 99%;
+	padding-right: 1em;
+	border-left: 0;
+}
+
+.search-btn {
+	-webkit-box-ordinal-group: 5;
+	-ms-flex-order: 4;
+	order: 4;
+	-ms-flex-item-align: end;
+	align-self: flex-end;
+	top: -34px;
+	height: 0;
+	width: auto;
+	z-index: 3;
+}
+
+#navFilter-criteria {
+	-webkit-box-ordinal-group: 2;
+	-ms-flex-order: 1;
+	order: 1;
+}
+
+#navFilter-category {
+	-webkit-box-ordinal-group: 3;
+	-ms-flex-order: 2;
+	order: 2;
+}
+
+.nav-filter {
+	width: 100%;
+	padding: 1em 0;
+}
+
+.bootstrap-select > button {
+	margin-top: 1em;
+}
+
+/* Allows the bootstrap selects on nav show outside the
+ collapsible section of the navigation */
+.navbar-collapse.in {
+	overflow-y: visible;
+}
+
+/* Upload page drop zone */
+#upload-drop-zone
+{
+	visibility: hidden;
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 9999999999;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	transition: visibility 175ms, opacity 175ms;
+	display: table;
+	text-shadow: 1px 1px 2px #000;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.45);
+	font: bold 42px Tahoma, sans-serif;
+}
+
+#upload-drop-zone span
+{
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	transition: font-size 175ms;
+}
+
+/* elasticsearch term highlight */
+.hlt1 {
+	font-style: normal;
+	display: inline-block;
+	padding: 0 3px;
+	border-radius: 3px;
+	border: 1px solid rgba(100, 56, 0, 0.8);
+	background: rgba(200,127,0,0.3);
+}
+
+ul.nav-tabs#profileTabs {
+	margin-bottom: 15px;
+}
+
+.comment-panel {
+	width: 99%;
+	margin: 0 auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.comment-panel:target {
+	border-color: black;
+	border-width: 2px;
+}
+
+.text-purple, a.text-purple:visited {
+	color: #a760bc; 
+}
+
+a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
+	color: #a760e0; 
+}
+
+.comment-content {
+	overflow-wrap: break-word;
+}
+.comment-content img {
+	max-width: 100%;
+	max-height: 600px;
+}
+
+.comment-box {
+	width: 95%;
+	margin: 0 auto;
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+.delete-comment-form {
+	position: relative;
+	float: right;
+}
+
+#comment {
+	height: 8em;
+}
+
+.avatar {
+	max-width: 120px;
+}
+
+.btn-grey {
+	color: #000000;
+	background-color: #cccfd2;
+	border-color: #ccc;
+}
+
+.btn-grey:hover, .btn-grey:focus, .btn-grey:active, .btn-grey.active, .open > .dropdown-toggle.btn-grey {
+	background-color: #aaaaaa;
+}
+
+.btn span.glyphicon-check {
+	display: none;
+}
+
+.btn.active span.glyphicon-check {
+	display: inline;
+}
+
+.btn span.glyphicon-unchecked {
+	display: inline;
+}
+
+.btn.active span.glyphicon-unchecked {
+	display: none;
+}
+
+.center {
+	float: none;
+	margin: 0 auto;
+	text-align: center;
+}
+
+/* Torrent file list */
+.torrent-file-list ul {
+	padding: 5px 20px 0px 20px;
+	list-style: none;
+	display: none;
+}
+
+.torrent-file-list > ul {
+	display: block; /* First level always visible */
+	padding: 0;
+	margin: 0;
+}
+
+.torrent-file-list ul[data-show] {
+	/* Used to show first level's items based on amount */
+	display: block;
+}
+
+.torrent-file-list li:not(:last-of-type) {
+	margin-bottom: 5px;
+}
+
+.torrent-file-list i.fa {
+	padding-right: 5px;
+}
+
+.torrent-file-list i.fa-folder-open {
+	padding-right: 3px;
+}
+
+.torrent-file-list a.folder {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.torrent-file-list .file-size {
+	font-weight: bold;
+}
+
+.header-anchor {
+	padding-left: 0.5em;
+	visibility: hidden;
+	display: none;
+}
+
+h1:hover .header-anchor,
+h2:hover .header-anchor,
+h3:hover .header-anchor,
+h4:hover .header-anchor,
+h5:hover .header-anchor,
+h6:hover .header-anchor {
+	visibility: visible;
+	display: inline-block;
+}
+
+@media (max-width: 991px) {
+	.panel-body .col-md-5 {
+		margin-left: 20px;
+		margin-bottom: 10px;
+	}
+	
+	#navFilter-criteria > .bootstrap-select:first-child > button {
+		/* !important is used here to override the programmatically added style on element */
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+	}
+	
+	.search-container > .search-bar {
+		margin-top: 15px;
+	}
+}
+
+@media (min-width: 992px) {
+	.panel-body .col-md-5 {
+		word-wrap: break-word;
+	}
+
+	.search-btn {
+		top: 0;
+		width: auto;
+	}
+
+	.bootstrap-select > button {
+		margin-top: auto;
+	}
+}
+
+table.table > tbody > tr.reports-row > td {
+	vertical-align: middle;
+}
+
+td.report-action-column {
+	min-width: 150px;
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+	/* Collapse navbar search form so it doesn't wrap to a new line */
+	.search-container {
+		width: 400px;
+	}
+}
