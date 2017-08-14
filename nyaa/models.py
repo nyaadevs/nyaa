@@ -23,14 +23,14 @@ app = flask.current_app
 if config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql
     BinaryType = mysql.BINARY
-    DescriptionTextType = mysql.TEXT
+    TextType = mysql.TEXT
     MediumBlobType = mysql.MEDIUMBLOB
     COL_UTF8_GENERAL_CI = 'utf8_general_ci'
     COL_UTF8MB4_BIN = 'utf8mb4_bin'
     COL_ASCII_GENERAL_CI = 'ascii_general_ci'
 else:
     BinaryType = db.Binary
-    DescriptionTextType = db.String
+    TextType = db.String
     MediumBlobType = db.BLOB
     COL_UTF8_GENERAL_CI = 'NOCASE'
     COL_UTF8MB4_BIN = None
@@ -110,7 +110,7 @@ class TorrentBase(DeclarativeHelperBase):
                              nullable=False, index=True)
     torrent_name = db.Column(db.String(length=255), nullable=False)
     information = db.Column(db.String(length=255), nullable=False)
-    description = db.Column(DescriptionTextType(collation=COL_UTF8MB4_BIN), nullable=False)
+    description = db.Column(TextType(collation=COL_UTF8MB4_BIN), nullable=False)
 
     filesize = db.Column(db.BIGINT, default=0, nullable=False, index=True)
     encoding = db.Column(db.String(length=32), nullable=False)
@@ -433,7 +433,7 @@ class CommentBase(DeclarativeHelperBase):
         return db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
-    text = db.Column(db.String(length=255, collation=COL_UTF8MB4_BIN), nullable=False)
+    text = db.Column(TextType(collation=COL_UTF8MB4_BIN), nullable=False)
 
     @declarative.declared_attr
     def user(cls):

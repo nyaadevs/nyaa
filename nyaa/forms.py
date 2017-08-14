@@ -142,7 +142,7 @@ class DisabledSelectField(SelectField):
 
 class CommentForm(FlaskForm):
     comment = TextAreaField('Make a comment', [
-        Length(min=3, max=255, message='Comment must be at least %(min)d characters '
+        Length(min=3, max=1024, message='Comment must be at least %(min)d characters '
                'long and %(max)d at most.'),
         DataRequired()
     ])
