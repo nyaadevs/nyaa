@@ -53,8 +53,6 @@ def view_user(user_name):
 
         return flask.redirect(url)
 
-    user_level = ['Regular', 'Trusted', 'Moderator', 'Administrator'][user.level]
-
     req_args = flask.request.args
 
     search_term = chain_get(req_args, 'q', 'term')
@@ -119,7 +117,6 @@ def view_user(user_name):
                                      user=user,
                                      user_page=True,
                                      rss_filter=rss_query_string,
-                                     level=user_level,
                                      admin_form=admin_form)
     # Similar logic as home page
     else:
@@ -135,7 +132,6 @@ def view_user(user_name):
                                      user=user,
                                      user_page=True,
                                      rss_filter=rss_query_string,
-                                     level=user_level,
                                      admin_form=admin_form)
 
 
@@ -166,9 +162,10 @@ def _create_user_class_choices(user):
     if flask.g.user:
         if flask.g.user.is_moderator:
             choices.append(('trusted', 'Trusted'))
-            choices.append(('banned', 'Banned'))
         if flask.g.user.is_superadmin:
             choices.append(('moderator', 'Moderator'))
+        if flask.g.user.is_moderator:
+            choices.append(('banned', 'Banned'))
 
         if user:
             if user.is_moderator:

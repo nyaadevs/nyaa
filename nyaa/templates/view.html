@@ -31,9 +31,9 @@
 			<div class="col-md-5">
 				{% set user_url = torrent.user and url_for('users.view_user', user_name=torrent.user.username) %}
 				{%- if not torrent.anonymous and torrent.user -%}
-				<a class="text-{{ torrent.user.userlevel_color }}" href="{{ user_url }}">{{ torrent.user.username }}</a>
+				<a class="text-{{ torrent.user.userlevel_color }}" href="{{ user_url }}" data-toggle="tooltip" title="{{ torrent.user.userlevel_str }}">{{ torrent.user.username }}</a>
 				{%- else -%}
-				Anonymous {% if torrent.user and (g.user == torrent.user or g.user.is_moderator) %}(<a href="{{ user_url }}">{{ torrent.user.username }}</a>){% endif %}
+				Anonymous {% if torrent.user and (g.user == torrent.user or g.user.is_moderator) %}(<a class="text-{{ torrent.user.userlevel_color }}" href="{{ user_url }}" data-toggle="tooltip" title="{{ torrent.user.userlevel_str }}">{{ torrent.user.username }}</a>){% endif %}
 				{%- endif -%}
 				{% if g.user and g.user.is_superadmin and torrent.uploader_ip %}
 				({{ torrent.uploader_ip_string }})
@@ -145,12 +145,12 @@
 		<div class="panel-body">
 			<div class="col-md-2">
 				<p>
-					<a class="text-{{ comment.user.userlevel_color }}" href="{{ url_for('users.view_user', user_name=comment.user.username) }}">{{ comment.user.username }}</a>
+					<a class="text-{{ comment.user.userlevel_color }}" href="{{ url_for('users.view_user', user_name=comment.user.username) }}" data-toggle="tooltip" title="{{ comment.user.userlevel_str }}">{{ comment.user.username }}</a>
 					{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
 					(uploader)
 					{% endif %}
 				</p>
-				<p><img class="avatar" src="{{ comment.user.gravatar_url() }}" alt="{{ comment.user.userlevel_str }}"></p>
+				<img class="avatar" src="{{ comment.user.gravatar_url() }}" alt="{{ comment.user.userlevel_str }}">
 			</div>
 			<div class="col-md-10">
 				<div class="row">

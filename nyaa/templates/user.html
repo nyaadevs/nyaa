@@ -27,7 +27,7 @@
 				<dt>Email address:</dt>
 				<dd>{{ user.email }}</dd>
 				<dt>User class:</dt>
-				<dd>{{ level }}</dd>
+				<dd>{{ user.userlevel_str }}</dd>
 				<dt>User status:</dt>
 				<dd>{{ user.userstatus_str }}</dt>
 				{%- if g.user.is_superadmin -%}
@@ -52,7 +52,7 @@
 {% endif %}
 
 <h3>
-	Browsing <span class="text-{{ user.userlevel_color }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
+	Browsing <span class="text-{{ user.userlevel_color }}" data-toggle="tooltip" title="{{ user.userlevel_str }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
 </h3>
 
 {% include "search_results.html" %}

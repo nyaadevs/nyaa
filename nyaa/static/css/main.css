@@ -251,18 +251,24 @@ ul.nav-tabs#profileTabs {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
-
+.comment-panel .panel-body {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.comment-panel .col-md-2 p {
+	margin-bottom: 5px;
+}
 .comment-panel:target {
 	border-color: black;
 	border-width: 2px;
 }
 
 .text-purple, a.text-purple:visited {
-	color: #a760bc; 
+	color: #a760bc;
 }
 
 a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
-	color: #a760e0; 
+	color: #a760e0;
 }
 
 .comment-content {
@@ -385,13 +391,13 @@ h6:hover .header-anchor {
 		margin-left: 20px;
 		margin-bottom: 10px;
 	}
-	
+
 	#navFilter-criteria > .bootstrap-select:first-child > button {
 		/* !important is used here to override the programmatically added style on element */
 		border-top-left-radius: 0 !important;
 		border-bottom-left-radius: 0 !important;
 	}
-	
+
 	.search-container > .search-bar {
 		margin-top: 15px;
 	}
