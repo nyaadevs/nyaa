@@ -6,7 +6,7 @@ from nyaa.extensions import db
 bp = flask.Blueprint('admin', __name__)
 
 
-@bp.route('/adminlog', endpoint='log', methods=['GET'])
+@bp.route('/admin/log', endpoint='log', methods=['GET'])
 def view_adminlog():
     if not flask.g.user or not flask.g.user.is_moderator:
         flask.abort(403)
@@ -20,7 +20,7 @@ def view_adminlog():
                                  adminlog=logs)
 
 
-@bp.route('/reports', endpoint='reports', methods=['GET', 'POST'])
+@bp.route('/admin/reports', endpoint='reports', methods=['GET', 'POST'])
 def view_reports():
     if not flask.g.user or not flask.g.user.is_moderator:
         flask.abort(403)
