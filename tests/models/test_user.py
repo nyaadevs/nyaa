@@ -36,9 +36,9 @@ class TestUserModel(NyaaTestCase):
         self.assertEqual(self.user.userlevel_str, 'Moderator')
         self.assertEqual(self.user.userlevel_color, 'purple')
 
-        # Superadmins also show up as Moderators
+        # The color for Superadmins is the same as Moderators
         self.user.level = models.UserLevelType.SUPERADMIN
-        self.assertEqual(self.user.userlevel_str, 'Moderator')
+        self.assertEqual(self.user.userlevel_str, 'Administrator')
         self.assertEqual(self.user.userlevel_color, 'purple')
 
     def test_userstatus_str(self):
