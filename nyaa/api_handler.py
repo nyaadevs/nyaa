@@ -10,7 +10,7 @@ from nyaa import backend, bencode, forms, models, utils
 from nyaa.extensions import db
 from nyaa.views.torrents import _create_upload_category_choices
 
-api_blueprint = flask.Blueprint('api', __name__)
+api_blueprint = flask.Blueprint('api', __name__, url_prefix='/api')
 
 # #################################### API HELPERS ####################################
 

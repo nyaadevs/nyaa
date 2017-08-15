@@ -78,7 +78,7 @@ def create_app(config):
 
     # Blueprints
     app.register_blueprint(template_utils_bp)
-    app.register_blueprint(api_blueprint, url_prefix='/api')
+    app.register_blueprint(api_blueprint)
     register_views(app)
 
     return app
