@@ -17,6 +17,24 @@
 {% endif %}
 {% endif %}
 
+{% if 'q' in request.args %}
+<div class="row">
+	<div class="col-md-3">
+		<form action="{{ url_for('main.home') }}" method="get" style="display:flex">
+			{% for arg, value in request.args.items() %}
+			{% if arg != 'd' %}
+			<input type="hidden" name="{{ arg }}" value="{{ value }}"/>
+			{% endif %}
+			{% endfor %}
+			<input class="form-control" type="text" name="d" value="{{ request.args['d'] }}">
+			<button class="btn btn-primary">
+				<i class="fa fa-calendar fa-fw"></i>
+			</button>
+		</form>
+	</div>
+</div>
+{% endif %}
+
 {% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
