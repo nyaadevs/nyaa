@@ -362,7 +362,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         date_min, date_max = date_filter.replace('-00', '-01').split(' - ')[:2]
         date_min += ' 00:00:00'
         date_max += ' 23:59:59'
-        qpc.filter((models.Torrent.created_time <= date_max) & (models.Torrent.created_time >= date_min))
+        qpc.filter((models.Torrent.created_time <= date_max) &
+                   (models.Torrent.created_time >= date_min))
 
     if filter_tuple:
         qpc.filter(models.Torrent.flags.op('&')(
