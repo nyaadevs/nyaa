@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}Admin Log :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+	<div class="table-responsive">
+		<table class="table table-bordered table-hover table-striped">
+			<thead>
+			<tr>
+				<th style="width: 75px">#</th>
+				<th>Moderator/Admin</th>
+				<th>User</th>
+				<th>User IP</th>
+				<th style="width: 700px">Reason</th>
+				<th style="width: 175px">Date</th>
+				<th style="width: 75px">Action</th>
+			</tr>
+			</thead>
+			<tbody>
+			<form method="POST">
+				{{ form.csrf_token }}
+				{% for ban in bans.items %}
+				<tr>
+					<td>{{ ban.id }}</td>
+					<td>
+						<a href="{{ url_for('users.view_user', user_name=ban.admin.username) }}">{{ ban.admin.username }}</a>
+					</td>
+					{% if ban.user %}
+					<td>
+						<a href="{{ url_for('users.view_user', user_name=ban.user.username) }}">{{ ban.user.username }}</a>
+					</td>
+					{% else %}
+					<td>-</td>
+					{% endif %}
+					{% if g.user.is_superadmin %}
+					<td>{{ ban.ip_string }}</td>
+					{% else %}
+					<td>hidden</td>
+					{% endif %}
+					<td><div markdown-text-inline>{{ ban.reason }}</div></td>
+					<td class="center">{{ ban.created_time }}</td>
+					<td class="center">
+						{{ form.submit(label="Unban", value=ban.id, class="btn btn-danger btn-xs") }}
+					</td>
+				</tr>
+				{% endfor %}
+			</form>
+			</tbody>
+		</table>
+	</div>
+
+	<div class=pagination>
+		{% from "bootstrap/pagination.html" import render_pagination %}
+		{{ render_pagination(bans) }}
+	</div>
+{% endblock %}

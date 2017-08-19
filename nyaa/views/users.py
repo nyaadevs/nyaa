@@ -1,4 +1,5 @@
 import math
+from ipaddress import ip_address
 
 import flask
 from flask_paginate import Pagination
@@ -23,14 +24,23 @@ def view_user(user_name):
         flask.abort(404)
 
     admin_form = None
+    ban_form = None
+    bans = None
+    ipbanned = None
     if flask.g.user and flask.g.user.is_moderator and flask.g.user.level > user.level:
         admin_form = forms.UserForm()
         default, admin_form.user_class.choices = _create_user_class_choices(user)
         if flask.request.method == 'GET':
             admin_form.user_class.data = default
 
+        ban_form = forms.BanForm()
+        if flask.request.method == 'POST':
+            doban = (ban_form.ban_user.data or ban_form.unban.data or ban_form.ban_userip.data)
+        bans = models.Ban.banned(user.id, user.last_login_ip).all()
+        ipbanned = list(filter(lambda b: b.user_ip == user.last_login_ip, bans))
+
     url = flask.url_for('users.view_user', user_name=user.username)
-    if flask.request.method == 'POST' and admin_form and admin_form.validate():
+    if flask.request.method == 'POST' and admin_form and not doban and admin_form.validate():
         selection = admin_form.user_class.data
         log = None
         if selection == 'regular':
@@ -42,15 +52,52 @@ def view_user(user_name):
         elif selection == 'moderator':
             user.level = models.UserLevelType.MODERATOR
             log = "[{}]({}) changed to moderator user".format(user_name, url)
-        elif selection == 'banned':
-            user.status = models.UserStatusType.BANNED
-            log = "[{}]({}) changed to banned user".format(user_name, url)
 
         adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
         db.session.add(user)
         db.session.add(adminlog)
         db.session.commit()
 
+        return flask.redirect(url)
+
+    if flask.request.method == 'POST' and ban_form and doban and ban_form.validate():
+        if (ban_form.ban_user.data and user.is_banned) or \
+                (ban_form.ban_userip.data and ipbanned) or \
+                (ban_form.unban.data and not user.is_banned and not bans):
+            flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
+            return flask.redirect(url)
+
+        user_str = "[{0}]({1})".format(user.username, url)
+
+        if ban_form.unban.data:
+            action = "unbanned"
+            user.status = models.UserStatusType.ACTIVE
+            db.session.add(user)
+
+            for ban in bans:
+                if ban.user_ip:
+                    user_str += " IP({0})".format(ip_address(ban.user_ip))
+                db.session.delete(ban)
+        else:
+            action = "banned"
+            user.status = models.UserStatusType.BANNED
+            db.session.add(user)
+
+            ban = models.Ban(admin_id=flask.g.user.id, user_id=user.id, reason=ban_form.reason.data)
+            db.session.add(ban)
+
+            if ban_form.ban_userip.data:
+                ban.user_ip = ip_address(user.last_login_ip)
+                user_str += " IP({0})".format(ban.user_ip)
+                ban.user_ip = ban.user_ip.packed
+
+        log = "User {0} has been {1}.".format(user_str, action)
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
+
+        db.session.commit()
+
+        flask.flash(flask.Markup('User has been successfully {0}.'.format(action)), 'success')
         return flask.redirect(url)
 
     req_args = flask.request.args
@@ -117,7 +164,10 @@ def view_user(user_name):
                                      user=user,
                                      user_page=True,
                                      rss_filter=rss_query_string,
-                                     admin_form=admin_form)
+                                     admin_form=admin_form,
+                                     ban_form=ban_form,
+                                     bans=bans,
+                                     ipbanned=ipbanned)
     # Similar logic as home page
     else:
         if use_elastic:
@@ -132,7 +182,10 @@ def view_user(user_name):
                                      user=user,
                                      user_page=True,
                                      rss_filter=rss_query_string,
-                                     admin_form=admin_form)
+                                     admin_form=admin_form,
+                                     ban_form=ban_form,
+                                     bans=bans,
+                                     ipbanned=ipbanned)
 
 
 @bp.route('/user/activate/<payload>')
@@ -164,8 +217,6 @@ def _create_user_class_choices(user):
             choices.append(('trusted', 'Trusted'))
         if flask.g.user.is_superadmin:
             choices.append(('moderator', 'Moderator'))
-        if flask.g.user.is_moderator:
-            choices.append(('banned', 'Banned'))
 
         if user:
             if user.is_moderator:

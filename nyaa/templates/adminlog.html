@@ -19,7 +19,11 @@
 				<td>
 					<a href="{{ url_for('users.view_user', user_name=log.admin.username) }}">{{ log.admin.username }}</a>
 				</td>
-				<td><div markdown-text>{{ log.log }}</div></td>
+				{% if g.user.is_superadmin %}
+				<td><div markdown-text-inline>{{ log.log }}</div></td>
+				{% else %}
+				<td><div markdown-text-inline>{{ log.log | regex_replace("IP\(.*?\)", "IP(hidden)" )}}</div></td>
+				{% endif %}
 				<td>{{ log.created_time }}</td>
 			</tr>
 			{% endfor %}

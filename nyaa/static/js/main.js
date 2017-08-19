@@ -180,10 +180,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Render markdown from elements with "markdown-text" attribute
 document.addEventListener("DOMContentLoaded", function() {
-	var markdownTargets = document.querySelectorAll('[markdown-text]');
+	var markdownTargets = document.querySelectorAll('[markdown-text],[markdown-text-inline]');
 	for (var i = 0; i < markdownTargets.length; i++) {
 		var target = markdownTargets[i];
-		var rendered = markdown.render(target.innerHTML);
+		var rendered;
+		if (target.attributes["markdown-text-inline"]) {
+			rendered = markdown.renderInline(target.innerHTML);
+		} else {
+			rendered = markdown.render(target.innerHTML);
+		}
 		target.innerHTML = rendered;
 	}
 });

@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 import flask
 from flask_assets import Bundle  # noqa F401
@@ -63,6 +64,13 @@ def create_app(config):
     app.jinja_env.add_extension('jinja2.ext.do')
     app.jinja_env.lstrip_blocks = True
     app.jinja_env.trim_blocks = True
+
+    # Custom jinja2 filter
+    def regex_replace(s, find, replace):
+        """A non-optimal implementation of a regex filter"""
+        return re.sub(find, replace, s)
+
+    app.jinja_env.filters['regex_replace'] = regex_replace
 
     # Database
     fix_paginate()  # This has to be before the database is initialized

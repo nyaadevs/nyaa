@@ -484,6 +484,8 @@ class User(db.Model):
     sukebei_torrents = db.relationship('SukebeiTorrent', back_populates='user', lazy='dynamic')
     sukebei_comments = db.relationship('SukebeiComment', back_populates='user', lazy='dynamic')
 
+    bans = db.relationship('Ban', uselist=True, foreign_keys='Ban.user_id')
+
     def __init__(self, username, email, password):
         self.username = username
         self.email = email
@@ -521,14 +523,18 @@ class User(db.Model):
 
     @property
     def userlevel_str(self):
+        level = ''
         if self.level == UserLevelType.REGULAR:
-            return 'User'
+            level = 'User'
         elif self.level == UserLevelType.TRUSTED:
-            return 'Trusted'
+            level = 'Trusted'
         elif self.level == UserLevelType.MODERATOR:
-            return 'Moderator'
+            level = 'Moderator'
         elif self.level >= UserLevelType.SUPERADMIN:
-            return 'Administrator'
+            level = 'Administrator'
+        if self.is_banned:
+            level = 'BANNED ' + level
+        return level
 
     @property
     def userstatus_str(self):
@@ -541,12 +547,16 @@ class User(db.Model):
 
     @property
     def userlevel_color(self):
+        color = ''
         if self.level == UserLevelType.REGULAR:
-            return 'default'
+            color = 'default'
         elif self.level == UserLevelType.TRUSTED:
-            return 'success'
+            color = 'success'
         elif self.level >= UserLevelType.MODERATOR:
-            return 'purple'
+            color = 'purple'
+        if self.is_banned:
+            color += ' strike'
+        return color
 
     @property
     def ip_string(self):
@@ -677,6 +687,51 @@ class ReportBase(DeclarativeHelperBase):
     @classmethod
     def remove_reviewed(cls, id):
         return cls.query.filter(cls.torrent_id == id, cls.status == 0).delete()
+
+
+class Ban(db.Model):
+    __tablename__ = 'bans'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    user_ip = db.Column(db.Binary(length=16), nullable=True)
+    reason = db.Column(db.String(length=2048), nullable=False)
+
+    admin = db.relationship('User', uselist=False, lazy='joined', foreign_keys=[admin_id])
+    user = db.relationship('User', uselist=False, lazy='joined', foreign_keys=[user_id])
+
+    __table_args__ = (
+        Index('user_ip_4', 'user_ip', mysql_length=4, unique=True),
+        Index('user_ip_16', 'user_ip', mysql_length=16, unique=True),
+    )
+
+    def __repr__(self):
+        return '<Ban %r>' % self.id
+
+    @property
+    def ip_string(self):
+        if self.user_ip:
+            return str(ip_address(self.user_ip))
+
+    @classmethod
+    def all_bans(cls):
+        return cls.query
+
+    @classmethod
+    def by_id(cls, id):
+        return cls.query.get(id)
+
+    @classmethod
+    def banned(cls, user_id, user_ip):
+        if user_id:
+            if user_ip:
+                return cls.query.filter((cls.user_id == user_id) | (cls.user_ip == user_ip))
+            return cls.query.filter(cls.user_id == user_id)
+        if user_ip:
+            return cls.query.filter(cls.user_ip == user_ip)
+        return None
 
 
 # Actually declare our site-specific classes

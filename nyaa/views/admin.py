@@ -1,3 +1,5 @@
+from ipaddress import ip_address
+
 import flask
 
 from nyaa import forms, models
@@ -20,6 +22,45 @@ def view_adminlog():
                                  adminlog=logs)
 
 
+@bp.route('/bans', endpoint='bans', methods=['GET', 'POST'])
+def view_adminbans():
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    form = forms.StringSubmitForm()
+    if flask.request.method == 'POST' and form.validate():
+        ban = models.Ban.by_id(form.submit.data)
+        if not ban:
+            flask.abort(404)
+
+        log = 'Unbanned ban #{0}'.format(ban.id)
+
+        if ban.user:
+            log += ' ' + ban.user.username
+            ban.user.status = models.UserStatusType.ACTIVE
+            db.session.add(ban.user)
+
+        if ban.user_ip:
+            log += ' IP({0})'.format(ip_address(ban.user_ip))
+
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
+
+        db.session.delete(ban)
+        db.session.commit()
+
+        flask.flash('Unbanned ban #{0}'.format(ban.id), 'success')
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    bans = models.Ban.all_bans() \
+        .order_by(models.Ban.created_time.desc()) \
+        .paginate(page=page, per_page=20)
+
+    return flask.render_template('admin_bans.html',
+                                 bans=bans,
+                                 form=form)
+
+
 @bp.route('/reports', endpoint='reports', methods=['GET', 'POST'])
 def view_reports():
     if not flask.g.user or not flask.g.user.is_moderator:
@@ -40,7 +81,7 @@ def view_reports():
         if not torrent or not report or report.status != 0:
             flask.abort(404)
         else:
-            log = "Report #{}: {} [#{}]({}), reported by [{}]({})"
+            log = 'Report #{}: {} [#{}]({}), reported by [{}]({})'
             if action == 'delete':
                 torrent.deleted = True
                 report.status = 1
