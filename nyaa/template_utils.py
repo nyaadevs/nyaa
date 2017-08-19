@@ -5,10 +5,12 @@ from email.utils import formatdate
 from urllib.parse import urlencode
 
 import flask
+from markupsafe import Markup
 from werkzeug.urls import url_encode
 
-from nyaa.backend import get_category_id_map
+from nyaa import models
 from nyaa.torrents import get_default_trackers
+from nyaa.utils import cached_function
 
 app = flask.current_app
 bp = flask.Blueprint('template-utils', __name__)
@@ -78,10 +80,32 @@ def filter_truthy(input_list):
     return [item for item in input_list if item]
 
 
+@cached_function
+@bp.app_template_global()
+def get_category_id_map():
+    """
+    Reads database for categories and turns them into a dict with
+    ids as keys and combined names and titles dict as the value, ala
+    {'1_0': {'name': 'Anime', 'title': 'Anime'},
+     '1_2': {'name': 'Anime - English-translated', 'title': 'Anime - English'},
+     ...}
+    """
+    cat_id_map = {}
+    for main_cat in models.MainCategory.query:
+        cat_id_map[main_cat.id_as_string] = dict(
+            name=main_cat.name,
+            title=main_cat.title)
+        for sub_cat in main_cat.sub_categories:
+            cat_id_map[sub_cat.id_as_string] = dict(
+                name=' - '.join((main_cat.name, sub_cat.name)),
+                title=' - '.join((main_cat.title, sub_cat.title)))
+    return cat_id_map
+
+
 @bp.app_template_global()
 def category_name(cat_id):
     """ Given a category id (eg. 1_2), returns a category name (eg. Anime - English-translated) """
-    return ' - '.join(get_category_id_map().get(cat_id, ['???']))
+    return get_category_id_map().get(cat_id, {}).get('name', '???')
 
 
 # ######################### TEMPLATE FILTERS #########################
@@ -135,3 +159,19 @@ def timesince(dt, default='just now'):
                 return '%d %s ago' % (period, singular if int(period) == 1 else plural)
 
     return default
+
+
+@bp.app_template_filter('tabindent')
+def indent_with_tabs(s, tabs=1, indentfirst=False):
+    """ Return a copy of the passed string, each line indented by
+        1 tab. The first line is not indented. If you want to
+        change the number of tabs or indent the first line too
+        you can pass additional parameters to the filter. """
+
+    # Adapted from `jinja2.filters.do_indent` [Jinja2==2.9.6]
+    # Can't use `do_indent` because it causes text to be marked unsafe an escapes it.
+    indention = Markup(u'\t' * tabs)
+    rv = (Markup(u'\n') + indention).join(s.splitlines())
+    if indentfirst:
+        rv = indention + rv
+    return rv

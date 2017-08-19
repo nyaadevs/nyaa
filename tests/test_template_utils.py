@@ -1,11 +1,13 @@
-import unittest
 import datetime
-
+import unittest
 from email.utils import formatdate
 
-from tests import NyaaTestCase
+from markupsafe import Markup
+
 from nyaa.template_utils import (_jinja2_filter_rfc822, _jinja2_filter_rfc822_es, get_utc_timestamp,
-                                 get_display_time, timesince, filter_truthy, category_name)
+                                 get_display_time, timesince, filter_truthy, category_name,
+                                 indent_with_tabs)
+from tests import NyaaTestCase
 
 
 class TestTemplateUtils(NyaaTestCase):
@@ -54,6 +56,12 @@ class TestTemplateUtils(NyaaTestCase):
             timesince(now - datetime.timedelta(hours=2, minutes=38, seconds=51)), '2 hours ago')
         bigger = now - datetime.timedelta(days=3)
         self.assertEqual(timesince(bigger), bigger.strftime('%Y-%m-%d %H:%M UTC'))
+
+    def test_indent_with_tabs(self):
+        text = '\n'.join(['', 'foo bar', ''])
+        self.assertEquals(indent_with_tabs(text), Markup('\n\tfoo bar'))
+        self.assertEquals(indent_with_tabs(text, 4), Markup('\n\t\t\t\tfoo bar'))
+        self.assertEquals(indent_with_tabs(text, 2, True), Markup('\t\t\n\t\tfoo bar'))
 
     @unittest.skip('Not yet implemented')
     def test_static_cachebuster(self):

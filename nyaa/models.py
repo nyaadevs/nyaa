@@ -368,6 +368,7 @@ class MainCategoryBase(DeclarativeHelperBase):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=64), nullable=False)
+    title = db.Column(db.String(length=64), nullable=False)
 
     @declarative.declared_attr
     def sub_categories(cls):
@@ -393,13 +394,13 @@ class SubCategoryBase(DeclarativeHelperBase):
     __tablename_base__ = 'sub_categories'
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=64), nullable=False)
+    title = db.Column(db.String(length=64), nullable=False)
 
     @declarative.declared_attr
     def main_category_id(cls):
         fk = db.ForeignKey(cls._table_prefix('main_categories.id'))
         return db.Column(db.Integer, fk, primary_key=True)
-
-    name = db.Column(db.String(length=64), nullable=False)
 
     @declarative.declared_attr
     def main_category(cls):

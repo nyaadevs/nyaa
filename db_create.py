@@ -7,27 +7,87 @@ from nyaa.extensions import db
 app = create_app('config')
 
 NYAA_CATEGORIES = [
-    ('Anime', ['Anime Music Video', 'English-translated', 'Non-English-translated', 'Raw']),
-    ('Audio', ['Lossless', 'Lossy']),
-    ('Literature', ['English-translated', 'Non-English-translated', 'Raw']),
-    ('Live Action', ['English-translated', 'Idol/Promotional Video', 'Non-English-translated', 'Raw']),
-    ('Pictures', ['Graphics', 'Photos']),
-    ('Software', ['Applications', 'Games']),
+    {
+        'name': 'Anime',
+        'subcats': [
+            {'name': 'Anime Music Video', 'title': 'AMV'},
+            {'name': 'English-translated', 'title': 'English'},
+            {'name': 'Non-English-translated', 'title': 'Non-English'},
+            {'name': 'Raw'},
+        ]
+    },
+    {
+        'name': 'Audio',
+        'subcats': [
+            {'name': 'Lossless'},
+            {'name': 'Lossy'}
+        ]
+    },
+    {
+        'name': 'Literature',
+        'subcats': [
+            {'name': 'English-translated', 'title': 'English'},
+            {'name': 'Non-English-translated', 'title': 'Non-English'},
+            {'name': 'Raw'},
+        ]
+    },
+    {
+        'name': 'Live Action',
+        'subcats': [
+            {'name': 'English-translated', 'title': 'English'},
+            {'name': 'Idol/Promotional Video', 'title': 'Idol/PV'},
+            {'name': 'Non-English-translated', 'title': 'Non-English'},
+            {'name': 'Raw'},
+        ]
+    },
+    {
+        'name': 'Pictures',
+        'subcats': [
+            {'name': 'Graphics'},
+            {'name': 'Photos'}
+        ]
+    },
+    {
+        'name': 'Software',
+        'subcats': [
+            {'name': 'Applications', 'title': 'Apps'},
+            {'name': 'Games'}
+        ]
+    },
 ]
 
-
 SUKEBEI_CATEGORIES = [
-    ('Art', ['Anime', 'Doujinshi', 'Games', 'Manga', 'Pictures']),
-    ('Real Life', ['Photobooks / Pictures', 'Videos']),
+    {
+        'name': 'Art',
+        'subcats': [
+            {'name': 'Anime'},
+            {'name': 'Doujinshi'},
+            {'name': 'Games'},
+            {'name': 'Manga'},
+            {'name': 'Pictures'},
+            {'name': 'Audio'},
+        ]
+    },
+    {
+        'name': 'Real Life',
+        'subcats': [
+            {'name': 'Photobooks and Pictures', 'title': 'Pictures'},
+            {'name': 'Videos'},
+        ]
+    },
 ]
 
 
 def add_categories(categories, main_class, sub_class):
-    for main_cat_name, sub_cat_names in categories:
-        main_cat = main_class(name=main_cat_name)
-        for i, sub_cat_name in enumerate(sub_cat_names):
-            # Composite keys can't autoincrement, set sub_cat id manually (1-index)
-            sub_cat = sub_class(id=i+1, name=sub_cat_name, main_category=main_cat)
+    for main_cat in categories:
+        sub_categories = main_cat.get('subcats', [])
+        main_cat = main_class(name=main_cat['name'],
+                              title=main_cat.get('title', main_cat['name']))
+        for i, sub_cat in enumerate(sub_categories):
+            # Composite keys can't autoincrement, set sub_cat id manually (index+1)
+            sub_cat = sub_class(id=i+1, name=sub_cat['name'],
+                                title=sub_cat.get('title', sub_cat['name']),
+                                main_category=main_cat)
         db.session.add(main_cat)
 
 
