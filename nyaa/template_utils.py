@@ -1,4 +1,5 @@
 import os.path
+import re
 from base64 import b32encode
 from datetime import datetime
 from email.utils import formatdate
@@ -135,3 +136,9 @@ def timesince(dt, default='just now'):
                 return '%d %s ago' % (period, singular if int(period) == 1 else plural)
 
     return default
+
+
+@bp.app_template_filter()
+def regex_replace(s, find, replace):
+    """A non-optimal implementation of a regex filter"""
+    return re.sub(find, replace, s)
