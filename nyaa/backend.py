@@ -61,7 +61,6 @@ def validate_torrent_post_upload(torrent, upload_form=None):
     if torrent.user is None and torrent.filesize < minimum_anonymous_torrent_size:
         errors['torrent_file'].append('Torrent too small for an anonymous uploader')
 
-    print(errors)
     # Remove keys with empty lists
     errors = {k: v for k, v in errors.items() if v}
     if errors:
