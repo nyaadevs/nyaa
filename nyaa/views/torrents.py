@@ -307,13 +307,16 @@ def upload():
     upload_form.category.choices = _create_upload_category_choices()
 
     if flask.request.method == 'POST' and upload_form.validate():
-        torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
+        try:
+            torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
 
-        return flask.redirect(flask.url_for('torrents.view', torrent_id=torrent.id))
-    else:
-        # If we get here with a POST, it means the form data was invalid: return a non-okay status
-        status_code = 400 if flask.request.method == 'POST' else 200
-        return flask.render_template('upload.html', upload_form=upload_form), status_code
+            return flask.redirect(flask.url_for('torrents.view', torrent_id=torrent.id))
+        except backend.TorrentExtraValidationException:
+            pass
+
+    # If we get here with a POST, it means the form data was invalid: return a non-okay status
+    status_code = 400 if flask.request.method == 'POST' else 200
+    return flask.render_template('upload.html', upload_form=upload_form), status_code
 
 
 @cached_function
