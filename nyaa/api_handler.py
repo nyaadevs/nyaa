@@ -99,22 +99,25 @@ def v2_api_upload():
     upload_form.category.choices = _create_upload_category_choices()
 
     if upload_form.validate():
-        torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
+        try:
+            torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
 
-        # Create a response dict with relevant data
-        torrent_metadata = {
-            'url': flask.url_for('torrents.view', torrent_id=torrent.id, _external=True),
-            'id': torrent.id,
-            'name': torrent.display_name,
-            'hash': torrent.info_hash.hex(),
-            'magnet': torrent.magnet_uri
-        }
+            # Create a response dict with relevant data
+            torrent_metadata = {
+                'url': flask.url_for('torrents.view', torrent_id=torrent.id, _external=True),
+                'id': torrent.id,
+                'name': torrent.display_name,
+                'hash': torrent.info_hash.hex(),
+                'magnet': torrent.magnet_uri
+            }
 
-        return flask.jsonify(torrent_metadata)
-    else:
-        # Map errors back from form fields into the api keys
-        mapped_errors = {UPLOAD_API_FORM_KEYMAP.get(k, k): v for k, v in upload_form.errors.items()}
-        return flask.jsonify({'errors': mapped_errors}), 400
+            return flask.jsonify(torrent_metadata)
+        except backend.TorrentExtraValidationException:
+            pass
+
+    # Map errors back from form fields into the api keys
+    mapped_errors = {UPLOAD_API_FORM_KEYMAP.get(k, k): v for k, v in upload_form.errors.items()}
+    return flask.jsonify({'errors': mapped_errors}), 400
 
 
 # #################################### TEMPORARY ####################################

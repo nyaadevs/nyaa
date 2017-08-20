@@ -46,6 +46,9 @@ ENFORCE_MAIN_ANNOUNCE_URL = False
 MAIN_ANNOUNCE_URL = 'http://127.0.0.1:6881/announce'
 TRACKER_API_URL = 'http://127.0.0.1:6881/api'
 TRACKER_API_AUTH = 'topsecret'
+# Torrents uploaded without an account must be at least this big in total (bytes)
+# Set to 0 to disable
+MINIMUM_ANONYMOUS_TORRENT_SIZE = 1 * 1024 * 1024
 
 BACKUP_TORRENT_FOLDER = 'torrents'
 

@@ -15,6 +15,11 @@ from nyaa.extensions import db
 app = flask.current_app
 
 
+class TorrentExtraValidationException(Exception):
+    def __init__(self, errors):
+        self.errors = errors
+
+
 @utils.cached_function
 def get_category_id_map():
     ''' Reads database for categories and turns them into a dict with
@@ -44,7 +49,37 @@ def _replace_utf8_values(dict_or_list):
     return did_change
 
 
+def validate_torrent_post_upload(torrent, upload_form=None):
+    ''' Validates a Torrent instance before it's saved to the database.
+        Enforcing user-and-such-based validations is more flexible here vs WTForm context '''
+    errors = {
+        'torrent_file': []
+    }
+
+    # Encorce minimum size for userless uploads
+    minimum_anonymous_torrent_size = app.config['MINIMUM_ANONYMOUS_TORRENT_SIZE']
+    if torrent.user is None and torrent.filesize < minimum_anonymous_torrent_size:
+        errors['torrent_file'].append('Torrent too small for an anonymous uploader')
+
+    print(errors)
+    # Remove keys with empty lists
+    errors = {k: v for k, v in errors.items() if v}
+    if errors:
+        if upload_form:
+            # Add error messages to the form fields
+            for field_name, field_errors in errors.items():
+                getattr(upload_form, field_name).errors.extend(field_errors)
+            # Clear out the wtforms dict to force a regeneration
+            upload_form._errors = None
+
+        raise TorrentExtraValidationException(errors)
+
+
 def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
+    ''' Stores a torrent to the database.
+        May throw TorrentExtraValidationException if the form/torrent fails
+        post-WTForm validation! Exception messages will also be added to their
+        relevant fields on the given form. '''
     torrent_data = upload_form.torrent_file.parsed_data
 
     # Delete exisiting torrent which is marked as deleted
@@ -196,6 +231,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         torrent_tracker = models.TorrentTrackers(torrent_id=torrent.id,
                                                  tracker_id=tracker.id, order=order)
         db.session.add(torrent_tracker)
+
+    # Before final commit, validate the torrent again
+    validate_torrent_post_upload(torrent, upload_form)
 
     db.session.commit()
 
