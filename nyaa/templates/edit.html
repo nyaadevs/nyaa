@@ -80,7 +80,7 @@
 
 	<div class="row">
 		<div class="form-group col-md-6">
-			<input type="submit" value="Save Changes" class="btn btn-primary">
+			{{ form.submit(class="btn btn-primary") }}
 		</div>
 	</div>
 </form>
@@ -93,10 +93,22 @@
 				<h3 class="panel-title">Danger Zone</h3>
 			</div>
 			<div class="panel-body">
-				<form method="POST" action="{{ url_for('torrents.delete', torrent_id=torrent.id) }}">
+				<form method="POST">
 					{{ delete_form.csrf_token }}
 
-					{% if not torrent.deleted %}
+					<p>
+						{% if torrent.deleted %}
+						This torrent is <strong>deleted</strong>{% if torrent.banned %} and <strong>banned</strong>{% endif %}.<br>
+						{% endif %}
+						{% if torrent.user and torrent.user.is_banned %}
+						The uploader is <strong>banned</strong>.<br>
+						{% endif %}
+						{% if ipbanned %}
+						The uploader is <strong>IP banned</strong>.<br>
+						{% endif %}
+					</p>
+
+{% if not torrent.deleted %}
 					<p class="lead">
 						Delete torrent.
 						{{ delete_form.delete(class="btn btn-danger pull-right") }}
@@ -113,11 +125,11 @@
 						{{ delete_form.ban(class="btn btn-danger pull-right") }}
 					</p>
 					<p>
-						Soft deletes the torrent and disallows reuploading it.
+						Soft deletes the torrent.<br>
+						Bans it from the tracker and disallows reuploading it.
 					</p>
 					{% endif %}
-					{% else %}
-					<p>This torrent is <strong>deleted</strong>{% if torrent.banned %} and <strong>banned</strong>{% endif %}.</p>
+{% else %} {# if torrent.deleted #}
 					<p class="lead">
 						Undelete{% if torrent.banned %} and unban{% endif %} torrent.
 						{% if torrent.banned %}
@@ -140,19 +152,101 @@
 						Unbans torrent without undeleting it.<br>
 						Allows reuploading this torrent again.
 					</p>
-					{% else%}
+					{% else %}
 					<hr>
 					<p class="lead">
 						Ban torrent.
 						{{ delete_form.ban(value="Ban", class="btn btn-danger pull-right") }}
 					</p>
 					<p>
-						Bans the torrent.<br>
-						Disallows reuploading this torrent.
+						Bans it from the tracker and disallows reuploading it.
 					</p>
 					{% endif %}
+{% endif %}
 
+{% if ban_form %}
+{% if (torrent.user and not torrent.user.is_banned) or not ipbanned %}
+					<hr>
+					<p class="lead">
+					{% if torrent.deleted %}
+						{% if torrent.banned %}
+						Ban uploader.
+						{% else %}
+						Ban torrent and ban uploader.
+						{% endif %}
+					{% else %}
+						Delete and ban torrent and ban uploader.
 					{% endif %}
+					</p>
+					<p>
+					{% if torrent.deleted %}
+						{% if torrent.banned %}
+						Bans the uploader.
+						{% else %}
+						Bans it from the tracker and disallows reuploading it.<br>
+						Additionally bans the uploader.
+						{% endif %}
+					{% else %}
+						Soft deletes the torrent.<br>
+						Bans it from the tracker and disallows reuploading it.<br>
+						Additionally bans the uploader.
+					{% endif %}
+					</p>
+					{{ render_field(ban_form.reason, class_="form-control", placeholder="Specify a ban reason.") }}<br>
+
+			{% if torrent.user %}
+					<div class="pull-left">
+						{% if torrent.user.is_banned %}
+						<button type="button" class="btn btn-danger disabled">Already banned</button>
+						{% else %}
+						{% set text = "Ban User" %}
+						{% if not torrent.banned %}
+							{% set text = "Ban and Ban User" %}
+							{% if not torrent.deleted %}
+								{% set text = "Delete & Ban and Ban User" %}
+							{% endif %}
+						{% endif %}
+
+						{{ ban_form.ban_user(class="btn btn-danger") }}
+						{% endif %}
+					</div>
+					<div class="pull-right">
+						{% if ipbanned %}
+						<button type="button" class="btn btn-danger disabled">Already IP banned</button>
+						{% else %}
+						{% set text = "Ban User+IP" %}
+						{% if not torrent.banned %}
+							{% set text = "Ban and Ban User+IP" %}
+							{% if not torrent.deleted %}
+								{% set text = "Delete & Ban and Ban User+IP" %}
+							{% endif %}
+						{% endif %}
+
+						{{ ban_form.ban_userip(value=text, class="btn btn-danger") }}
+						{% endif %}
+					</div>
+			{% else %}
+					<div class="pull-left">
+						<button type="button" class="btn btn-danger disabled">No user</button>
+					</div>
+					<div class="pull-right">
+						{% if ipbanned %}
+						<button type="button" class="btn btn-danger disabled">Already IP banned</button>
+						{% else %}
+						{% set text = "Ban IP" %}
+						{% if not torrent.banned %}
+							{% set text = "Ban and Ban IP" %}
+							{% if not torrent.deleted %}
+								{% set text = "Delete & Ban and Ban IP" %}
+							{% endif %}
+						{% endif %}
+
+						{{ ban_form.ban_userip(value=text, class="btn btn-danger") }}
+						{% endif %}
+					</div>
+			{% endif %}
+{% endif %}
+{% endif %}
 				</form>
 			</div>
 		</div>

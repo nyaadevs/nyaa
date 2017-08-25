@@ -1,5 +1,6 @@
 import json
 import os.path
+from ipaddress import ip_address
 from urllib.parse import quote
 
 import flask
@@ -80,8 +81,9 @@ def view_torrent(torrent_id):
 def edit_torrent(torrent_id):
     torrent = models.Torrent.by_id(torrent_id)
     form = forms.EditForm(flask.request.form)
-    delete_form = forms.DeleteForm()
     form.category.choices = _create_upload_category_choices()
+    delete_form = forms.DeleteForm()
+    ban_form = None
 
     editor = flask.g.user
 
@@ -96,7 +98,10 @@ def edit_torrent(torrent_id):
     if not editor or not (editor is torrent.user or editor.is_moderator):
         flask.abort(403)
 
-    if flask.request.method == 'POST' and form.validate():
+    if editor and editor.is_moderator and editor.level > torrent.user.level:
+        ban_form = forms.BanForm()
+
+    if flask.request.method == 'POST' and form.submit.data and form.validate():
         # Form has been sent, edit torrent with data.
         torrent.main_category_id, torrent.sub_category_id = \
             form.category.parsed_data.get_category_ids()
@@ -127,9 +132,12 @@ def edit_torrent(torrent_id):
 
         flask.flash(flask.Markup(
             'Torrent has been successfully edited! Changes might take a few minutes to show up.'),
-            'info')
+            'success')
 
         return flask.redirect(url)
+    elif flask.request.method == 'POST' and delete_form.validate() and \
+            (not ban_form or ban_form.validate()):
+        return _delete_torrent(torrent, delete_form, ban_form)
     else:
         if flask.request.method != 'POST':
             # Fill form data only if the POST didn't fail
@@ -146,39 +154,43 @@ def edit_torrent(torrent_id):
             form.is_trusted.data = torrent.trusted
             form.is_deleted.data = torrent.deleted
 
+        ipbanned = None
+        if editor.is_moderator:
+            tbanned = models.Ban.banned(None, torrent.uploader_ip).first()
+            ubanned = True
+            if torrent.user:
+                ubanned = models.Ban.banned(None, torrent.user.last_login_ip).first()
+            ipbanned = (tbanned and ubanned)
+
         return flask.render_template('edit.html',
                                      form=form,
                                      delete_form=delete_form,
-                                     torrent=torrent)
+                                     ban_form=ban_form,
+                                     torrent=torrent,
+                                     ipbanned=ipbanned)
 
 
-@bp.route('/view/<int:torrent_id>/delete', endpoint='delete', methods=['POST'])
-def delete_torrent(torrent_id):
-    torrent = models.Torrent.by_id(torrent_id)
-    form = forms.DeleteForm(flask.request.form)
-
+def _delete_torrent(torrent, form, banform):
     editor = flask.g.user
-
-    if not torrent:
-        flask.abort(404)
+    uploader = torrent.user
 
     # Only allow admins edit deleted torrents
     if torrent.deleted and not (editor and editor.is_moderator):
         flask.abort(404)
 
-    # Only allow torrent owners or admins edit torrents
-    if not editor or not (editor is torrent.user or editor.is_moderator):
-        flask.abort(403)
-
     action = None
     url = flask.url_for('main.home')
+
+    ban_torrent = form.ban.data
+    if banform:
+        ban_torrent = ban_torrent or banform.ban_user.data or banform.ban_userip.data
 
     if form.delete.data and not torrent.deleted:
         action = 'deleted'
         torrent.deleted = True
         db.session.add(torrent)
 
-    elif form.ban.data and not torrent.banned and editor.is_moderator:
+    elif ban_torrent and not torrent.banned and editor.is_moderator:
         action = 'banned'
         torrent.banned = True
         if not torrent.deleted:
@@ -202,20 +214,80 @@ def delete_torrent(torrent_id):
         backend.tracker_api([torrent.info_hash], 'unban')
         db.session.add(torrent)
 
-    if not action:
+    if not action and not ban_torrent:
         flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
         return flask.redirect(flask.url_for('torrents.edit', torrent_id=torrent.id))
 
-    if editor.is_moderator:
+    if action and editor.is_moderator:
         url = flask.url_for('torrents.view', torrent_id=torrent.id)
-        if editor is not torrent.user:
+        if editor is not uploader:
             log = "Torrent [#{0}]({1}) has been {2}".format(torrent.id, url, action)
             adminlog = models.AdminLog(log=log, admin_id=editor.id)
             db.session.add(adminlog)
 
+    if action:
+        db.session.commit()
+        flask.flash(flask.Markup('Torrent has been successfully {0}.'.format(action)), 'success')
+
+    if not banform or not (banform.ban_user.data or banform.ban_userip.data):
+        return flask.redirect(url)
+
+    if banform.ban_userip.data:
+        tbanned = models.Ban.banned(None, torrent.uploader_ip).first()
+        ubanned = True
+        if uploader:
+            ubanned = models.Ban.banned(None, uploader.last_login_ip).first()
+        ipbanned = (tbanned and ubanned)
+
+    if (banform.ban_user.data and (not uploader or uploader.is_banned)) or \
+            (banform.ban_userip.data and ipbanned):
+        flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
+        return flask.redirect(flask.url_for('torrents.edit', torrent_id=torrent.id))
+
+    flavor = "Nyaa" if app.config['SITE_FLAVOR'] == 'nyaa' else "Sukebei"
+    eurl = flask.url_for('torrents.view', torrent_id=torrent.id, _external=True)
+    reason = "[{0}#{1}]({2}) {3}".format(flavor, torrent.id, eurl, banform.reason.data)
+    ban1 = models.Ban(admin_id=editor.id, reason=reason)
+    ban2 = models.Ban(admin_id=editor.id, reason=reason)
+    db.session.add(ban1)
+
+    if uploader:
+        uploader.status = models.UserStatusType.BANNED
+        db.session.add(uploader)
+        ban1.user_id = uploader.id
+        ban2.user_id = uploader.id
+
+    if banform.ban_userip.data:
+        if not ubanned:
+            ban1.user_ip = ip_address(uploader.last_login_ip)
+            if not tbanned:
+                uploader_ip = ip_address(torrent.uploader_ip)
+                if ban1.user_ip != uploader_ip:
+                    ban2.user_ip = uploader_ip
+                    db.session.add(ban2)
+        else:
+            ban1.user_ip = ip_address(torrent.uploader_ip)
+
+    uploader_str = "Anonymous"
+    if uploader:
+        uploader_url = flask.url_for('users.view_user', user_name=uploader.username)
+        uploader_str = "[{0}]({1})".format(uploader.username, uploader_url)
+    if ban1.user_ip:
+        uploader_str += " IP({0})".format(ban1.user_ip)
+        ban1.user_ip = ban1.user_ip.packed
+    if ban2.user_ip:
+        uploader_str += " IP({0})".format(ban2.user_ip)
+        ban2.user_ip = ban2.user_ip.packed
+
+    log = "Uploader {0} of torrent [#{1}]({2}) has been banned.".format(
+        uploader_str, torrent.id, flask.url_for('torrents.view', torrent_id=torrent.id), action)
+    adminlog = models.AdminLog(log=log, admin_id=editor.id)
+    db.session.add(adminlog)
+
     db.session.commit()
 
-    flask.flash(flask.Markup('Torrent has been successfully {0}.'.format(action)), 'info')
+    flask.flash(flask.Markup('Uploader has been successfully banned.'), 'success')
+
     return flask.redirect(url)
 
 

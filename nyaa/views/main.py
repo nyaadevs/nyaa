@@ -1,6 +1,7 @@
 import math
 import re
 from datetime import datetime, timedelta
+from ipaddress import ip_address
 
 import flask
 from flask_paginate import Pagination
@@ -28,6 +29,10 @@ def before_request():
         if not user:
             return logout()
 
+        # Logout inactive and banned users
+        if user.status != models.UserStatusType.ACTIVE:
+            return logout()
+
         flask.g.user = user
 
         if 'timeout' not in flask.session or flask.session['timeout'] < datetime.now():
@@ -35,7 +40,14 @@ def before_request():
             flask.session.permanent = True
             flask.session.modified = True
 
-        if flask.g.user.status == models.UserStatusType.BANNED:
+    # Check if user is banned on POST
+    if flask.request.method == 'POST':
+        ip = ip_address(flask.request.remote_addr).packed
+        banned = models.Ban.banned(None, ip).first()
+        if banned:
+            if flask.g.user:
+                return logout()
+
             return 'You are banned.', 403
 
 

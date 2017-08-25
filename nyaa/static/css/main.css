@@ -331,6 +331,10 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	text-align: center;
 }
 
+.strike {
+	text-decoration: line-through;
+}
+
 /* Torrent file list */
 .torrent-file-list ul {
 	padding: 5px 20px 0px 20px;

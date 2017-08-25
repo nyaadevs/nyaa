@@ -28,10 +28,14 @@ def login():
         if not user:
             user = models.User.by_email(username)
 
-        if (not user or password != user.password_hash or
-                user.status == models.UserStatusType.INACTIVE):
+        if not user or password != user.password_hash:
             flask.flash(flask.Markup(
                 '<strong>Login failed!</strong> Incorrect username or password.'), 'danger')
+            return flask.redirect(flask.url_for('account.login'))
+
+        if user.status != models.UserStatusType.ACTIVE:
+            flask.flash(flask.Markup(
+                '<strong>Login failed!</strong> Account is not activated or banned.'), 'danger')
             return flask.redirect(flask.url_for('account.login'))
 
         user.last_login_date = datetime.utcnow()
