@@ -157,11 +157,16 @@ def edit_torrent(torrent_id):
 
         ipbanned = None
         if editor.is_moderator:
-            tbanned = models.Ban.banned(None, torrent.uploader_ip).first()
-            ubanned = True
+            torrent_ip_banned = True
+            user_ip_banned = True
+
+            # Archived torrents do not have a null uploader_ip
+            if torrent.uploader_ip:
+                torrent_ip_banned = models.Ban.banned(None, torrent.uploader_ip).first()
+
             if torrent.user:
-                ubanned = models.Ban.banned(None, torrent.user.last_login_ip).first()
-            ipbanned = (tbanned and ubanned)
+                user_ip_banned = models.Ban.banned(None, torrent.user.last_login_ip).first()
+            ipbanned = (torrent_ip_banned and user_ip_banned)
 
         return flask.render_template('edit.html',
                                      form=form,
