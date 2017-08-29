@@ -162,9 +162,10 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
 
     # Delete exisiting torrent which is marked as deleted
     if torrent_data.db_id is not None:
-        models.Torrent.query.filter_by(id=torrent_data.db_id).delete()
+        oldtorrent = models.Torrent.by_id(torrent_data.db_id)
+        _delete_torrent_file(oldtorrent)
+        db.session.delete(oldtorrent)
         db.session.commit()
-        _delete_cached_torrent_file(torrent_data.db_id)
 
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
     # keys and values have been checked for (see UploadForm in forms.py for details)
@@ -195,7 +196,15 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
                              uploader_ip=ip_address(flask.request.remote_addr).packed)
 
     # Store bencoded info_dict
-    torrent.info = models.TorrentInfo(info_dict=torrent_data.bencoded_info_dict)
+    info_hash = torrent_data.info_hash.hex().lower()
+    path = os.path.join(app.config['BASE_DIR'], 'info_dicts',
+                        info_hash[0:2], info_hash[2:4])
+    if not os.path.exists(path):
+        os.makedirs(path)
+    path = os.path.join(path, info_hash)
+    with open(path, 'wb') as fp:
+        fp.write(torrent_data.bencoded_info_dict)
+
     torrent.stats = models.Statistic()
     torrent.has_torrent = True
 
@@ -361,9 +370,10 @@ def tracker_api(info_hashes, method):
     return True
 
 
-def _delete_cached_torrent_file(torrent_id):
-    # Note: obviously temporary
-    cached_torrent = os.path.join(app.config['BASE_DIR'],
-                                  'torrent_cache', str(torrent_id) + '.torrent')
-    if os.path.exists(cached_torrent):
-        os.remove(cached_torrent)
+def _delete_torrent_file(torrent):
+    info_hash = torrent.info_hash_as_hex
+    path = os.path.join(app.config['BASE_DIR'], 'info_dicts',
+                        info_hash[0:2], info_hash[2:4], info_hash)
+
+    if os.path.exists(path):
+        os.remove(path)

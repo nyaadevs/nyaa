@@ -118,7 +118,7 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
     return metadata_base
 
 
-def create_bencoded_torrent(torrent, metadata_base=None):
+def create_bencoded_torrent(torrent, bencoded_info, metadata_base=None):
     ''' Creates a bencoded torrent metadata for a given torrent,
         optionally using a given metadata_base dict (note: 'info' key will be
         popped off the dict) '''
@@ -135,7 +135,6 @@ def create_bencoded_torrent(torrent, metadata_base=None):
     prefix = bencode.encode(prefixed_dict)
     suffix = bencode.encode(suffixed_dict)
 
-    bencoded_info = torrent.info.info_dict
     bencoded_torrent = prefix[:-1] + b'4:info' + bencoded_info + suffix[1:]
 
     return bencoded_torrent
