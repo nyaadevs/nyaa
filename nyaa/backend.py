@@ -162,9 +162,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
 
     # Delete exisiting torrent which is marked as deleted
     if torrent_data.db_id is not None:
-        oldtorrent = models.Torrent.by_id(torrent_data.db_id)
-        _delete_torrent_file(oldtorrent)
-        db.session.delete(oldtorrent)
+        old_torrent = models.Torrent.by_id(torrent_data.db_id)
+        _delete_torrent_file(old_torrent)
+        db.session.delete(old_torrent)
         db.session.commit()
 
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
@@ -196,14 +196,14 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
                              uploader_ip=ip_address(flask.request.remote_addr).packed)
 
     # Store bencoded info_dict
-    info_hash = torrent_data.info_hash.hex().lower()
-    path = os.path.join(app.config['BASE_DIR'], 'info_dicts',
-                        info_hash[0:2], info_hash[2:4])
-    if not os.path.exists(path):
-        os.makedirs(path)
-    path = os.path.join(path, info_hash)
-    with open(path, 'wb') as fp:
-        fp.write(torrent_data.bencoded_info_dict)
+    info_dict_path = torrent.info_dict_path
+
+    info_dict_dir = os.path.dirname(info_dict_path)
+    if not os.path.exists(info_dict_dir):
+        os.makedirs(info_dict_dir)
+
+    with open(info_dict_path, 'wb') as out_file:
+        out_file.write(torrent_data.bencoded_info_dict)
 
     torrent.stats = models.Statistic()
     torrent.has_torrent = True
@@ -371,9 +371,6 @@ def tracker_api(info_hashes, method):
 
 
 def _delete_torrent_file(torrent):
-    info_hash = torrent.info_hash_as_hex
-    path = os.path.join(app.config['BASE_DIR'], 'info_dicts',
-                        info_hash[0:2], info_hash[2:4], info_hash)
-
-    if os.path.exists(path):
-        os.remove(path)
+    info_dict_path = torrent.info_dict_path
+    if os.path.exists(info_dict_path):
+        os.remove(info_dict_path)

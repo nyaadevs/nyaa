@@ -474,13 +474,9 @@ def _create_upload_category_choices():
 
 
 def _make_torrent_file(torrent):
-    info_hash = torrent.info_hash_as_hex
-    path = os.path.join(app.config['BASE_DIR'], 'info_dicts',
-                        info_hash[0:2], info_hash[2:4], info_hash)
+    with open(torrent.info_dict_path, 'rb') as in_file:
+        bencoded_info = in_file.read()
 
-    with open(path, 'rb') as fp:
-        bencoded_info = fp.read()
+    bencoded_torrent_data = torrents.create_bencoded_torrent(torrent, bencoded_info)
 
-    data = torrents.create_bencoded_torrent(torrent, bencoded_info)
-
-    return data, len(data)
+    return bencoded_torrent_data, len(bencoded_torrent_data)
