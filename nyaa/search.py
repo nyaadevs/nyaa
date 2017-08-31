@@ -368,6 +368,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     # Sort and order
     if sort.class_ != models.Torrent:
         query = query.join(sort.class_)
+        idx_name = 'ix_{0}_{1}'.format(sort.class_.__table__.name, sort.name)
+        query = query.with_hint(sort.class_, 'USE INDEX ({0})'.format(idx_name))
 
     query = query.order_by(getattr(sort, order)())
 
