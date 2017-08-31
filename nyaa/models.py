@@ -1,4 +1,5 @@
 import base64
+import os.path
 import re
 from datetime import datetime
 from enum import Enum, IntEnum

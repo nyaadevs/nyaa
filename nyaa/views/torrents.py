@@ -1,5 +1,4 @@
 import json
-import os.path
 from ipaddress import ip_address
 from urllib.parse import quote
 
