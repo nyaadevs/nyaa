@@ -21,6 +21,40 @@ SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} 
                                'Please refine your search results if you can\'t find '
                                'what you were looking for.')
 
+# Table-column index name cache for _get_index_name
+# In format of {'table' : {'column_a':'ix_table_column_a'}}
+_index_name_cache = {}
+
+
+def _get_index_name(column):
+    ''' Returns an index name for a given column, or None.
+        Only considers single-column indexes.
+        Results are cached in memory (until app restart). '''
+    column_table_name = column.class_.__table__.name
+    table_indexes = _index_name_cache.get(column_table_name)
+    if table_indexes is None:
+        # Load the real table schema from the database
+        # Fresh MetaData used to skip SQA's cache and get the real indexes on the database
+        table_indexes = {}
+        try:
+            column_table = sqlalchemy.Table(column_table_name,
+                                            sqlalchemy.MetaData(),
+                                            autoload=True, autoload_with=db.engine)
+        except sqlalchemy.exc.NoSuchTableError:
+            # Trust the developer to notice this?
+            pass
+        else:
+            for index in column_table.indexes:
+                # Only consider indexes with one column
+                if len(index.expressions) > 1:
+                    continue
+
+                index_column = index.expressions[0]
+                table_indexes[index_column.name] = index.name
+        _index_name_cache[column_table_name] = table_indexes
+
+    return table_indexes.get(column.name)
+
 
 def _generate_query_string(term, category, filter, user):
     params = {}
@@ -240,10 +274,9 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         'downloads': models.Statistic.download_count
     }
 
-    sort_ = sort.lower()
-    if sort_ not in sort_keys:
+    sort_column = sort_keys.get(sort.lower())
+    if sort_column is None:
         flask.abort(400)
-    sort = sort_keys[sort]
 
     order_keys = {
         'desc': 'desc',
@@ -295,7 +328,7 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
     # Force sort by id desc if rss
     if rss:
-        sort = sort_keys['id']
+        sort_column = sort_keys['id']
         order = 'desc'
 
     same_user = False
@@ -366,12 +399,12 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
     query, count_query = qpc.items
     # Sort and order
-    if sort.class_ != models.Torrent:
-        query = query.join(sort.class_)
-        idx_name = 'ix_{0}_{1}'.format(sort.class_.__table__.name, sort.name)
-        query = query.with_hint(sort.class_, 'USE INDEX ({0})'.format(idx_name))
+    if sort_column.class_ != models.Torrent:
+        index_name = _get_index_name(sort_column)
+        query = query.join(sort_column.class_)
+        query = query.with_hint(sort_column.class_, 'USE INDEX ({0})'.format(index_name))
 
-    query = query.order_by(getattr(sort, order)())
+    query = query.order_by(getattr(sort_column, order)())
 
     if rss:
         query = query.limit(per_page)
