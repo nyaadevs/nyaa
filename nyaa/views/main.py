@@ -7,6 +7,7 @@ import flask
 from flask_paginate import Pagination
 
 from nyaa import models
+from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import chain_get
@@ -39,6 +40,12 @@ def before_request():
             flask.session['timeout'] = datetime.now() + timedelta(days=7)
             flask.session.permanent = True
             flask.session.modified = True
+
+        ip = ip_address(flask.request.remote_addr)
+        if user.last_login_ip != ip:
+            user.last_login_ip = ip.packed
+            db.session.add(user)
+            db.session.commit()
 
     # Check if user is banned on POST
     if flask.request.method == 'POST':

@@ -126,7 +126,7 @@
 									<a><i class="fa fa-user fa-fw"></i>Logged in as {{ g.user.username }}</a>
 								</li>
 								<li class="hidden-lg hidden-sm hidden-xs divider" role="separator">
-	
+
 								</li>
 								<li>
 									<a href="{{ url_for('users.view_user', user_name=g.user.username) }}">
@@ -200,7 +200,7 @@
 						('6_1', '- Applications', 'Software - Apps'),
 						('6_2', '- Games', 'Software - Games')]
 					%}
-		
+
 					{% set suke_cats = [('1_0', 'Art', 'Art'),
 						('1_1', '- Anime', 'Art - Anime'),
 						('1_2', '- Doujinshi', 'Art - Doujinshi'),
@@ -225,7 +225,7 @@
 						{% else %}
 						<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
 						{% endif %}
-							
+
 							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
 							<br>
 
@@ -234,9 +234,9 @@
 								<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
 								<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
 							</select>
-	
+
 							<br>
-	
+
 							<select class="form-control" title="Category" data-width="200px" name="c">
 								<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 									All categories
@@ -247,9 +247,9 @@
 								</option>
 								{% endfor %}
 							</select>
-	
+
 							<br>
-	
+
 							<button class="btn btn-primary form-control" type="submit">
 								<i class="fa fa-search fa-fw"></i> Search
 							</button>
@@ -269,13 +269,13 @@
 									<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
 								</select>
 							</div>
-								
+
 							<div class="input-group-btn nav-filter" id="navFilter-category">
 								<!--
 									On narrow viewports, there isn't enough room to fit the full stuff in the selectpicker, so we show a full-width one on wide viewports, but squish it on narrow ones.
 								-->
 								{# XXX Search breaks with multiple fields with the same name: default to the shorter one so we don't break visuals. This is a hack! #}
-								{# 
+								{#
 								<select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
@@ -285,7 +285,7 @@
 										{{ cat_name }}
 									</option>
 									{% endfor %}
-								</select> 
+								</select>
 								#}
 								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>

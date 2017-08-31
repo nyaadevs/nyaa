@@ -99,7 +99,8 @@ def edit_torrent(torrent_id):
         flask.abort(403)
 
     torrent_user_level = torrent.user and torrent.user.level
-    if editor and editor.is_moderator and (torrent_user_level is None or editor.level > torrent_user_level):
+    if editor and editor.is_moderator and \
+            (torrent_user_level is None or editor.level > torrent_user_level):
         ban_form = forms.BanForm()
 
     if flask.request.method == 'POST' and form.submit.data and form.validate():
