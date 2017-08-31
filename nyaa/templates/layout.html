@@ -54,7 +54,11 @@
 			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 		<![endif]-->
 		
+		{% if config.SITE_FLAVOR == 'nyaa' %}
 		<link rel="search" type="application/opensearchdescription+xml" title="Nyaa.si" href="/static/search.xml">
+		{% elif config.SITE_FLAVOR == 'sukebei' %}
+		<link rel="search" type="application/opensearchdescription+xml" title="Sukebei (Nyaa.si)" href="/static/search-sukebei.xml">
+		{% endif %}
 	</head>
 	<body>
 		<!-- Fixed navbar -->
