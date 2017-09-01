@@ -49,6 +49,34 @@ def _replace_utf8_values(dict_or_list):
     return did_change
 
 
+def _recursive_dict_iterator(source):
+    ''' Iterates over a given dict, yielding (key, value) pairs,
+        recursing inside any dicts. '''
+    # TODO Make a proper dict-filetree walker
+    for key, value in source.items():
+        yield (key, value)
+
+        if isinstance(value, dict):
+            for kv in _recursive_dict_iterator(value):
+                yield kv
+
+
+def _validate_torrent_filenames(torrent):
+    ''' Checks path parts of a torrent's filetree against blacklisted characters,
+        returning False on rejection '''
+    # TODO Move to config.py
+    character_blacklist = [
+        '\u202E',  # RIGHT-TO-LEFT OVERRIDE
+    ]
+    file_tree = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
+
+    for path_part, value in _recursive_dict_iterator(file_tree):
+        if any(True for c in character_blacklist if c in path_part):
+            return False
+
+    return True
+
+
 def validate_torrent_post_upload(torrent, upload_form=None):
     ''' Validates a Torrent instance before it's saved to the database.
         Enforcing user-and-such-based validations is more flexible here vs WTForm context '''
@@ -60,6 +88,9 @@ def validate_torrent_post_upload(torrent, upload_form=None):
     minimum_anonymous_torrent_size = app.config['MINIMUM_ANONYMOUS_TORRENT_SIZE']
     if torrent.user is None and torrent.filesize < minimum_anonymous_torrent_size:
         errors['torrent_file'].append('Torrent too small for an anonymous uploader')
+
+    if not _validate_torrent_filenames(torrent):
+        errors['torrent_file'].append('Torrent has forbidden characters in filenames')
 
     # Remove keys with empty lists
     errors = {k: v for k, v in errors.items() if v}
