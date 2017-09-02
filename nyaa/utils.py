@@ -1,5 +1,7 @@
 import functools
 import hashlib
+import random
+import string
 from collections import OrderedDict
 
 
@@ -20,6 +22,12 @@ def sorted_pathdict(input_dict):
             files[key] = value
 
     return OrderedDict(sorted(directories.items()) + sorted(files.items()))
+
+
+def random_string(length, charset=None):
+    if charset is None:
+        charset = string.ascii_letters + string.digits
+    return ''.join(random.choice(charset) for i in range(length))
 
 
 def cached_function(f):

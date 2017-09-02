@@ -1,5 +1,6 @@
 import logging
 import os
+import string
 
 import flask
 from flask_assets import Bundle  # noqa F401
@@ -7,6 +8,7 @@ from flask_assets import Bundle  # noqa F401
 from nyaa.api_handler import api_blueprint
 from nyaa.extensions import assets, db, fix_paginate, toolbar
 from nyaa.template_utils import bp as template_utils_bp
+from nyaa.utils import random_string
 from nyaa.views import register_views
 
 
@@ -46,9 +48,16 @@ def create_app(config):
     if not app.config['DEBUG']:
         @app.errorhandler(500)
         def internal_error(exception):
-            app.logger.error(exception)
-            flask.flash(flask.Markup(
-                '<strong>An error occurred!</strong> Debug information has been logged.'), 'danger')
+            random_id = random_string(8, string.ascii_uppercase + string.digits)
+            # Pst. Not actually unique, but don't tell anyone!
+            app.logger.error('Exception occurred! Unique ID: %s', random_id, exc_info=exception)
+            markup_source = ' '.join([
+                '<strong>An error occurred!</strong>',
+                'Debug information has been logged.',
+                'Please pass along this ID: <kbd>{}</kbd>'.format(random_id)
+            ])
+
+            flask.flash(flask.Markup(markup_source), 'danger')
             return flask.redirect(flask.url_for('main.home'))
 
     # Get git commit hash
