@@ -190,6 +190,10 @@ def view_user(user_name):
 
 @bp.route('/user/activate/<payload>')
 def activate_user(payload):
+    if app.config['MAINTENANCE_MODE']:
+        flask.flash(flask.Markup('<strong>Activations are currently disabled.</strong>'), 'danger')
+        return flask.redirect(flask.url_for('main.home'))
+
     s = get_serializer()
     try:
         user_id = s.loads(payload)

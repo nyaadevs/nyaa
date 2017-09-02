@@ -21,6 +21,10 @@ def login():
 
     form = forms.LoginForm(flask.request.form)
     if flask.request.method == 'POST' and form.validate():
+        if app.config['MAINTENANCE_MODE'] and not app.config['MAINTENANCE_MODE_LOGINS']:
+            flask.flash(flask.Markup('<strong>Logins are currently disabled.</strong>'), 'danger')
+            return flask.redirect(flask.url_for('account.login'))
+
         username = form.username.data.strip()
         password = form.password.data
         user = models.User.by_username(username)
@@ -40,8 +44,9 @@ def login():
 
         user.last_login_date = datetime.utcnow()
         user.last_login_ip = ip_address(flask.request.remote_addr).packed
-        db.session.add(user)
-        db.session.commit()
+        if not app.config['MAINTENANCE_MODE']:
+            db.session.add(user)
+            db.session.commit()
 
         flask.g.user = user
         flask.session['user_id'] = user.id
