@@ -396,12 +396,20 @@ body.dark {
 	color: #afafaf;
 }
 
-kbd {
+body.dark .navbar a {
+	color: #e2e2e2;
+}
+
+body.dark kbd {
 	background-color: #4a4a4a;
 }
 
-body.dark .torrent-list > tbody > tr > td > a {
+body.dark .torrent-list tbody tr td a {
 	font-weight: bold;
+}
+
+body.dark .torrent-list tbody tr td a:visited {
+	color: #205c90;
 }
 
 body.dark .torrent-list > thead > tr, body.dark tbody > tr,
@@ -410,7 +418,7 @@ body.dark .panel > .panel-heading {
 }
 
 body.dark .table-striped > tbody > tr:nth-of-type(odd) {
-	background-color: #363636;
+	background-color: #363636; /* less pronounced stripe effect */
 }
 
 body.dark .table-hover > tbody > tr:hover {
@@ -420,6 +428,12 @@ body.dark .table-hover > tbody > tr:hover {
 body.dark .table-bordered > thead:first-child > tr:first-child > th,
 body.dark .table-bordered > tbody > tr > td {
 	border: 1px solid #212121;
+}
+
+table.torrent-list tbody .comments {
+	border-color: #212121;
+	color: #d6d6d6;
+	background-color: #4c4c4c;
 }
 
 /* trusted */
@@ -452,7 +466,18 @@ body.dark div.panel-danger > .panel-heading {
 	border-color: #452c2c; /* == remake entry in torrent list */
 }
 body.dark div.panel-danger > .panel-heading {
-	background-color: #714b4b;/* == remake entry in torrent list + hover */
+	background-color: #714b4b; /* == remake entry in torrent list + hover */
+}
+
+/* deleted */
+body.dark .torrent-list > tbody > tr.deleted > td {
+	background-color: rgba(255, 255, 255, 0.20);
+}
+body.dark .torrent-list > tbody > tr.deleted:hover > td {
+	background-color: rgba(255, 255, 255, 0.26);
+}
+body.dark .panel-deleted > .panel-heading {
+	color: #232323;
 }
 
 
