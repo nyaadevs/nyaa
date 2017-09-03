@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", function(event) { // wait for cont
 		e.preventDefault(); // keep link from default action, which going to top of the page
 		toggleDarkMode();   // toggle theme
 	});
+	// needs to be done here as <body> is not available when the script in the head runs
+	if (typeof(Storage) !== 'undefined' && localStorage.getItem('theme') === 'dark')
+		document.body.classList.add('dark');
 });
 
 
@@ -214,10 +217,14 @@ document.addEventListener("DOMContentLoaded", function() {
 // 	function setThemeDark() {
 // 		bsThemeLink.href = '/static/css/bootstrap-dark.min.css';
 // 		localStorage.setItem('theme', 'dark');
+// 		if (document.body !== null)
+// 			document.body.classList.add('dark');
 // 	}
 
 // 	function setThemeLight() {
 // 		bsThemeLink.href = '/static/css/bootstrap.min.css';
 // 		localStorage.setItem('theme', 'light');
+// 		if (document.body !== null)
+// 			document.body.classList.remove('dark');
 // 	}
 // }
