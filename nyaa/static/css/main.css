@@ -436,7 +436,7 @@ body.dark .table-bordered > tbody > tr > td {
 	border: 1px solid #212121;
 }
 
-table.torrent-list tbody .comments {
+body.dark table.torrent-list tbody .comments {
 	border-color: #212121;
 	color: #d6d6d6;
 	background-color: #4c4c4c;
