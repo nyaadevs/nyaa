@@ -404,8 +404,14 @@ body.dark kbd {
 	background-color: #4a4a4a;
 }
 
-body.dark .torrent-list tbody tr td a {
-	font-weight: bold;
+body.dark .alert-info {
+	color: #94ceff; /* == bg-color in light theme */
+	background-color: #185586;
+	border-color: #247fcc;
+}
+
+body.dark .alert-info a:hover {
+	color: #4d9ee0;
 }
 
 body.dark .torrent-list tbody tr td a:visited {
@@ -418,7 +424,7 @@ body.dark .panel > .panel-heading {
 }
 
 body.dark .table-striped > tbody > tr:nth-of-type(odd) {
-	background-color: #363636; /* less pronounced stripe effect */
+	background-color: #363636; /* less pronounced striping effect */
 }
 
 body.dark .table-hover > tbody > tr:hover {
