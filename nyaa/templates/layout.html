@@ -312,6 +312,12 @@
 
 		<div class="container">
 			{% include "flashes.html" %}
+			{% if config.MAINTENANCE_MODE and config.MAINTENANCE_MODE_MESSAGE %}
+			<div class="alert alert-dismissable alert-warning" role="alert">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				{{ config.MAINTENANCE_MODE_MESSAGE | safe }}
+			</div>
+			{% endif %}
 
 			{% block body %}{% endblock %}
 		</div> <!-- /container -->

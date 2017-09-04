@@ -1,7 +1,13 @@
 import os
 
-
 DEBUG = True
+# A read-only maintenance mode, in which the database is not modified
+MAINTENANCE_MODE = True
+# A maintenance message (used in layout.html template)
+MAINTENANCE_MODE_MESSAGE = 'Site is currently in read-only maintenance mode.'
+# Allow logging in during maintenance (without updating last login date)
+MAINTENANCE_MODE_LOGINS = True
+
 USE_RECAPTCHA = False
 USE_EMAIL_VERIFICATION = False
 USE_MYSQL = True

@@ -41,11 +41,12 @@ def before_request():
             flask.session.permanent = True
             flask.session.modified = True
 
-        ip = ip_address(flask.request.remote_addr)
-        if user.last_login_ip != ip:
-            user.last_login_ip = ip.packed
-            db.session.add(user)
-            db.session.commit()
+        if not app.config['MAINTENANCE_MODE']:
+            ip = ip_address(flask.request.remote_addr)
+            if user.last_login_ip != ip:
+                user.last_login_ip = ip.packed
+                db.session.add(user)
+                db.session.commit()
 
     # Check if user is banned on POST
     if flask.request.method == 'POST':
