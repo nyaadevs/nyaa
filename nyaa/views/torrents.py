@@ -43,6 +43,16 @@ def view_torrent(torrent_id):
 
         if comment_form.validate():
             comment_text = (comment_form.comment.data or '').strip()
+            mentioned = [s[1:] for s in comment_text.split() if '@' in s]
+            if mentioned:
+                for username in set(mentioned[:5]):
+                    user = models.User.by_username(username)
+                    if user:
+                        notification = models.Notification(
+                            user_id=user.id,
+                            event='mention',
+                            torrent_id=torrent_id)
+                        db.session.add(notification)
 
             comment = models.Comment(
                 torrent_id=torrent_id,
