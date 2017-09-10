@@ -148,7 +148,7 @@ def view_notifications():
     notifications = models.Notification.get_notifications(flask.g.user.id, page)
     template = flask.render_template('notifications.html', notifications=notifications)
 
-    updates = models.Notification.mark_notifications_read(flask.g.user.id)
+    models.Notification.mark_notifications_read(flask.g.user.id)
     db.session.commit()
 
     return template
