@@ -571,9 +571,9 @@ class User(db.Model):
     def unread_notifications_number(self):
         flavor = app.config['SITE_FLAVOR']
         if flavor == 'nyaa':
-            number = self.nyaa_notifications.filter(Notification.read == False).count()
+            number = self.nyaa_notifications.filter(Notification.read.is_(False)).count()
         elif flavor == 'sukebei':
-            number = self.sukebei_notifications.filter(Notification.read == False).count()
+            number = self.sukebei_notifications.filter(Notification.read.is_(False)).count()
         return number
 
     @classmethod
