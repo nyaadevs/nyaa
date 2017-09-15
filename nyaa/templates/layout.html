@@ -287,7 +287,7 @@
 									{% endfor %}
 								</select>
 								#}
-								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
+								<select class="selectpicker show-tick" id="category" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
