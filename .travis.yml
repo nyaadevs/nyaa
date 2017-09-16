@@ -1,0 +1,31 @@
+language: python
+
+python: "3.6"
+
+dist: trusty
+sudo: required
+
+matrix:
+  fast_finish: true
+
+cache: pip
+
+services:
+  mysql
+
+before_install:
+  - mysql -u root -e 'CREATE DATABASE nyaav2 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
+
+install:
+  - pip install -r requirements.txt
+  - pip install pytest-cov
+  - sed "s/mysql:\/\/test:test123@/mysql:\/\/root:@/" config.example.py > config.py
+  - ./db_create.py
+  - ./db_migrate.py stamp head
+
+script:
+  - ./dev.py test --cov=nyaa --cov-report=term tests
+  - ./dev.py lint
+
+notifications:
+  email: false

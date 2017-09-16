@@ -1,5 +1,7 @@
-import hashlib
 import functools
+import hashlib
+import random
+import string
 from collections import OrderedDict
 
 
@@ -22,6 +24,12 @@ def sorted_pathdict(input_dict):
     return OrderedDict(sorted(directories.items()) + sorted(files.items()))
 
 
+def random_string(length, charset=None):
+    if charset is None:
+        charset = string.ascii_letters + string.digits
+    return ''.join(random.choice(charset) for i in range(length))
+
+
 def cached_function(f):
     sentinel = object()
     f._cached_value = sentinel
@@ -35,7 +43,7 @@ def cached_function(f):
     return decorator
 
 
-def flattenDict(d, result=None):
+def flatten_dict(d, result=None):
     if result is None:
         result = {}
     for key in d:
@@ -44,7 +52,7 @@ def flattenDict(d, result=None):
             value1 = {}
             for keyIn in value:
                 value1["/".join([key, keyIn])] = value[keyIn]
-            flattenDict(value1, result)
+            flatten_dict(value1, result)
         elif isinstance(value, (list, tuple)):
             for indexB, element in enumerate(value):
                 if isinstance(element, dict):
@@ -52,10 +60,22 @@ def flattenDict(d, result=None):
                     index = 0
                     for keyIn in element:
                         newkey = "/".join([key, keyIn])
-                        value1["/".join([key, keyIn])] = value[indexB][keyIn]
+                        value1[newkey] = value[indexB][keyIn]
                         index += 1
                     for keyA in value1:
-                        flattenDict(value1, result)
+                        flatten_dict(value1, result)
         else:
             result[key] = value
     return result
+
+
+def chain_get(source, *args):
+    ''' Tries to return values from source by the given keys.
+        Returns None if none match.
+        Note: can return a None from the source. '''
+    sentinel = object()
+    for key in args:
+        value = source.get(key, sentinel)
+        if value is not sentinel:
+            return value
+    return None

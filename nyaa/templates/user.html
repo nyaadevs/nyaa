@@ -1,34 +1,113 @@
 {% extends "layout.html" %}
 {% block title %}{{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block meta_image %}{{ user.gravatar_url() }}{% endblock %}
+{% block metatags %}
+{% if search.term %}
+<meta property="og:description" content="Search for '{{ search.term }}' in torrents uploaded by {{ user.username }}">
+{% else %}
+<meta property="og:description" content="Torrents uploaded by {{ user.username }}">
+{% endif %}
+{% endblock %}
+
 {% block body %}
 {% from "_formhelpers.html" import render_menu_with_button %}
+{% from "_formhelpers.html" import render_field %}
 
-{% if superadmin %}
-    <h2>User Information</h2><br>
-    <dl class="dl-horizontal">
-        <dt>User ID:</dt>
-        <dd>{{user.id}}</dd>
-        <dt>Account created on:</dt>
-        <dd>{{user.created_time}}</dd>
-        <dt>Email address:</dt>
-        <dd>{{user.email}}</dd>
-        <dt>User class:</dt>
-        <dd>{{level}}</dd><br>
-    </dl>
-    <form method="POST">
-        {{ form.csrf_token }}
+{% if g.user and g.user.is_moderator %}
+	<h2>User Information</h2><br>
+	<div class="row" style="margin-bottom: 20px;">
+		<div class="col-md-2" style="max-width: 150px;">
+			<img class="avatar" src="{{ user.gravatar_url() }}">
+		</div>
+		<div class="col-md-4">
+			<dl class="dl-horizontal">
+				<dt>User ID:</dt>
+				<dd>{{ user.id }}</dd>
+				<dt>Account created on:</dt>
+				<dd>{{ user.created_time }}</dd>
+				<dt>Email address:</dt>
+				<dd>{{ user.email }}</dd>
+				<dt>User class:</dt>
+				<dd>{{ user.userlevel_str }}</dd>
+				<dt>User status:</dt>
+				<dd>{{ user.userstatus_str }}</dt>
+				{%- if g.user.is_superadmin -%}
+				<dt>Last login IP:</dt>
+				<dd>{{ user.ip_string }}</dd><br>
+				{%- endif -%}
+			</dl>
+			{% if admin_form %}
+			<form method="POST">
+				{{ admin_form.csrf_token }}
 
-        <div class="form-group row">
-            <div class="col-md-6">
-                {{ render_menu_with_button(form.user_class)}}
-            </div>
-        </div>
-    </form>
-    <br>
+				<div class="form-group">
+					{{ render_menu_with_button(admin_form.user_class) }}
+				</div>
+			</form>
+			<br>
+			{% endif %}
+		</div>
+		{% if ban_form %}
+		<div class="col-md-5">
+			<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">Danger Zone</h3>
+				</div>
+				<div class="panel-body">
+					<form method="POST">
+						{{ ban_form.csrf_token }}
+						{% if user.is_banned %}
+						This user is <strong>banned</strong>.<br>
+						{% endif %}
+						{% if ipbanned %}
+						This user is <strong>ip banned</strong>.<br>
+						{% endif %}
+						{% if not user.is_banned and not bans %}
+						This user is <strong>not banned</strong>.<br>
+						{% endif %}
+						<br>
+						{% if user.is_banned or bans %}
+						<p>
+							{% for ban in bans %}
+							#{{ ban.id }}
+							by <a href="{{ url_for('users.view_user', user_name=ban.admin.username) }}">{{ ban.admin.username }}</a>
+							for <span markdown-text-inline>{{ ban.reason }}</span>
+							<br>
+							{% endfor %}
+						</p>
+						{{ ban_form.unban(class="btn btn-info") }}
+						{% endif %}
+
+						{% if not user.is_banned or not ipbanned %}
+						{% if user.is_banned or bans %}
+						<hr>
+						{% endif %}
+						{{ render_field(ban_form.reason, class_="form-control", placeholder="Specify a ban reason.") }}<br>
+						<div class="pull-left">
+							{% if not user.is_banned %}
+							{{ ban_form.ban_user(value="Ban User", class="btn btn-danger") }}
+							{% else %}
+							<button type="button" class="btn btn-danger disabled">Already banned</button>
+							{% endif %}
+						</div>
+						<div class="pull-right">
+							{% if not ipbanned %}
+							{{ ban_form.ban_userip(value="Ban User+IP", class="btn btn-danger") }}
+							{% else %}
+							<button type="button" class="btn btn-danger disabled">Already IP banned</button>
+							{% endif %}
+						</div>
+						{% endif %}
+					</form>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
 {% endif %}
 
 <h3>
-    Browsing {{user.username}}'s torrents
+	Browsing <span class="text-{{ user.userlevel_color }}" data-toggle="tooltip" title="{{ user.userlevel_str }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
 </h3>
 
 {% include "search_results.html" %}

@@ -1,86 +1,103 @@
 {% extends "layout.html" %}
 {% block title %}Upload Torrent :: {{ config.SITE_NAME }}{% endblock %}
+{% block metatags %}
+<meta property="og:description" content="Upload a torrent to {{ config.SITE_NAME }}">
+{% endblock %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 {% from "_formhelpers.html" import render_upload %}
 {% from "_formhelpers.html" import render_markdown_editor %}
 
 <h1>Upload Torrent</h1>
-
-{% if not user %}
+{% if not g.user %}
 <p>You are not logged in, and are uploading anonymously.</p>
 {% endif %}
 
-
 <div id="upload-drop-zone"><span>Drop here!</span></div>
 <form method="POST" enctype="multipart/form-data">
-	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{config.MAIN_ANNOUNCE_URL}}</kbd> in your trackers</p>{% endif %}
+	{{ upload_form.csrf_token }}
+
+	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{ config.MAIN_ANNOUNCE_URL }}</kbd> in your trackers.</p>{% endif %}
+	<p><strong>Important:</strong> Make sure you have read <strong><a href="{{ url_for('site.rules') }}">the rules</a></strong> before uploading!</p>
+	<br>
 	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_upload(form.torrent_file, accept=".torrent") }}
+		<div class="col-md-12">
+		{{ render_upload(upload_form.torrent_file, accept=".torrent") }}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+		{{ render_field(upload_form.display_name, class_='form-control', placeholder='Display name') }}
+		</div>
+		<div class="col-md-6">
+		{{ render_field(upload_form.category, class_='form-control')}}
+		</div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-6">
+			{{ render_field(upload_form.information, class_='form-control', placeholder='Your website or IRC channel') }}
+		</div>
+		<div class="col-md-6">
+			<label class="control-label">Torrent flags</label><br>
+
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default {% if not g.user %}active disabled{% endif %}" title="Upload torrent anonymously (don't display your username)">
+					{{ upload_form.is_anonymous(disabled=(False if g.user else ""), checked=(False if g.user else "")) }}
+					{% if not g.user %}<span class="glyphicon glyphicon-ban-circle"></span>{% endif %}
+					{% if g.user %}<span class="glyphicon glyphicon-check"></span>{% endif %}
+					{% if g.user %}<span class="glyphicon glyphicon-unchecked"></span>{% endif %}
+					Anonymous
+				</label>
+				<label class="btn btn-grey" title="Hide torrent from listing">
+					{{ upload_form.is_hidden }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Hidden
+				</label>
+			</div>
+			<div class="hidden-xl hidden-lg"><br></div>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-danger" title="This torrent is derived from another release">
+					{{ upload_form.is_remake }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Remake
+				</label>
+				<label class="btn btn-warning" title="This torrent is a complete batch (eg. season)">
+					{{ upload_form.is_complete }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Complete
+				</label>
+				{% if g.user.is_trusted %}
+				<label class="btn btn-success active" title="Mark torrent trusted">
+					{{ upload_form.is_trusted(checked="") }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Trusted
+				</label>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			{{ render_markdown_editor(upload_form.description, field_name='description') }}
 		</div>
 	</div>
 
+	{% if config.USE_RECAPTCHA and not g.user %}
 	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.category, class_='form-control')}}
+		<div class="col-md-4">
+			{% for error in upload_form.recaptcha.errors %}
+			{{ error }}
+			{% endfor %}
+			{{ upload_form.recaptcha }}
 		</div>
 	</div>
+	{% endif %}
 
-	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.display_name, class_='form-control', placeholder='Display name') }}
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			{{ render_field(form.information, class_='form-control', placeholder='Your website or IRC channel') }}
-		</div>
-	</div>
-
-    <div class="row">
-        <div class="form-group col-md-6">
-            {{ render_markdown_editor(form.description, field_name='description') }}
-        </div>
-    </div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
-				{{ form.is_hidden }}
-				Hidden
-			</label>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
-				{{ form.is_remake }}
-				Remake
-			</label>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
-				{{ form.is_complete }}
-				Complete
-			</label>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="form-group col-md-6">
-			<label>
-				{{ form.is_anonymous }}
-				Anonymous
-			</label>
-		</div>
-	</div>
-
+	<br>
 	<div class="row">
 		<div class="form-group col-md-6">
 			<input type="submit" value="Upload" class="btn btn-primary">

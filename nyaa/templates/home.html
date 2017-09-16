@@ -1,15 +1,22 @@
 {% extends "layout.html" %}
 {% block title %}{% if search.term %}{{ search.term | e}}{% else %}Browse{% endif %} :: {{ config.SITE_NAME }}{% endblock %}
+{% block metatags %}
+{% if search.term %}
+<meta property="og:description" content="Search for '{{ search.term }}'">
+{% else %}
+<meta name="description" content="A BitTorrent community focused on Eastern Asian media including anime, manga, music, and more">
+<meta name="keywords" content="torrents, bittorrent, torrent, anime, manga, sukebei, download, nyaa, magnet, magnets">
+<meta property="og:description" content="{{ config.SITE_NAME }} homepage">
+{% endif %}
+{% endblock %}
 {% block body %}
 
+{% if not search.term %}
 <div class="alert alert-info">
-	<p><strong>5/18 Update:</strong> We've added an upload api for ease of uploading. See documentation <a href="https://github.com/nyaadevs/nyaa/blob/master/utils/api_uploader.py">here</a>.</p> 
-	<p><strong>5/17 Update:</strong> We've added faster and more accurate search! In addition to your typical keyword search in both English and other languages, you can also now use powerful operators 
-	like <kbd>clockwork planet -horrible</kbd> or <kbd>commie|horrible|cartel yowamushi</kbd> to search. For all supported operators, please click <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#_simple_query_string_syntax">here</a>. More features are coming soon!</p><br>
-	<p>We welcome you to provide feedback at <a href="irc://irc.rizon.net/nyaa-dev">#nyaa-dev@irc.rizon.net</a></p>
-	<p>Our GitHub: <a href="https://github.com/nyaadevs" target="_blank">https://github.com/nyaadevs</a> - creating <a href="https://github.com/nyaadevs/nyaa/issues">issues</a> for features and faults is recommendable!</p>
+	<p>We welcome you to provide feedback on IRC at <a href="irc://irc.rizon.net/nyaa-dev">#nyaa-dev@irc.rizon.net</a></p>
+	<p>Our GitHub: <a href="https://github.com/nyaadevs" target="_blank">https://github.com/nyaadevs</a> - creating <a href="https://github.com/nyaadevs/nyaa/issues">issues</a> for features and faults is recommended!</p>
 </div>
-
+{% endif %}
 
 {% include "search_results.html" %}
 

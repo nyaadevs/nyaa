@@ -1,16 +1,72 @@
-import flask
-import re
 import math
-import json
+import re
 import shlex
 
-from nyaa import app, db
-from nyaa import models
+import flask
 
+import sqlalchemy
 import sqlalchemy_fulltext.modes as FullTextMode
-from sqlalchemy_fulltext import FullTextSearch
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Q, Search
+from sqlalchemy_fulltext import FullTextSearch
+
+from nyaa import models
+from nyaa.extensions import db
+
+app = flask.current_app
+
+DEFAULT_MAX_SEARCH_RESULT = 1000
+DEFAULT_PER_PAGE = 75
+SERACH_PAGINATE_DISPLAY_MSG = ('Displaying results {start}-{end} out of {total} results.<br>\n'
+                               'Please refine your search results if you can\'t find '
+                               'what you were looking for.')
+
+# Table-column index name cache for _get_index_name
+# In format of {'table' : {'column_a':'ix_table_column_a'}}
+_index_name_cache = {}
+
+
+def _get_index_name(column):
+    ''' Returns an index name for a given column, or None.
+        Only considers single-column indexes.
+        Results are cached in memory (until app restart). '''
+    column_table_name = column.class_.__table__.name
+    table_indexes = _index_name_cache.get(column_table_name)
+    if table_indexes is None:
+        # Load the real table schema from the database
+        # Fresh MetaData used to skip SQA's cache and get the real indexes on the database
+        table_indexes = {}
+        try:
+            column_table = sqlalchemy.Table(column_table_name,
+                                            sqlalchemy.MetaData(),
+                                            autoload=True, autoload_with=db.engine)
+        except sqlalchemy.exc.NoSuchTableError:
+            # Trust the developer to notice this?
+            pass
+        else:
+            for index in column_table.indexes:
+                # Only consider indexes with one column
+                if len(index.expressions) > 1:
+                    continue
+
+                index_column = index.expressions[0]
+                table_indexes[index_column.name] = index.name
+        _index_name_cache[column_table_name] = table_indexes
+
+    return table_indexes.get(column.name)
+
+
+def _generate_query_string(term, category, filter, user):
+    params = {}
+    if term:
+        params['q'] = str(term)
+    if category:
+        params['c'] = str(category)
+    if filter:
+        params['f'] = str(filter)
+    if user:
+        params['u'] = str(user)
+    return params
 
 
 def search_elastic(term='', user=None, sort='id', order='desc',
@@ -25,6 +81,7 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         'id': 'id',
         'size': 'filesize',
         # 'name': 'display_name',  # This is slow and buggy
+        'comments': 'comment_count',
         'seeders': 'seed_count',
         'leechers': 'leech_count',
         'downloads': 'download_count'
@@ -107,6 +164,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
     # Apply search term
     if term:
         s = s.query('simple_query_string',
+                    # Query both fields, latter for words with >15 chars
+                    fields=['display_name', 'display_name.fullword'],
                     analyzer='my_search_analyzer',
                     default_operator="AND",
                     query=term)
@@ -182,6 +241,25 @@ def search_elastic(term='', user=None, sort='id', order='desc',
     return s.execute()
 
 
+class QueryPairCaller(object):
+    ''' Simple stupid class to filter one or more queries with the same args '''
+
+    def __init__(self, *items):
+        self.items = list(items)
+
+    def __getattr__(self, name):
+        # Create and return a wrapper that will call item.foobar(*args, **kwargs) for all items
+        def wrapper(*args, **kwargs):
+            for i in range(len(self.items)):
+                method = getattr(self.items[i], name)
+                if not callable(method):
+                    raise Exception('Attribute %r is not callable' % method)
+                self.items[i] = method(*args, **kwargs)
+            return self
+
+        return wrapper
+
+
 def search_db(term='', user=None, sort='id', order='desc', category='0_0',
               quality_filter='0', page=1, rss=False, admin=False,
               logged_in_user=None, per_page=75):
@@ -190,15 +268,15 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         'size': models.Torrent.filesize,
         # Disable this because we disabled this in search_elastic, for the sake of consistency:
         # 'name': models.Torrent.display_name,
+        'comments': models.Torrent.comment_count,
         'seeders': models.Statistic.seed_count,
         'leechers': models.Statistic.leech_count,
         'downloads': models.Statistic.download_count
     }
 
-    sort_ = sort.lower()
-    if sort_ not in sort_keys:
+    sort_column = sort_keys.get(sort.lower())
+    if sort_column is None:
         flask.abort(400)
-    sort = sort_keys[sort]
 
     order_keys = {
         'desc': 'desc',
@@ -250,25 +328,30 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
     # Force sort by id desc if rss
     if rss:
-        sort = sort_keys['id']
+        sort_column = sort_keys['id']
         order = 'desc'
 
     same_user = False
     if logged_in_user:
         same_user = logged_in_user.id == user
 
-    if term:
-        query = db.session.query(models.TorrentNameSearch)
-    else:
-        query = models.Torrent.query
+    model_class = models.TorrentNameSearch if term else models.Torrent
+
+    query = db.session.query(model_class)
+
+    # This is... eh. Optimize the COUNT() query since MySQL is bad at that.
+    # See http://docs.sqlalchemy.org/en/rel_1_1/orm/query.html#sqlalchemy.orm.query.Query.count
+    # Wrap the queries into the helper class to deduplicate code and apply filters to both in one go
+    count_query = db.session.query(sqlalchemy.func.count(model_class.id))
+    qpc = QueryPairCaller(query, count_query)
 
     # User view (/user/username)
     if user:
-        query = query.filter(models.Torrent.uploader_id == user)
+        qpc.filter(models.Torrent.uploader_id == user)
 
         if not admin:
             # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(
+            qpc.filter(models.Torrent.flags.op('&')(
                 int(models.TorrentFlags.DELETED)).is_(False))
             # If logged in user is not the same as the user being viewed,
             # show only torrents that aren't hidden or anonymous
@@ -279,50 +362,53 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
             # On RSS pages in user view,
             # show only torrents that aren't hidden or anonymous no matter what
             if not same_user or rss:
-                query = query.filter(models.Torrent.flags.op('&')(
+                qpc.filter(models.Torrent.flags.op('&')(
                     int(models.TorrentFlags.HIDDEN | models.TorrentFlags.ANONYMOUS)).is_(False))
     # General view (homepage, general search view)
     else:
         if not admin:
             # Hide all DELETED torrents if regular user
-            query = query.filter(models.Torrent.flags.op('&')(
+            qpc.filter(models.Torrent.flags.op('&')(
                 int(models.TorrentFlags.DELETED)).is_(False))
             # If logged in, show all torrents that aren't hidden unless they belong to you
             # On RSS pages, show all public torrents and nothing more.
             if logged_in_user and not rss:
-                query = query.filter(
+                qpc.filter(
                     (models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False)) |
                     (models.Torrent.uploader_id == logged_in_user.id))
             # Otherwise, show all torrents that aren't hidden
             else:
-                query = query.filter(models.Torrent.flags.op('&')(
+                qpc.filter(models.Torrent.flags.op('&')(
                     int(models.TorrentFlags.HIDDEN)).is_(False))
 
     if main_category:
-        query = query.filter(models.Torrent.main_category_id == main_cat_id)
+        qpc.filter(models.Torrent.main_category_id == main_cat_id)
     elif sub_category:
-        query = query.filter((models.Torrent.main_category_id == main_cat_id) &
-                             (models.Torrent.sub_category_id == sub_cat_id))
+        qpc.filter((models.Torrent.main_category_id == main_cat_id) &
+                   (models.Torrent.sub_category_id == sub_cat_id))
 
     if filter_tuple:
-        query = query.filter(models.Torrent.flags.op('&')(
+        qpc.filter(models.Torrent.flags.op('&')(
             int(filter_tuple[0])).is_(filter_tuple[1]))
 
     if term:
         for item in shlex.split(term, posix=False):
             if len(item) >= 2:
-                query = query.filter(FullTextSearch(
+                qpc.filter(FullTextSearch(
                     item, models.TorrentNameSearch, FullTextMode.NATURAL))
 
+    query, count_query = qpc.items
     # Sort and order
-    if sort.class_ != models.Torrent:
-        query = query.join(sort.class_)
+    if sort_column.class_ != models.Torrent:
+        index_name = _get_index_name(sort_column)
+        query = query.join(sort_column.class_)
+        query = query.with_hint(sort_column.class_, 'USE INDEX ({0})'.format(index_name))
 
-    query = query.order_by(getattr(sort, order)())
+    query = query.order_by(getattr(sort_column, order)())
 
     if rss:
         query = query.limit(per_page)
     else:
-        query = query.paginate_faste(page, per_page=per_page, step=5)
+        query = query.paginate_faste(page, per_page=per_page, step=5, count_query=count_query)
 
     return query

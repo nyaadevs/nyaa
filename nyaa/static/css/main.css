@@ -51,11 +51,41 @@ table.torrent-list thead th.sorting:after {
 	color: #808080;
 	font-size: 0.85em;
 }
+
 table.torrent-list thead th.sorting_asc:after {
 	content: "\f0de";
 }
+
 table.torrent-list thead th.sorting_desc:after {
 	content: "\f0dd";
+}
+
+table.torrent-list tbody tr td a:visited {
+	color: #1d4568;
+}
+
+/* comments count */
+table.torrent-list .hdr-comments {
+	border-left: hidden;
+	font-size: medium;
+}
+
+table.torrent-list .hdr-comments i {
+	margin-right: 6px;
+}
+
+table.torrent-list tbody .comments {
+	position: relative;
+	float: right;
+	border: 1px solid #d7d7d7;
+	border-radius: 3px;
+	color: #383838;
+	padding: 0 5px;
+	font-size: small;
+	background-color: #ffffff;
+}
+table.torrent-list tbody .comments i {
+	padding-right: 2px;
 }
 
 #torrent-description img {
@@ -69,21 +99,26 @@ table.torrent-list thead th.sorting_desc:after {
 .table-hover > tbody > tr.deleted:hover > td, .table-hover > tbody > tr.deleted:hover > th, .table-hover > tbody > tr:hover > .deleted, .table-hover > tbody > tr > td.deleted:hover, .table-hover > tbody > tr > th.deleted:hover {
 	background-color:#bdbdbd;
 }
+
 .panel-deleted {
 	border-color:#757575;
 }
+
 .panel-deleted > .panel-heading {
 	color:#212121;
 	background-color:#9e9e9e;
 	border-color:#757575;
 }
+
 .panel-deleted > .panel-heading + .panel-collapse > .panel-body {
 	border-top-color:#757575;
 }
+
 .panel-deleted > .panel-heading .badge {
 	color:#9e9e9e;
 	background-color:#212121;
 }
+
 .panel-deleted > .panel-footer + .panel-collapse > .panel-body {
 	border-bottom-color:#757575;
 }
@@ -92,17 +127,8 @@ table.torrent-list thead th.sorting_desc:after {
 	padding: 1em 0;
 }
 
-@media (max-width: 991px){
-	.panel-body .col-md-5 {
-		margin-left: 20px;
-		margin-bottom: 10px;
-	}
-}
-
-@media (min-width: 992px){
-	.panel-body .col-md-5 {
-		word-wrap: break-word;
-	}
+.markdown-source {
+	min-height: 360px;
 }
 
 .search-container {
@@ -115,18 +141,33 @@ table.torrent-list thead th.sorting_desc:after {
 	flex-direction: column;
 }
 
+.search-container > .search-bar {
+	border-left: 0;
+}
+
+#navFilter-criteria > .bootstrap-select:first-child {
+	border-right: solid 1px;
+}
+
+#navFilter-criteria > .bootstrap-select:first-child > button {
+	/* !important is used here to override the programmatically added style on element */
+	border-top-left-radius: 4px !important;
+	border-bottom-left-radius: 4px !important;
+}
+
 .form-control.search-bar {
-	-webkit-box-ordinal-group: 2;
-	-ms-flex-order: 1;
-	order: 1;
+	-webkit-box-ordinal-group: 4;
+	-ms-flex-order: 3;
+	order: 3;
 	width: 99%;
-	padding-right: 4em;
+	padding-right: 1em;
+	border-left: 0;
 }
 
 .search-btn {
-	-webkit-box-ordinal-group: 3;
-	-ms-flex-order: 2;
-	order: 2;
+	-webkit-box-ordinal-group: 5;
+	-ms-flex-order: 4;
+	order: 4;
 	-ms-flex-item-align: end;
 	align-self: flex-end;
 	top: -34px;
@@ -136,15 +177,15 @@ table.torrent-list thead th.sorting_desc:after {
 }
 
 #navFilter-criteria {
-	-webkit-box-ordinal-group: 4;
-	-ms-flex-order: 3;
-	order: 3;
+	-webkit-box-ordinal-group: 2;
+	-ms-flex-order: 1;
+	order: 1;
 }
 
 #navFilter-category {
-	-webkit-box-ordinal-group: 5;
-	-ms-flex-order: 4;
-	order: 4;
+	-webkit-box-ordinal-group: 3;
+	-ms-flex-order: 2;
+	order: 2;
 }
 
 .nav-filter {
@@ -160,17 +201,6 @@ table.torrent-list thead th.sorting_desc:after {
  collapsible section of the navigation */
 .navbar-collapse.in {
 	overflow-y: visible;
-}
-
-@media (min-width: 991px) {
-	.search-btn {
-		top: 0;
-		width: auto;
-	}
-
-	.bootstrap-select > button {
-		margin-top: auto;
-	}
 }
 
 /* Upload page drop zone */
@@ -213,4 +243,293 @@ table.torrent-list thead th.sorting_desc:after {
 
 ul.nav-tabs#profileTabs {
 	margin-bottom: 15px;
+}
+
+.comment-panel {
+	width: 99%;
+	margin: 0 auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.comment-panel .panel-body {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.comment-panel .col-md-2 p {
+	margin-bottom: 5px;
+}
+.comment-panel:target {
+	border-color: black;
+	border-width: 2px;
+}
+
+.text-purple, a.text-purple:visited {
+	color: #a760bc;
+}
+
+a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
+	color: #a760e0;
+}
+
+.comment-content {
+	overflow-wrap: break-word;
+}
+.comment-content img {
+	max-width: 100%;
+	max-height: 600px;
+}
+
+.comment-box {
+	width: 95%;
+	margin: 0 auto;
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+.delete-comment-form {
+	position: relative;
+	float: right;
+}
+
+#comment {
+	height: 8em;
+}
+
+.avatar {
+	max-width: 120px;
+}
+
+.btn-grey {
+	color: #000000;
+	background-color: #cccfd2;
+	border-color: #ccc;
+}
+
+.btn-grey:hover, .btn-grey:focus, .btn-grey:active, .btn-grey.active, .open > .dropdown-toggle.btn-grey {
+	background-color: #aaaaaa;
+}
+
+.btn span.glyphicon-check {
+	display: none;
+}
+
+.btn.active span.glyphicon-check {
+	display: inline;
+}
+
+.btn span.glyphicon-unchecked {
+	display: inline;
+}
+
+.btn.active span.glyphicon-unchecked {
+	display: none;
+}
+
+.center {
+	float: none;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.strike {
+	text-decoration: line-through;
+}
+
+/* Torrent file list */
+.torrent-file-list ul {
+	padding: 5px 20px 0px 20px;
+	list-style: none;
+	display: none;
+}
+
+.torrent-file-list > ul {
+	display: block; /* First level always visible */
+	padding: 0;
+	margin: 0;
+}
+
+.torrent-file-list ul[data-show] {
+	/* Used to show first level's items based on amount */
+	display: block;
+}
+
+.torrent-file-list li:not(:last-of-type) {
+	margin-bottom: 5px;
+}
+
+.torrent-file-list i.fa {
+	padding-right: 5px;
+}
+
+.torrent-file-list i.fa-folder-open {
+	padding-right: 3px;
+}
+
+.torrent-file-list a.folder {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.torrent-file-list .file-size {
+	font-weight: bold;
+}
+
+.header-anchor {
+	padding-left: 0.5em;
+	visibility: hidden;
+	display: none;
+}
+
+h1:hover .header-anchor,
+h2:hover .header-anchor,
+h3:hover .header-anchor,
+h4:hover .header-anchor,
+h5:hover .header-anchor,
+h6:hover .header-anchor {
+	visibility: visible;
+	display: inline-block;
+}
+
+/* Dark theme */
+
+body.dark {
+	color: #afafaf;
+}
+
+body.dark .navbar a {
+	color: #e2e2e2;
+}
+
+body.dark kbd {
+	background-color: #4a4a4a;
+}
+
+body.dark .alert-info {
+	color: #94ceff; /* == bg-color in light theme */
+	background-color: #185586;
+	border-color: #247fcc;
+}
+
+body.dark .alert-info a:hover {
+	color: #4d9ee0;
+}
+
+body.dark .torrent-list tbody tr td a:visited {
+	color: #205c90;
+}
+
+body.dark .torrent-list > thead > tr, body.dark tbody > tr,
+body.dark .panel > .panel-heading {
+	color: #cbcbcb;
+}
+
+body.dark .table-striped > tbody > tr:nth-of-type(odd) {
+	background-color: #363636; /* less pronounced striping effect */
+}
+
+body.dark .table-hover > tbody > tr:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark .table-bordered > thead:first-child > tr:first-child > th,
+body.dark .table-bordered > tbody > tr > td {
+	border: 1px solid #212121;
+}
+
+body.dark table.torrent-list tbody .comments {
+	border-color: #212121;
+	color: #d6d6d6;
+	background-color: #4c4c4c;
+}
+
+/* trusted */
+body.dark .torrent-list > tbody > tr.success > td {
+	color: inherit;
+	background-color: rgba(60, 206, 0, 0.12);
+}
+body.dark .torrent-list > tbody > tr.success:hover > td {
+	background-color: rgba(60, 206, 0, 0.18);
+}
+body.dark div.panel-success,
+body.dark div.panel-success > .panel-heading {
+	border-color: #33452c; /* == trusted entry in torrent list */
+}
+body.dark div.panel-success > .panel-heading {
+	background-color: #56704b; /* == trusted entry in torrent list + hover */
+}
+
+/* remake */
+body.dark .torrent-list > tbody > tr.danger > td {
+	color: inherit;
+	background-color: rgba(208, 0, 0, 0.12);
+}
+body.dark .torrent-list > tbody > tr.danger:hover > td {
+	color: inherit;
+	background-color: rgba(208, 0, 0, 0.18);
+}
+body.dark div.panel-danger,
+body.dark div.panel-danger > .panel-heading {
+	border-color: #452c2c; /* == remake entry in torrent list */
+}
+body.dark div.panel-danger > .panel-heading {
+	background-color: #714b4b; /* == remake entry in torrent list + hover */
+}
+
+/* deleted */
+body.dark .torrent-list > tbody > tr.deleted > td {
+	background-color: rgba(255, 255, 255, 0.20);
+}
+body.dark .torrent-list > tbody > tr.deleted:hover > td {
+	background-color: rgba(255, 255, 255, 0.26);
+}
+body.dark .panel-deleted > .panel-heading {
+	color: #232323;
+}
+
+
+@media (max-width: 991px) {
+	.panel-body .col-md-5 {
+		margin-left: 20px;
+		margin-bottom: 10px;
+	}
+
+	#navFilter-criteria > .bootstrap-select:first-child > button {
+		/* !important is used here to override the programmatically added style on element */
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+	}
+
+	.search-container > .search-bar {
+		margin-top: 15px;
+	}
+}
+
+@media (min-width: 992px) {
+	.panel-body .col-md-5 {
+		word-wrap: break-word;
+	}
+
+	.search-btn {
+		top: 0;
+		width: auto;
+	}
+
+	.bootstrap-select > button {
+		margin-top: auto;
+	}
+}
+
+table.table > tbody > tr.reports-row > td {
+	vertical-align: middle;
+}
+
+td.report-action-column {
+	min-width: 150px;
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+	/* Collapse navbar search form so it doesn't wrap to a new line */
+	.search-container {
+		width: 400px;
+	}
 }

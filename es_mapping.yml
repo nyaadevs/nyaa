@@ -21,6 +21,19 @@ settings:
           - resolution
           - lowercase
           - my_ngram
+          - word_delimit
+          - trim_zero
+      # For matching full words longer than the ngram limit (15 chars)
+      my_fullword_index_analyzer:
+        type: custom
+        tokenizer: standard
+        char_filter:
+          - my_char_filter
+        filter:
+          - lowercase
+          - word_delimit
+          # These should be enough, as my_index_analyzer will match the rest
+
     filter:
       my_ngram:
         type: edgeNGram
@@ -28,7 +41,14 @@ settings:
         max_gram: 15
       resolution:
         type: pattern_capture
-        patterns: ["(\\d+)x(\\d+)"]
+        patterns: ["(\\d+)[xX](\\d+)"]
+      trim_zero:
+        type: pattern_capture
+        patterns: ["0*([0-9]*)"]
+      word_delimit:
+        type: word_delimiter
+        preserve_original: true
+        split_on_numerics: false
     char_filter:
       my_char_filter:
         type: mapping
@@ -58,7 +78,13 @@ mappings:
         # the scene convention of stuff in brackets, plus stuff like k-on
         type: text
         analyzer: my_index_analyzer
-        fielddata: true
+        fielddata: true # Is this required?
+        fields:
+          # Multi-field for full-word matching (when going over ngram limits)
+          # Note: will have to be queried for, not automatic
+          fullword:
+            type: text
+            analyzer: my_fullword_index_analyzer
       created_time:
         type: date
         # Only in the ES index for generating magnet links
@@ -85,6 +111,8 @@ mappings:
       leech_count:
         type: long
       seed_count:
+        type: long
+      comment_count:
         type: long
       # these ids are really only for filtering, thus keyword
       uploader_id:

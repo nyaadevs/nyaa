@@ -1,20 +1,24 @@
-from nyaa import db, app
-from nyaa.models import User
-from nyaa import bencode, utils, models
-
+import functools
 import os
 import re
+
+import flask
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Optional, Email, Length, EqualTo, ValidationError
-from wtforms.validators import Regexp
-
-# For DisabledSelectField
-from wtforms.widgets import Select as SelectWidget
-from wtforms.widgets import html_params, HTMLString
-
 from flask_wtf.recaptcha import RecaptchaField
+from flask_wtf.recaptcha.validators import Recaptcha as RecaptchaValidator
+from wtforms import (BooleanField, HiddenField, PasswordField, SelectField, StringField,
+                     SubmitField, TextAreaField)
+from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, Regexp,
+                                StopValidation, ValidationError)
+from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
+from wtforms.widgets import HTMLString, html_params  # For DisabledSelectField
+
+from nyaa import bencode, models, utils
+from nyaa.extensions import config
+from nyaa.models import User
+
+app = flask.current_app
 
 
 class Unique(object):
@@ -34,13 +38,25 @@ class Unique(object):
             raise ValidationError(self.message)
 
 
+def stop_on_validation_error(f):
+    ''' A decorator which will turn raised ValidationErrors into StopValidations '''
+    @functools.wraps(f)
+    def decorator(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except ValidationError as e:
+            # Replace the error with a StopValidation to stop the validation chain
+            raise StopValidation(*e.args) from e
+    return decorator
+
+
 _username_validator = Regexp(
-    r'[a-zA-Z0-9_\-]+',
+    r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username or email address', [DataRequired(), _username_validator])
+    username = StringField('Username or email address', [DataRequired()])
     password = PasswordField('Password', [DataRequired()])
 
 
@@ -48,7 +64,7 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', [
         DataRequired(),
         Length(min=3, max=32),
-        _username_validator,
+        stop_on_validation_error(_username_validator),
         Unique(User, User.username, 'Username not availiable')
     ])
 
@@ -68,7 +84,7 @@ class RegisterForm(FlaskForm):
 
     password_confirm = PasswordField('Password (confirm)')
 
-    if app.config['USE_RECAPTCHA']:
+    if config['USE_RECAPTCHA']:
         recaptcha = RecaptchaField()
 
 
@@ -124,11 +140,45 @@ class DisabledSelectField(SelectField):
             raise ValueError(self.gettext('Not a valid choice'))
 
 
+class CommentForm(FlaskForm):
+    comment = TextAreaField('Make a comment', [
+        Length(min=3, max=1024, message='Comment must be at least %(min)d characters '
+               'long and %(max)d at most.'),
+        DataRequired()
+    ])
+
+
+class InlineButtonWidget(object):
+    """
+    Render a basic ``<button>`` field.
+    """
+    input_type = 'submit'
+    html_params = staticmethod(html_params)
+
+    def __call__(self, field, label=None, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('type', self.input_type)
+        if not label:
+            label = field.label.text
+        return HTMLString('<button %s>' % self.html_params(name=field.name, **kwargs) + label)
+
+
+class StringSubmitField(StringField):
+    """
+    Represents an ``<button type="submit">``.  This allows checking if a given
+    submit button has been pressed.
+    """
+    widget = InlineButtonWidget()
+
+
+class StringSubmitForm(FlaskForm):
+    submit = StringSubmitField('Submit')
+
+
 class EditForm(FlaskForm):
     display_name = StringField('Torrent display name', [
-        Length(min=3, max=255,
-               message='Torrent display name must be at least %(min)d characters long '
-                       'and %(max)d at most.')
+        Length(min=3, max=255, message='Torrent display name must be at least %(min)d characters '
+               'long and %(max)d at most.')
     ])
 
     category = DisabledSelectField('Category')
@@ -153,20 +203,43 @@ class EditForm(FlaskForm):
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
+    is_trusted = BooleanField('Trusted')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
     ])
-    description = TextAreaField('Description (markdown supported)', [
+    description = TextAreaField('Description', [
         Length(max=10 * 1024, message='Description must be at most %(max)d characters long.')
+    ])
+
+    submit = SubmitField('Save Changes')
+
+
+class DeleteForm(FlaskForm):
+    delete = SubmitField("Delete")
+    ban = SubmitField("Delete & Ban")
+    undelete = SubmitField("Undelete")
+    unban = SubmitField("Unban")
+
+
+class BanForm(FlaskForm):
+    ban_user = SubmitField("Delete & Ban and Ban User")
+    ban_userip = SubmitField("Delete & Ban and Ban User+IP")
+    unban = SubmitField("Unban")
+
+    _validator = DataRequired()
+
+    def _validate_reason(form, field):
+        if form.ban_user.data or form.ban_userip.data:
+            return BanForm._validator(form, field)
+
+    reason = TextAreaField('Ban Reason', [
+        _validate_reason,
+        Length(max=1024, message='Reason must be at most %(max)d characters long.')
     ])
 
 
 class UploadForm(FlaskForm):
-
-    class Meta:
-        csrf = False
-
     torrent_file = FileField('Torrent file', [
         FileRequired()
     ])
@@ -177,6 +250,16 @@ class UploadForm(FlaskForm):
                message='Torrent display name must be at least %(min)d characters long and '
                        '%(max)d at most.')
     ])
+
+    if config['USE_RECAPTCHA']:
+        # Captcha only for not logged in users
+        _recaptcha_validator = RecaptchaValidator()
+
+        def _validate_recaptcha(form, field):
+            if not flask.g.user:
+                return UploadForm._recaptcha_validator(form, field)
+
+        recaptcha = RecaptchaField(validators=[_validate_recaptcha])
 
     # category = SelectField('Category')
     category = DisabledSelectField('Category')
@@ -200,11 +283,12 @@ class UploadForm(FlaskForm):
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
+    is_trusted = BooleanField('Trusted')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
     ])
-    description = TextAreaField('Description (markdown supported)', [
+    description = TextAreaField('Description', [
         Length(max=10 * 1024, message='Description must be at most %(max)d characters long.')
     ])
 
@@ -250,18 +334,22 @@ class UploadForm(FlaskForm):
 
         # Check if the info_hash exists already in the database
         existing_torrent = models.Torrent.by_info_hash(info_hash)
-        if existing_torrent:
-            raise ValidationError('That torrent already exists (#{})'.format(existing_torrent.id))
+        existing_torrent_id = existing_torrent.id if existing_torrent else None
+        if existing_torrent and not existing_torrent.deleted:
+            raise ValidationError('This torrent already exists (#{})'.format(existing_torrent.id))
+        if existing_torrent and existing_torrent.banned:
+            raise ValidationError('This torrent is banned'.format(existing_torrent.id))
 
         # Torrent is legit, pass original filename and dict along
         field.parsed_data = TorrentFileData(filename=os.path.basename(field.data.filename),
                                             torrent_dict=torrent_dict,
                                             info_hash=info_hash,
-                                            bencoded_info_dict=bencoded_info_dict)
+                                            bencoded_info_dict=bencoded_info_dict,
+                                            db_id=existing_torrent_id)
 
 
 class UserForm(FlaskForm):
-    user_class = DisabledSelectField('Change User Class')
+    user_class = SelectField('Change User Class')
 
     def validate_user_class(form, field):
         if not field.data:
@@ -278,9 +366,24 @@ class TorrentFileData(object):
 # https://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure
 
 
+class ReportForm(FlaskForm):
+    reason = TextAreaField('Report reason', [
+        Length(min=3, max=255,
+               message='Report reason must be at least %(min)d characters long '
+                       'and %(max)d at most.'),
+        DataRequired('You must provide a valid report reason.')
+    ])
+
+
+class ReportActionForm(FlaskForm):
+    action = SelectField(choices=[('close', 'Close'), ('hide', 'Hide'), ('delete', 'Delete')])
+    torrent = HiddenField()
+    report = HiddenField()
+
+
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
-    announce_string = _validate_bytes(announce, 'announce', 'utf-8')
+    announce_string = _validate_bytes(announce, 'announce', test_decode='utf-8')
 
     tracker_found = tracker_to_check_for and (
         announce_string.lower() == tracker_to_check_for.lower()) or False
@@ -292,11 +395,31 @@ def _validate_trackers(torrent_dict, tracker_to_check_for=None):
         for announce in announce_list:
             _validate_list(announce, 'announce-list item')
 
-            announce_string = _validate_bytes(announce[0], 'announce-list item url', 'utf-8')
+            announce_string = _validate_bytes(
+                announce[0], 'announce-list item url', test_decode='utf-8')
             if tracker_to_check_for and announce_string.lower() == tracker_to_check_for.lower():
                 tracker_found = True
 
     return tracker_found
+
+
+# http://www.bittorrent.org/beps/bep_0019.html
+def _validate_webseeds(torrent_dict):
+    webseed_list = torrent_dict.get('url-list')
+    if isinstance(webseed_list, bytes):
+        # url-list should be omitted in case of no webseeds. However.
+        # qBittorrent has an empty bytestring for no webseeds,
+        # a bytestring for one and a list for multiple, so:
+        # In case of a empty, keep as-is for next if.
+        # In case of one, wrap it in a list.
+        webseed_list = webseed_list and [webseed_list]
+
+    # Merely check for truthiness ([], '' or a list with items)
+    if webseed_list:
+        _validate_list(webseed_list, 'url-list')
+
+        for webseed_url in webseed_list:
+            _validate_bytes(webseed_url, 'url-list item', test_decode='utf-8')
 
 
 def _validate_torrent_metadata(torrent_dict):
@@ -308,7 +431,7 @@ def _validate_torrent_metadata(torrent_dict):
     assert isinstance(info_dict, dict), 'info is not a dict'
 
     encoding_bytes = torrent_dict.get('encoding', b'utf-8')
-    encoding = _validate_bytes(encoding_bytes, 'encoding', 'utf-8').lower()
+    encoding = _validate_bytes(encoding_bytes, 'encoding', test_decode='utf-8').lower()
 
     name = info_dict.get('name')
     _validate_bytes(name, 'name', test_decode=encoding)
@@ -330,17 +453,23 @@ def _validate_torrent_metadata(torrent_dict):
 
             path_list = file_dict.get('path')
             _validate_list(path_list, 'path')
-            for path_part in path_list:
+            # Validate possible directory names
+            for path_part in path_list[:-1]:
                 _validate_bytes(path_part, 'path part', test_decode=encoding)
+            # Validate actual filename, allow b'' to specify an empty directory
+            _validate_bytes(path_list[-1], 'filename', check_empty=False, test_decode=encoding)
 
     else:
         length = info_dict.get('length')
         _validate_number(length, 'length', check_positive=True)
 
+    _validate_webseeds(torrent_dict)
 
-def _validate_bytes(value, name='value', test_decode=None):
+
+def _validate_bytes(value, name='value', check_empty=True, test_decode=None):
     assert isinstance(value, bytes), name + ' is not bytes'
-    assert len(value) > 0, name + ' is empty'
+    if check_empty:
+        assert len(value) > 0, name + ' is empty'
     if test_decode:
         try:
             return value.decode(test_decode)

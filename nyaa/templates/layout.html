@@ -4,12 +4,19 @@
 		<meta charset="utf-8">
 		<title>{% block title %}{{ config.SITE_NAME }}{% endblock %}</title>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
-		<link rel="icon" type="image/png" href="/static/favicon.png">
-		<link rel="mask-icon" href="/static/pinned-tab.svg" color="#3582F7">
-		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('home', page='rss', _external=True) }}{% endif %}" />
+		<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+		<link rel="mask-icon" href="{{ url_for('static', filename='pinned-tab.svg') }}" color="#3582F7">
+		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('main.home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('main.home', page='rss', _external=True) }}{% endif %}" />
+
+		<meta property="og:site_name" content="{{ config.SITE_NAME }}">
+		<meta property="og:title" content="{{ self.title() }}">
+		<meta property="og:image" content="{% block meta_image %}/static/img/avatar/default.png{% endblock %}">
+		{% block metatags %}
+		{# Filled by children #}
+		{% endblock %}
 
 		<!-- Bootstrap core CSS -->
 		<!--
@@ -17,182 +24,220 @@
 			set the column breakpoint to tablet mode, instead of mobile. This is to
 			make the navbar not look awful on tablets.
 		-->
-		<link href="/static/css/bootstrap.min.css" rel="stylesheet" id="bsThemeLink">
+		{# These are extracted here for the dark mode toggle #}
+		{% set bootstrap_light = static_cachebuster('css/bootstrap.min.css') %}
+		{% set bootstrap_dark = static_cachebuster('css/bootstrap-dark.min.css') %}
+		<link href="{{ bootstrap_light }}" rel="stylesheet" id="bsThemeLink">
+		<link href="{{ static_cachebuster('css/bootstrap-xl-mod.css') }}" rel="stylesheet">
 		<!--
 			This theme changer script needs to be inline and right under the above stylesheet link to prevent FOUC (Flash Of Unstyled Content)
 			Development version is commented out in static/js/main.js at the bottom of the file
 		-->
-		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="/static/css/bootstrap-dark.min.css",localStorage.setItem("theme","dark")}function setThemeLight(){bsThemeLink.href="/static/css/bootstrap.min.css",localStorage.setItem("theme","light")}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
+		<script>function toggleDarkMode(){"dark"===localStorage.getItem("theme")?setThemeLight():setThemeDark()}function setThemeDark(){bsThemeLink.href="{{ bootstrap_dark }}",localStorage.setItem("theme","dark"),document.body!==null&&document.body.classList.add('dark')}function setThemeLight(){bsThemeLink.href="{{ bootstrap_light }}",localStorage.setItem("theme","light"),document.body!==null&&document.body.classList.remove('dark')}if("undefined"!=typeof Storage){var bsThemeLink=document.getElementById("bsThemeLink");"dark"===localStorage.getItem("theme")&&setThemeDark()}</script>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" integrity="sha256-an4uqLnVJ2flr7w0U74xiF4PJjO2N5Df91R2CUmCLCA=" crossorigin="anonymous" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
 
 		<!-- Custom styles for this template -->
-		<link href="/static/css/main.css" rel="stylesheet">
+		<link href="{{ static_cachebuster('css/main.css') }}" rel="stylesheet">
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/commonmark/0.27.0/commonmark.min.js" integrity="sha256-10JreQhQG80GtKuzsioj0K46DlaB/CK/EG+NuG0q97E=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.3.1/markdown-it.min.js" integrity="sha256-3WZyZQOe+ql3pLo90lrkRtALrlniGdnf//gRpW0UQks=" crossorigin="anonymous"></script>
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
-		<script src="/static/js/bootstrap-select.js"></script>
-		<script src="/static/js/main.js"></script>
+		<script src="{{ static_cachebuster('js/bootstrap-select.js') }}"></script>
+		<script src="{{ static_cachebuster('js/main.js') }}"></script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
 			<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 		<![endif]-->
+		
+		{% if config.SITE_FLAVOR == 'nyaa' %}
+		<link rel="search" type="application/opensearchdescription+xml" title="Nyaa.si" href="/static/search.xml">
+		{% elif config.SITE_FLAVOR == 'sukebei' %}
+		<link rel="search" type="application/opensearchdescription+xml" title="Sukebei (Nyaa.si)" href="/static/search-sukebei.xml">
+		{% endif %}
 	</head>
 	<body>
 		<!-- Fixed navbar -->
 		<nav class="navbar navbar-default navbar-static-top navbar-inverse">
 			<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="/">{{ config.SITE_NAME }}</a>
-			</div>
-			<div id="navbar" class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li {% if request.path == "/upload" %} class="active"{% endif %}><a href="/upload">Upload</a></li>
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							About
-							<span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							<li {% if request.path == "/rules" %} class="active"{% endif %}><a href="/rules">Rules</a></li>
-							<li {% if request.path == "/help" %} class="active"{% endif %}><a href="/help">Help</a></li>
-						</ul>
-					</li>
-					<li><a href="{% if rss_filter %}{{ url_for('home', page='rss', **rss_filter) }}{% else %}{{ url_for('home', page='rss') }}{% endif %}">RSS</a></li>
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="{{ url_for('main.home') }}">{{ config.SITE_NAME }}</a>
+				</div><!--/.navbar-header -->
+				{% set search_username = (user.username + ("'" if user.username[-1] == 's' else "'s")) if user_page else None %}
+				{% set search_placeholder = 'Search {} torrents...'.format(search_username) if user_page else 'Search...' %}
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li {% if request.path == url_for('torrents.upload') %}class="active"{% endif %}><a href="{{ url_for('torrents.upload') }}">Upload</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								About
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li {% if request.path == url_for('site.rules') %}class="active"{% endif %}><a href="{{ url_for('site.rules') }}">Rules</a></li>
+								<li {% if request.path == url_for('site.help') %}class="active"{% endif %}><a href="{{ url_for('site.help') }}">Help</a></li>
+							</ul>
+						</li>
+						<li><a href="{% if rss_filter %}{{ url_for('main.home', page='rss', **rss_filter) }}{% else %}{{ url_for('main.home', page='rss') }}{% endif %}">RSS</a></li>
+						{% if config.SITE_FLAVOR == 'nyaa' %}
+						<li><a href="//{{ config.EXTERNAL_URLS['fap'] }}">Fap</a></li>
+						{% elif config.SITE_FLAVOR == 'sukebei' %}
+						<li><a href="//{{ config.EXTERNAL_URLS['main'] }}">Fun</a></li>
+						{% endif %}
+						{% if g.user.is_moderator %}
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								Admin
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li {% if request.path == url_for('admin.reports') %}class="active"{% endif %}><a href="{{ url_for('admin.reports') }}">Reports</a></li>
+								<li {% if request.path == url_for('admin.log') %}class="active"{% endif %}><a href="{{ url_for('admin.log') }}">Log</a></li>
+								<li {% if request.path == url_for('admin.bans') %}class="active"{% endif %}><a href="{{ url_for('admin.bans') }}">Bans</a></li>
+							</ul>
+						</li>
+						{% endif %}
+					</ul>
+
+					<ul class="nav navbar-nav navbar-right">
+						{% if g.user %}
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle visible-lg visible-sm visible-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								<i class="fa fa-user fa-fw"></i>
+								{{ g.user.username }}
+								<span class="caret"></span>
+							</a>
+							<a href="#" class="dropdown-toggle hidden-lg hidden-sm hidden-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								<i class="fa fa-user fa-fw"></i>
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li class="hidden-lg hidden-sm hidden-xs">
+									<a><i class="fa fa-user fa-fw"></i>Logged in as {{ g.user.username }}</a>
+								</li>
+								<li class="hidden-lg hidden-sm hidden-xs divider" role="separator">
+
+								</li>
+								<li>
+									<a href="{{ url_for('users.view_user', user_name=g.user.username) }}">
+										<i class="fa fa-user fa-fw"></i>
+										Torrents
+									</a>
+								</li>
+								<li>
+									<a href="{{ url_for('account.profile') }}">
+										<i class="fa fa-gear fa-fw"></i>
+										Profile
+									</a>
+								</li>
+								<li>
+									<a href="{{ url_for('account.logout') }}">
+										<i class="fa fa-times fa-fw"></i>
+										Logout
+									</a>
+								</li>
+							</ul>
+						</li>
+						{% else %}
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle visible-lg visible-sm visible-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								<i class="fa fa-user fa-fw"></i>
+								Guest
+								<span class="caret"></span>
+							</a>
+							<a href="#" class="dropdown-toggle hidden-lg hidden-sm hidden-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								<i class="fa fa-user fa-fw"></i>
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="{{ url_for('account.login') }}">
+										<i class="fa fa-sign-in fa-fw"></i>
+										Login
+									</a>
+								</li>
+								<li>
+									<a href="{{ url_for('account.register') }}">
+										<i class="fa fa-pencil fa-fw"></i>
+										Register
+									</a>
+								</li>
+							</ul>
+						</li>
+						{% endif %}
+					</ul>
+					{% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
+						('1_1', '- Anime Music Video', 'Anime - AMV'),
+						('1_2', '- English-translated', 'Anime - English'),
+						('1_3', '- Non-English-translated', 'Anime - Non-English'),
+						('1_4', '- Raw', 'Anime - Raw'),
+						('2_0', 'Audio', 'Audio'),
+						('2_1', '- Lossless', 'Audio - Lossless'),
+						('2_2', '- Lossy', 'Audio - Lossy'),
+						('3_0', 'Literature', 'Literature'),
+						('3_1', '- English-translated', 'Literature - English'),
+						('3_2', '- Non-English-translated', 'Literature - Non-English'),
+						('3_3', '- Raw', 'Literature - Raw'),
+						('4_0', 'Live Action', 'Live Action'),
+						('4_1', '- English-translated', 'Live Action - English'),
+						('4_2', '- Idol/Promotional Video', 'Live Action - Idol/PV'),
+						('4_3', '- Non-English-translated', 'Live Action - Non-English'),
+						('4_4', '- Raw', 'Live Action - Raw'),
+						('5_0', 'Pictures', 'Pictures'),
+						('5_1', '- Graphics', 'Pictures - Graphics'),
+						('5_2', '- Photos', 'Pictures - Photos'),
+						('6_0', 'Software', 'Software'),
+						('6_1', '- Applications', 'Software - Apps'),
+						('6_2', '- Games', 'Software - Games')]
+					%}
+
+					{% set suke_cats = [('1_0', 'Art', 'Art'),
+						('1_1', '- Anime', 'Art - Anime'),
+						('1_2', '- Doujinshi', 'Art - Doujinshi'),
+						('1_3', '- Games', 'Art - Games'),
+						('1_4', '- Manga', 'Art - Manga'),
+						('1_5', '- Pictures', 'Art - Pictures'),
+						('2_0', 'Real Life', 'Real Life'),
+						('2_1', '- Photobooks and Pictures', 'Real Life - Pictures'),
+						('2_2', '- Videos', 'Real Life - Videos')]
+					%}
+
 					{% if config.SITE_FLAVOR == 'nyaa' %}
-					<li><a href="https://sukebei.nyaa.si/">Fap</a></li>
+						{% set used_cats = nyaa_cats %}
 					{% elif config.SITE_FLAVOR == 'sukebei' %}
-					<li><a href="https://nyaa.si/">Fun</a></li>
+						{% set used_cats = suke_cats %}
 					{% endif %}
-				</ul>
 
-				<ul class="nav navbar-nav navbar-right">
-					{% if g.user %}
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle visible-lg visible-sm visible-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							<i class="fa fa-user fa-fw"></i>
-							{{g.user.username}}
-							<span class="caret"></span>
-						</a>
-						<a href="#" class="dropdown-toggle hidden-lg hidden-sm hidden-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							<i class="fa fa-user fa-fw"></i>
-							<span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							<li class="hidden-lg hidden-sm hidden-xs">
-								<a><i class="fa fa-user fa-fw"></i>Logged in as {{ g.user.username }}</a>
-							</li>
-							<li class="hidden-lg hidden-sm hidden-xs divider" role="separator">
+					<div class="search-container visible-xs visible-sm">
+					{# The mobile menu #}
+						{% if user_page %}
+						<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
+						{% else %}
+						<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
+						{% endif %}
 
-							</li>
-							<li>
-								<a href="{{ url_for('view_user', user_name=g.user.username) }}">
-									<i class="fa fa-user fa-fw"></i>
-									Torrents
-								</a>
-							</li>
-							<li>
-								<a href="/profile">
-									<i class="fa fa-gear fa-fw"></i>
-									Profile
-								</a>
-							</li>
-							<li>
-								<a href="/logout">
-									<i class="fa fa-times fa-fw"></i>
-									Logout
-								</a>
-							</li>
-						</ul>
-					</li>
-					{% else %}
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							<i class="fa fa-user-times fa-fw"></i>
-							Guest
-							<span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							<li>
-								<a href="/login">
-									<i class="fa fa-sign-in fa-fw"></i>
-									Login
-								</a>
-							</li>
-							<li>
-								<a href="/register">
-									<i class="fa fa-pencil fa-fw"></i>
-									Register
-								</a>
-							</li>
-						</ul>
-					</li>
-					{% endif %}
-				</ul>
-				{% if user_page %}
-				<form class="navbar-form navbar-right form" action="{{ url_for('view_user', user_name=user.username) }}" method="get">
-				{% else %}
-				<form class="navbar-form navbar-right form" action="/" method="get">
-				{% endif %}
-					<div class="input-group search-container">
-						<input type="text" class="form-control search-bar" name="q" placeholder="Search..." value="{{ search["term"] if search is defined else '' }}">
-						<div class="input-group-btn nav-filter" id="navFilter-criteria">
-							<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
+							<input type="text" class="form-control" name="q" placeholder="{{ search_placeholder }}" value="{{ search["term"] if search is defined else '' }}">
+							<br>
+
+							<select class="form-control" title="Filter" data-width="120px" name="f">
 								<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
 								<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
 								<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
 							</select>
-						</div>
-						<div class="input-group-btn nav-filter" id="navFilter-category">
-							{% set nyaa_cats = [('1_0', 'Anime', 'Anime'),
-												('1_1', '- Anime Music Video', 'Anime - AMV'),
-												('1_2', '- English-translated', 'Anime - English'),
-												('1_3', '- Non-English-translated', 'Anime - Non-English'),
-												('1_4', '- Raw', 'Anime - Raw'),
-												('2_0', 'Audio', 'Audio'),
-												('2_1', '- Lossless', 'Audio - Lossless'),
-												('2_2', '- Lossy', 'Audio - Lossy'),
-												('3_0', 'Literature', 'Literature'),
-												('3_1', '- English-translated', 'Literature - English'),
-												('3_2', '- Non-English-translated', 'Literature - Non-English'),
-												('3_3', '- Raw', 'Literature - Raw'),
-												('4_0', 'Live Action', 'Live Action'),
-												('4_1', '- English-translated', 'Live Action - English'),
-												('4_2', '- Idol/Promotional Video', 'Live Action - Idol/PV'),
-												('4_3', '- Non-English-translated', 'Live Action - Non-English'),
-												('4_4', '- Raw', 'Live Action - Raw'),
-												('5_0', 'Pictures', 'Pictures'),
-												('5_1', '- Graphics', 'Pictures - Graphics'),
-												('5_2', '- Photos', 'Pictures - Photos'),
-												('6_0', 'Software', 'Software'),
-												('6_1', '- Applications', 'Software - Apps'),
-												('6_2', '- Games', 'Software - Games')] %}
-												{% set suke_cats = [('1_0', 'Art', 'Art'),
-												('1_1', '- Anime', 'Art - Anime'),
-												('1_2', '- Doujinshi', 'Art - Doujinshi'),
-												('1_3', '- Games', 'Art - Games'),
-												('1_4', '- Manga', 'Art - Manga'),
-												('1_5', '- Pictures', 'Art - Pictures'),
-												('2_0', 'Real Life', 'Real Life'),
-												('2_1', '- Photobooks and Pictures', 'Real Life - Pictures'),
-												('2_2', '- Videos', 'Real Life - Videos')] %}
-							{% if config.SITE_FLAVOR == 'nyaa' %}
-								{% set used_cats = nyaa_cats %}
-							{% elif config.SITE_FLAVOR == 'sukebei' %}
-								{% set used_cats = suke_cats %}
-							{% endif %}
-							<select class="selectpicker show-tick" title="Category" data-width="170px" name="c">
+
+							<br>
+
+							<select class="form-control" title="Category" data-width="200px" name="c">
 								<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 									All categories
 								</option>
@@ -202,20 +247,77 @@
 								</option>
 								{% endfor %}
 							</select>
-						</div>
-						<div class="input-group-btn search-btn">
-							<button class="btn btn-primary" type="submit">
-								<i class="fa fa-search fa-fw"></i>
+
+							<br>
+
+							<button class="btn btn-primary form-control" type="submit">
+								<i class="fa fa-search fa-fw"></i> Search
 							</button>
+						</form>
+					</div><!--/.search-container -->
+
+					{% if user_page %}
+					<form class="navbar-form navbar-right form" action="{{ url_for('users.view_user', user_name=user.username) }}" method="get">
+					{% else %}
+					<form class="navbar-form navbar-right form" action="{{ url_for('main.home') }}" method="get">
+					{% endif %}
+						<div class="input-group search-container hidden-xs hidden-sm">
+							<div class="input-group-btn nav-filter" id="navFilter-criteria">
+								<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
+									<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
+									<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
+									<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
+								</select>
+							</div>
+
+							<div class="input-group-btn nav-filter" id="navFilter-category">
+								<!--
+									On narrow viewports, there isn't enough room to fit the full stuff in the selectpicker, so we show a full-width one on wide viewports, but squish it on narrow ones.
+								-->
+								{# XXX Search breaks with multiple fields with the same name: default to the shorter one so we don't break visuals. This is a hack! #}
+								{#
+								<select class="selectpicker show-tick visible-lg" title="Category" data-width="200px" name="c">
+									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
+										All categories
+									</option>
+									{% for cat_id, cat_name, cat_title in used_cats %}
+									<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
+										{{ cat_name }}
+									</option>
+									{% endfor %}
+								</select>
+								#}
+								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
+									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
+										All categories
+									</option>
+									{% for cat_id, cat_name, cat_title in used_cats %}
+									<option value="{{ cat_id }}" title="{{ cat_title }}" {% if search is defined and search.category == cat_id %}selected{% endif %}>
+										{{ cat_name }}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
+							<div class="input-group-btn search-btn">
+								<button class="btn btn-primary" type="submit">
+									<i class="fa fa-search fa-fw"></i>
+								</button>
+							</div>
 						</div>
-					</div>
-				</form>
-			</div><!--/.nav-collapse -->
-			</div>
+					</form>
+				</div><!--/.nav-collapse -->
+			</div><!--/.container -->
 		</nav>
 
 		<div class="container">
 			{% include "flashes.html" %}
+			{% if config.MAINTENANCE_MODE and config.MAINTENANCE_MODE_MESSAGE %}
+			<div class="alert alert-dismissable alert-warning" role="alert">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				{{ config.MAINTENANCE_MODE_MESSAGE | safe }}
+			</div>
+			{% endif %}
 
 			{% block body %}{% endblock %}
 		</div> <!-- /container -->
@@ -228,5 +330,3 @@
 		</footer>
 	</body>
 </html>
-
-

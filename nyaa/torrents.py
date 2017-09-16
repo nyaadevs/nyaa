@@ -1,15 +1,18 @@
-import os
 import base64
+import os
 import time
 from urllib.parse import urlencode
+
+from flask import current_app as app
+
 from orderedset import OrderedSet
-from nyaa import app
 
 from nyaa import bencode
-from nyaa import app
-from nyaa import models
 
 USED_TRACKERS = OrderedSet()
+
+# Limit the amount of trackers added into .torrent files
+MAX_TRACKERS = 5
 
 
 def read_trackers_from_file(file_object):
@@ -36,8 +39,9 @@ def default_trackers():
     return USED_TRACKERS[:]
 
 
-def get_trackers(torrent):
+def get_trackers_and_webseeds(torrent):
     trackers = OrderedSet()
+    webseeds = OrderedSet()
 
     # Our main one first
     main_announce_url = app.config.get('MAIN_ANNOUNCE_URL')
@@ -45,17 +49,23 @@ def get_trackers(torrent):
         trackers.add(main_announce_url)
 
     # then the user ones
-    torrent_trackers = torrent.trackers
+    torrent_trackers = torrent.trackers  # here be webseeds too
     for torrent_tracker in torrent_trackers:
-        trackers.add(torrent_tracker.tracker.uri)
+        tracker = torrent_tracker.tracker
+
+        # separate potential webseeds
+        if tracker.is_webseed:
+            webseeds.add(tracker.uri)
+        else:
+            trackers.add(tracker.uri)
 
     # and finally our tracker list
     trackers.update(default_trackers())
 
-    return list(trackers)
+    return list(trackers), list(webseeds)
 
 
-def get_trackers_magnet():
+def get_default_trackers():
     trackers = OrderedSet()
 
     # Our main one first
@@ -70,8 +80,9 @@ def get_trackers_magnet():
 
 
 def create_magnet(torrent, max_trackers=5, trackers=None):
+    # Unless specified, we just use default trackers
     if trackers is None:
-        trackers = get_trackers_magnet()
+        trackers = get_default_trackers()
 
     magnet_parts = [
         ('dn', torrent.display_name)
@@ -83,27 +94,12 @@ def create_magnet(torrent, max_trackers=5, trackers=None):
     return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
 
 
-# For processing ES links
-@app.context_processor
-def create_magnet_from_info():
-    def _create_magnet_from_info(display_name, info_hash, max_trackers=5, trackers=None):
-        if trackers is None:
-            trackers = get_trackers_magnet()
+def create_default_metadata_base(torrent, trackers=None, webseeds=None):
+    if trackers is None or webseeds is None:
+        db_trackers, db_webseeds = get_trackers_and_webseeds(torrent)
 
-        magnet_parts = [
-            ('dn', display_name)
-        ]
-        for tracker in trackers[:max_trackers]:
-            magnet_parts.append(('tr', tracker))
-
-        b32_info_hash = base64.b32encode(bytes.fromhex(info_hash)).decode('utf-8')
-        return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
-    return dict(create_magnet_from_info=_create_magnet_from_info)
-
-
-def create_default_metadata_base(torrent, trackers=None):
-    if trackers is None:
-        trackers = get_trackers(torrent)
+        trackers = db_trackers if trackers is None else trackers
+        webseeds = db_webseeds if webseeds is None else webseeds
 
     metadata_base = {
         'created by': 'NyaaV2',
@@ -116,7 +112,11 @@ def create_default_metadata_base(torrent, trackers=None):
         metadata_base['announce'] = trackers[0]
     if len(trackers) > 1:
         # Yes, it's a list of lists with a single element inside.
-        metadata_base['announce-list'] = [[tracker] for tracker in trackers]
+        metadata_base['announce-list'] = [[tracker] for tracker in trackers[:MAX_TRACKERS]]
+
+    # Add webseeds
+    if webseeds:
+        metadata_base['url-list'] = webseeds
 
     return metadata_base
 

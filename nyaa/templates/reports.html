@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Reports :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+	<div class="table">
+		<table class="table table-bordered table-hover table-striped table-condensed">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Reported by</th>
+				<th>Torrent</th>
+				<th>Reason</th>
+				<th>Date</th>
+				<th>Action</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for report in reports.items %}
+			<tr class="reports-row">
+				<td>{{ report.id }}</td>
+				<td>
+					<a href="{{ url_for('users.view_user', user_name=report.user.username) }}">{{ report.user.username }}</a>
+					{% if report.user.is_trusted %}
+					<span class="label label-success pull-right">Trusted</span>
+					{% endif %}
+				</td>
+				<td>
+					<a href="{{ url_for('torrents.view', torrent_id=report.torrent.id) }}">{{ report.torrent.display_name }}</a>
+					by <a href="{{ url_for('users.view_user', user_name=report.torrent.user.username) }}">
+					{{ report.torrent.user.username }}</a>
+					{% if g.user.is_superadmin and report.torrent.uploader_ip %}
+					({{ report.torrent.uploader_ip_string }})
+					{% endif %}
+					{% if report.torrent.user.is_trusted %}
+					<span class="label label-success pull-right">Trusted</span>
+					{% endif %}
+				</td>
+				<td>{{ report.reason }}</td>
+				<td>{{ report.created_time }}</td>
+				<td class="report-action-column">
+					<form method="post">
+						{{ report_action.csrf_token }}
+						{{ report_action.torrent(value=report.torrent.id) }}
+						{{ report_action.report(value=report.id) }}
+						<div class="input-group input-group-sm">
+							{{ report_action.action(class_="form-control") }}
+							<div class="input-group-btn">
+								<button type="submit" class="btn btn-primary">Review</button>
+							</div>
+						</div>
+					</form>
+				</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<div class=pagination>
+		{% from "bootstrap/pagination.html" import render_pagination %}
+		{{ render_pagination(reports) }}
+	</div>
+{% endblock %}

@@ -1,10 +1,12 @@
-{% macro render_field(field) %}
+{% macro render_field(field, render_label=True) %}
 {% if field.errors %}
 	<div class="form-group has-error">
 {% else %}
 	<div class="form-group">
 {% endif %}
+		{% if render_label %}
 		{{ field.label(class='control-label') }}
+		{% endif %}
 		{{ field(title=field.description,**kwargs) | safe }}
 		{% if field.errors %}
 			<div class="help-block">
@@ -27,33 +29,52 @@
 
 {% macro render_markdown_editor(field, field_name='') %}
 {% if field.errors %}
-    <div class="form-group has-error">
+	<div class="form-group has-error">
 {% else %}
-    <div class="form-group">
+	<div class="form-group">
 {% endif %}
-    <div class="markdown-editor" id="{{ field_name }}-markdown-editor" data-field-name="{{ field_name }}">
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-                <a href="#{{ field_name }}-tab" aria-controls="" role="tab" data-toggle="tab">
-                    Write
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#{{ field_name }}-preview" id="{{ field_name }}-preview-tab" aria-controls="preview" role="tab" data-toggle="tab">
-                    Preview
-                </a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="{{ field_name }}-tab" data-markdown-target="#{{ field_name }}-markdown-target">
-                {{ render_field(field, class_='form-control markdown-source') }}
-            </div>
-            <div role="tabpanel" class="tab-pane" id="{{ field_name }}-preview">
-                {{ field.label(class='control-label') }}
-                <div class="well" id="{{ field_name }}-markdown-target"></div>
-            </div>
-        </div>
-    </div>
+	<div class="markdown-editor" id="{{ field_name }}-markdown-editor" data-field-name="{{ field_name }}">
+		{{ field.label(class='control-label') }}
+		<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" class="small" target="_blank">Markdown supported</a>
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active">
+				<a href="#{{ field_name }}-tab" role="tab" data-toggle="tab">
+					Write
+				</a>
+			</li>
+			<li role="presentation">
+				<a href="#{{ field_name }}-preview" id="{{ field_name }}-preview-tab" role="tab" data-toggle="tab">
+					Preview
+				</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="{{ field_name }}-tab" data-markdown-target="#{{ field_name }}-markdown-target">
+				{# Render this field manually, because we need to escape the inner text #}
+				<textarea class="form-control markdown-source" id="{{ field.id }}" name="{{ field.name }}">
+				{{- (field.data or "") | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}
+				</textarea>
+				{% if field.errors %}
+					<div class="help-block">
+						{% if field.errors|length < 2 %}
+							{% for error in field.errors %}
+								{{ error }}
+							{% endfor %}
+						{% else %}
+							<ul>
+								{% for error in field.errors %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
+					</div>
+				{% endif %}
+			</div>
+			<div role="tabpanel" class="tab-pane" id="{{ field_name }}-preview">
+				<div class="well" id="{{ field_name }}-markdown-target"></div>
+			</div>
+		</div>
+	</div>
 </div>
 {% endmacro %}
 
