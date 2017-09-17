@@ -98,34 +98,34 @@ FLAVORS = [
 with app.app_context():
     master_status = db.engine.execute('SHOW MASTER STATUS;').fetchone()
 
-position_json = {
-    'log_file': master_status[0], 
-    'log_pos': master_status[1]
-}
+    position_json = {
+        'log_file': master_status[0],
+        'log_pos': master_status[1]
+    }
 
-print('Save the following in the file configured in your ES sync config JSON:')
-print(json.dumps(position_json))
+    print('Save the following in the file configured in your ES sync config JSON:')
+    print(json.dumps(position_json))
 
-for flavor, torrent_class in FLAVORS:
-    print('Importing torrents for index', flavor, 'from', torrent_class)
-    bar = progressbar.ProgressBar(
-        maxval=torrent_class.query.count(),
-        widgets=[ progressbar.SimpleProgress(),
-                  ' [', progressbar.Timer(), '] ',
-                  progressbar.Bar(),
-                  ' (', progressbar.ETA(), ') ',
-            ])
+    for flavor, torrent_class in FLAVORS:
+        print('Importing torrents for index', flavor, 'from', torrent_class)
+        bar = progressbar.ProgressBar(
+            maxval=torrent_class.query.count(),
+            widgets=[ progressbar.SimpleProgress(),
+                      ' [', progressbar.Timer(), '] ',
+                      progressbar.Bar(),
+                      ' (', progressbar.ETA(), ') ',
+                ])
 
-    # turn off refreshes while bulk loading
-    ic.put_settings(body={'index': {'refresh_interval': '-1'}}, index=flavor)
+        # turn off refreshes while bulk loading
+        ic.put_settings(body={'index': {'refresh_interval': '-1'}}, index=flavor)
 
-    bar.start()
-    helpers.bulk(es, (mk_es(t, flavor) for t in page_query(torrent_class.query, progress_bar=bar)), chunk_size=10000)
-    bar.finish()
+        bar.start()
+        helpers.bulk(es, (mk_es(t, flavor) for t in page_query(torrent_class.query, progress_bar=bar)), chunk_size=10000)
+        bar.finish()
 
-    # Refresh the index immideately
-    ic.refresh(index=flavor)
-    print('Index refresh done.')
+        # Refresh the index immideately
+        ic.refresh(index=flavor)
+        print('Index refresh done.')
 
-    # restore to near-enough real time
-    ic.put_settings(body={'index': {'refresh_interval': '30s'}}, index=flavor)
+        # restore to near-enough real time
+        ic.put_settings(body={'index': {'refresh_interval': '30s'}}, index=flavor)
