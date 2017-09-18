@@ -569,6 +569,10 @@ class User(db.Model):
 
     @classmethod
     def by_username(cls, username):
+        isascii = lambda s: len(s) == len(s.encode())
+        if not isascii(username):
+            return None
+
         user = cls.query.filter_by(username=username).first()
         return user
 
