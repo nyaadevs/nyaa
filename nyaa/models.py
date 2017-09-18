@@ -569,7 +569,7 @@ class User(db.Model):
 
     @classmethod
     def by_username(cls, username):
-        isascii = lambda s: len(s) == len(s.encode())
+        def isascii(s): return len(s) == len(s.encode())
         if not isascii(username):
             return None
 
