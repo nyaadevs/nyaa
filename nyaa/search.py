@@ -74,6 +74,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
                    rss=False, admin=False, logged_in_user=None,
                    per_page=75, max_search_results=1000):
     # This function can easily be memcached now
+    if page > 4294967295:
+        flask.abort(404)
 
     es_client = Elasticsearch()
 
@@ -263,6 +265,9 @@ class QueryPairCaller(object):
 def search_db(term='', user=None, sort='id', order='desc', category='0_0',
               quality_filter='0', page=1, rss=False, admin=False,
               logged_in_user=None, per_page=75):
+    if page > 4294967295:
+        flask.abort(404)
+
     sort_keys = {
         'id': models.Torrent.id,
         'size': models.Torrent.filesize,

@@ -438,8 +438,8 @@ body.dark .table-bordered > tbody > tr > td {
 
 body.dark table.torrent-list tbody .comments {
 	border-color: #212121;
-	color: #d6d6d6;
-	background-color: #4c4c4c;
+	color: #247fcc;
+	background-color: #2f2c2c;
 }
 
 /* trusted */
