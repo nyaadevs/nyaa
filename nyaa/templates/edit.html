@@ -77,6 +77,20 @@
 			{{ render_markdown_editor(form.description, field_name='description') }}
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="form-group">
+							<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default {% if torrent.notifications %}active{% endif %}" title="Enable notifications">
+					{{ form.notifications_enabled }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Notifications
+				</label>
+			</div>
+		</div>
+			</div>
+	</div>
 
 	<div class="row">
 		<div class="form-group col-md-6">
@@ -87,7 +101,7 @@
 <hr>
 
 <div class="row">
-	<div class="col-md-5"">
+	<div class="col-md-5">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
 				<h3 class="panel-title">Danger Zone</h3>

@@ -115,6 +115,7 @@ class TorrentBase(DeclarativeHelperBase):
     filesize = db.Column(db.BIGINT, default=0, nullable=False, index=True)
     encoding = db.Column(db.String(length=32), nullable=False)
     flags = db.Column(db.Integer, default=0, nullable=False, index=True)
+    notifications = db.Column(db.Boolean, nullable=False, default=False)
 
     @declarative.declared_attr
     def uploader_id(cls):
@@ -752,17 +753,18 @@ class NotificationBase(DeclarativeHelperBase):
 
     id = db.Column(db.Integer, primary_key=True)
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
-    event = db.Column(db.String(length=15), nullable=False)
-    read = db.Column(db.Boolean, default=False)
+    body = db.Column(db.String(length=1024), nullable=False)
+    type = db.Column(db.String(length=50), nullable=False)
+    read = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     @declarative.declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('users.id'))
+        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     @declarative.declared_attr
     def torrent_id(cls):
         return db.Column(db.Integer, db.ForeignKey(
-            cls._table_prefix('torrents.id'), ondelete='CASCADE'), nullable=False)
+            cls._table_prefix('torrents.id'), ondelete='CASCADE'))
 
     @declarative.declared_attr
     def user(cls):
@@ -773,10 +775,11 @@ class NotificationBase(DeclarativeHelperBase):
     def torrent(cls):
         return db.relationship(cls._flavor_prefix('Torrent'), uselist=False, lazy="joined")
 
-    def __init__(self, user_id, torrent_id, event):
+    def __init__(self, user_id, torrent_id, body, type):
         self.user_id = user_id
         self.torrent_id = torrent_id
-        self.event = event
+        self.type = type
+        self.body = body
 
     def __repr__(self):
         return '<Notification %r>' % self.id
@@ -787,8 +790,17 @@ class NotificationBase(DeclarativeHelperBase):
         return (self.created_time - UTC_EPOCH).total_seconds()
 
     @classmethod
+    def get_torrent_comments(cls, user_id, torrent_id):
+        return cls.query.filter_by(
+            user_id=user_id,
+            torrent_id=torrent_id,
+            type='torrentComment',
+            read=False).first()
+
+    @classmethod
     def get_notifications(cls, user_id, page):
-        notifications = cls.query.filter_by(user_id=user_id).paginate(page=page, per_page=20)
+        notifications = cls.query.filter_by(
+            user_id=user_id).order_by(cls.created_time.desc()).paginate(page=page, per_page=20)
         return notifications
 
     @classmethod

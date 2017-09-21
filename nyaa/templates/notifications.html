@@ -17,17 +17,9 @@
 			{% else %}
 			<tr style="font-weight: bold;">
 			{% endif %}
-				<td style="width: 5%">{{ notification.id }}</td>
+				<td style="width: 5%">{{ loop.index }}</td>
 				<td style="width: 15%">{{ notification.created_time }}</td>
-				<td>
-					{% if notification.event == 'mention' %}
-					You were mentioned in a comment of torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a>
-					{% elif notification.event == 'delete' %}
-					Your torrent {{ notification.torrent.display_name }} was deleted.
-					{% elif notification.event == 'hide' %}
-					Your torrent <a href="{{ url_for('torrents.view', torrent_id=notification.torrent.id) }}">{{ notification.torrent.display_name }}</a> was hidden.
-					{% endif %}
-				</td>
+				<td><div markdown-text-inline>{{ notification.body }}</div></td>
 			</tr>
 			{% endfor %}
 			</tbody>
