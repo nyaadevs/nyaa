@@ -67,9 +67,11 @@ def view_torrent(torrent_id):
 
             mentioned = pattern.findall(comment_text)
             if mentioned:
-                notification = 'You were mentioned in a comment of torrent [{}]({}#comments)'.format(
-                    torrent.display_name,
-                    flask.url_for('torrents.view', torrent_id=torrent_id))
+                notification = 'You were mentioned by [{}]({}) in a comment of torrent [{}]({}#comments)'\
+                    .format(flask.g.user.username,
+                            flask.url_for('users.view_user', user_name=flask.g.user.username),
+                            torrent.display_name,
+                            flask.url_for('torrents.view', torrent_id=torrent_id))
                 for username in set(mentioned[:5]):
                     user = models.User.by_username(username[1:])
                     if user:
@@ -85,9 +87,9 @@ def view_torrent(torrent_id):
                     user_id=torrent.user.id,
                     torrent_id=torrent.id)
                 if not notification:
-                    notification_body = 'There is a new comment on your torrent [{}]({}#comments)'.format(
-                        torrent.display_name,
-                        flask.url_for('torrents.view', torrent_id=torrent_id))
+                    notification_body = 'There is a new comment on your torrent [{}]({}#comments)'\
+                        .format(torrent.display_name,
+                                flask.url_for('torrents.view', torrent_id=torrent_id))
                     notification = models.Notification(
                         user_id=torrent.user.id,
                         torrent_id=torrent_id,

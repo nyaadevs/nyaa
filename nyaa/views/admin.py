@@ -89,7 +89,8 @@ def view_reports():
                                  flask.url_for('torrents.view', torrent_id=torrent_id),
                                  report_user.username,
                                  flask.url_for('users.view_user', user_name=report_user.username))
-                notification_body = 'Your torrent {} was deleted by a staff member.'.format(torrent.display_name)
+                notification_body = 'Your torrent {} was deleted by a staff member.'.format(
+                    torrent.display_name)
                 notification = models.Notification(
                     user_id=torrent.user.id,
                     torrent_id=torrent_id,
