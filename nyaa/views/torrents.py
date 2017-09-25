@@ -67,7 +67,8 @@ def view_torrent(torrent_id):
 
             mentioned = pattern.findall(comment_text)
             if mentioned:
-                notification = 'You were mentioned by [{}]({}) in a comment of torrent [{}]({}#comments)'\
+                notification = 'You were mentioned by [{}]({}) ' \
+                               'in a comment of torrent [{}]({}#comments)'\
                     .format(flask.g.user.username,
                             flask.url_for('users.view_user', user_name=flask.g.user.username),
                             torrent.display_name,
