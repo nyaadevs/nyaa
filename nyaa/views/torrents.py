@@ -376,6 +376,8 @@ def submit_report(torrent_id):
         db.session.add(report)
         db.session.commit()
         flask.flash('Successfully reported torrent!', 'success')
+    elif len(form.reason.data) == 0:
+        flask.flash('Please give a report reason!', 'danger')
 
     return flask.redirect(flask.url_for('torrents.view', torrent_id=torrent_id))
 
