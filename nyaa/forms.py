@@ -239,6 +239,17 @@ class BanForm(FlaskForm):
     ])
 
 
+def recaptcha_validator_shim(form, field):
+    ''' Selectively does a recaptcha validation '''
+    if app.config['USE_RECAPTCHA']:
+        # Recaptcha anonymous and new users
+        if not flask.g.user or flask.g.user.age < app.config['ACCOUNT_RECAPTCHA_AGE']:
+            return RecaptchaValidator()(form, field)
+    else:
+        # Always pass validating the recaptcha field if disabled
+        return True
+
+
 class UploadForm(FlaskForm):
     torrent_file = FileField('Torrent file', [
         FileRequired()
@@ -251,17 +262,8 @@ class UploadForm(FlaskForm):
                        '%(max)d at most.')
     ])
 
-    if config['USE_RECAPTCHA']:
-        # Captcha only for not logged in users
-        _recaptcha_validator = RecaptchaValidator()
+    recaptcha = RecaptchaField(validators=[recaptcha_validator_shim])
 
-        def _validate_recaptcha(form, field):
-            if not flask.g.user:
-                return UploadForm._recaptcha_validator(form, field)
-
-        recaptcha = RecaptchaField(validators=[_validate_recaptcha])
-
-    # category = SelectField('Category')
     category = DisabledSelectField('Category')
 
     def validate_category(form, field):

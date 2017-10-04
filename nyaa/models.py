@@ -601,6 +601,11 @@ class User(db.Model):
     def is_banned(self):
         return self.status == UserStatusType.BANNED
 
+    @property
+    def age(self):
+        '''Account age in seconds'''
+        return (datetime.utcnow() - self.created_time).total_seconds()
+
 
 class AdminLogBase(DeclarativeHelperBase):
     __tablename_base__ = 'adminlog'
