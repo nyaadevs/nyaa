@@ -200,7 +200,7 @@
 					{{ render_field(report_form.reason, class_='form-control', maxlength=255) }}
 					<div style="float: right;">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-danger">Report</button>
+						<button type="submit" id="reportSubmit" class="btn btn-danger">Report</button>
 					</div>
 				</form>
 			</div>
@@ -214,6 +214,14 @@
 	// Focus the report text field once the modal is opened.
 	$('#reportModal').on('shown.bs.modal', function () {
 		$('#reason').focus();
+		$('#reportSubmit').attr('disabled', true);
+	});
+	$('#reason').on('input', function(e) {
+		if($('#reason').val().length > 0) {
+			$('#reportSubmit').removeAttr('disabled');
+		} else {
+			$('#reportSubmit').attr('disabled', true);
+		}
 	});
 </script>
 {% endif %}
