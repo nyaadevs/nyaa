@@ -86,7 +86,7 @@
 		</div>
 	</div>
 
-	{% if config.USE_RECAPTCHA and not g.user %}
+	{% if config.USE_RECAPTCHA and (not g.user or g.user.age < config['ACCOUNT_RECAPTCHA_AGE']) %}
 	<div class="row">
 		<div class="col-md-4">
 			{% for error in upload_form.recaptcha.errors %}
