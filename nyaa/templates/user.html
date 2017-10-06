@@ -55,47 +55,66 @@
 				</div>
 				<div class="panel-body">
 					<form method="POST">
-						{{ ban_form.csrf_token }}
-						{% if user.is_banned %}
-						This user is <strong>banned</strong>.<br>
-						{% endif %}
-						{% if ipbanned %}
-						This user is <strong>ip banned</strong>.<br>
-						{% endif %}
-						{% if not user.is_banned and not bans %}
-						This user is <strong>not banned</strong>.<br>
-						{% endif %}
-						<br>
+						<div class="row">
+							<div class="col-md-12">
+								{{ ban_form.csrf_token }}
+								{% if user.is_banned %}
+								This user is <strong>banned</strong>.
+								{% endif %}
+								{% if ipbanned %}
+								This user is <strong>ip banned</strong>.
+								{% endif %}
+								{% if not user.is_banned and not bans %}
+								This user is <strong>not banned</strong>.
+								{% endif %}
+							</div>
+						</div>
 						{% if user.is_banned or bans %}
-						<p>
-							{% for ban in bans %}
-							#{{ ban.id }}
-							by <a href="{{ url_for('users.view_user', user_name=ban.admin.username) }}">{{ ban.admin.username }}</a>
-							for <span markdown-text-inline>{{ ban.reason }}</span>
-							<br>
-							{% endfor %}
-						</p>
-						{{ ban_form.unban(class="btn btn-info") }}
+						<div class="row">
+							<div class="col-md-12">
+								<p>
+									{% for ban in bans %}
+									#{{ ban.id }}
+									by <a href="{{ url_for('users.view_user', user_name=ban.admin.username) }}">{{ ban.admin.username }}</a>
+									for <span markdown-text-inline>{{ ban.reason }}</span>
+									{% endfor %}
+								</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								{{ ban_form.unban(class="btn btn-info") }}
+							</div>
+						</div>
 						{% endif %}
 
 						{% if not user.is_banned or not ipbanned %}
 						{% if user.is_banned or bans %}
 						<hr>
 						{% endif %}
-						{{ render_field(ban_form.reason, class_="form-control", placeholder="Specify a ban reason.") }}<br>
-						<div class="pull-left">
-							{% if not user.is_banned %}
-							{{ ban_form.ban_user(value="Ban User", class="btn btn-danger") }}
-							{% else %}
-							<button type="button" class="btn btn-danger disabled">Already banned</button>
-							{% endif %}
+						<div class="row" style="margin-top:1.5em">
+							<div class="col-md-12">
+								{{ render_field(ban_form.reason, class_="form-control", placeholder="Specify a ban reason.") }}<br>
+							</div>
 						</div>
-						<div class="pull-right">
-							{% if not ipbanned %}
-							{{ ban_form.ban_userip(value="Ban User+IP", class="btn btn-danger") }}
-							{% else %}
-							<button type="button" class="btn btn-danger disabled">Already IP banned</button>
-							{% endif %}
+						<div class="row">
+							<div class="col-md-4 text-left">
+								{% if not user.is_banned %}
+								{{ ban_form.ban_user(value="Ban User", class="btn btn-danger") }}
+								{% else %}
+								<button type="button" class="btn btn-danger disabled">Already banned</button>
+								{% endif %}
+							</div>
+							<div class="col-md-4 text-center">
+								{% if not ipbanned %}
+								{{ ban_form.ban_userip(value="Ban User+IP", class="btn btn-danger") }}
+								{% else %}
+								<button type="button" class="btn btn-danger disabled">Already IP banned</button>
+								{% endif %}
+							</div>
+							<div class="col-md-4 text-right">
+								{{ ban_form.nuke(value="\U0001F4A3 Nuke Torrents", class="btn btn-danger") }}
+							</div>
 						</div>
 						{% endif %}
 					</form>
@@ -106,10 +125,12 @@
 	</div>
 {% endif %}
 
-<h3>
-	Browsing <span class="text-{{ user.userlevel_color }}" data-toggle="tooltip" title="{{ user.userlevel_str }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
-</h3>
+<div class="row">
+	<h3>
+		Browsing <span class="text-{{ user.userlevel_color }}" data-toggle="tooltip" title="{{ user.userlevel_str }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
+	</h3>
 
 {% include "search_results.html" %}
 
 {% endblock %}
+</div>

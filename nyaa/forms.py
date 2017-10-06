@@ -225,6 +225,7 @@ class DeleteForm(FlaskForm):
 class BanForm(FlaskForm):
     ban_user = SubmitField("Delete & Ban and Ban User")
     ban_userip = SubmitField("Delete & Ban and Ban User+IP")
+    nuke = SubmitField("Delete & Ban all torrents")
     unban = SubmitField("Unban")
 
     _validator = DataRequired()

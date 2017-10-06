@@ -6,11 +6,12 @@ from flask_paginate import Pagination
 
 from itsdangerous import BadSignature, URLSafeSerializer
 
-from nyaa import forms, models
+from nyaa import backend, forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
 from nyaa.utils import chain_get
+from itertools import chain
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -98,6 +99,23 @@ def view_user(user_name):
         db.session.commit()
 
         flask.flash(flask.Markup('User has been successfully {0}.'.format(action)), 'success')
+        return flask.redirect(url)
+
+    if flask.request.method == 'POST' and ban_form and ban_form.nuke.data:
+        num_banned = 0
+        for t in chain(user.nyaa_torrents, user.sukebei_torrents):
+            t.deleted = True
+            t.banned = True
+            backend.tracker_api([t.info_hash], 'ban')
+            db.session.add(t)
+            num_banned += 1
+
+        log = "Nuked {0} torrents of {1}".format(num_banned, user.username)
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
+        db.session.commit()
+        flask.flash('Torrents of {0} have been nuked.'.format(user.username),
+                    'success')
         return flask.redirect(url)
 
     req_args = flask.request.args
