@@ -24,7 +24,7 @@
 				<dt>User ID:</dt>
 				<dd>{{ user.id }}</dd>
 				<dt>Account created on:</dt>
-				<dd>{{ user.created_time }}</dd>
+				<dd data-timestamp="{{ user.created_utc_timestamp|int }}">{{ user.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
 				<dt>Email address:</dt>
 				<dd>{{ user.email }}</dd>
 				<dt>User class:</dt>

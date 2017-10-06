@@ -606,6 +606,11 @@ class User(db.Model):
         '''Account age in seconds'''
         return (datetime.utcnow() - self.created_time).total_seconds()
 
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
 
 class AdminLogBase(DeclarativeHelperBase):
     __tablename_base__ = 'adminlog'
