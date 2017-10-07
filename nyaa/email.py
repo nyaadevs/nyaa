@@ -12,6 +12,7 @@ from nyaa import models
 class EmailHolder(object):
     ''' Holds email subject, recipient and content, so we have a general class for
         all mail backends. '''
+
     def __init__(self, subject=None, recipient=None, text=None, html=None):
         self.subject = subject
         self.recipient = recipient  # models.User or string

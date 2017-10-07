@@ -1,3 +1,4 @@
+import binascii
 from datetime import datetime
 from ipaddress import ip_address
 
@@ -5,7 +6,8 @@ import flask
 
 from nyaa import email, forms, models
 from nyaa.extensions import db
-from nyaa.views.users import get_activation_link
+from nyaa.utils import sha1_hash
+from nyaa.views.users import get_activation_link, get_password_reset_link, get_serializer
 
 app = flask.current_app
 bp = flask.Blueprint('account', __name__)
@@ -95,6 +97,57 @@ def register():
     return flask.render_template('register.html', form=form)
 
 
+@bp.route('/password-reset/<payload>', methods=['GET', 'POST'])
+@bp.route('/password-reset', methods=['GET', 'POST'])
+def password_reset(payload=None):
+    if not app.config['ALLOW_PASSWORD_RESET']:
+        return flask.abort(404)
+
+    if flask.g.user:
+        return flask.redirect(redirect_url())
+
+    if payload is None:
+        form = forms.PasswordResetRequestForm(flask.request.form)
+        if flask.request.method == 'POST' and form.validate():
+            user = models.User.by_email(form.email.data.strip())
+            if user:
+                send_password_reset_request_email(user)
+
+            flask.flash(flask.Markup(
+                'A password reset request was sent to the provided email, '
+                'if a matching account was found.'), 'info')
+            return flask.redirect(flask.url_for('main.home'))
+        return flask.render_template('password_reset_request.html', form=form)
+
+    else:
+        s = get_serializer()
+        try:
+            pw_hash, user_id = s.loads(payload)
+        except:
+            return flask.abort(404)
+
+        user = models.User.by_id(user_id)
+        if not user:
+            return flask.abort(404)
+
+        sha1_password_hash_hash = binascii.hexlify(sha1_hash(user.password_hash.hash)).decode()
+        if pw_hash != sha1_password_hash_hash:
+            return flask.abort(404)
+
+        form = forms.PasswordResetForm(flask.request.form)
+        if flask.request.method == 'POST' and form.validate():
+            user.password_hash = form.password.data
+
+            db.session.add(user)
+            db.session.commit()
+
+            send_password_reset_email(user)
+
+            flask.flash(flask.Markup('Your password was reset. Log in now.'), 'info')
+            return flask.redirect(flask.url_for('account.login'))
+        return flask.render_template('password_reset.html', form=form)
+
+
 @bp.route('/profile', methods=['GET', 'POST'])
 def profile():
     if not flask.g.user:
@@ -159,6 +212,38 @@ def send_verification_email(user):
         recipient=user,
         text=flask.render_template('email/verify.txt', **tmpl_context),
         html=flask.render_template('email/verify.html', **tmpl_context),
+    )
+
+    email.send_email(email_msg)
+
+
+def send_password_reset_email(user):
+    ''' Alert user that their password has been successfully reset '''
+
+    email_msg = email.EmailHolder(
+        subject='Your {} password has been reset'.format(app.config['GLOBAL_SITE_NAME']),
+        recipient=user,
+        text=flask.render_template('email/reset.txt', user=user),
+        html=flask.render_template('email/reset.html', user=user),
+    )
+
+    email.send_email(email_msg)
+
+
+def send_password_reset_request_email(user):
+    ''' Send user a password reset link '''
+    reset_link = get_password_reset_link(user)
+
+    tmpl_context = {
+        'reset_link': reset_link,
+        'user': user
+    }
+
+    email_msg = email.EmailHolder(
+        subject='{} password reset request'.format(app.config['GLOBAL_SITE_NAME']),
+        recipient=user,
+        text=flask.render_template('email/reset-request.txt', **tmpl_context),
+        html=flask.render_template('email/reset-request.html', **tmpl_context),
     )
 
     email.send_email(email_msg)

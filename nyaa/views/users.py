@@ -1,3 +1,4 @@
+import binascii
 import math
 from ipaddress import ip_address
 
@@ -10,7 +11,7 @@ from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
-from nyaa.utils import chain_get
+from nyaa.utils import chain_get, sha1_hash
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -251,3 +252,13 @@ def get_activation_link(user):
     s = get_serializer()
     payload = s.dumps(user.id)
     return flask.url_for('users.activate_user', payload=payload, _external=True)
+
+
+def get_password_reset_link(user):
+    # This mess to not to have static password reset links
+    # Maybe not the best idea? But this should not be a security risk, and it works.
+    password_hash_hash = binascii.hexlify(sha1_hash(user.password_hash.hash)).decode()
+
+    s = get_serializer()
+    payload = s.dumps((password_hash_hash, user.id))
+    return flask.url_for('account.password_reset', payload=payload, _external=True)

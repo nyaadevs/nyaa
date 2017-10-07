@@ -50,6 +50,25 @@ def stop_on_validation_error(f):
     return decorator
 
 
+def recaptcha_validator_shim(form, field):
+    if app.config['USE_RECAPTCHA']:
+        return RecaptchaValidator()(form, field)
+    else:
+        # Always pass validating the recaptcha field if disabled
+        return True
+
+
+def upload_recaptcha_validator_shim(form, field):
+    ''' Selectively does a recaptcha validation '''
+    if app.config['USE_RECAPTCHA']:
+        # Recaptcha anonymous and new users
+        if not flask.g.user or flask.g.user.age < app.config['ACCOUNT_RECAPTCHA_AGE']:
+            return RecaptchaValidator()(form, field)
+    else:
+        # Always pass validating the recaptcha field if disabled
+        return True
+
+
 _username_validator = Regexp(
     r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
@@ -58,6 +77,27 @@ _username_validator = Regexp(
 class LoginForm(FlaskForm):
     username = StringField('Username or email address', [DataRequired()])
     password = PasswordField('Password', [DataRequired()])
+
+
+class PasswordResetRequestForm(FlaskForm):
+    email = StringField('Email address', [
+        Email(),
+        DataRequired(),
+        Length(min=5, max=128)
+    ])
+
+    recaptcha = RecaptchaField(validators=[recaptcha_validator_shim])
+
+
+class PasswordResetForm(FlaskForm):
+    password = PasswordField('Password', [
+        DataRequired(),
+        EqualTo('password_confirm', message='Passwords must match'),
+        Length(min=6, max=1024,
+               message='Password must be at least %(min)d characters long.')
+    ])
+
+    password_confirm = PasswordField('Password (confirm)')
 
 
 class RegisterForm(FlaskForm):
@@ -239,17 +279,6 @@ class BanForm(FlaskForm):
     ])
 
 
-def recaptcha_validator_shim(form, field):
-    ''' Selectively does a recaptcha validation '''
-    if app.config['USE_RECAPTCHA']:
-        # Recaptcha anonymous and new users
-        if not flask.g.user or flask.g.user.age < app.config['ACCOUNT_RECAPTCHA_AGE']:
-            return RecaptchaValidator()(form, field)
-    else:
-        # Always pass validating the recaptcha field if disabled
-        return True
-
-
 class UploadForm(FlaskForm):
     torrent_file = FileField('Torrent file', [
         FileRequired()
@@ -262,7 +291,7 @@ class UploadForm(FlaskForm):
                        '%(max)d at most.')
     ])
 
-    recaptcha = RecaptchaField(validators=[recaptcha_validator_shim])
+    recaptcha = RecaptchaField(validators=[upload_recaptcha_validator_shim])
 
     category = DisabledSelectField('Category')
 

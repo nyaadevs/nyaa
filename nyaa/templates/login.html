@@ -18,7 +18,37 @@
 
 		<div class="row">
 			<div class="form-group col-md-4">
-				{{ render_field(form.password, class_='form-control', placeholder='Password') }}
+				{# This is just render_field() exploded so that we can add the password link after the label #}
+				{% if form.password.errors %}
+					<div class="form-group has-error">
+				{% else %}
+					<div class="form-group">
+				{% endif %}
+						{{ form.password.label(class='control-label') }}
+
+						{% if config.ALLOW_PASSWORD_RESET: %}
+						<small>
+							<a href="{{ url_for('account.password_reset') }}">Forgot your password?</a>
+						</small>
+						{% endif%}
+
+						{{ form.password(title=form.password.description, class_='form-control') | safe }}
+						{% if form.password.errors %}
+							<div class="help-block">
+								{% if form.password.errors|length < 2 %}
+									{% for error in form.password.errors %}
+										{{ error }}
+									{% endfor %}
+								{% else %}
+									<ul>
+										{% for error in form.password.errors %}
+											<li>{{ error }}</li>
+										{% endfor %}
+									</ul>
+								{% endif %}
+							</div>
+						{% endif %}
+					</div>
 			</div>
 		</div>
 
