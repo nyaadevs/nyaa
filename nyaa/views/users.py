@@ -202,15 +202,23 @@ def activate_user(payload):
 
     user = models.User.by_id(user_id)
 
-    if not user:
+    # Only allow activating inactive users
+    if not user or user.status != models.UserStatusType.INACTIVE:
         flask.abort(404)
 
+    # Set user active
     user.status = models.UserStatusType.ACTIVE
-
     db.session.add(user)
     db.session.commit()
 
-    return flask.redirect(flask.url_for('account.login'))
+    # Log user in
+    flask.g.user = user
+    flask.session['user_id'] = user.id
+    flask.session.permanent = True
+    flask.session.modified = True
+
+    flask.flash(flask.Markup("You've successfully verified your account!"), 'success')
+    return flask.redirect(flask.url_for('main.home'))
 
 
 def _create_user_class_choices(user):

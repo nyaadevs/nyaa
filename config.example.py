@@ -19,6 +19,8 @@ MAINTENANCE_MODE_LOGINS = True
 
 # What the site identifies itself as. This affects templates, not database stuff.
 SITE_NAME = 'Nyaa'
+# What the both sites are labeled under (used for eg. email subjects)
+GLOBAL_SITE_NAME = 'Nyaa.si'
 
 # General prefix for running multiple sites, eg. most database tables are site-prefixed
 SITE_FLAVOR = 'nyaa' # 'nyaa' or 'sukebei'
@@ -49,12 +51,24 @@ else:
     SQLALCHEMY_DATABASE_URI = (
         'sqlite:///' + os.path.join(BASE_DIR, 'test.db') + '?check_same_thread=False')
 
-# Email server settings
+###########
+## EMAIL ##
+###########
+
+# 'smtp' or 'mailgun'
+MAIL_BACKEND = 'mailgun'
+MAIL_FROM_ADDRESS = 'Sender Name <sender@domain.com>'
+
+# Mailgun settings
+MAILGUN_API_BASE = 'https://api.mailgun.net/v3/YOUR_DOMAIN_NAME'
+MAILGUN_API_KEY = 'YOUR_API_KEY'
+
+# SMTP settings
 SMTP_SERVER = '***'
 SMTP_PORT = 587
-MAIL_FROM_ADDRESS = '***'
 SMTP_USERNAME = '***'
 SMTP_PASSWORD = '***'
+
 
 # The maximum number of files a torrent can contain
 # until the site says "Too many files to display."

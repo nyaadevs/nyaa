@@ -1,12 +1,9 @@
-import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from ipaddress import ip_address
 
 import flask
 
-from nyaa import forms, models
+from nyaa import email, forms, models
 from nyaa.extensions import db
 from nyaa.views.users import get_activation_link
 
@@ -83,8 +80,7 @@ def register():
         db.session.commit()
 
         if app.config['USE_EMAIL_VERIFICATION']:  # force verification, enable email
-            activ_link = get_activation_link(user)
-            send_verification_email(user.email, activ_link)
+            send_verification_email(user)
             return flask.render_template('waiting.html')
         else:  # disable verification, set user as active and auto log in
             user.status = models.UserStatusType.ACTIVE
@@ -150,25 +146,19 @@ def redirect_url():
     return url
 
 
-def send_verification_email(to_address, activ_link):
-    ''' this is until we have our own mail server, obviously.
-     This can be greatly cut down if on same machine.
-     probably can get rid of all but msg formatting/building,
-     init line and sendmail line if local SMTP server '''
+def send_verification_email(user):
+    activation_link = get_activation_link(user)
 
-    msg_body = 'Please click on: ' + activ_link + ' to activate your account.\n\n\nUnsubscribe:'
+    tmpl_context = {
+        'activation_link': activation_link,
+        'user': user
+    }
 
-    msg = MIMEMultipart()
-    msg['Subject'] = 'Verification Link'
-    msg['From'] = app.config['MAIL_FROM_ADDRESS']
-    msg['To'] = to_address
-    msg.attach(MIMEText(msg_body, 'plain'))
+    email_msg = email.EmailHolder(
+        subject='Verify your {} account'.format(app.config['GLOBAL_SITE_NAME']),
+        recipient=user,
+        text=flask.render_template('email/verify.txt', **tmpl_context),
+        html=flask.render_template('email/verify.html', **tmpl_context),
+    )
 
-    server = smtplib.SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT'])
-    server.set_debuglevel(1)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-    server.login(app.config['SMTP_USERNAME'], app.config['SMTP_PASSWORD'])
-    server.sendmail(app.config['SMTP_USERNAME'], to_address, msg.as_string())
-    server.quit()
+    email.send_email(email_msg)
