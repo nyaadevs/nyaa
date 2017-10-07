@@ -1,5 +1,6 @@
 import binascii
 import math
+import time
 from ipaddress import ip_address
 
 import flask
@@ -260,5 +261,5 @@ def get_password_reset_link(user):
     password_hash_hash = binascii.hexlify(sha1_hash(user.password_hash.hash)).decode()
 
     s = get_serializer()
-    payload = s.dumps((password_hash_hash, user.id))
+    payload = s.dumps((time.time(), password_hash_hash, user.id))
     return flask.url_for('account.password_reset', payload=payload, _external=True)

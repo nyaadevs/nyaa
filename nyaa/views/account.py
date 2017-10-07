@@ -1,4 +1,5 @@
 import binascii
+import time
 from datetime import datetime
 from ipaddress import ip_address
 
@@ -122,12 +123,16 @@ def password_reset(payload=None):
     else:
         s = get_serializer()
         try:
-            pw_hash, user_id = s.loads(payload)
+            request_timestamp, pw_hash, user_id = s.loads(payload)
         except:
             return flask.abort(404)
 
         user = models.User.by_id(user_id)
         if not user:
+            return flask.abort(404)
+
+        # Timeout after six hours
+        if (time.time() - request_timestamp) > 6 * 3600:
             return flask.abort(404)
 
         sha1_password_hash_hash = binascii.hexlify(sha1_hash(user.password_hash.hash)).decode()
