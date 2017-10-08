@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<title>Verify your {{ config.GLOBAL_SITE_NAME }} account</title>
+		<style type="text/css">
+		.well {
+			display: inline-block;
+			border-radius: 5px;
+			padding: 10px;
+			background-color: rgb(240, 240, 240)
+		}
+		</style>
+	</head>
+	<body>
+		<div>
+			{{ user.username }}, please verify your email by clicking the link below:
+		</div>
+		<div class="well">
+			<a href="{{ activation_link }}">{{ activation_link }}</a>
+		</div>
+		<div>
+			If you did not sign up for {{ config.GLOBAL_SITE_NAME }}, feel free to ignore this email.
+		</div>
+	</body>
+</html>
