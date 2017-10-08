@@ -40,6 +40,10 @@ USE_MYSQL = True
 # Show seeds/peers/completions in torrent list/page
 ENABLE_SHOW_STATS = True
 
+# Enable password recovery (by reset link to given email address)
+# Depends on email support!
+ALLOW_PASSWORD_RESET = True
+
 # Recaptcha keys (https://www.google.com/recaptcha)
 RECAPTCHA_PUBLIC_KEY = '***'
 RECAPTCHA_PRIVATE_KEY = '***'
