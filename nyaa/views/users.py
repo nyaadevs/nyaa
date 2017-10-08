@@ -1,10 +1,10 @@
 import math
 from ipaddress import ip_address
+from itertools import chain
 
 import flask
 from flask_paginate import Pagination
 
-from itertools import chain
 from itsdangerous import BadSignature, URLSafeSerializer
 
 from nyaa import backend, forms, models
