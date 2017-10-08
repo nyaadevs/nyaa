@@ -285,25 +285,32 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
 
 
 def tracker_api(info_hashes, method):
-    url = app.config.get('TRACKER_API_URL')
-    if not url:
+    api_url = app.config.get('TRACKER_API_URL')
+    if not api_url:
         return False
 
-    qs = []
-    qs.append(('auth', app.config.get('TRACKER_API_AUTH')))
-    qs.append(('method', method))
+    # Split list into at most 100 elements
+    chunk_size = 100
+    chunk_range = range(0, len(info_hashes), chunk_size)
+    chunked_info_hashes = (info_hashes[i:i+chunk_size] for i in chunk_range)
 
-    for infohash in info_hashes:
-        qs.append(('info_hash', infohash))
+    for info_hashes_chunk in chunked_info_hashes:
+        qs = [
+            ('auth', app.config.get('TRACKER_API_AUTH')),
+            ('method', method)
+        ]
 
-    qs = urlencode(qs)
-    url += '?' + qs
-    try:
-        req = urlopen(url)
-    except:
-        return False
+        qs.extend(('info_hash', info_hash) for info_hash in info_hashes_chunk)
 
-    return req.status == 200
+        api_url += '?' + urlencode(qs)
+        try:
+            req = urlopen(api_url)
+        except:
+            return False
+
+        if req.status != 200:
+            return False
+    return True
 
 
 def _delete_cached_torrent_file(torrent_id):

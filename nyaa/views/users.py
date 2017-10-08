@@ -104,15 +104,19 @@ def view_user(user_name):
     if flask.request.method == 'POST' and ban_form and ban_form.nuke.data:
         nyaa_banned = 0
         sukebei_banned = 0
+        info_hashes = []
         for t in chain(user.nyaa_torrents, user.sukebei_torrents):
             t.deleted = True
             t.banned = True
-            backend.tracker_api([t.info_hash], 'ban')
+            info_hashes.append([t.info_hash])
             db.session.add(t)
             if isinstance(t, models.NyaaTorrent):
                 nyaa_banned += 1
             else:
                 sukebei_banned += 1
+
+        if info_hashes:
+            backend.tracker_api(info_hashes, 'ban')
 
         for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
                                  (models.SukebeiAdminLog, sukebei_banned)):
@@ -122,6 +126,7 @@ def view_user(user_name):
                                                                 url)
                 adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
                 db.session.add(adminlog)
+
         db.session.commit()
         flask.flash('Torrents of {0} have been nuked.'.format(user.username),
                     'success')
