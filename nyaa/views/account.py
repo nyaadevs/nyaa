@@ -37,9 +37,17 @@ def login():
                 '<strong>Login failed!</strong> Incorrect username or password.'), 'danger')
             return flask.redirect(flask.url_for('account.login'))
 
+        if user.is_banned:
+            ban_reason = models.Ban.banned(user.id, None).first().reason
+            ban_str = ('<strong>Login failed!</strong> You are banned with the '
+                       'reason "{0}" If you believe that this is a mistake, contact '
+                       'a moderator on IRC.'.format(ban_reason))
+            flask.flash(flask.Markup(ban_str), 'danger')
+            return flask.redirect(flask.url_for('account.login'))
+
         if user.status != models.UserStatusType.ACTIVE:
             flask.flash(flask.Markup(
-                '<strong>Login failed!</strong> Account is not activated or banned.'), 'danger')
+                '<strong>Login failed!</strong> Account is not activated.'), 'danger')
             return flask.redirect(flask.url_for('account.login'))
 
         user.last_login_date = datetime.utcnow()
