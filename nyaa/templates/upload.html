@@ -26,7 +26,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="alert alert-{{ ratelimit_class }}" role="alert">
-				<div>You've reached your maximum upload rate ({{ config.MAX_UPLOAD_BURST }} per {{ config.UPLOAD_BURST_DURATION // 60}} minutes) and will now have to wait {{ config.UPLOAD_TIMEOUT // 60 }} minutes between uploads.</div>
+				<div>You've reached your maximum upload rate ({{ config.MAX_UPLOAD_BURST }} per {{ config.UPLOAD_BURST_DURATION // 60}} minutes, you have <b>{{ ratelimit_count }}</b>) and will now have to wait {{ config.UPLOAD_TIMEOUT // 60 }} minutes between uploads.</div>
 				{% if next_upload_time %}
 				<div>You may upload again at <b data-timestamp="{{ next_upload_time|utc_timestamp }}">{{ next_upload_time.strftime('%Y-%m-%d %H:%M UTC') }}</b>.</div>
 				{% else %}

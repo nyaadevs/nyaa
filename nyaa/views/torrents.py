@@ -389,11 +389,12 @@ def upload():
 
     show_ratelimit = False
     next_upload_time = None
+    ratelimit_count = 0
 
     # Anonymous uploaders and non-trusted uploaders
     if app.config['RATELIMIT_UPLOADS'] and not flask.g.user or not flask.g.user.is_trusted:
-        now, torrent_count, next_upload_time = backend.check_uploader_ratelimit(flask.g.user)
-        show_ratelimit = torrent_count >= app.config['MAX_UPLOAD_BURST']
+        now, ratelimit_count, next_upload_time = backend.check_uploader_ratelimit(flask.g.user)
+        show_ratelimit = ratelimit_count >= app.config['MAX_UPLOAD_BURST']
         next_upload_time = next_upload_time if next_upload_time > now else None
 
     if flask.request.method == 'POST' and upload_form.validate():
@@ -409,6 +410,7 @@ def upload():
     return flask.render_template('upload.html',
                                  upload_form=upload_form,
                                  show_ratelimit=show_ratelimit,
+                                 ratelimit_count=ratelimit_count,
                                  next_upload_time=next_upload_time), status_code
 
 
