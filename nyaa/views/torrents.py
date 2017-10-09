@@ -387,6 +387,15 @@ def upload():
     upload_form = forms.UploadForm(CombinedMultiDict((flask.request.files, flask.request.form)))
     upload_form.category.choices = _create_upload_category_choices()
 
+    show_ratelimit = False
+    next_upload_time = None
+
+    # Anonymous uploaders and non-trusted uploaders
+    if app.config['RATELIMIT_UPLOADS'] and not flask.g.user or not flask.g.user.is_trusted:
+        now, torrent_count, next_upload_time = backend.check_uploader_ratelimit(flask.g.user)
+        show_ratelimit = torrent_count >= app.config['MAX_UPLOAD_BURST']
+        next_upload_time = next_upload_time if next_upload_time > now else None
+
     if flask.request.method == 'POST' and upload_form.validate():
         try:
             torrent = backend.handle_torrent_upload(upload_form, flask.g.user)
@@ -397,7 +406,10 @@ def upload():
 
     # If we get here with a POST, it means the form data was invalid: return a non-okay status
     status_code = 400 if flask.request.method == 'POST' else 200
-    return flask.render_template('upload.html', upload_form=upload_form), status_code
+    return flask.render_template('upload.html',
+                                 upload_form=upload_form,
+                                 show_ratelimit=show_ratelimit,
+                                 next_upload_time=next_upload_time), status_code
 
 
 @cached_function
