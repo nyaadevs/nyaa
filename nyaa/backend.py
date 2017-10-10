@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timedelta
 from ipaddress import ip_address
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -7,6 +8,7 @@ from urllib.request import urlopen
 import flask
 from werkzeug import secure_filename
 
+import sqlalchemy
 from orderedset import OrderedSet
 
 from nyaa import models, utils
@@ -16,7 +18,7 @@ app = flask.current_app
 
 
 class TorrentExtraValidationException(Exception):
-    def __init__(self, errors):
+    def __init__(self, errors={}):
         self.errors = errors
 
 
@@ -105,12 +107,58 @@ def validate_torrent_post_upload(torrent, upload_form=None):
         raise TorrentExtraValidationException(errors)
 
 
+def check_uploader_ratelimit(user):
+    ''' Figures out if user (or IP address from flask.request) may
+        upload within upload ratelimit.
+        Returns a tuple of current datetime, count of torrents uploaded
+        within burst duration and timestamp for next allowed upload. '''
+    now = datetime.utcnow()
+    next_allowed_time = now
+
+    Torrent = models.Torrent
+
+    def filter_uploader(query):
+        if user:
+            return query.filter(Torrent.user == user)
+        else:
+            return query.filter(Torrent.uploader_ip == ip_address(flask.request.remote_addr).packed)
+
+    time_range_start = datetime.utcnow() - timedelta(seconds=app.config['UPLOAD_BURST_DURATION'])
+    # Count torrents uploaded by user/ip within given time period
+    torrent_count_query = db.session.query(sqlalchemy.func.count(Torrent.id))
+    torrent_count = filter_uploader(torrent_count_query).filter(
+        Torrent.created_time >= time_range_start).scalar()
+
+    # If user has reached burst limit...
+    if torrent_count >= app.config['MAX_UPLOAD_BURST']:
+        # Check how long ago their latest torrent was (we know at least one will exist)
+        last_torrent = filter_uploader(Torrent.query).order_by(Torrent.created_time.desc()).first()
+        after_timeout = last_torrent.created_time + timedelta(seconds=app.config['UPLOAD_TIMEOUT'])
+
+        if now < after_timeout:
+            next_allowed_time = after_timeout
+
+    return now, torrent_count, next_allowed_time
+
+
 def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     ''' Stores a torrent to the database.
         May throw TorrentExtraValidationException if the form/torrent fails
         post-WTForm validation! Exception messages will also be added to their
         relevant fields on the given form. '''
     torrent_data = upload_form.torrent_file.parsed_data
+
+    # Anonymous uploaders and non-trusted uploaders
+    no_or_new_account = (not uploading_user
+                         or (uploading_user.age < app.config['RATELIMIT_ACCOUNT_AGE']
+                             and not uploading_user.is_trusted))
+
+    if app.config['RATELIMIT_UPLOADS'] and no_or_new_account:
+        now, torrent_count, next_time = check_uploader_ratelimit(uploading_user)
+        if next_time > now:
+            # This will flag the dialog in upload.html red and tell API users what's wrong
+            upload_form.ratelimit.errors = ["You've gone over the upload ratelimit."]
+            raise TorrentExtraValidationException()
 
     # Delete exisiting torrent which is marked as deleted
     if torrent_data.db_id is not None:

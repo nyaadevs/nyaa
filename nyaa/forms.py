@@ -323,6 +323,8 @@ class UploadForm(FlaskForm):
         Length(max=10 * 1024, message='Description must be at most %(max)d characters long.')
     ])
 
+    ratelimit = HiddenField()
+
     def validate_torrent_file(form, field):
         # Decode and ensure data is bencoded data
         try:

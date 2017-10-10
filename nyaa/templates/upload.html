@@ -20,6 +20,23 @@
 	{% if config.ENFORCE_MAIN_ANNOUNCE_URL %}<p><strong>Important:</strong> Please include <kbd>{{ config.MAIN_ANNOUNCE_URL }}</kbd> in your trackers.</p>{% endif %}
 	<p><strong>Important:</strong> Make sure you have read <strong><a href="{{ url_for('site.rules') }}">the rules</a></strong> before uploading!</p>
 	<br>
+
+	{% if show_ratelimit %}
+	{% set ratelimit_class = 'danger' if upload_form.ratelimit.errors else 'warning' %}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="alert alert-{{ ratelimit_class }}" role="alert">
+				<div>You've reached your maximum upload rate ({{ config.MAX_UPLOAD_BURST }} per {{ config.UPLOAD_BURST_DURATION // 60}} minutes, you have <b>{{ ratelimit_count }}</b>) and will now have to wait {{ config.UPLOAD_TIMEOUT // 60 }} minutes between uploads.</div>
+				{% if next_upload_time %}
+				<div>You may upload again at <b data-timestamp="{{ next_upload_time|utc_timestamp }}">{{ next_upload_time.strftime('%Y-%m-%d %H:%M UTC') }}</b>.</div>
+				{% else %}
+				<div>You may upload again now.</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
 	<div class="row">
 		<div class="col-md-12">
 		{{ render_upload(upload_form.torrent_file, accept=".torrent") }}

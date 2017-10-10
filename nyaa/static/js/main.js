@@ -91,6 +91,7 @@ function _format_time_difference(seconds) {
 	if (seconds < 0) {
 		suffix = "";
 		prefix = "After ";
+		seconds = -seconds;
 	} else if (seconds == 0) {
 		return "Just now"
 	}

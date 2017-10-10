@@ -94,6 +94,13 @@ def get_utc_timestamp(datetime_str):
     return int((datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S') - UTC_EPOCH).total_seconds())
 
 
+@bp.app_template_filter('utc_timestamp')
+def get_utc_timestamp_seconds(datetime_instance):
+    """ Returns a UTC POSIX timestamp, as seconds """
+    UTC_EPOCH = datetime.utcfromtimestamp(0)
+    return int((datetime_instance - UTC_EPOCH).total_seconds())
+
+
 @bp.app_template_filter('display_time')
 def get_display_time(datetime_str):
     return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M')
