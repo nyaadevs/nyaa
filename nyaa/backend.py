@@ -149,7 +149,11 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent_data = upload_form.torrent_file.parsed_data
 
     # Anonymous uploaders and non-trusted uploaders
-    if app.config['RATELIMIT_UPLOADS'] and not uploading_user or not uploading_user.is_trusted:
+    no_or_new_account = (not uploading_user
+                         or (uploading_user.age < app.config['RATELIMIT_ACCOUNT_AGE']
+                             and not uploading_user.is_trusted))
+
+    if app.config['RATELIMIT_UPLOADS'] and no_or_new_account:
         now, torrent_count, next_time = check_uploader_ratelimit(uploading_user)
         if next_time > now:
             # This will flag the dialog in upload.html red and tell API users what's wrong

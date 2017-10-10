@@ -92,6 +92,7 @@ TRACKER_API_AUTH = 'topsecret'
 
 # Limit torrent upload rate
 RATELIMIT_UPLOADS = True
+RATELIMIT_ACCOUNT_AGE = 7 * 24 * 3600
 # After uploading MAX_UPLOAD_BURST torrents within UPLOAD_BURST_DURATION,
 # the following uploads must be at least UPLOAD_TIMEOUT seconds after the previous upload.
 MAX_UPLOAD_BURST = 5

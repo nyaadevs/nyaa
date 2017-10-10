@@ -392,7 +392,12 @@ def upload():
     ratelimit_count = 0
 
     # Anonymous uploaders and non-trusted uploaders
-    if app.config['RATELIMIT_UPLOADS'] and not flask.g.user or not flask.g.user.is_trusted:
+
+    no_or_new_account = (not flask.g.user
+                         or (flask.g.user.age < app.config['RATELIMIT_ACCOUNT_AGE']
+                             and not flask.g.user.is_trusted))
+
+    if app.config['RATELIMIT_UPLOADS'] and no_or_new_account:
         now, ratelimit_count, next_upload_time = backend.check_uploader_ratelimit(flask.g.user)
         show_ratelimit = ratelimit_count >= app.config['MAX_UPLOAD_BURST']
         next_upload_time = next_upload_time if next_upload_time > now else None
