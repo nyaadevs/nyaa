@@ -102,35 +102,39 @@ def view_user(user_name):
         return flask.redirect(url)
 
     if flask.request.method == 'POST' and ban_form and ban_form.nuke.data:
-        nyaa_banned = 0
-        sukebei_banned = 0
-        info_hashes = []
-        for t in chain(user.nyaa_torrents, user.sukebei_torrents):
-            t.deleted = True
-            t.banned = True
-            info_hashes.append([t.info_hash])
-            db.session.add(t)
-            if isinstance(t, models.NyaaTorrent):
-                nyaa_banned += 1
-            else:
-                sukebei_banned += 1
+        if flask.g.user.is_superadmin:
+            nyaa_banned = 0
+            sukebei_banned = 0
+            info_hashes = []
+            for t in chain(user.nyaa_torrents, user.sukebei_torrents):
+                t.deleted = True
+                t.banned = True
+                info_hashes.append([t.info_hash])
+                db.session.add(t)
+                if isinstance(t, models.NyaaTorrent):
+                    nyaa_banned += 1
+                else:
+                    sukebei_banned += 1
 
-        if info_hashes:
-            backend.tracker_api(info_hashes, 'ban')
+            if info_hashes:
+                backend.tracker_api(info_hashes, 'ban')
 
-        for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
-                                 (models.SukebeiAdminLog, sukebei_banned)):
-            if num > 0:
-                log = "Nuked {0} torrents of [{1}]({2})".format(num,
-                                                                user.username,
-                                                                url)
-                adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
-                db.session.add(adminlog)
+            for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
+                                     (models.SukebeiAdminLog, sukebei_banned)):
+                if num > 0:
+                    log = "Nuked {0} torrents of [{1}]({2})".format(num,
+                                                                    user.username,
+                                                                    url)
+                    adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
+                    db.session.add(adminlog)
 
-        db.session.commit()
-        flask.flash('Torrents of {0} have been nuked.'.format(user.username),
-                    'success')
-        return flask.redirect(url)
+            db.session.commit()
+            flask.flash('Torrents of {0} have been nuked.'.format(user.username),
+                        'success')
+            return flask.redirect(url)
+        else:
+            flask.flash('Insufficient permissions to nuke.', 'danger')
+            return flask.redirect(url)
 
     req_args = flask.request.args
 

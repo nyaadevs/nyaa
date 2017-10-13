@@ -292,7 +292,7 @@ def tracker_api(info_hashes, method):
     # Split list into at most 100 elements
     chunk_size = 100
     chunk_range = range(0, len(info_hashes), chunk_size)
-    chunked_info_hashes = (info_hashes[i:i+chunk_size] for i in chunk_range)
+    chunked_info_hashes = (info_hashes[i:i + chunk_size] for i in chunk_range)
 
     for info_hashes_chunk in chunked_info_hashes:
         qs = [

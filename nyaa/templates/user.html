@@ -113,7 +113,11 @@
 								{% endif %}
 							</div>
 							<div class="col-md-4 text-right">
+								{% if g.user.is_superadmin %}
 								{{ ban_form.nuke(value="\U0001F4A3 Nuke Torrents", class="btn btn-danger") }}
+								{% else %}
+								<button type="button" class="btn btn-danger disabled">&#x1f4a3; Nuke Torrents</button>
+								{% endif %}
 							</div>
 						</div>
 						{% endif %}
