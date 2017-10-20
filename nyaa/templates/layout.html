@@ -42,6 +42,7 @@
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<script src="{{ static_cachebuster('js/compat.js') }}"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.3.1/markdown-it.min.js" integrity="sha256-3WZyZQOe+ql3pLo90lrkRtALrlniGdnf//gRpW0UQks=" crossorigin="anonymous"></script>
 		<!-- Modified to not apply border-radius to selectpickers and stuff so our navbar looks cool -->
@@ -263,7 +264,7 @@
 					{% endif %}
 						<div class="input-group search-container hidden-xs hidden-sm">
 							<div class="input-group-btn nav-filter" id="navFilter-criteria">
-								<select class="selectpicker show-tick" title="Filter" data-width="120px" name="f">
+								<select class="form-control" title="Filter" data-width="120px" name="f">
 									<option value="0" title="No filter" {% if search is defined and search["quality_filter"] == "0" %}selected{% else %}selected{% endif %}>No filter</option>
 									<option value="1" title="No remakes" {% if search is defined and search["quality_filter"] == "1" %}selected{% endif %}>No remakes</option>
 									<option value="2" title="Trusted only" {% if search is defined and search["quality_filter"] == "2" %}selected{% endif %}>Trusted only</option>
@@ -287,7 +288,7 @@
 									{% endfor %}
 								</select>
 								#}
-								<select class="selectpicker show-tick" title="Category" data-width="130px" name="c">
+								<select class="form-control" title="Category" data-width="130px" name="c">
 									<option value="0_0" title="All categories" {% if search is defined and search["category"] == "0_0" %}selected{% else %}selected{% endif %}>
 										All categories
 									</option>
