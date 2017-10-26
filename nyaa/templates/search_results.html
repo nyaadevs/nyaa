@@ -27,9 +27,6 @@
 	{{ render_pagination(torrent_query) }}
 	{% endif %}
 </div>
-{% endif %}
-
-{% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
