@@ -342,6 +342,9 @@ def delete_comment(torrent_id, comment_id):
     if not (comment.user.id == flask.g.user.id or flask.g.user.is_moderator):
         flask.abort(403)
 
+    if torrent_id != comment.torrent_id:
+        flask.abort(400)
+
     db.session.delete(comment)
     db.session.flush()
     torrent.update_comment_count()
