@@ -433,6 +433,7 @@ class CommentBase(DeclarativeHelperBase):
         return db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    edited_time = db.Column(db.DateTime(timezone=False), onupdate=datetime.utcnow)
     text = db.Column(TextType(collation=COL_UTF8MB4_BIN), nullable=False)
 
     @declarative.declared_attr

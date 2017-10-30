@@ -271,6 +271,10 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	color: #a760e0;
 }
 
+.comment-details {
+	margin-bottom: 10px;
+}
+
 .comment-content {
 	overflow-wrap: break-word;
 }
@@ -286,9 +290,37 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	margin-bottom: 10px;
 }
 
-.delete-comment-form {
+.comment-actions {
 	position: relative;
 	float: right;
+}
+
+.delete-comment-form {
+	display: inline-block;
+}
+
+.edit-comment-box {
+	display: none;
+}
+
+.is-editing .edit-comment-box {
+	display: block;
+}
+
+.is-editing .comment-content {
+	display: none;
+}
+
+.edit-waiting {
+	float: right;
+	width: 20px;
+	height: 20px;
+	border: 2px solid;
+	border-color: gray transparent;
+	border-radius: 100%;
+	position: relative;
+	top: 4px;
+	animation: fa-spin 1s infinite linear;
 }
 
 #comment {
