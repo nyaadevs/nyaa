@@ -2,6 +2,7 @@ import json
 import os.path
 from ipaddress import ip_address
 from urllib.parse import quote
+import re
 
 import flask
 from werkzeug.datastructures import CombinedMultiDict
@@ -14,6 +15,26 @@ from nyaa.utils import cached_function
 
 app = flask.current_app
 bp = flask.Blueprint('torrents', __name__)
+pattern = re.compile(r'\B\@\w+')
+
+
+def update_notification_number(body, read, comment_count, name, torrent_id):
+    old_comment_count = body.split()[2]
+    if old_comment_count.isdigit():
+        old_comment_count = int(old_comment_count)
+    else:
+        old_comment_count = 1
+    if not read:
+        body = 'There are {} new comments on your torrent [{}]({}#comments)'.format(
+            old_comment_count+1,
+            name,
+            flask.url_for('torrents.view', torrent_id=torrent_id))
+    else:
+        body = 'There is a new comment on your torrent [{}]({}#comments)'.format(
+            name,
+            flask.url_for('torrents.view', torrent_id=torrent_id))
+
+    return body
 
 
 @bp.route('/view/<int:torrent_id>', endpoint='view', methods=['GET', 'POST'])
@@ -43,6 +64,55 @@ def view_torrent(torrent_id):
 
         if comment_form.validate():
             comment_text = (comment_form.comment.data or '').strip()
+
+            mentioned = pattern.findall(comment_text)
+            if mentioned:
+                notification = 'You were mentioned by [{}]({}) ' \
+                               'in a comment of torrent [{}]({}#comments)'\
+                    .format(flask.g.user.username,
+                            flask.url_for('users.view_user', user_name=flask.g.user.username),
+                            torrent.display_name,
+                            flask.url_for('torrents.view', torrent_id=torrent_id))
+                for username in set(mentioned[:5]):
+                    user = models.User.by_username(username[1:])
+                    if user:
+                        notification = models.Notification(
+                            user_id=user.id,
+                            torrent_id=torrent_id,
+                            body=notification,
+                            type='userMention')
+                        db.session.add(notification)
+
+            if torrent.notifications and not torrent.anonymous and flask.g.user is not torrent.user:
+                notification = models.Notification.get_torrent_comments(
+                    user_id=torrent.user.id,
+                    torrent_id=torrent.id)
+                if not notification:
+                    notification_body = 'There is a new comment on your torrent [{}]({}#comments)'\
+                        .format(torrent.display_name,
+                                flask.url_for('torrents.view', torrent_id=torrent_id))
+                    notification = models.Notification(
+                        user_id=torrent.user.id,
+                        torrent_id=torrent_id,
+                        body=notification_body,
+                        type='torrentComment')
+                    db.session.add(notification)
+                else:
+                    notification_body = update_notification_number(
+                        notification.body,
+                        notification.read,
+                        torrent.comment_count,
+                        torrent.display_name,
+                        torrent_id)
+                    if not notification.read:
+                        notification.body = notification_body
+                    else:
+                        notification = models.Notification(
+                            user_id=torrent.user.id,
+                            torrent_id=torrent_id,
+                            body=notification_body,
+                            type='torrentComment')
+                        db.session.add(notification)
 
             comment = models.Comment(
                 torrent_id=torrent_id,
@@ -115,6 +185,7 @@ def edit_torrent(torrent_id):
         torrent.remake = form.is_remake.data
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
+        torrent.notifications = form.notifications_enabled.data
 
         if editor.is_trusted:
             torrent.trusted = form.is_trusted.data
@@ -152,6 +223,7 @@ def edit_torrent(torrent_id):
             form.is_remake.data = torrent.remake
             form.is_complete.data = torrent.complete
             form.is_anonymous.data = torrent.anonymous
+            form.notifications_enabled.data = torrent.notifications
 
             form.is_trusted.data = torrent.trusted
             form.is_deleted.data = torrent.deleted
