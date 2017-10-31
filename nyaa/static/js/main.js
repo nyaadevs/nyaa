@@ -80,9 +80,25 @@ $(document).ready(function() {
 		$(this).closest('.comment').toggleClass('is-editing');
 	});
 
+	$('[data-until]').each(function() {
+		var $this = $(this),
+			text = $(this).text(),
+			until = $this.data('until');
+		
+		var displayTimeRemaining = function() {
+			var diff = Math.max(0, until - (Date.now() / 1000) | 0),
+				min = Math.floor(diff / 60),
+				sec = diff % 60;
+			$this.text(text + ' (' + min + ':' + ('00' + sec).slice(-2) + ')');
+		};
+
+		displayTimeRemaining();
+		setInterval(displayTimeRemaining, 1000);
+	});
+
 	$('.edit-comment-box').submit(function(e) {
 		e.preventDefault();
-		
+
 		var $this = $(this),
 			$submitButton = $this.find('[type=submit]').attr('disabled', 'disabled'),
 			$waitIndicator = $this.find('.edit-waiting').show()

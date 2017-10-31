@@ -127,3 +127,11 @@ ENABLE_ELASTIC_SEARCH_HIGHLIGHT = False
 ES_MAX_SEARCH_RESULT = 1000
 # ES index name generally (nyaa or sukebei)
 ES_INDEX_NAME = SITE_FLAVOR
+
+################
+## Commenting ##
+################
+
+# Time limit for editing a comment after it has been posted (seconds)
+# Set to 0 to disable
+EDITING_TIME_LIMIT = 0

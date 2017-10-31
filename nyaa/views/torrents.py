@@ -342,6 +342,10 @@ def edit_comment(torrent_id, comment_id):
     if not comment.user.id == flask.g.user.id:
         flask.abort(403)
 
+    if comment.editing_limit_exceeded:
+        flask.abort(flask.make_response(flask.jsonify(
+            {'error': 'Editing time limit exceeded.'}), 400))
+
     form = forms.CommentForm(flask.request.form)
 
     if not form.validate():

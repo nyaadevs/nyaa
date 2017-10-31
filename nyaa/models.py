@@ -449,6 +449,15 @@ class CommentBase(DeclarativeHelperBase):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
 
+    @property
+    def editable_until(self):
+        return self.created_utc_timestamp + config['EDITING_TIME_LIMIT']
+
+    @property
+    def editing_limit_exceeded(self):
+        limit = config['EDITING_TIME_LIMIT']
+        return bool(limit and (datetime.utcnow() - self.created_time).total_seconds() >= limit)
+
 
 class UserLevelType(IntEnum):
     REGULAR = 0

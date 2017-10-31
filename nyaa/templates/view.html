@@ -159,8 +159,8 @@
 					<small title="{{ comment.edited_time }}">(edited)</small>
 					{% endif %}
 					<div class="comment-actions">
-						{% if g.user.id == comment.user_id %}
-						<button class="btn btn-xs edit-comment" title="Edit">Edit</button>
+						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded %}
+						<button class="btn btn-xs edit-comment" title="Edit"{% if config.EDITING_TIME_LIMIT %} data-until="{{ comment.editable_until|int }}"{% endif %}>Edit</button>
 						{% endif %}
 						{% if g.user.is_moderator or g.user.id == comment.user_id %}
 						<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
