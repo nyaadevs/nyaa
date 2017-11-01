@@ -74,6 +74,7 @@ def home(rss):
 
     category = chain_get(req_args, 'c', 'cats')
     quality_filter = chain_get(req_args, 'f', 'filter')
+    date_filter = chain_get(req_args, 'd', 'date')
 
     user_name = chain_get(req_args, 'u', 'user')
     page_number = chain_get(req_args, 'p', 'page', 'offset')
@@ -86,6 +87,9 @@ def home(rss):
     use_magnet_links = 'magnets' in req_args or 'm' in req_args
 
     results_per_page = app.config.get('RESULTS_PER_PAGE', DEFAULT_PER_PAGE)
+
+    if not re.match(r'^\d{4}-\d{2}-\d{2} - \d{4}-\d{2}-\d{2}$', str(date_filter)):
+        date_filter = ''
 
     user_id = None
     if user_name:
@@ -120,6 +124,7 @@ def home(rss):
         'order': sort_order or 'desc',
         'category': category or '0_0',
         'quality_filter': quality_filter or '0',
+        'date_filter': date_filter,
         'page': page_number,
         'rss': render_as_rss,
         'per_page': results_per_page

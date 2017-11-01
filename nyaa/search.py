@@ -70,7 +70,7 @@ def _generate_query_string(term, category, filter, user):
 
 
 def search_elastic(term='', user=None, sort='id', order='desc',
-                   category='0_0', quality_filter='0', page=1,
+                   category='0_0', quality_filter='0', date_filter='', page=1,
                    rss=False, admin=False, logged_in_user=None,
                    per_page=75, max_search_results=1000):
     # This function can easily be memcached now
@@ -172,6 +172,10 @@ def search_elastic(term='', user=None, sort='id', order='desc',
                     default_operator="AND",
                     query=term)
 
+    if date_filter:
+        date_min, date_max = date_filter.replace('-00', '-01').split(' - ')[:2]
+        s = s.filter('range', created_time={'gte': date_min, 'lte': date_max})
+
     # User view (/user/username)
     if user:
         s = s.filter('term', uploader_id=user)
@@ -263,7 +267,7 @@ class QueryPairCaller(object):
 
 
 def search_db(term='', user=None, sort='id', order='desc', category='0_0',
-              quality_filter='0', page=1, rss=False, admin=False,
+              quality_filter='0', date_filter='', page=1, rss=False, admin=False,
               logged_in_user=None, per_page=75):
     if page > 4294967295:
         flask.abort(404)
@@ -391,6 +395,13 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     elif sub_category:
         qpc.filter((models.Torrent.main_category_id == main_cat_id) &
                    (models.Torrent.sub_category_id == sub_cat_id))
+
+    if date_filter:
+        date_min, date_max = date_filter.replace('-00', '-01').split(' - ')[:2]
+        date_min += ' 00:00:00'
+        date_max += ' 23:59:59'
+        qpc.filter((models.Torrent.created_time <= date_max) &
+                   (models.Torrent.created_time >= date_min))
 
     if filter_tuple:
         qpc.filter(models.Torrent.flags.op('&')(

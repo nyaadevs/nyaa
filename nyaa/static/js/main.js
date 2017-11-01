@@ -74,6 +74,22 @@ $(document).ready(function() {
 		$(this).blur().children('i').toggleClass('fa-folder-open fa-folder');
 		$(this).next().stop().slideToggle(250);
 	});
+
+    // Date range picker
+    $(function() {
+        var el = $('input[name="d"');
+        el.daterangepicker({
+            "linkedCalendars": false,
+            "autoUpdateInput": true,
+            "startDate": el.attr('value') ? el.attr('value') : moment().subtract(6, 'days'),
+            "endDate": el.attr('value') ? el.attr('value').replace(/.* - /, '') : moment(),
+            "autoApply": true,
+            "locale": {
+                "format": "YYYY-MM-DD",
+                "separator": " - "
+            },
+        });
+    });
 });
 
 function _format_time_difference(seconds) {
