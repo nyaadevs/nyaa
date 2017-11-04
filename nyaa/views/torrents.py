@@ -447,6 +447,12 @@ def _get_cached_torrent_file(torrent):
                                   'torrent_cache', str(torrent.id) + '.torrent')
     if not os.path.exists(cached_torrent):
         with open(cached_torrent, 'wb') as out_file:
-            out_file.write(torrents.create_bencoded_torrent(torrent))
+            metadata_base = torrents.create_default_metadata_base(torrent)
+            # Replace the default comment with url to the torrent page
+            metadata_base['comment'] = flask.url_for('torrents.view',
+                                                     torrent_id=torrent.id,
+                                                     _external=True)
+
+            out_file.write(torrents.create_bencoded_torrent(torrent, metadata_base))
 
     return open(cached_torrent, 'rb'), os.path.getsize(cached_torrent)
