@@ -330,6 +330,37 @@ def download_torrent(torrent_id):
     return resp
 
 
+@bp.route('/view/<int:torrent_id>/comment/<int:comment_id>/edit', methods=['POST'])
+def edit_comment(torrent_id, comment_id):
+    if not flask.g.user:
+        flask.abort(403)
+    torrent = models.Torrent.by_id(torrent_id)
+    if not torrent:
+        flask.abort(404)
+
+    comment = models.Comment.query.get(comment_id)
+    if not comment:
+        flask.abort(404)
+
+    if not comment.user.id == flask.g.user.id:
+        flask.abort(403)
+
+    if comment.editing_limit_exceeded:
+        flask.abort(flask.make_response(flask.jsonify(
+            {'error': 'Editing time limit exceeded.'}), 400))
+
+    form = forms.CommentForm(flask.request.form)
+
+    if not form.validate():
+        error_str = ' '.join(form.errors['comment'])
+        flask.abort(flask.make_response(flask.jsonify({'error': error_str}), 400))
+
+    comment.text = form.comment.data
+    db.session.commit()
+
+    return flask.jsonify({'comment': comment.text})
+
+
 @bp.route('/view/<int:torrent_id>/comment/<int:comment_id>/delete', methods=['POST'])
 def delete_comment(torrent_id, comment_id):
     if not flask.g.user:

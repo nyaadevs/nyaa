@@ -184,7 +184,7 @@ class CommentForm(FlaskForm):
     comment = TextAreaField('Make a comment', [
         Length(min=3, max=1024, message='Comment must be at least %(min)d characters '
                'long and %(max)d at most.'),
-        DataRequired()
+        DataRequired(message='Comment must not be empty.')
     ])
 
 

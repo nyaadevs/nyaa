@@ -433,6 +433,7 @@ class CommentBase(DeclarativeHelperBase):
         return db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    edited_time = db.Column(db.DateTime(timezone=False), onupdate=datetime.utcnow)
     text = db.Column(TextType(collation=COL_UTF8MB4_BIN), nullable=False)
 
     @declarative.declared_attr
@@ -447,6 +448,15 @@ class CommentBase(DeclarativeHelperBase):
     def created_utc_timestamp(self):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @property
+    def editable_until(self):
+        return self.created_utc_timestamp + config['EDITING_TIME_LIMIT']
+
+    @property
+    def editing_limit_exceeded(self):
+        limit = config['EDITING_TIME_LIMIT']
+        return bool(limit and (datetime.utcnow() - self.created_time).total_seconds() >= limit)
 
 
 class UserLevelType(IntEnum):

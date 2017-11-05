@@ -74,6 +74,52 @@ $(document).ready(function() {
 		$(this).blur().children('i').toggleClass('fa-folder-open fa-folder');
 		$(this).next().stop().slideToggle(250);
 	});
+
+	$('.edit-comment').click(function(e) {
+		e.preventDefault();
+		$(this).closest('.comment').toggleClass('is-editing');
+	});
+
+	$('[data-until]').each(function() {
+		var $this = $(this),
+			text = $(this).text(),
+			until = $this.data('until');
+		
+		var displayTimeRemaining = function() {
+			var diff = Math.max(0, until - (Date.now() / 1000) | 0),
+				min = Math.floor(diff / 60),
+				sec = diff % 60;
+			$this.text(text + ' (' + min + ':' + ('00' + sec).slice(-2) + ')');
+		};
+
+		displayTimeRemaining();
+		setInterval(displayTimeRemaining, 1000);
+	});
+
+	$('.edit-comment-box').submit(function(e) {
+		e.preventDefault();
+
+		var $this = $(this),
+			$submitButton = $this.find('[type=submit]').attr('disabled', 'disabled'),
+			$waitIndicator = $this.find('.edit-waiting').show()
+			$errorStatus = $this.find('.edit-error').empty();
+
+		$.ajax({
+			type: $this.attr('method'),
+			url: $this.attr('action'),
+			data: $this.serialize()
+		}).done(function(data) {
+			var $comment = $this.closest('.comment');
+			$comment.find('.comment-content').html(markdown.render(data.comment));		
+			$comment.toggleClass('is-editing');
+		}).fail(function(xhr) {
+			var error = xhr.responseJSON && xhr.responseJSON.error || 'An unknown error occurred.';
+			$errorStatus.text(error);
+		}).always(function() {
+			$submitButton.removeAttr('disabled');
+			$waitIndicator.hide();
+		});
+	})
 });
 
 function _format_time_difference(seconds) {
