@@ -74,6 +74,16 @@ $(document).ready(function() {
 		$(this).blur().children('i').toggleClass('fa-folder-open fa-folder');
 		$(this).next().stop().slideToggle(250);
 	});
+
+	var category = localStorage.getItem('category');
+	var select = $('#category');
+	if (category) {
+		select.selectpicker('val', category);
+	}
+
+	select.on('changed.bs.select', function (e) {
+		localStorage.setItem('category', e.target.value.toString());
+	});
 });
 
 function _format_time_difference(seconds) {
