@@ -316,9 +316,6 @@ def download_torrent(torrent_id):
     if not torrent or not torrent.has_torrent:
         flask.abort(404)
 
-    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
-        flask.abort(404)
-
     torrent_file, torrent_file_size = _get_cached_torrent_file(torrent)
     disposition = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
         quote(torrent.torrent_name.encode('utf-8')))
