@@ -66,7 +66,7 @@ def static_cachebuster(filename):
 def modify_query(**new_values):
     args = flask.request.args.copy()
 
-    args.pop('p')
+    args.pop('p', None)
 
     for key, value in new_values.items():
         args[key] = value
