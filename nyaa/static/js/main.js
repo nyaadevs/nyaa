@@ -121,6 +121,35 @@ $(document).ready(function() {
 			$waitIndicator.hide();
 		});
 	})
+
+    $('.comments').hover(function(e) {
+        var elementPosition = $(this).position();
+
+        $('#commentsPreview').css({
+            'top': elementPosition.top + 20,
+            'left': elementPosition.left,
+            'position': 'absolute',
+            'border': '1px solid black',
+            'padding': '5px',
+            'z-index': 5,
+            'background-color': 'white'
+        });
+        $('#commentsPreview').show();
+
+        var urlParts = this.pathname.split('/'),
+            torrentId = urlParts[urlParts.length - 1];
+
+        $.ajax({
+            url: '/comments-preview/' + torrentId,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                $('#commentsPreview').html(data);
+            }
+        });
+    }, function() {
+        $('#commentsPreview').hide();
+    });
 });
 
 function _format_time_difference(seconds) {
