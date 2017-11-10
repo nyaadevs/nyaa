@@ -1,0 +1,28 @@
+{% block body %}
+{% for comment in comments %}
+	<div class="panel panel-default comment-panel" id="com-{{ loop.index }}">
+		<div class="panel-body">
+			<div class="col-md-6">
+				<p>
+					<p class="text-{{ comment.user.userlevel_color }}" data-toggle="tooltip" title="{{ comment.user.userlevel_str }}">{{ comment.user.username }}</p>
+					{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
+					(uploader)
+					{% endif %}
+				</p>
+			</div>
+			<div class="col-md-6 comment">
+				<div class="row comment-details">
+					<small data-timestamp-swap data-timestamp="{{ comment.created_utc_timestamp|int }}">{{ comment.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</small>
+					{% if comment.edited_time %}
+					<small title="{{ comment.edited_time }}">(edited)</small>
+					{% endif %}
+				</div>
+				<div class="row">
+					{# Escape newlines into html entities because CF strips blank newlines #}
+					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endfor %}
+{% endblock %}

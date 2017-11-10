@@ -327,6 +327,10 @@
 			{% if config.COMMIT_HASH %}
 			<p>Commit: <a href="https://github.com/nyaadevs/nyaa/tree/{{ config.COMMIT_HASH }}">{{ config.COMMIT_HASH[:7] }}</a></p>
 			{% endif %}
+
+			<div id="commentsPreview" style="display: none;">
+				Please wait.
+			</div>
 		</footer>
 	</body>
 </html>
