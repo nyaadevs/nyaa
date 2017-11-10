@@ -565,3 +565,9 @@ td.report-action-column {
 		width: 400px;
 	}
 }
+
+
+/* Override <blockquote> font size (assume main.css comes after bootstrap) */
+blockquote {
+	font-size: inherit;
+}

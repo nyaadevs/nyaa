@@ -67,7 +67,7 @@ $(document).ready(function() {
 		$('#torrent_file')[0].files = files;
 		$(this).css({ 'visibility': 'hidden', 'opacity': 0 });
 	});
-	
+
 	// Collapsible file lists
 	$('.torrent-file-list a.folder').click(function(e) {
 		e.preventDefault();
@@ -75,6 +75,7 @@ $(document).ready(function() {
 		$(this).next().stop().slideToggle(250);
 	});
 
+	// Comment editing below
 	$('.edit-comment').click(function(e) {
 		e.preventDefault();
 		$(this).closest('.comment').toggleClass('is-editing');
@@ -84,7 +85,7 @@ $(document).ready(function() {
 		var $this = $(this),
 			text = $(this).text(),
 			until = $this.data('until');
-		
+
 		var displayTimeRemaining = function() {
 			var diff = Math.max(0, until - (Date.now() / 1000) | 0),
 				min = Math.floor(diff / 60),
@@ -110,7 +111,7 @@ $(document).ready(function() {
 			data: $this.serialize()
 		}).done(function(data) {
 			var $comment = $this.closest('.comment');
-			$comment.find('.comment-content').html(markdown.render(data.comment));		
+			$comment.find('.comment-content').html(markdown.render(data.comment));
 			$comment.toggleClass('is-editing');
 		}).fail(function(xhr) {
 			var error = xhr.responseJSON && xhr.responseJSON.error || 'An unknown error occurred.';
@@ -234,14 +235,23 @@ document.addEventListener("DOMContentLoaded", function() {
 	for (var i = 0; i < markdownTargets.length; i++) {
 		var target = markdownTargets[i];
 		var rendered;
+		var markdownSource = htmlDecode(target.innerHTML);
 		if (target.attributes["markdown-text-inline"]) {
-			rendered = markdown.renderInline(target.innerHTML);
+			rendered = markdown.renderInline(markdownSource);
 		} else {
-			rendered = markdown.render(target.innerHTML);
+			rendered = markdown.render(markdownSource);
 		}
 		target.innerHTML = rendered;
 	}
 });
+
+
+// Decode HTML entities (&gt; etc), used for decoding comment markdown from escaped text
+function htmlDecode(input){
+	var e = document.createElement('div');
+	e.innerHTML = input;
+	return e.childNodes[0].nodeValue;
+}
 
 //
 // This is the unminified version of the theme changer script in the layout.html @ line: 21
