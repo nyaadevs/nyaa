@@ -487,3 +487,21 @@ def _get_cached_torrent_file(torrent):
             out_file.write(torrents.create_bencoded_torrent(torrent, metadata_base))
 
     return open(cached_torrent, 'rb'), os.path.getsize(cached_torrent)
+
+
+@bp.route('/comments-preview/<int:torrent_id>/', methods=['GET'])
+def comments_preview(torrent_id):
+    torrent = (models.Torrent.query
+               .options(joinedload('comments'))
+               .filter_by(id=torrent_id)
+               .first())
+    if not torrent:
+        flask.abort(404)
+
+    # Only allow admins see deleted torrents
+    if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
+        flask.abort(404)
+
+    return flask.jsonify(flask.render_template('comments_preview.html',
+                                               torrent=torrent,
+                                               comments=torrent.comments[:5]))
