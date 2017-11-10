@@ -174,6 +174,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		var target = timestamp_targets[i];
 		var torrent_timestamp = parseInt(target.getAttribute('data-timestamp'));
 		var swap_flag = target.getAttribute('data-timestamp-swap') != null;
+		var title_flag = target.getAttribute('data-timestamp-title') != null;
 
 		if (torrent_timestamp) {
 			var timedelta = now_timestamp - torrent_timestamp;
@@ -182,10 +183,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			var formatted_timedelta = _format_time_difference(timedelta);
 			if (swap_flag) {
 				target.setAttribute('title', formatted_date);
-				target.innerText = formatted_timedelta;
+				if (!title_flag) {
+					target.innerText = formatted_timedelta;
+				}
 			} else {
 				target.setAttribute('title', formatted_timedelta);
-				target.innerText = formatted_date;
+				if (!title_flag) {
+					target.innerText = formatted_date;
+				}
 			}
 		}
 	};

@@ -156,7 +156,7 @@
 				<div class="row comment-details">
 					<a href="#com-{{ loop.index }}"><small data-timestamp-swap data-timestamp="{{ comment.created_utc_timestamp|int }}">{{ comment.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</small></a>
 					{% if comment.edited_time %}
-					<small title="{{ comment.edited_time }}">(edited)</small>
+					<small data-timestamp-swap data-timestamp-title data-timestamp="{{ comment.edited_utc_timestamp }}" title="{{ comment.edited_time }}">(edited)</small>
 					{% endif %}
 					<div class="comment-actions">
 						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded %}
