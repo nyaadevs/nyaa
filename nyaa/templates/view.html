@@ -171,12 +171,12 @@
 				</div>
 				<div class="row">
 					{# Escape newlines into html entities because CF strips blank newlines #}
-					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
+					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</div>
 					{% if g.user.id == comment.user_id %}
 					<form class="edit-comment-box" action="{{ url_for('torrents.edit_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 						{{ comment_form.csrf_token }}
 						<div class="form-group">
-							<textarea class="form-control" name="comment" autofocus>{{ comment.text }}</textarea>
+							<textarea class="form-control" name="comment" autofocus>{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</textarea>
 						</div>
 						<input type="submit" value="Submit" class="btn btn-success btn-sm">
 						<button class="btn btn-sm edit-comment" title="Cancel">Cancel</button>
