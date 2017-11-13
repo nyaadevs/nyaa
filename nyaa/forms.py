@@ -417,6 +417,7 @@ class ReportActionForm(FlaskForm):
 
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
+    assert announce is not None, 'no tracker in torrent'
     announce_string = _validate_bytes(announce, 'announce', test_decode='utf-8')
 
     tracker_found = tracker_to_check_for and (
