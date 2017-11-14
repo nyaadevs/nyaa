@@ -1,3 +1,4 @@
+import base64
 import math
 import re
 from datetime import datetime, timedelta
@@ -107,11 +108,17 @@ def home(rss):
             special_results['first_word_user'] = models.User.by_username(user_word_match.group(1))
             special_results['query_sans_user'] = user_word_match.group(2)
 
-        # Check if search is a 40-char torrent hash
+        # Check if search is a 40-char torrent hash (or 32-char base32 hash)
         infohash_match = re.match(r'(?i)^([a-f0-9]{40})$', search_term)
+        base32_infohash_match = re.match(r'(?i)^([a-z0-9]{32})$', search_term)
         if infohash_match:
             # Check for info hash in database
             matched_torrent = models.Torrent.by_info_hash_hex(infohash_match.group(1))
+            special_results['infohash_torrent'] = matched_torrent
+        elif base32_infohash_match:
+            # Convert base32 to info_hash
+            info_hash = base64.b32decode(base32_infohash_match.group(1))
+            matched_torrent = models.Torrent.by_info_hash(info_hash)
             special_results['infohash_torrent'] = matched_torrent
 
     query_args = {
