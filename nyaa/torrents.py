@@ -11,16 +11,13 @@ from nyaa import bencode
 
 USED_TRACKERS = OrderedSet()
 
-# Limit the amount of trackers added into .torrent files
-MAX_TRACKERS = 5
-
 
 def read_trackers_from_file(file_object):
     USED_TRACKERS.clear()
 
     for line in file_object:
         line = line.strip()
-        if line:
+        if line and not line.startswith('#'):
             USED_TRACKERS.add(line)
     return USED_TRACKERS
 
@@ -104,7 +101,7 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
     metadata_base = {
         'created by': 'NyaaV2',
         'creation date': int(time.time()),
-        'comment': 'NyaaV2 Torrent #' + str(torrent.id),  # Throw the url here or something neat
+        'comment': 'NyaaV2 Torrent #' + str(torrent.id),
         # 'encoding' : 'UTF-8' # It's almost always UTF-8 and expected, but if it isn't...
     }
 
@@ -112,7 +109,7 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
         metadata_base['announce'] = trackers[0]
     if len(trackers) > 1:
         # Yes, it's a list of lists with a single element inside.
-        metadata_base['announce-list'] = [[tracker] for tracker in trackers[:MAX_TRACKERS]]
+        metadata_base['announce-list'] = [[tracker] for tracker in trackers]
 
     # Add webseeds
     if webseeds:

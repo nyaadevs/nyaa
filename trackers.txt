@@ -1,3 +1,6 @@
+# These trackers will be added to all generated torrents,
+# to ensure the torrents' continued life in case one or two die.
+# One tracker per line, lines starting with # are disregarded
 udp://open.stealth.si:80/announce
 udp://tracker.opentrackr.org:1337/announce
 udp://tracker.coppersurfer.tk:6969/announce
