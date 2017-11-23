@@ -69,6 +69,23 @@ def upload_recaptcha_validator_shim(form, field):
         return True
 
 
+def register_email_validator(form, field):
+    email_blacklist = app.config.get('EMAIL_BLACKLIST', [])
+    email = field.data.strip()
+    validation_exception = StopValidation('Blacklisted email provider')
+
+    for item in email_blacklist:
+        if isinstance(item, re._pattern_type):
+            if item.search(email):
+                raise validation_exception
+        elif isinstance(item, str):
+            if item in email.lower():
+                raise validation_exception
+        else:
+            raise Exception('Unexpected email validator type {!r} ({!r})'.format(type(item), item))
+    return True
+
+
 _username_validator = Regexp(
     r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
@@ -112,6 +129,7 @@ class RegisterForm(FlaskForm):
         Email(),
         DataRequired(),
         Length(min=5, max=128),
+        register_email_validator,
         Unique(User, User.email, 'Email already in use by another account')
     ])
 
