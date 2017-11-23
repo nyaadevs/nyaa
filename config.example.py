@@ -1,4 +1,5 @@
 import os
+import re
 
 DEBUG = True
 
@@ -43,6 +44,19 @@ ENABLE_SHOW_STATS = True
 # Enable password recovery (by reset link to given email address)
 # Depends on email support!
 ALLOW_PASSWORD_RESET = True
+
+# A list of strings or compiled regexes to deny registering emails by.
+# Regexes will be .search()'d against emails,
+# while strings will be a simple 'string in email.lower()' check.
+# Leave empty to disable the blacklist.
+EMAIL_BLACKLIST = (
+    # Hotmail completely rejects "untrusted" emails,
+    # so it's less of a headache to blacklist them as users can't receive the mails anyway.
+    re.compile(r'(?i)@((hotmail|live|msn|outlook|passport)\.com|passport\.net)'),
+    re.compile(r'(?i)@outlook\.(at|be|cl|co\.(id|il|nz|th)|com\.(ar|au|br|gr|pe|tr|vn)|cz|de|dk|es|fr|hu|ie|in|it|jp|kr|lv|my|ph|pt|sa|sg|sk)'),
+    # '@dodgydomain.tk'
+)
+
 
 # Recaptcha keys (https://www.google.com/recaptcha)
 RECAPTCHA_PUBLIC_KEY = '***'
