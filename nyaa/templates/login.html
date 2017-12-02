@@ -12,7 +12,7 @@
 
 		<div class="row">
 			<div class="form-group col-md-4">
-				{{ render_field(form.username, class_='form-control', placeholder='Username', autofocus='') }}
+				{{ render_field(form.username, class_='form-control', placeholder='Username', autofocus='', tabindex='1') }}
 			</div>
 		</div>
 
@@ -32,7 +32,7 @@
 						</small>
 						{% endif%}
 
-						{{ form.password(title=form.password.description, class_='form-control') | safe }}
+						{{ form.password(title=form.password.description, class_='form-control', tabindex='2') | safe }}
 						{% if form.password.errors %}
 							<div class="help-block">
 								{% if form.password.errors|length < 2 %}
@@ -54,7 +54,7 @@
 
 		<div class="row">
 			<div class="col-md-4">
-				<input type="submit" value="Login" class="btn btn-primary">
+				<input type="submit" value="Login" class="btn btn-primary" tabindex="3">
 			</div>
 		</div>
 	</form>
