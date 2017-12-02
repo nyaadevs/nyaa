@@ -226,6 +226,33 @@ def view_user(user_name):
                                      ipbanned=ipbanned)
 
 
+@bp.route('/user/<user_name>/comments')
+def view_user_comments(user_name):
+    user = models.User.by_username(user_name)
+
+    if not user:
+        flask.abort(404)
+
+    # Only moderators get to see all comments for now
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page_number = flask.request.args.get('p')
+    try:
+        page_number = max(1, int(page_number))
+    except (ValueError, TypeError):
+        page_number = 1
+
+    comments_per_page = 100
+
+    comments_query = (models.Comment.query.filter(models.Comment.user_id)
+                                          .order_by(models.Comment.created_time.desc()))
+    comments_query = comments_query.paginate_faste(page_number, per_page=comments_per_page, step=5)
+    return flask.render_template('user_comments.html',
+                                 comments_query=comments_query,
+                                 user=user)
+
+
 @bp.route('/user/activate/<payload>')
 def activate_user(payload):
     if app.config['MAINTENANCE_MODE']:

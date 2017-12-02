@@ -441,6 +441,11 @@ class CommentBase(DeclarativeHelperBase):
         return db.relationship('User', uselist=False,
                                back_populates=cls._table_prefix('comments'), lazy="joined")
 
+    @declarative.declared_attr
+    def torrent(cls):
+        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False,
+                               back_populates='comments', lazy="joined")
+
     def __repr__(self):
         return '<Comment %r>' % self.id
 

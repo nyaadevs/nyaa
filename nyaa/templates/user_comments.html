@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block title %}Comments made by {{ user.username }} :: {{ config.SITE_NAME }}{% endblock %}
+{% block meta_image %}{{ user.gravatar_url() }}{% endblock %}
+{% block metatags %}
+<meta property="og:description" content="Comments made by {{ user.username }}">
+{% endblock %}
+
+{% block body %}
+{% from "_formhelpers.html" import render_menu_with_button %}
+{% from "_formhelpers.html" import render_field %}
+
+<h3>
+	<span class="text-{{ user.userlevel_color }}" data-toggle="tooltip" title="{{ user.userlevel_str }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} comments
+</h3>
+
+{% if comments_query.items %}
+<div id="comments" class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			Total of {{ comments_query.total }} comments
+		</h3>
+	</div>
+	{% for comment in comments_query.items %}
+	<div class="panel panel-default comment-panel">
+		<div class="panel-body">
+			<div class="col-md-2">
+				<p>
+					<a class="text-{{ comment.user.userlevel_color }}" href="{{ url_for('users.view_user', user_name=comment.user.username) }}" data-toggle="tooltip" title="{{ comment.user.userlevel_str }}">{{ comment.user.username }}</a>
+				</p>
+				<img class="avatar" src="{{ comment.user.gravatar_url() }}" alt="{{ comment.user.userlevel_str }}">
+			</div>
+			<div class="col-md-10 comment">
+				<div class="row comment-details">
+					<a href="#com-{{ loop.index }}"><small data-timestamp-swap data-timestamp="{{ comment.created_utc_timestamp|int }}">{{ comment.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</small></a>
+					{% if comment.edited_time %}
+					<small data-timestamp-swap data-timestamp-title data-timestamp="{{ comment.edited_utc_timestamp }}" title="{{ comment.edited_time }}">(edited)</small>
+					{% endif %}
+					<small>on torrent <a href="{{ url_for('torrents.view', torrent_id=comment.torrent_id) }}">#{{comment.torrent_id}} <i>{{ comment.torrent.display_name }}</i></a></small>
+					{# <div class="comment-actions">
+						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded %}
+						<button class="btn btn-xs edit-comment" title="Edit"{% if config.EDITING_TIME_LIMIT %} data-until="{{ comment.editable_until|int }}"{% endif %}>Edit</button>
+						{% endif %}
+						{% if g.user.is_moderator or g.user.id == comment.user_id %}
+						<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=comment.torrent_id, comment_id=comment.id) }}" method="POST">
+							<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
+						</form>
+						{% endif %}
+					</div> #}
+				</div>
+				<div class="row">
+					{# Escape newlines into html entities because CF strips blank newlines #}
+					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% endfor %}
+</div>
+
+{% else %}
+<h3>No comments</h3>
+{% endif %}
+
+<div class="center">
+	{% from "bootstrap/pagination.html" import render_pagination %}
+	{{ render_pagination(comments_query) }}
+</div>
+
+
+{% endblock %}
+</div>
