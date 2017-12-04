@@ -18,6 +18,7 @@
 	<div class="row" style="margin-bottom: 20px;">
 		<div class="col-md-2" style="max-width: 150px;">
 			<img class="avatar" src="{{ user.gravatar_url() }}">
+			<a href="{{ url_for('users.view_user_comments', user_name=user.username) }}">View all comments</a>
 		</div>
 		<div class="col-md-4">
 			<dl class="dl-horizontal">
