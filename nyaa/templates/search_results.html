@@ -100,12 +100,12 @@
 
 				{% if config.ENABLE_SHOW_STATS %}
 				{% if use_elastic %}
-				<td class="text-center" style="color: green;">{{ torrent.seed_count }}</td>
-				<td class="text-center" style="color: red;">{{ torrent.leech_count }}</td>
+				<td class="text-center text-success">{{ torrent.seed_count }}</td>
+				<td class="text-center text-danger">{{ torrent.leech_count }}</td>
 				<td class="text-center">{{ torrent.download_count }}</td>
 				{% else %}
-				<td class="text-center" style="color: green;">{{ torrent.stats.seed_count }}</td>
-				<td class="text-center" style="color: red;">{{ torrent.stats.leech_count }}</td>
+				<td class="text-center text-success">{{ torrent.stats.seed_count }}</td>
+				<td class="text-center text-danger">{{ torrent.stats.leech_count }}</td>
 				<td class="text-center">{{ torrent.stats.download_count }}</td>
 				{% endif %}
 				{% endif %}
