@@ -114,15 +114,18 @@
 							</div>
 						</div>
 						{% endif %}
-						{% if g.user.is_superadmin %}
-						<hr>
+					</form>
+					{% if g.user.is_superadmin %}
+					<hr>
+					<form method="POST" onsubmit="return prompt('Please type {{ user.username }} to confirm').toLowerCase() == '{{ user.username }}'.toLowerCase()">
+						{{ nuke_form.csrf_token }}
 						<div class="row">
 							<div class="col-md-6 text-left">
-								{{ ban_form.nuke(value="\U0001F4A3 Nuke Torrents", class="btn btn-danger") }}
+								{{ nuke_form.nuke_torrents(class="btn btn-danger", formaction=url_for('users.nuke_user_torrents', user_name=user.username)) }}
 							</div>
 						</div>
-						{% endif %}
 					</form>
+					{% endif %}
 				</div>
 			</div>
 		</div>

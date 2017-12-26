@@ -4,6 +4,8 @@ import random
 import string
 from collections import OrderedDict
 
+import flask
+
 
 def sha1_hash(input_bytes):
     """ Hash given bytes with hashlib.sha1 and return the digest (as bytes) """
@@ -78,3 +80,13 @@ def chain_get(source, *args):
         if value is not sentinel:
             return value
     return None
+
+
+def admin_only(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if flask.g.user and flask.g.user.is_superadmin:
+            return f(*args, **kwargs)
+        else:
+            flask.abort(401)
+    return wrapper
