@@ -120,8 +120,12 @@
 	<div class="form-group">
 {% endif %}
 		{{ field.label(class='control-label') }}
-		{{ field(title=field.description,**kwargs) | safe }}
-		<button type="submit" class="btn btn-primary">Apply</button>
+		<div class="input-group input-group-sm">
+			{{ field(title=field.description, class_="form-control",**kwargs) | safe }}
+			<div class="input-group-btn">
+				<button type="submit" class="btn btn-primary">Apply</button>
+			</div>
+		</div>
 		{% if field.errors %}
 			<div class="help-block">
 				{% if field.errors|length < 2 %}

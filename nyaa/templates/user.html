@@ -21,30 +21,35 @@
 			<a href="{{ url_for('users.view_user_comments', user_name=user.username) }}">View all comments</a>
 		</div>
 		<div class="col-md-4">
-			<dl class="dl-horizontal">
-				<dt>User ID:</dt>
-				<dd>{{ user.id }}</dd>
-				<dt>Account created on:</dt>
-				<dd data-timestamp="{{ user.created_utc_timestamp|int }}">{{ user.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
-				<dt>Email address:</dt>
-				<dd>{{ user.email }}</dd>
-				<dt>User class:</dt>
-				<dd>{{ user.userlevel_str }}</dd>
-				<dt>User status:</dt>
-				<dd>{{ user.userstatus_str }}</dt>
-				{%- if g.user.is_superadmin -%}
-				<dt>Last login IP:</dt>
-				<dd>{{ user.ip_string }}</dd><br>
-				{%- endif -%}
-			</dl>
-			{% if admin_form %}
-			<form method="POST">
-				{{ admin_form.csrf_token }}
-
-				<div class="form-group">
-					{{ render_menu_with_button(admin_form.user_class) }}
+			<div class="row">
+				<div class="col-md-12">
+					<dl class="dl-horizontal">
+						<dt>User ID:</dt>
+						<dd>{{ user.id }}</dd>
+						<dt>Account created on:</dt>
+						<dd data-timestamp="{{ user.created_utc_timestamp|int }}">{{ user.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
+						<dt>Email address:</dt>
+						<dd>{{ user.email }}</dd>
+						<dt>User class:</dt>
+						<dd>{{ user.userlevel_str }}</dd>
+						<dt>User status:</dt>
+						<dd>{{ user.userstatus_str }}</dt>
+						{%- if g.user.is_superadmin -%}
+						<dt>Last login IP:</dt>
+						<dd>{{ user.ip_string }}</dd><br>
+						{%- endif -%}
+					</dl>
 				</div>
-			</form>
+			</div>
+			{% if admin_form %}
+			<div class="row">
+				<div class="col-md-6">
+					<form method="POST">
+						{{ admin_form.csrf_token }}
+						{{ render_menu_with_button(admin_form.user_class) }}
+					</form>
+				</div>
+			</div>
 			<br>
 			{% endif %}
 		</div>
