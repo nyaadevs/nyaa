@@ -245,7 +245,7 @@ def view_user_comments(user_name):
 
     comments_per_page = 100
 
-    comments_query = (models.Comment.query.filter(models.Comment.user_id)
+    comments_query = (models.Comment.query.filter(models.Comment.user == user)
                                           .order_by(models.Comment.created_time.desc()))
     comments_query = comments_query.paginate_faste(page_number, per_page=comments_per_page, step=5)
     return flask.render_template('user_comments.html',
