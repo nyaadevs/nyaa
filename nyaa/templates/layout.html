@@ -298,7 +298,7 @@
 									{% endfor %}
 								</select>
 							</div>
-							<input type="text" class="form-control search-bar" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
+							<input type="text" class="form-control search-bar" autofocus tabindex="1" name="q" placeholder="{{ search_placeholder }}" value="{{ search['term'] if search is defined else '' }}" />
 							<div class="input-group-btn search-btn">
 								<button class="btn btn-primary" type="submit">
 									<i class="fa fa-search fa-fw"></i>
