@@ -52,8 +52,11 @@ ALLOW_PASSWORD_RESET = True
 EMAIL_BLACKLIST = (
     # Hotmail completely rejects "untrusted" emails,
     # so it's less of a headache to blacklist them as users can't receive the mails anyway.
-    re.compile(r'(?i)@((hotmail|live|msn|outlook|passport)\.com|passport\.net)'),
-    re.compile(r'(?i)@outlook\.(at|be|cl|co\.(id|il|nz|th)|com\.(ar|au|br|gr|pe|tr|vn)|cz|de|dk|es|fr|hu|ie|in|it|jp|kr|lv|my|ph|pt|sa|sg|sk)'),
+    # (Hopefully) complete list of Microsoft email domains follows:
+    re.compile(r'(?i)@hotmail\.(co|co\.uk|com|de|dk|eu|fr|it|net|org|se)'),
+    re.compile(r'(?i)@live\.(co|co.uk|com|de|dk|eu|fr|it|net|org|se)'),
+    re.compile(r'(?i)@outlook\.(at|be|cl|co|co\.(id|il|nz|th)|com|com\.(ar|au|au|br|gr|pe|tr|vn)|cz|de|de|dk|dk|es|eu|fr|fr|hu|ie|in|it|it|jp|kr|lv|my|org|ph|pt|sa|se|sg|sk)'),
+    re.compile(r'(?i)@(msn\.com|passport\.(com|net))'),
     # '@dodgydomain.tk'
 )
 
