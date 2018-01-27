@@ -100,6 +100,7 @@ class TorrentFlags(IntEnum):
     COMPLETE = 16
     DELETED = 32
     BANNED = 64
+    LOCKED = 128
 
 
 class TorrentBase(DeclarativeHelperBase):
@@ -258,6 +259,7 @@ class TorrentBase(DeclarativeHelperBase):
     trusted = FlagProperty(TorrentFlags.TRUSTED)
     remake = FlagProperty(TorrentFlags.REMAKE)
     complete = FlagProperty(TorrentFlags.COMPLETE)
+    locked = FlagProperty(TorrentFlags.LOCKED)
 
     # Class methods
 

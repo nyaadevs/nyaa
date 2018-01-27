@@ -68,6 +68,14 @@
 					Trusted
 				</label>
 				{% endif %}
+				{% if g.user.is_moderator %}
+				<label class="btn btn-default {% if torrent.locked %}active{% endif %}" title="Lock commenting">
+					{{ form.is_locked }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Locked
+				</label>
+				{% endif %}
 			</div>
 		</div>
 	</div>
