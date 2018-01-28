@@ -207,7 +207,7 @@ var markdownOptions = {
 	linkify: true,
 	typographer:  true
 }
-var markdown = window.markdownit(markdownOptions);
+var markdown = window.markdownit(markdownOptions).use(window.markdownitIns).use(window.markdownitMark);
 markdown.renderer.rules.table_open = function (tokens, idx) {
 	// Format tables nicer (bootstrap). Force auto-width (default is 100%)
 	return '<table class="table table-striped table-bordered" style="width: auto;">';

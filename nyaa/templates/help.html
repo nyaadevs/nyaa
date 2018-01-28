@@ -81,6 +81,23 @@
 	to have an image embedded in your comment or description. Note the <kbd>!</kbd>
 	exclamation mark at the beginning, denoting that this link is an image.
 </div>
+<div>
+	Quick examples:
+</div>
+<div>
+	<ul>
+		<li><kbd>*italic text*</kbd> &rarr; <em>italic text</em></li>
+		<li><kbd>**bold text**</kbd> &rarr; <strong>bold text</strong></li>
+		<li><kbd>++underlined text++</kbd> &rarr; <ins>underlined text</ins></li>
+		<li><kbd>==marked text==</kbd> &rarr; <mark>marked text</mark></li>
+		<li><kbd>[Front page]({{url_for('main.home')}})</kbd> &rarr; <a href="{{url_for('main.home')}}">Front page</a></li>
+		<li><kbd>[Spoilers](# "The spider-girl kills everyone")</kbd> &rarr; <a href="#" title="The spider-girl kills everyone">Spoilers</a></li>
+		<li><kbd># Header 1</kbd> &rarr; <h1 style="display: inline-block;">Header 1</h1></li>
+		<li><kbd>## Header 2</kbd> &rarr; <h2 style="display: inline-block;">Header 2</h2></li>
+		<li><kbd>### Header 3</kbd> &rarr; <h3 style="display: inline-block;">Header 3</h3></li>
+		<li><kbd>#### Header 4</kbd> &rarr; <h4 style="display: inline-block;">Header 4</h4></li>
+	</ul>
+</div>
 
 {{ linkable_header("Changing Your User's Avatar", "avatar") }}
 <div>

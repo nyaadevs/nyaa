@@ -571,3 +571,9 @@ td.report-action-column {
 blockquote {
 	font-size: inherit;
 }
+
+/* Make <mark>s a bit more prominent */
+mark, .mark {
+    background-color: #fff6c9;
+    padding: .2em;
+}
