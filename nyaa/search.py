@@ -118,7 +118,7 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         '0',  # Show all
         '1',  # No remakes
         '2',  # Only trusted
-        '3'   # Only completed
+        '3'  # Only completed
     ]
 
     if quality_filter.lower() not in quality_keys:
@@ -349,6 +349,13 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     # Wrap the queries into the helper class to deduplicate code and apply filters to both in one go
     count_query = db.session.query(sqlalchemy.func.count(model_class.id))
     qpc = QueryPairCaller(query, count_query)
+
+    if logged_in_user and not admin:
+        qpc.filter(sqlalchemy.or_(
+            models.Torrent.flags.op('&')(int(models.TorrentFlags.SHADOWED)).is_(False),
+            (models.Torrent.uploader_id == logged_in_user.id)))
+    elif not logged_in_user:
+        qpc.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.SHADOWED)).is_(False))
 
     # User view (/user/username)
     if user:

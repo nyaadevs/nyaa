@@ -23,6 +23,7 @@ app = flask.current_app
 
 if config['USE_MYSQL']:
     from sqlalchemy.dialects import mysql
+
     BinaryType = mysql.BINARY
     TextType = mysql.TEXT
     MediumBlobType = mysql.MEDIUMBLOB
@@ -36,7 +37,6 @@ else:
     COL_UTF8_GENERAL_CI = 'NOCASE'
     COL_UTF8MB4_BIN = None
     COL_ASCII_GENERAL_CI = 'NOCASE'
-
 
 # For property timestamps
 UTC_EPOCH = datetime.utcfromtimestamp(0)
@@ -100,6 +100,7 @@ class TorrentFlags(IntEnum):
     COMPLETE = 16
     DELETED = 32
     BANNED = 64
+    SHADOWED = 128
 
 
 class TorrentBase(DeclarativeHelperBase):
@@ -258,9 +259,9 @@ class TorrentBase(DeclarativeHelperBase):
     trusted = FlagProperty(TorrentFlags.TRUSTED)
     remake = FlagProperty(TorrentFlags.REMAKE)
     complete = FlagProperty(TorrentFlags.COMPLETE)
+    shadowed = FlagProperty(TorrentFlags.SHADOWED)
 
     # Class methods
-
     @classmethod
     def by_id(cls, id):
         return cls.query.get(id)
@@ -577,6 +578,7 @@ class User(db.Model):
     @classmethod
     def by_username(cls, username):
         def isascii(s): return len(s) == len(s.encode())
+
         if not isascii(username):
             return None
 
