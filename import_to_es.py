@@ -58,6 +58,7 @@ def mk_es(t, index_name):
             # for at least a few months.
             "hidden": bool(t.hidden),
             "deleted": bool(t.deleted),
+            "shadowed": bool(t.shadowed),
             "has_torrent": t.has_torrent,
             # Stats
             "download_count": t.stats.download_count,

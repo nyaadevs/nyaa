@@ -172,6 +172,13 @@ def search_elastic(term='', user=None, sort='id', order='desc',
                     default_operator="AND",
                     query=term)
 
+    if user and not admin:
+        # Hide all SHADOWED torrents not owned by user
+        s.filter('bool', filter=[Q('term', shadowed=False) | Q('term', uploader_id=user.id)])
+    elif not user:
+        # Hide all SHADOWED torrents
+        s.filter('term', shadowed=False)
+
     # User view (/user/username)
     if user:
         s = s.filter('term', uploader_id=user)
