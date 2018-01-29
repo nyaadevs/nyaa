@@ -57,7 +57,7 @@
 		<tbody>
 			{% set torrents = torrent_query if use_elastic else torrent_query.items %}
 			{% for torrent in torrents %}
-			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% elif torrent.shadowed and g.user and g.user.level >= 2 %}info{% else %}default{% endif %}">
+			<tr class="{% if torrent.deleted %}deleted{% elif torrent.hidden %}warning{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% elif torrent.shadowed and g.user and g.user.is_moderator %}info{% else %}default{% endif %}">
 				{% set cat_id = use_elastic and ((torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string)) or torrent.sub_category.id_as_string %}
 				{% set icon_dir = config.SITE_FLAVOR %}
 				<td style="padding:0 4px;">
