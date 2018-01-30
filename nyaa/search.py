@@ -174,7 +174,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
 
     if logged_in_user and not admin:
         # Hide all SHADOWED torrents not owned by user
-        s = s.filter('bool', filter=[Q('term', shadowed=False) | Q('term', uploader_id=logged_in_user.id)])
+        s = s.filter('bool', filter=[Q('term', shadowed=False) |
+                                     Q('term', uploader_id=logged_in_user.id)])
     elif not logged_in_user:
         # Hide all SHADOWED torrents
         s = s.filter('term', shadowed=False)
