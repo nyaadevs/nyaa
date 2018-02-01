@@ -480,6 +480,10 @@ body.dark .comment-panel:target {
 	border-color: white;
 }
 
+body.dark .table > table {
+	background-color: #323232;
+}
+
 /* trusted */
 body.dark .torrent-list > tbody > tr.success > td {
 	color: inherit;
