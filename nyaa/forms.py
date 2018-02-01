@@ -205,6 +205,8 @@ class CommentForm(FlaskForm):
         DataRequired(message='Comment must not be empty.')
     ])
 
+    recaptcha = RecaptchaField(validators=[upload_recaptcha_validator_shim])
+
 
 class InlineButtonWidget(object):
     """
