@@ -432,7 +432,8 @@ body.dark .navbar a {
 	color: #e2e2e2;
 }
 
-body.dark kbd {
+body.dark kbd,
+body.dark .btn.edit-comment {
 	background-color: #4a4a4a;
 }
 
@@ -450,8 +451,9 @@ body.dark .torrent-list tbody tr td a:visited {
 	color: #205c90;
 }
 
-body.dark .torrent-list > thead > tr, body.dark tbody > tr,
-body.dark .panel > .panel-heading {
+body.dark thead > tr, body.dark tbody > tr,
+body.dark .panel > .panel-heading,
+body.dark .report-action-column select {
 	color: #cbcbcb;
 }
 
@@ -472,6 +474,10 @@ body.dark table.torrent-list tbody .comments {
 	border-color: #212121;
 	color: #247fcc;
 	background-color: #2f2c2c;
+}
+
+body.dark .comment-panel:target {
+	border-color: white;
 }
 
 /* trusted */
