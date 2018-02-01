@@ -121,6 +121,9 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         '3'  # Only completed
     ]
 
+    if logged_in_user and logged_in_user.is_moderator:
+        quality_keys.append('4')
+
     if quality_filter.lower() not in quality_keys:
         flask.abort(400)
 
@@ -227,6 +230,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         s = s.filter('term', trusted=True)
     elif quality_filter == 3:
         s = s.filter('term', complete=True)
+    elif quality_filter == 4:
+        s = s.filter('term', shadowed=True)
 
     # Apply sort
     s = s.sort(es_sort)
@@ -306,6 +311,9 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         '2': (models.TorrentFlags.TRUSTED, True),
         '3': (models.TorrentFlags.COMPLETE, True)
     }
+
+    if logged_in_user and logged_in_user.is_moderator:
+        filter_keys['4'] = (models.TorrentFlags.SHADOWED, True)
 
     sentinel = object()
     filter_tuple = filter_keys.get(quality_filter.lower(), sentinel)
