@@ -471,7 +471,6 @@ def _create_upload_category_choices():
     return choices
 
 
-
 def _make_torrent_file(torrent):
     with open(torrent.info_dict_path, 'rb') as in_file:
         bencoded_info = in_file.read()

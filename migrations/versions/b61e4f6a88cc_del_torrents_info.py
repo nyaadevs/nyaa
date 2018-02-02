@@ -1,7 +1,7 @@
 """Remove bencoded info dicts from mysql
 
 Revision ID: b61e4f6a88cc
-Revises: 500117641608
+Revises: cf7bf6d0e6bd
 Create Date: 2017-08-29 01:45:08.357936
 
 """
@@ -12,7 +12,7 @@ import sys
 
 # revision identifiers, used by Alembic.
 revision = 'b61e4f6a88cc'
-down_revision = '500117641608'
+down_revision = 'cf7bf6d0e6bd'
 branch_labels = None
 depends_on = None
 
