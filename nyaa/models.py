@@ -1,4 +1,5 @@
 import base64
+import os.path
 import re
 from datetime import datetime
 from enum import Enum, IntEnum
@@ -171,11 +172,6 @@ class TorrentBase(DeclarativeHelperBase):
                                primaryjoin=join_sql.format(cls.__flavor__))
 
     @declarative.declared_attr
-    def info(cls):
-        return db.relationship(cls._flavor_prefix('TorrentInfo'), uselist=False,
-                               cascade="all, delete-orphan", back_populates='torrent')
-
-    @declarative.declared_attr
     def filelist(cls):
         return db.relationship(cls._flavor_prefix('TorrentFilelist'), uselist=False,
                                cascade="all, delete-orphan", back_populates='torrent')
@@ -230,12 +226,20 @@ class TorrentBase(DeclarativeHelperBase):
         return escape_markup(self.information)
 
     @property
+    def info_dict_path(self):
+        ''' Returns a path to the info_dict file in form of 'info_dicts/aa/bb/aabbccddee...' '''
+        info_hash = self.info_hash_as_hex
+        info_dict_dir = os.path.join(app.config['BASE_DIR'], 'info_dicts',
+                                     info_hash[0:2], info_hash[2:4])
+        return os.path.join(info_dict_dir, info_hash)
+
+    @property
     def info_hash_as_b32(self):
         return base64.b32encode(self.info_hash).decode('utf-8')
 
     @property
     def info_hash_as_hex(self):
-        return self.info_hash.hex()
+        return self.info_hash.hex().lower()
 
     @property
     def magnet_uri(self):
@@ -288,22 +292,6 @@ class TorrentFilelistBase(DeclarativeHelperBase):
     def torrent(cls):
         return db.relationship(cls._flavor_prefix('Torrent'), uselist=False,
                                back_populates='filelist')
-
-
-class TorrentInfoBase(DeclarativeHelperBase):
-    __tablename_base__ = 'torrents_info'
-
-    __table_args__ = {'mysql_row_format': 'COMPRESSED'}
-
-    @declarative.declared_attr
-    def torrent_id(cls):
-        return db.Column(db.Integer, db.ForeignKey(
-            cls._table_prefix('torrents.id'), ondelete="CASCADE"), primary_key=True)
-    info_dict = db.Column(MediumBlobType, nullable=True)
-
-    @declarative.declared_attr
-    def torrent(cls):
-        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False, back_populates='info')
 
 
 class StatisticBase(DeclarativeHelperBase):
@@ -806,15 +794,6 @@ class SukebeiTorrentFilelist(TorrentFilelistBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
-# TorrentInfo
-class NyaaTorrentInfo(TorrentInfoBase, db.Model):
-    __flavor__ = 'Nyaa'
-
-
-class SukebeiTorrentInfo(TorrentInfoBase, db.Model):
-    __flavor__ = 'Sukebei'
-
-
 # Statistic
 class NyaaStatistic(StatisticBase, db.Model):
     __flavor__ = 'Nyaa'
@@ -882,7 +861,6 @@ class SukebeiReport(ReportBase, db.Model):
 if config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
     TorrentFilelist = NyaaTorrentFilelist
-    TorrentInfo = NyaaTorrentInfo
     Statistic = NyaaStatistic
     TorrentTrackers = NyaaTorrentTrackers
     MainCategory = NyaaMainCategory
@@ -895,7 +873,6 @@ if config['SITE_FLAVOR'] == 'nyaa':
 elif config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
     TorrentFilelist = SukebeiTorrentFilelist
-    TorrentInfo = SukebeiTorrentInfo
     Statistic = SukebeiStatistic
     TorrentTrackers = SukebeiTorrentTrackers
     MainCategory = SukebeiMainCategory

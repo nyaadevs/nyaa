@@ -1,5 +1,4 @@
 import json
-import os.path
 from ipaddress import ip_address
 from urllib.parse import quote
 
@@ -319,7 +318,7 @@ def download_torrent(torrent_id):
     if torrent.deleted and not (flask.g.user and flask.g.user.is_moderator):
         flask.abort(404)
 
-    torrent_file, torrent_file_size = _get_cached_torrent_file(torrent)
+    torrent_file, torrent_file_size = _make_torrent_file(torrent)
     disposition = 'inline; filename="{0}"; filename*=UTF-8\'\'{0}'.format(
         quote(torrent.torrent_name.encode('utf-8')))
 
@@ -472,18 +471,10 @@ def _create_upload_category_choices():
     return choices
 
 
-def _get_cached_torrent_file(torrent):
-    # Note: obviously temporary
-    cached_torrent = os.path.join(app.config['BASE_DIR'],
-                                  'torrent_cache', str(torrent.id) + '.torrent')
-    if not os.path.exists(cached_torrent):
-        with open(cached_torrent, 'wb') as out_file:
-            metadata_base = torrents.create_default_metadata_base(torrent)
-            # Replace the default comment with url to the torrent page
-            metadata_base['comment'] = flask.url_for('torrents.view',
-                                                     torrent_id=torrent.id,
-                                                     _external=True)
+def _make_torrent_file(torrent):
+    with open(torrent.info_dict_path, 'rb') as in_file:
+        bencoded_info = in_file.read()
 
-            out_file.write(torrents.create_bencoded_torrent(torrent, metadata_base))
+    bencoded_torrent_data = torrents.create_bencoded_torrent(torrent, bencoded_info)
 
-    return open(cached_torrent, 'rb'), os.path.getsize(cached_torrent)
+    return bencoded_torrent_data, len(bencoded_torrent_data)
