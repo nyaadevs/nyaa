@@ -100,7 +100,7 @@ class TorrentFlags(IntEnum):
     COMPLETE = 16
     DELETED = 32
     BANNED = 64
-    SHADOWED = 128
+    SHADOWED = 256
 
 
 class TorrentBase(DeclarativeHelperBase):
