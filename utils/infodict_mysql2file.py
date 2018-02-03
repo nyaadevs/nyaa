@@ -5,17 +5,14 @@ import sys
 import MySQLdb
 import MySQLdb.cursors
 
-if len(sys.argv) < 3 or len(sys.argv) > 4:
-    print("Usage: {0} <prefix(nyaa|sukebei)> <outdir> [offset]".format(sys.argv[0]))
+if len(sys.argv) != 3:
+    print("Usage: {0} <prefix(nyaa|sukebei)> <outdir(info_dicts)>".format(sys.argv[0]))
     sys.exit(1)
 
-ofs = 0
 prefix = sys.argv[1]
 outdir = sys.argv[2]
 if not os.path.exists(outdir):
     os.makedirs(outdir)
-if len(sys.argv) == 4:
-    ofs = int(sys.argv[3])
 
 
 db = MySQLdb.connect(host='localhost',
@@ -33,8 +30,7 @@ cur.execute(
         FROM
             {0}_torrents
         JOIN {0}_torrents_info ON torrent_id = id
-        LIMIT 18446744073709551610 OFFSET {1}
-    """.format(prefix, ofs))
+    """.format(prefix))
 
 for row in cur:
     id = row[0]
@@ -48,6 +44,3 @@ for row in cur:
 
     with open(path, 'wb') as fp:
         fp.write(info_dict)
-
-    ofs += 1
-    print(ofs)
