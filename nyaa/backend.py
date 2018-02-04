@@ -1,6 +1,5 @@
 import json
 import os
-import threading
 from datetime import datetime, timedelta
 from ipaddress import ip_address
 from urllib.parse import urlencode
@@ -16,14 +15,6 @@ from nyaa import models, utils
 from nyaa.extensions import db
 
 app = flask.current_app
-
-DIRECTORY_CREATION_LOCK = threading.Lock()
-
-
-def _ensure_directory(directory_path):
-    with DIRECTORY_CREATION_LOCK:
-        if not os.path.exists(directory_path):
-            os.makedirs(directory_path)
 
 
 class TorrentExtraValidationException(Exception):
@@ -209,7 +200,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     info_dict_path = torrent.info_dict_path
 
     info_dict_dir = os.path.dirname(info_dict_path)
-    _ensure_directory(info_dict_dir)
+    os.makedirs(info_dict_dir, exist_ok=True)
 
     with open(info_dict_path, 'wb') as out_file:
         out_file.write(torrent_data.bencoded_info_dict)
@@ -339,7 +330,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         torrent_file.seek(0, 0)
 
         torrent_dir = app.config['BACKUP_TORRENT_FOLDER']
-        _ensure_directory(torrent_dir)
+        os.makedirs(torrent_dir, exist_ok=True)
 
         torrent_path = os.path.join(torrent_dir, '{}.{}'.format(
             torrent.id, secure_filename(torrent_file.filename)))
