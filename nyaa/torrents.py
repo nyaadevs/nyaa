@@ -1,8 +1,8 @@
 import base64
 import os
-import time
 from urllib.parse import urlencode
 
+import flask
 from flask import current_app as app
 
 from orderedset import OrderedSet
@@ -100,8 +100,10 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
 
     metadata_base = {
         'created by': 'NyaaV2',
-        'creation date': int(time.time()),
-        'comment': 'NyaaV2 Torrent #' + str(torrent.id),
+        'creation date': int(torrent.created_utc_timestamp),
+        'comment': flask.url_for('torrents.view',
+                                 torrent_id=torrent.id,
+                                 _external=True)
         # 'encoding' : 'UTF-8' # It's almost always UTF-8 and expected, but if it isn't...
     }
 

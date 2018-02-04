@@ -160,12 +160,13 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
             upload_form.ratelimit.errors = ["You've gone over the upload ratelimit."]
             raise TorrentExtraValidationException()
 
-    # Delete exisiting torrent which is marked as deleted
+    # Delete existing torrent which is marked as deleted
     if torrent_data.db_id is not None:
         old_torrent = models.Torrent.by_id(torrent_data.db_id)
-        _delete_torrent_file(old_torrent)
         db.session.delete(old_torrent)
         db.session.commit()
+        # Delete physical file after transaction has been committed
+        _delete_info_dict(old_torrent)
 
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
     # keys and values have been checked for (see UploadForm in forms.py for details)
@@ -199,8 +200,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     info_dict_path = torrent.info_dict_path
 
     info_dict_dir = os.path.dirname(info_dict_path)
-    if not os.path.exists(info_dict_dir):
-        os.makedirs(info_dict_dir)
+    os.makedirs(info_dict_dir, exist_ok=True)
 
     with open(info_dict_path, 'wb') as out_file:
         out_file.write(torrent_data.bencoded_info_dict)
@@ -330,8 +330,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         torrent_file.seek(0, 0)
 
         torrent_dir = app.config['BACKUP_TORRENT_FOLDER']
-        if not os.path.exists(torrent_dir):
-            os.makedirs(torrent_dir)
+        os.makedirs(torrent_dir, exist_ok=True)
 
         torrent_path = os.path.join(torrent_dir, '{}.{}'.format(
             torrent.id, secure_filename(torrent_file.filename)))
@@ -370,7 +369,7 @@ def tracker_api(info_hashes, method):
     return True
 
 
-def _delete_torrent_file(torrent):
+def _delete_info_dict(torrent):
     info_dict_path = torrent.info_dict_path
     if os.path.exists(info_dict_path):
         os.remove(info_dict_path)
