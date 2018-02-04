@@ -201,6 +201,21 @@ def profile():
     return flask.render_template('profile.html', form=form)
 
 
+@bp.route('/notifications', endpoint='notifications', methods=['GET'])
+def view_notifications():
+    if not flask.g.user:
+        flask.abort(403)
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    notifications = models.Notification.get_notifications(flask.g.user.id, page)
+    template = flask.render_template('notifications.html', notifications=notifications)
+
+    models.Notification.mark_notifications_read(flask.g.user.id)
+    db.session.commit()
+
+    return template
+
+
 def redirect_url():
     home_url = flask.url_for('main.home')
 

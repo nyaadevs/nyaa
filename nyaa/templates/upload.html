@@ -102,6 +102,18 @@
 			{{ render_markdown_editor(upload_form.description, field_name='description') }}
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default" title="Enable notifications">
+					{{ upload_form.notifications_enabled }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Notifications
+				</label>
+			</div>
+		</div>
+	</div>
 
 	{% if config.USE_RECAPTCHA and (not g.user or g.user.age < config['ACCOUNT_RECAPTCHA_AGE']) %}
 	<div class="row">

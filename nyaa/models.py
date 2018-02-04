@@ -116,6 +116,7 @@ class TorrentBase(DeclarativeHelperBase):
     filesize = db.Column(db.BIGINT, default=0, nullable=False, index=True)
     encoding = db.Column(db.String(length=32), nullable=False)
     flags = db.Column(db.Integer, default=0, nullable=False, index=True)
+    notifications = db.Column(db.Boolean, nullable=False, default=False)
 
     @declarative.declared_attr
     def uploader_id(cls):
@@ -487,9 +488,13 @@ class User(db.Model):
 
     nyaa_torrents = db.relationship('NyaaTorrent', back_populates='user', lazy='dynamic')
     nyaa_comments = db.relationship('NyaaComment', back_populates='user', lazy='dynamic')
+    nyaa_notifications = db.relationship(
+        'NyaaNotification', back_populates='user', lazy='dynamic')
 
     sukebei_torrents = db.relationship('SukebeiTorrent', back_populates='user', lazy='dynamic')
     sukebei_comments = db.relationship('SukebeiComment', back_populates='user', lazy='dynamic')
+    sukebei_notifications = db.relationship(
+        'SukebeiNotification', back_populates='user', lazy='dynamic')
 
     bans = db.relationship('Ban', uselist=True, foreign_keys='Ban.user_id')
 
@@ -569,6 +574,15 @@ class User(db.Model):
     def ip_string(self):
         if self.last_login_ip:
             return str(ip_address(self.last_login_ip))
+
+    @property
+    def unread_notifications_number(self):
+        flavor = app.config['SITE_FLAVOR']
+        if flavor == 'nyaa':
+            number = self.nyaa_notifications.filter(Notification.read.is_(False)).count()
+        elif flavor == 'sukebei':
+            number = self.sukebei_notifications.filter(Notification.read.is_(False)).count()
+        return number
 
     @classmethod
     def by_id(cls, id):
@@ -755,7 +769,67 @@ class Ban(db.Model):
         return None
 
 
+class NotificationBase(DeclarativeHelperBase):
+    __tablename_base__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    body = db.Column(db.String(length=1024), nullable=False)
+    type = db.Column(db.String(length=50), nullable=False)
+    read = db.Column(db.Boolean, nullable=False, default=False, index=True)
+
+    @declarative.declared_attr
+    def user_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    @declarative.declared_attr
+    def torrent_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(
+            cls._table_prefix('torrents.id'), ondelete='CASCADE'))
+
+    @declarative.declared_attr
+    def user(cls):
+        return db.relationship('User', uselist=False,
+                               back_populates=cls._table_prefix('notifications'), lazy="joined")
+
+    @declarative.declared_attr
+    def torrent(cls):
+        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False, lazy="joined")
+
+    def __init__(self, user_id, torrent_id, body, type):
+        self.user_id = user_id
+        self.torrent_id = torrent_id
+        self.type = type
+        self.body = body
+
+    def __repr__(self):
+        return '<Notification %r>' % self.id
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @classmethod
+    def get_torrent_comments(cls, user_id, torrent_id):
+        return cls.query.filter_by(
+            user_id=user_id,
+            torrent_id=torrent_id,
+            type='torrentComment',
+            read=False).first()
+
+    @classmethod
+    def get_notifications(cls, user_id, page):
+        notifications = cls.query.filter_by(
+            user_id=user_id).order_by(cls.created_time.desc()).paginate(page=page, per_page=20)
+        return notifications
+
+    @classmethod
+    def mark_notifications_read(cls, user_id):
+        return cls.query.filter_by(read=False, user_id=user_id).update({'read': True})
+
 # Actually declare our site-specific classes
+
 
 # Torrent
 class NyaaTorrent(TorrentBase, db.Model):
@@ -856,6 +930,15 @@ class SukebeiReport(ReportBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
+# Notification
+class NyaaNotification(NotificationBase, db.Model):
+    __flavor__ = 'Nyaa'
+
+
+class SukebeiNotification(NotificationBase, db.Model):
+    __flavor__ = 'Sukebei'
+
+
 # Choose our defaults for models.Torrent etc
 if config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
@@ -868,6 +951,7 @@ if config['SITE_FLAVOR'] == 'nyaa':
     AdminLog = NyaaAdminLog
     Report = NyaaReport
     TorrentNameSearch = NyaaTorrentNameSearch
+    Notification = NyaaNotification
 
 elif config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
@@ -880,3 +964,4 @@ elif config['SITE_FLAVOR'] == 'sukebei':
     AdminLog = SukebeiAdminLog
     Report = SukebeiReport
     TorrentNameSearch = SukebeiTorrentNameSearch
+    Notification = SukebeiNotification
