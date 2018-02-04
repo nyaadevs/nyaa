@@ -475,6 +475,14 @@ def _make_torrent_file(torrent):
     with open(torrent.info_dict_path, 'rb') as in_file:
         bencoded_info = in_file.read()
 
-    bencoded_torrent_data = torrents.create_bencoded_torrent(torrent, bencoded_info)
+    metadata_base = torrents.create_default_metadata_base(torrent)
+    # Replace the default comment with url to the torrent page
+    metadata_base['comment'] = flask.url_for('torrents.view',
+                                             torrent_id=torrent.id,
+                                             _external=True)
+    metadata_base['creation date'] = int(torrent.created_utc_timestamp)
+
+    bencoded_torrent_data = torrents.create_bencoded_torrent(torrent, bencoded_info,
+                                                             metadata_base=metadata_base)
 
     return bencoded_torrent_data, len(bencoded_torrent_data)
