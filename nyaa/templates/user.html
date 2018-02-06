@@ -104,21 +104,21 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-md-4 text-left">
+							<div class="col-md-3 text-left">
 								{% if not user.is_banned %}
 								{{ ban_form.ban_user(value="Ban User", class="btn btn-danger") }}
 								{% else %}
 								<button type="button" class="btn btn-danger disabled">Already banned</button>
 								{% endif %}
 							</div>
-							<div class="col-md-4 text-center">
+							<div class="col-md-3 text-center">
 								{% if not ipbanned %}
 								{{ ban_form.ban_userip(value="Ban User+IP", class="btn btn-danger") }}
 								{% else %}
 								<button type="button" class="btn btn-danger disabled">Already IP banned</button>
 								{% endif %}
 							</div>
-							<div class="col-md-4 text-right">
+							<div class="col-md-6 text-right">
 								{% if g.user.is_superadmin %}
 								{{ ban_form.nuke(value="\U0001F4A3 Nuke Torrents", class="btn btn-danger") }}
 								{% else %}
