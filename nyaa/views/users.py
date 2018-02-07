@@ -231,7 +231,6 @@ def activate_user(payload):
 @admin_only
 def nuke_user_torrents(user_name):
     user = models.User.by_username(user_name)
-
     if not user:
         flask.abort(404)
 
@@ -239,30 +238,29 @@ def nuke_user_torrents(user_name):
     if not nuke_form.validate():
         flask.abort(401)
     url = flask.url_for('users.view_user', user_name=user.username)
-    nyaa_banned = 0
-    sukebei_banned = 0
+    num_banned = 0
     info_hashes = []
-    for t in chain(user.nyaa_torrents, user.sukebei_torrents):
+    torrents = []
+    if app.config['SITE_FLAVOR'] == 'nyaa':
+        torrents = user.nyaa_torrents
+    elif app.config['SITE_FLAVOR'] == 'sukebei':
+        torrents = user.sukebei_torrents
+    for t in torrents:
         t.deleted = True
         t.banned = True
         info_hashes.append([t.info_hash])
         db.session.add(t)
-        if isinstance(t, models.NyaaTorrent):
-            nyaa_banned += 1
-        else:
-            sukebei_banned += 1
+        num_banned += 1
 
     if info_hashes:
         backend.tracker_api(info_hashes, 'ban')
 
-    for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
-                             (models.SukebeiAdminLog, sukebei_banned)):
-        if num > 0:
-            log = "Nuked {0} torrents of [{1}]({2})".format(num,
-                                                            user.username,
-                                                            url)
-            adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
-            db.session.add(adminlog)
+    if num_banned > 0:
+        log = "Nuked {0} torrents of [{1}]({2})".format(num_banned,
+                                                        user.username,
+                                                        url)
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
 
     db.session.commit()
     flask.flash('Torrents of {0} have been nuked.'.format(user.username),
