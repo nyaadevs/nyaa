@@ -400,6 +400,12 @@ def submit_report(torrent_id):
         flask.abort(403)
 
     form = forms.ReportForm(flask.request.form)
+    torrent = models.Torrent.by_id(torrent_id)
+    if not torrent:
+        flask.abort(404)
+    if torrent.banned:
+        flask.flash("The torrent you've tried to report is already banned.", 'danger')
+        flask.abort(404)
 
     if flask.request.method == 'POST' and form.validate():
         report_reason = form.reason.data
