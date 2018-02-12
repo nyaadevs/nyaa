@@ -9,7 +9,7 @@ from flask_paginate import Pagination
 
 from itsdangerous import BadSignature, URLSafeSerializer
 
-from nyaa import backend, forms, models
+from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
@@ -107,19 +107,16 @@ def view_user(user_name):
         if flask.g.user.is_superadmin:
             nyaa_banned = 0
             sukebei_banned = 0
-            info_hashes = []
             for t in chain(user.nyaa_torrents, user.sukebei_torrents):
                 t.deleted = True
                 t.banned = True
-                info_hashes.append([t.info_hash])
                 db.session.add(t)
                 if isinstance(t, models.NyaaTorrent):
+                    db.session.add(models.NyaaTrackerApi(t.info_hash, 'remove'))
                     nyaa_banned += 1
                 else:
+                    db.session.add(models.SukebeiTrackerApi(t.info_hash, 'remove'))
                     sukebei_banned += 1
-
-            if info_hashes:
-                backend.tracker_api(info_hashes, 'ban')
 
             for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
                                      (models.SukebeiAdminLog, sukebei_banned)):
