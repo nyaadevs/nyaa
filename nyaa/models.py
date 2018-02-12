@@ -755,6 +755,19 @@ class Ban(db.Model):
         return None
 
 
+class TrackerApiBase(DeclarativeHelperBase):
+    __tablename_base__ = 'trackerapi'
+
+    id = db.Column(db.Integer, primary_key=True)
+    info_hash = db.Column(BinaryType(length=20), nullable=False)
+    method = db.Column(db.String(length=255), nullable=False)
+    # Methods = insert, remove
+
+    def __init__(self, info_hash, method):
+        self.info_hash = info_hash
+        self.method = method
+
+
 # Actually declare our site-specific classes
 
 # Torrent
@@ -856,6 +869,15 @@ class SukebeiReport(ReportBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
+# TrackerApi
+class NyaaTrackerApi(TrackerApiBase, db.Model):
+    __flavor__ = 'Nyaa'
+
+
+class SukebeiTrackerApi(TrackerApiBase, db.Model):
+    __flavor__ = 'Sukebei'
+
+
 # Choose our defaults for models.Torrent etc
 if config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
@@ -868,6 +890,7 @@ if config['SITE_FLAVOR'] == 'nyaa':
     AdminLog = NyaaAdminLog
     Report = NyaaReport
     TorrentNameSearch = NyaaTorrentNameSearch
+    TrackerApi = NyaaTrackerApi
 
 elif config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
@@ -880,3 +903,4 @@ elif config['SITE_FLAVOR'] == 'sukebei':
     AdminLog = SukebeiAdminLog
     Report = SukebeiReport
     TorrentNameSearch = SukebeiTorrentNameSearch
+    TrackerApi = SukebeiTrackerApi

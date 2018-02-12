@@ -2,8 +2,6 @@ import json
 import os
 from datetime import datetime, timedelta
 from ipaddress import ip_address
-from urllib.parse import urlencode
-from urllib.request import urlopen
 
 import flask
 from werkzeug import secure_filename
@@ -322,6 +320,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     # Before final commit, validate the torrent again
     validate_torrent_post_upload(torrent, upload_form)
 
+    # Add to tracker whitelist
+    db.session.add(models.TrackerApi(torrent.info_hash, 'insert'))
+
     db.session.commit()
 
     # Store the actual torrent file as well
@@ -338,35 +339,6 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     torrent_file.close()
 
     return torrent
-
-
-def tracker_api(info_hashes, method):
-    api_url = app.config.get('TRACKER_API_URL')
-    if not api_url:
-        return False
-
-    # Split list into at most 100 elements
-    chunk_size = 100
-    chunk_range = range(0, len(info_hashes), chunk_size)
-    chunked_info_hashes = (info_hashes[i:i + chunk_size] for i in chunk_range)
-
-    for info_hashes_chunk in chunked_info_hashes:
-        qs = [
-            ('auth', app.config.get('TRACKER_API_AUTH')),
-            ('method', method)
-        ]
-
-        qs.extend(('info_hash', info_hash) for info_hash in info_hashes_chunk)
-
-        api_url += '?' + urlencode(qs)
-        try:
-            req = urlopen(api_url)
-        except:
-            return False
-
-        if req.status != 200:
-            return False
-    return True
 
 
 def _delete_info_dict(torrent):
