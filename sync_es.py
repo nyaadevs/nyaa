@@ -101,6 +101,7 @@ def reindex_torrent(t, index_name):
         # for at least a few months.
         "hidden": bool(f & TorrentFlags.HIDDEN),
         "deleted": bool(f & TorrentFlags.DELETED),
+        "shadowed": bool(f & TorrentFlags.SHADOWED),
         "has_torrent": bool(t['has_torrent']),
     }
     # update, so we don't delete the stats if present

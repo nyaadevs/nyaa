@@ -102,6 +102,8 @@ mappings:
         type: boolean
       hidden:
         type: boolean
+      shadowed:
+        type: boolean
       deleted:
         type: boolean
       has_torrent:

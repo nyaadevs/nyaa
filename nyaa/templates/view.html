@@ -6,7 +6,7 @@
 {% endblock %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
-<div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
+<div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% elif torrent.shadowed and g.user and g.user.is_moderator %}info{% else %}default{% endif %}">
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
 			{% if can_edit %}

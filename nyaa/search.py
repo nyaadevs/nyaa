@@ -118,8 +118,11 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         '0',  # Show all
         '1',  # No remakes
         '2',  # Only trusted
-        '3'   # Only completed
+        '3'  # Only completed
     ]
+
+    if logged_in_user and logged_in_user.is_moderator:
+        quality_keys.append('4')
 
     if quality_filter.lower() not in quality_keys:
         flask.abort(400)
@@ -172,6 +175,14 @@ def search_elastic(term='', user=None, sort='id', order='desc',
                     default_operator="AND",
                     query=term)
 
+    if logged_in_user and not admin:
+        # Hide all SHADOWED torrents not owned by user
+        s = s.filter('bool', filter=[Q('term', shadowed=False) |
+                                     Q('term', uploader_id=logged_in_user.id)])
+    elif not logged_in_user:
+        # Hide all SHADOWED torrents
+        s = s.filter('term', shadowed=False)
+
     # User view (/user/username)
     if user:
         s = s.filter('term', uploader_id=user)
@@ -219,6 +230,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         s = s.filter('term', trusted=True)
     elif quality_filter == 3:
         s = s.filter('term', complete=True)
+    elif quality_filter == 4:
+        s = s.filter('term', shadowed=True)
 
     # Apply sort
     s = s.sort(es_sort)
@@ -299,6 +312,9 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         '3': (models.TorrentFlags.COMPLETE, True)
     }
 
+    if logged_in_user and logged_in_user.is_moderator:
+        filter_keys['4'] = (models.TorrentFlags.SHADOWED, True)
+
     sentinel = object()
     filter_tuple = filter_keys.get(quality_filter.lower(), sentinel)
     if filter_tuple is sentinel:
@@ -349,6 +365,13 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     # Wrap the queries into the helper class to deduplicate code and apply filters to both in one go
     count_query = db.session.query(sqlalchemy.func.count(model_class.id))
     qpc = QueryPairCaller(query, count_query)
+
+    if logged_in_user and not admin:
+        qpc.filter(sqlalchemy.or_(
+            models.Torrent.flags.op('&')(int(models.TorrentFlags.SHADOWED)).is_(False),
+            (models.Torrent.uploader_id == logged_in_user.id)))
+    elif not logged_in_user:
+        qpc.filter(models.Torrent.flags.op('&')(int(models.TorrentFlags.SHADOWED)).is_(False))
 
     # User view (/user/username)
     if user:

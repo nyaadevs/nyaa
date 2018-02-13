@@ -121,6 +121,7 @@ def edit_torrent(torrent_id):
         deleted_changed = torrent.deleted != form.is_deleted.data
         if editor.is_moderator:
             torrent.deleted = form.is_deleted.data
+            torrent.shadowed = form.is_shadowed.data
 
         url = flask.url_for('torrents.view', torrent_id=torrent.id)
         if deleted_changed and editor.is_moderator:

@@ -45,6 +45,14 @@
 					<span class="glyphicon glyphicon-unchecked"></span>
 					Hidden
 				</label>
+                {% if g.user.is_moderator %}
+                <label class="btn btn-info {% if torrent.shadowed %}active{% endif %}" title="Shadow torrent from listing">
+					{{ form.is_shadowed }}
+					<span class="glyphicon glyphicon-check"></span>
+					<span class="glyphicon glyphicon-unchecked"></span>
+					Shadowed
+				</label>
+                {% endif %}
 			</div>
 			<div class="hidden-xl"><br></div>
 			<div class="btn-group" data-toggle="buttons">
