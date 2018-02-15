@@ -263,7 +263,7 @@ class EditForm(FlaskForm):
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
     is_trusted = BooleanField('Trusted')
-    is_locked = BooleanField('Locked')
+    is_comment_locked = BooleanField('Lock Comments')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')
@@ -336,7 +336,7 @@ class UploadForm(FlaskForm):
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
     is_trusted = BooleanField('Trusted')
-    is_locked = BooleanField('Locked')
+    is_comment_locked = BooleanField('Lock Comments')
 
     information = StringField('Information', [
         Length(max=255, message='Information must be at most %(max)d characters long.')

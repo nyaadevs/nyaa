@@ -159,10 +159,10 @@
 					<small data-timestamp-swap data-timestamp-title data-timestamp="{{ comment.edited_utc_timestamp }}" title="{{ comment.edited_time }}">(edited)</small>
 					{% endif %}
 					<div class="comment-actions">
-						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded and (not torrent.locked or g.user.is_moderator) %}
+						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded and (not torrent.comment_locked or comment_form) %}
 						<button class="btn btn-xs edit-comment" title="Edit"{% if config.EDITING_TIME_LIMIT %} data-until="{{ comment.editable_until|int }}"{% endif %}>Edit</button>
 						{% endif %}
-						{% if g.user.is_superadmin or (g.user.id == comment.user_id and not torrent.locked) %}
+						{% if g.user.is_superadmin or (g.user.id == comment.user_id and not torrent.comment_locked) %}
 						<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 							<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
 						</form>
@@ -190,7 +190,7 @@
 	</div>
 
 	{% endfor %}
-	{% if torrent.locked %}
+	{% if torrent.comment_locked %}
 	<div class="alert alert-warning">
 		<p>
 			<i class="fa fa-lock" aria-hidden="true"></i>
