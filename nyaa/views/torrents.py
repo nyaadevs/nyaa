@@ -114,20 +114,8 @@ def edit_torrent(torrent_id):
         torrent.remake = form.is_remake.data
         torrent.complete = form.is_complete.data
         torrent.anonymous = form.is_anonymous.data
-
         if editor.is_trusted:
             torrent.trusted = form.is_trusted.data
-
-        deleted_changed = torrent.deleted != form.is_deleted.data
-        if editor.is_moderator:
-            torrent.deleted = form.is_deleted.data
-
-        url = flask.url_for('torrents.view', torrent_id=torrent.id)
-        if deleted_changed and editor.is_moderator:
-            log = "Torrent [#{0}]({1}) marked as {2}".format(
-                torrent.id, url, "deleted" if torrent.deleted else "undeleted")
-            adminlog = models.AdminLog(log=log, admin_id=editor.id)
-            db.session.add(adminlog)
 
         db.session.commit()
 
@@ -135,6 +123,7 @@ def edit_torrent(torrent_id):
             'Torrent has been successfully edited! Changes might take a few minutes to show up.'),
             'success')
 
+        url = flask.url_for('torrents.view', torrent_id=torrent.id)
         return flask.redirect(url)
     elif flask.request.method == 'POST' and delete_form.validate() and \
             (not ban_form or ban_form.validate()):
@@ -151,9 +140,7 @@ def edit_torrent(torrent_id):
             form.is_remake.data = torrent.remake
             form.is_complete.data = torrent.complete
             form.is_anonymous.data = torrent.anonymous
-
             form.is_trusted.data = torrent.trusted
-            form.is_deleted.data = torrent.deleted
 
         ipbanned = None
         if editor.is_moderator:

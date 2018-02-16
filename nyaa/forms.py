@@ -259,7 +259,6 @@ class EditForm(FlaskForm):
         field.parsed_data = cat
 
     is_hidden = BooleanField('Hidden')
-    is_deleted = BooleanField('Deleted')
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
