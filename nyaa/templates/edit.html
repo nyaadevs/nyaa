@@ -69,11 +69,11 @@
 				</label>
 				{% endif %}
 				{% if g.user.is_moderator %}
-				<label class="btn btn-default {% if torrent.comment_locked %}active{% endif %}" title="Lock commenting">
+				<label class="btn btn-default {% if torrent.comment_locked %}active{% endif %}" title="Lock comments">
 					{{ form.is_comment_locked }}
 					<span class="glyphicon glyphicon-check"></span>
 					<span class="glyphicon glyphicon-unchecked"></span>
-					Lock commenting
+					Lock Comments
 				</label>
 				{% endif %}
 			</div>
