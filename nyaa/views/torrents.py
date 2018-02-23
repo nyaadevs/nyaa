@@ -359,7 +359,7 @@ def delete_comment(torrent_id, comment_id):
     if not comment:
         flask.abort(404)
 
-    if not (comment.user.id == flask.g.user.id or flask.g.user.is_moderator):
+    if not (comment.user.id == flask.g.user.id or flask.g.user.is_superadmin):
         flask.abort(403)
 
     if torrent_id != comment.torrent_id:
@@ -383,7 +383,7 @@ def delete_comment(torrent_id, comment_id):
 
 @bp.route('/view/<int:torrent_id>/submit_report', endpoint='report', methods=['POST'])
 def submit_report(torrent_id):
-    if not flask.g.user:
+    if not flask.g.user or flask.g.user.age < app.config['RATELIMIT_ACCOUNT_AGE']:
         flask.abort(403)
 
     form = forms.ReportForm(flask.request.form)
