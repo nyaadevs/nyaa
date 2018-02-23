@@ -1,12 +1,12 @@
 import json
 import os
+from datetime import datetime, timedelta
 from ipaddress import ip_address
-from urllib.parse import urlencode
-from urllib.request import urlopen
 
 import flask
 from werkzeug import secure_filename
 
+import sqlalchemy
 from orderedset import OrderedSet
 
 from nyaa import models, utils
@@ -16,7 +16,7 @@ app = flask.current_app
 
 
 class TorrentExtraValidationException(Exception):
-    def __init__(self, errors):
+    def __init__(self, errors={}):
         self.errors = errors
 
 
@@ -105,6 +105,40 @@ def validate_torrent_post_upload(torrent, upload_form=None):
         raise TorrentExtraValidationException(errors)
 
 
+def check_uploader_ratelimit(user):
+    ''' Figures out if user (or IP address from flask.request) may
+        upload within upload ratelimit.
+        Returns a tuple of current datetime, count of torrents uploaded
+        within burst duration and timestamp for next allowed upload. '''
+    now = datetime.utcnow()
+    next_allowed_time = now
+
+    Torrent = models.Torrent
+
+    def filter_uploader(query):
+        if user:
+            return query.filter(Torrent.user == user)
+        else:
+            return query.filter(Torrent.uploader_ip == ip_address(flask.request.remote_addr).packed)
+
+    time_range_start = datetime.utcnow() - timedelta(seconds=app.config['UPLOAD_BURST_DURATION'])
+    # Count torrents uploaded by user/ip within given time period
+    torrent_count_query = db.session.query(sqlalchemy.func.count(Torrent.id))
+    torrent_count = filter_uploader(torrent_count_query).filter(
+        Torrent.created_time >= time_range_start).scalar()
+
+    # If user has reached burst limit...
+    if torrent_count >= app.config['MAX_UPLOAD_BURST']:
+        # Check how long ago their latest torrent was (we know at least one will exist)
+        last_torrent = filter_uploader(Torrent.query).order_by(Torrent.created_time.desc()).first()
+        after_timeout = last_torrent.created_time + timedelta(seconds=app.config['UPLOAD_TIMEOUT'])
+
+        if now < after_timeout:
+            next_allowed_time = after_timeout
+
+    return now, torrent_count, next_allowed_time
+
+
 def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     ''' Stores a torrent to the database.
         May throw TorrentExtraValidationException if the form/torrent fails
@@ -112,11 +146,25 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         relevant fields on the given form. '''
     torrent_data = upload_form.torrent_file.parsed_data
 
-    # Delete exisiting torrent which is marked as deleted
+    # Anonymous uploaders and non-trusted uploaders
+    no_or_new_account = (not uploading_user
+                         or (uploading_user.age < app.config['RATELIMIT_ACCOUNT_AGE']
+                             and not uploading_user.is_trusted))
+
+    if app.config['RATELIMIT_UPLOADS'] and no_or_new_account:
+        now, torrent_count, next_time = check_uploader_ratelimit(uploading_user)
+        if next_time > now:
+            # This will flag the dialog in upload.html red and tell API users what's wrong
+            upload_form.ratelimit.errors = ["You've gone over the upload ratelimit."]
+            raise TorrentExtraValidationException()
+
+    # Delete existing torrent which is marked as deleted
     if torrent_data.db_id is not None:
-        models.Torrent.query.filter_by(id=torrent_data.db_id).delete()
+        old_torrent = models.Torrent.by_id(torrent_data.db_id)
+        db.session.delete(old_torrent)
         db.session.commit()
-        _delete_cached_torrent_file(torrent_data.db_id)
+        # Delete physical file after transaction has been committed
+        _delete_info_dict(old_torrent)
 
     # The torrent has been  validated and is safe to access with ['foo'] etc - all relevant
     # keys and values have been checked for (see UploadForm in forms.py for details)
@@ -147,7 +195,14 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
                              uploader_ip=ip_address(flask.request.remote_addr).packed)
 
     # Store bencoded info_dict
-    torrent.info = models.TorrentInfo(info_dict=torrent_data.bencoded_info_dict)
+    info_dict_path = torrent.info_dict_path
+
+    info_dict_dir = os.path.dirname(info_dict_path)
+    os.makedirs(info_dict_dir, exist_ok=True)
+
+    with open(info_dict_path, 'wb') as out_file:
+        out_file.write(torrent_data.bencoded_info_dict)
+
     torrent.stats = models.Statistic()
     torrent.has_torrent = True
 
@@ -266,6 +321,9 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     # Before final commit, validate the torrent again
     validate_torrent_post_upload(torrent, upload_form)
 
+    # Add to tracker whitelist
+    db.session.add(models.TrackerApi(torrent.info_hash, 'insert'))
+
     db.session.commit()
 
     # Store the actual torrent file as well
@@ -274,8 +332,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
         torrent_file.seek(0, 0)
 
         torrent_dir = app.config['BACKUP_TORRENT_FOLDER']
-        if not os.path.exists(torrent_dir):
-            os.makedirs(torrent_dir)
+        os.makedirs(torrent_dir, exist_ok=True)
 
         torrent_path = os.path.join(torrent_dir, '{}.{}'.format(
             torrent.id, secure_filename(torrent_file.filename)))
@@ -285,31 +342,7 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     return torrent
 
 
-def tracker_api(info_hashes, method):
-    url = app.config.get('TRACKER_API_URL')
-    if not url:
-        return False
-
-    qs = []
-    qs.append(('auth', app.config.get('TRACKER_API_AUTH')))
-    qs.append(('method', method))
-
-    for infohash in info_hashes:
-        qs.append(('info_hash', infohash))
-
-    qs = urlencode(qs)
-    url += '?' + qs
-    try:
-        req = urlopen(url)
-    except:
-        return False
-
-    return req.status == 200
-
-
-def _delete_cached_torrent_file(torrent_id):
-    # Note: obviously temporary
-    cached_torrent = os.path.join(app.config['BASE_DIR'],
-                                  'torrent_cache', str(torrent_id) + '.torrent')
-    if os.path.exists(cached_torrent):
-        os.remove(cached_torrent)
+def _delete_info_dict(torrent):
+    info_dict_path = torrent.info_dict_path
+    if os.path.exists(info_dict_path):
+        os.remove(info_dict_path)

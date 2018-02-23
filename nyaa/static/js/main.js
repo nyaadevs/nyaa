@@ -67,13 +67,60 @@ $(document).ready(function() {
 		$('#torrent_file')[0].files = files;
 		$(this).css({ 'visibility': 'hidden', 'opacity': 0 });
 	});
-	
+
 	// Collapsible file lists
 	$('.torrent-file-list a.folder').click(function(e) {
 		e.preventDefault();
 		$(this).blur().children('i').toggleClass('fa-folder-open fa-folder');
 		$(this).next().stop().slideToggle(250);
 	});
+
+	// Comment editing below
+	$('.edit-comment').click(function(e) {
+		e.preventDefault();
+		$(this).closest('.comment').toggleClass('is-editing');
+	});
+
+	$('[data-until]').each(function() {
+		var $this = $(this),
+			text = $(this).text(),
+			until = $this.data('until');
+
+		var displayTimeRemaining = function() {
+			var diff = Math.max(0, until - (Date.now() / 1000) | 0),
+				min = Math.floor(diff / 60),
+				sec = diff % 60;
+			$this.text(text + ' (' + min + ':' + ('00' + sec).slice(-2) + ')');
+		};
+
+		displayTimeRemaining();
+		setInterval(displayTimeRemaining, 1000);
+	});
+
+	$('.edit-comment-box').submit(function(e) {
+		e.preventDefault();
+
+		var $this = $(this),
+			$submitButton = $this.find('[type=submit]').attr('disabled', 'disabled'),
+			$waitIndicator = $this.find('.edit-waiting').show()
+			$errorStatus = $this.find('.edit-error').empty();
+
+		$.ajax({
+			type: $this.attr('method'),
+			url: $this.attr('action'),
+			data: $this.serialize()
+		}).done(function(data) {
+			var $comment = $this.closest('.comment');
+			$comment.find('.comment-content').html(markdown.render(data.comment));
+			$comment.toggleClass('is-editing');
+		}).fail(function(xhr) {
+			var error = xhr.responseJSON && xhr.responseJSON.error || 'An unknown error occurred.';
+			$errorStatus.text(error);
+		}).always(function() {
+			$submitButton.removeAttr('disabled');
+			$waitIndicator.hide();
+		});
+	})
 });
 
 function _format_time_difference(seconds) {
@@ -91,6 +138,7 @@ function _format_time_difference(seconds) {
 	if (seconds < 0) {
 		suffix = "";
 		prefix = "After ";
+		seconds = -seconds;
 	} else if (seconds == 0) {
 		return "Just now"
 	}
@@ -126,6 +174,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		var target = timestamp_targets[i];
 		var torrent_timestamp = parseInt(target.getAttribute('data-timestamp'));
 		var swap_flag = target.getAttribute('data-timestamp-swap') != null;
+		var title_flag = target.getAttribute('data-timestamp-title') != null;
 
 		if (torrent_timestamp) {
 			var timedelta = now_timestamp - torrent_timestamp;
@@ -134,10 +183,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			var formatted_timedelta = _format_time_difference(timedelta);
 			if (swap_flag) {
 				target.setAttribute('title', formatted_date);
-				target.innerText = formatted_timedelta;
+				if (!title_flag) {
+					target.innerText = formatted_timedelta;
+				}
 			} else {
 				target.setAttribute('title', formatted_timedelta);
-				target.innerText = formatted_date;
+				if (!title_flag) {
+					target.innerText = formatted_date;
+				}
 			}
 		}
 	};
@@ -187,14 +240,23 @@ document.addEventListener("DOMContentLoaded", function() {
 	for (var i = 0; i < markdownTargets.length; i++) {
 		var target = markdownTargets[i];
 		var rendered;
+		var markdownSource = htmlDecode(target.innerHTML);
 		if (target.attributes["markdown-text-inline"]) {
-			rendered = markdown.renderInline(target.innerHTML);
+			rendered = markdown.renderInline(markdownSource);
 		} else {
-			rendered = markdown.render(target.innerHTML);
+			rendered = markdown.render(markdownSource);
 		}
 		target.innerHTML = rendered;
 	}
 });
+
+
+// Decode HTML entities (&gt; etc), used for decoding comment markdown from escaped text
+function htmlDecode(input){
+	var e = document.createElement('div');
+	e.innerHTML = input;
+	return e.childNodes[0].nodeValue;
+}
 
 //
 // This is the unminified version of the theme changer script in the layout.html @ line: 21

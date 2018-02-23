@@ -10,5 +10,5 @@
 	<Param name="q" value="{searchTerms}"/>
 </Url>
 <Url type="application/opensearchdescription+xml" rel="self" template="https://sukebei.nyaa.si/static/search-sukebei.xml"/>
-<moz:SearchForm>https://sukebeinyaa.si/</moz:SearchForm>
+<moz:SearchForm>https://sukebei.nyaa.si/</moz:SearchForm>
 </OpenSearchDescription>

@@ -14,16 +14,15 @@ __pycache__
 
 # Databases
 *.sql
-test.db
+/test.db
 
 # Webserver
-uwsgi.sock
+/uwsgi.sock
 
 # Application
-install/*
-config.py
+/install/*
+/config.py
 /test_torrent_batch
-torrents
 
 # Other
 *.swp

@@ -41,6 +41,7 @@ pytest==3.1.1
 python-dateutil==2.6.0
 python-editor==1.0.3
 python-utils==2.1.0
+requests==2.18.4
 six==1.10.0
 SQLAlchemy==1.1.10
 SQLAlchemy-FullText-Search==0.2.3

@@ -271,6 +271,10 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	color: #a760e0;
 }
 
+.comment-details {
+	margin-bottom: 10px;
+}
+
 .comment-content {
 	overflow-wrap: break-word;
 }
@@ -286,9 +290,37 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	margin-bottom: 10px;
 }
 
-.delete-comment-form {
+.comment-actions {
 	position: relative;
 	float: right;
+}
+
+.delete-comment-form {
+	display: inline-block;
+}
+
+.edit-comment-box {
+	display: none;
+}
+
+.is-editing .edit-comment-box {
+	display: block;
+}
+
+.is-editing .comment-content {
+	display: none;
+}
+
+.edit-waiting {
+	float: right;
+	width: 20px;
+	height: 20px;
+	border: 2px solid;
+	border-color: gray transparent;
+	border-radius: 100%;
+	position: relative;
+	top: 4px;
+	animation: fa-spin 1s infinite linear;
 }
 
 #comment {
@@ -400,7 +432,8 @@ body.dark .navbar a {
 	color: #e2e2e2;
 }
 
-body.dark kbd {
+body.dark kbd,
+body.dark .btn.edit-comment {
 	background-color: #4a4a4a;
 }
 
@@ -418,8 +451,9 @@ body.dark .torrent-list tbody tr td a:visited {
 	color: #205c90;
 }
 
-body.dark .torrent-list > thead > tr, body.dark tbody > tr,
-body.dark .panel > .panel-heading {
+body.dark thead > tr, body.dark tbody > tr,
+body.dark .panel > .panel-heading,
+body.dark .report-action-column select {
 	color: #cbcbcb;
 }
 
@@ -438,8 +472,16 @@ body.dark .table-bordered > tbody > tr > td {
 
 body.dark table.torrent-list tbody .comments {
 	border-color: #212121;
-	color: #d6d6d6;
-	background-color: #4c4c4c;
+	color: #247fcc;
+	background-color: #2f2c2c;
+}
+
+body.dark .comment-panel:target {
+	border-color: white;
+}
+
+body.dark .table > table {
+	background-color: #323232;
 }
 
 /* trusted */
@@ -532,4 +574,10 @@ td.report-action-column {
 	.search-container {
 		width: 400px;
 	}
+}
+
+
+/* Override <blockquote> font size (assume main.css comes after bootstrap) */
+blockquote {
+	font-size: inherit;
 }

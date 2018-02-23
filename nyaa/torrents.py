@@ -1,8 +1,8 @@
 import base64
 import os
-import time
 from urllib.parse import urlencode
 
+import flask
 from flask import current_app as app
 
 from orderedset import OrderedSet
@@ -11,16 +11,13 @@ from nyaa import bencode
 
 USED_TRACKERS = OrderedSet()
 
-# Limit the amount of trackers added into .torrent files
-MAX_TRACKERS = 5
-
 
 def read_trackers_from_file(file_object):
     USED_TRACKERS.clear()
 
     for line in file_object:
         line = line.strip()
-        if line:
+        if line and not line.startswith('#'):
             USED_TRACKERS.add(line)
     return USED_TRACKERS
 
@@ -103,8 +100,10 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
 
     metadata_base = {
         'created by': 'NyaaV2',
-        'creation date': int(time.time()),
-        'comment': 'NyaaV2 Torrent #' + str(torrent.id),  # Throw the url here or something neat
+        'creation date': int(torrent.created_utc_timestamp),
+        'comment': flask.url_for('torrents.view',
+                                 torrent_id=torrent.id,
+                                 _external=True)
         # 'encoding' : 'UTF-8' # It's almost always UTF-8 and expected, but if it isn't...
     }
 
@@ -112,7 +111,7 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
         metadata_base['announce'] = trackers[0]
     if len(trackers) > 1:
         # Yes, it's a list of lists with a single element inside.
-        metadata_base['announce-list'] = [[tracker] for tracker in trackers[:MAX_TRACKERS]]
+        metadata_base['announce-list'] = [[tracker] for tracker in trackers]
 
     # Add webseeds
     if webseeds:
@@ -121,7 +120,7 @@ def create_default_metadata_base(torrent, trackers=None, webseeds=None):
     return metadata_base
 
 
-def create_bencoded_torrent(torrent, metadata_base=None):
+def create_bencoded_torrent(torrent, bencoded_info, metadata_base=None):
     ''' Creates a bencoded torrent metadata for a given torrent,
         optionally using a given metadata_base dict (note: 'info' key will be
         popped off the dict) '''
@@ -138,7 +137,6 @@ def create_bencoded_torrent(torrent, metadata_base=None):
     prefix = bencode.encode(prefixed_dict)
     suffix = bencode.encode(suffixed_dict)
 
-    bencoded_info = torrent.info.info_dict
     bencoded_torrent = prefix[:-1] + b'4:info' + bencoded_info + suffix[1:]
 
     return bencoded_torrent

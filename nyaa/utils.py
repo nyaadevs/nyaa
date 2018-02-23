@@ -37,7 +37,6 @@ def cached_function(f):
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         if f._cached_value is sentinel:
-            print('Evaluating', f, args, kwargs)
             f._cached_value = f(*args, **kwargs)
         return f._cached_value
     return decorator

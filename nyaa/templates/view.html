@@ -152,18 +152,38 @@
 				</p>
 				<img class="avatar" src="{{ comment.user.gravatar_url() }}" alt="{{ comment.user.userlevel_str }}">
 			</div>
-			<div class="col-md-10">
-				<div class="row">
+			<div class="col-md-10 comment">
+				<div class="row comment-details">
 					<a href="#com-{{ loop.index }}"><small data-timestamp-swap data-timestamp="{{ comment.created_utc_timestamp|int }}">{{ comment.created_time.strftime('%Y-%m-%d %H:%M UTC') }}</small></a>
-					{% if g.user.is_moderator or g.user.id == comment.user_id %}
-					<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
-						<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
-					</form>
+					{% if comment.edited_time %}
+					<small data-timestamp-swap data-timestamp-title data-timestamp="{{ comment.edited_utc_timestamp }}" title="{{ comment.edited_time }}">(edited)</small>
 					{% endif %}
+					<div class="comment-actions">
+						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded %}
+						<button class="btn btn-xs edit-comment" title="Edit"{% if config.EDITING_TIME_LIMIT %} data-until="{{ comment.editable_until|int }}"{% endif %}>Edit</button>
+						{% endif %}
+						{% if g.user.is_moderator or g.user.id == comment.user_id %}
+						<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
+							<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
+						</form>
+						{% endif %}
+					</div>
 				</div>
 				<div class="row">
 					{# Escape newlines into html entities because CF strips blank newlines #}
-					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{ comment.text }}</div>
+					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</div>
+					{% if g.user.id == comment.user_id %}
+					<form class="edit-comment-box" action="{{ url_for('torrents.edit_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
+						{{ comment_form.csrf_token }}
+						<div class="form-group">
+							<textarea class="form-control" name="comment" autofocus>{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</textarea>
+						</div>
+						<input type="submit" value="Submit" class="btn btn-success btn-sm">
+						<button class="btn btn-sm edit-comment" title="Cancel">Cancel</button>
+						<span class="edit-error text-danger"></span>
+						<div class="edit-waiting" style="display:none"></div>
+					</form>
+					{% endif %}
 				</div>
 			</div>
 		</div>
@@ -173,8 +193,33 @@
 	{% if comment_form %}
 	<form class="comment-box" method="POST">
 		{{ comment_form.csrf_token }}
-		{{ render_field(comment_form.comment, class_='form-control') }}
-		<input type="submit" value="Submit" class="btn btn-success btn-sm">
+		<div class="row">
+			<div class="col-md-12">
+				{{ render_field(comment_form.comment, class_='form-control') }}
+			</div>
+		</div>
+		{% if config.USE_RECAPTCHA and g.user.age < config['ACCOUNT_RECAPTCHA_AGE'] %}
+		<div class="row">
+			<div class="col-md-4">
+				{% if comment_form.recaptcha.errors %}
+				<div class="alert alert-danger">
+					<p><strong>CAPTCHA error:</strong></p>
+					<ul>
+						{% for error in comment_form.recaptcha.errors %}
+						<li>{{ error }}</li>
+						{% endfor %}
+					</ul>
+				</div>
+				{% endif %}
+				{{ comment_form.recaptcha }}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-md-12">
+				<input type="submit" value="Submit" class="btn btn-success btn-sm">
+			</div>
+		</div>
 	</form>
 	{% endif %}
 </div>
@@ -200,7 +245,7 @@
 					{{ render_field(report_form.reason, class_='form-control', maxlength=255) }}
 					<div style="float: right;">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-danger">Report</button>
+						<button type="submit" id="reportSubmit" class="btn btn-danger">Report</button>
 					</div>
 				</form>
 			</div>
@@ -214,6 +259,14 @@
 	// Focus the report text field once the modal is opened.
 	$('#reportModal').on('shown.bs.modal', function () {
 		$('#reason').focus();
+		$('#reportSubmit').attr('disabled', true);
+	});
+	$('#reason').on('input', function(e) {
+		if($('#reason').val().length > 0) {
+			$('#reportSubmit').removeAttr('disabled');
+		} else {
+			$('#reportSubmit').attr('disabled', true);
+		}
 	});
 </script>
 {% endif %}

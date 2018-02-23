@@ -1,4 +1,5 @@
 import base64
+import os.path
 import re
 from datetime import datetime
 from enum import Enum, IntEnum
@@ -172,11 +173,6 @@ class TorrentBase(DeclarativeHelperBase):
                                primaryjoin=join_sql.format(cls.__flavor__))
 
     @declarative.declared_attr
-    def info(cls):
-        return db.relationship(cls._flavor_prefix('TorrentInfo'), uselist=False,
-                               cascade="all, delete-orphan", back_populates='torrent')
-
-    @declarative.declared_attr
     def filelist(cls):
         return db.relationship(cls._flavor_prefix('TorrentFilelist'), uselist=False,
                                cascade="all, delete-orphan", back_populates='torrent')
@@ -229,6 +225,13 @@ class TorrentBase(DeclarativeHelperBase):
                 return '<a href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url)))
         # Escaped
         return escape_markup(self.information)
+
+    @property
+    def info_dict_path(self):
+        ''' Returns a path to the info_dict file in form of 'info_dicts/aa/bb/aabbccddee...' '''
+        info_hash = self.info_hash_as_hex
+        return os.path.join(app.config['BASE_DIR'], 'info_dicts',
+                            info_hash[0:2], info_hash[2:4], info_hash)
 
     @property
     def info_hash_as_b32(self):
@@ -289,22 +292,6 @@ class TorrentFilelistBase(DeclarativeHelperBase):
     def torrent(cls):
         return db.relationship(cls._flavor_prefix('Torrent'), uselist=False,
                                back_populates='filelist')
-
-
-class TorrentInfoBase(DeclarativeHelperBase):
-    __tablename_base__ = 'torrents_info'
-
-    __table_args__ = {'mysql_row_format': 'COMPRESSED'}
-
-    @declarative.declared_attr
-    def torrent_id(cls):
-        return db.Column(db.Integer, db.ForeignKey(
-            cls._table_prefix('torrents.id'), ondelete="CASCADE"), primary_key=True)
-    info_dict = db.Column(MediumBlobType, nullable=True)
-
-    @declarative.declared_attr
-    def torrent(cls):
-        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False, back_populates='info')
 
 
 class StatisticBase(DeclarativeHelperBase):
@@ -434,12 +421,18 @@ class CommentBase(DeclarativeHelperBase):
         return db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    edited_time = db.Column(db.DateTime(timezone=False), onupdate=datetime.utcnow)
     text = db.Column(TextType(collation=COL_UTF8MB4_BIN), nullable=False)
 
     @declarative.declared_attr
     def user(cls):
         return db.relationship('User', uselist=False,
                                back_populates=cls._table_prefix('comments'), lazy="joined")
+
+    @declarative.declared_attr
+    def torrent(cls):
+        return db.relationship(cls._flavor_prefix('Torrent'), uselist=False,
+                               back_populates='comments', lazy="joined")
 
     def __repr__(self):
         return '<Comment %r>' % self.id
@@ -448,6 +441,20 @@ class CommentBase(DeclarativeHelperBase):
     def created_utc_timestamp(self):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @property
+    def edited_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.edited_time - UTC_EPOCH).total_seconds() if self.edited_time else 0
+
+    @property
+    def editable_until(self):
+        return self.created_utc_timestamp + config['EDITING_TIME_LIMIT']
+
+    @property
+    def editing_limit_exceeded(self):
+        limit = config['EDITING_TIME_LIMIT']
+        return bool(limit and (datetime.utcnow() - self.created_time).total_seconds() >= limit)
 
 
 class UserLevelType(IntEnum):
@@ -583,6 +590,10 @@ class User(db.Model):
 
     @classmethod
     def by_username(cls, username):
+        def isascii(s): return len(s) == len(s.encode())
+        if not isascii(username):
+            return None
+
         user = cls.query.filter_by(username=username).first()
         return user
 
@@ -610,6 +621,16 @@ class User(db.Model):
     @property
     def is_banned(self):
         return self.status == UserStatusType.BANNED
+
+    @property
+    def age(self):
+        '''Account age in seconds'''
+        return (datetime.utcnow() - self.created_time).total_seconds()
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
 
 
 class AdminLogBase(DeclarativeHelperBase):
@@ -807,8 +828,21 @@ class NotificationBase(DeclarativeHelperBase):
     def mark_notifications_read(cls, user_id):
         return cls.query.filter_by(read=False, user_id=user_id).update({'read': True})
 
-# Actually declare our site-specific classes
 
+class TrackerApiBase(DeclarativeHelperBase):
+    __tablename_base__ = 'trackerapi'
+
+    id = db.Column(db.Integer, primary_key=True)
+    info_hash = db.Column(BinaryType(length=20), nullable=False)
+    method = db.Column(db.String(length=255), nullable=False)
+    # Methods = insert, remove
+
+    def __init__(self, info_hash, method):
+        self.info_hash = info_hash
+        self.method = method
+
+
+# Actually declare our site-specific classes
 
 # Torrent
 class NyaaTorrent(TorrentBase, db.Model):
@@ -843,15 +877,6 @@ class NyaaTorrentFilelist(TorrentFilelistBase, db.Model):
 
 
 class SukebeiTorrentFilelist(TorrentFilelistBase, db.Model):
-    __flavor__ = 'Sukebei'
-
-
-# TorrentInfo
-class NyaaTorrentInfo(TorrentInfoBase, db.Model):
-    __flavor__ = 'Nyaa'
-
-
-class SukebeiTorrentInfo(TorrentInfoBase, db.Model):
     __flavor__ = 'Sukebei'
 
 
@@ -926,12 +951,21 @@ class NyaaNotification(NotificationBase, db.Model):
 class SukebeiNotification(NotificationBase, db.Model):
     __flavor__ = 'Sukebei'
 
+# TrackerApi
+
+
+class NyaaTrackerApi(TrackerApiBase, db.Model):
+    __flavor__ = 'Nyaa'
+
+
+class SukebeiTrackerApi(TrackerApiBase, db.Model):
+    __flavor__ = 'Sukebei'
+
 
 # Choose our defaults for models.Torrent etc
 if config['SITE_FLAVOR'] == 'nyaa':
     Torrent = NyaaTorrent
     TorrentFilelist = NyaaTorrentFilelist
-    TorrentInfo = NyaaTorrentInfo
     Statistic = NyaaStatistic
     TorrentTrackers = NyaaTorrentTrackers
     MainCategory = NyaaMainCategory
@@ -941,11 +975,11 @@ if config['SITE_FLAVOR'] == 'nyaa':
     Report = NyaaReport
     TorrentNameSearch = NyaaTorrentNameSearch
     Notification = NyaaNotification
+    TrackerApi = NyaaTrackerApi
 
 elif config['SITE_FLAVOR'] == 'sukebei':
     Torrent = SukebeiTorrent
     TorrentFilelist = SukebeiTorrentFilelist
-    TorrentInfo = SukebeiTorrentInfo
     Statistic = SukebeiStatistic
     TorrentTrackers = SukebeiTorrentTrackers
     MainCategory = SukebeiMainCategory
@@ -955,3 +989,4 @@ elif config['SITE_FLAVOR'] == 'sukebei':
     Report = SukebeiReport
     TorrentNameSearch = SukebeiTorrentNameSearch
     Notification = SukebeiNotification
+    TrackerApi = SukebeiTrackerApi

@@ -1,0 +1,6 @@
+{{ user.username }}, please verify your email by clicking the link below:
+
+{{ activation_link }}
+(if you can't click on the link, copy and paste it to your browser's address bar)
+
+If you did not sign up for {{ config.GLOBAL_SITE_NAME }}, feel free to ignore this email.

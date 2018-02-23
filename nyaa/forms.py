@@ -50,6 +50,42 @@ def stop_on_validation_error(f):
     return decorator
 
 
+def recaptcha_validator_shim(form, field):
+    if app.config['USE_RECAPTCHA']:
+        return RecaptchaValidator()(form, field)
+    else:
+        # Always pass validating the recaptcha field if disabled
+        return True
+
+
+def upload_recaptcha_validator_shim(form, field):
+    ''' Selectively does a recaptcha validation '''
+    if app.config['USE_RECAPTCHA']:
+        # Recaptcha anonymous and new users
+        if not flask.g.user or flask.g.user.age < app.config['ACCOUNT_RECAPTCHA_AGE']:
+            return RecaptchaValidator()(form, field)
+    else:
+        # Always pass validating the recaptcha field if disabled
+        return True
+
+
+def register_email_validator(form, field):
+    email_blacklist = app.config.get('EMAIL_BLACKLIST', [])
+    email = field.data.strip()
+    validation_exception = StopValidation('Blacklisted email provider')
+
+    for item in email_blacklist:
+        if isinstance(item, re._pattern_type):
+            if item.search(email):
+                raise validation_exception
+        elif isinstance(item, str):
+            if item in email.lower():
+                raise validation_exception
+        else:
+            raise Exception('Unexpected email validator type {!r} ({!r})'.format(type(item), item))
+    return True
+
+
 _username_validator = Regexp(
     r'^[a-zA-Z0-9_\-]+$',
     message='Your username must only consist of alphanumerics and _- (a-zA-Z0-9_-)')
@@ -58,6 +94,27 @@ _username_validator = Regexp(
 class LoginForm(FlaskForm):
     username = StringField('Username or email address', [DataRequired()])
     password = PasswordField('Password', [DataRequired()])
+
+
+class PasswordResetRequestForm(FlaskForm):
+    email = StringField('Email address', [
+        Email(),
+        DataRequired(),
+        Length(min=5, max=128)
+    ])
+
+    recaptcha = RecaptchaField(validators=[recaptcha_validator_shim])
+
+
+class PasswordResetForm(FlaskForm):
+    password = PasswordField('Password', [
+        DataRequired(),
+        EqualTo('password_confirm', message='Passwords must match'),
+        Length(min=6, max=1024,
+               message='Password must be at least %(min)d characters long.')
+    ])
+
+    password_confirm = PasswordField('Password (confirm)')
 
 
 class RegisterForm(FlaskForm):
@@ -72,6 +129,7 @@ class RegisterForm(FlaskForm):
         Email(),
         DataRequired(),
         Length(min=5, max=128),
+        register_email_validator,
         Unique(User, User.email, 'Email already in use by another account')
     ])
 
@@ -142,10 +200,12 @@ class DisabledSelectField(SelectField):
 
 class CommentForm(FlaskForm):
     comment = TextAreaField('Make a comment', [
-        Length(min=3, max=1024, message='Comment must be at least %(min)d characters '
+        Length(min=3, max=2048, message='Comment must be at least %(min)d characters '
                'long and %(max)d at most.'),
-        DataRequired()
+        DataRequired(message='Comment must not be empty.')
     ])
+
+    recaptcha = RecaptchaField(validators=[upload_recaptcha_validator_shim])
 
 
 class InlineButtonWidget(object):
@@ -199,7 +259,6 @@ class EditForm(FlaskForm):
         field.parsed_data = cat
 
     is_hidden = BooleanField('Hidden')
-    is_deleted = BooleanField('Deleted')
     is_remake = BooleanField('Remake')
     is_anonymous = BooleanField('Anonymous')
     is_complete = BooleanField('Complete')
@@ -226,6 +285,7 @@ class DeleteForm(FlaskForm):
 class BanForm(FlaskForm):
     ban_user = SubmitField("Delete & Ban and Ban User")
     ban_userip = SubmitField("Delete & Ban and Ban User+IP")
+    nuke = SubmitField("Delete & Ban all torrents")
     unban = SubmitField("Unban")
 
     _validator = DataRequired()
@@ -252,17 +312,8 @@ class UploadForm(FlaskForm):
                        '%(max)d at most.')
     ])
 
-    if config['USE_RECAPTCHA']:
-        # Captcha only for not logged in users
-        _recaptcha_validator = RecaptchaValidator()
+    recaptcha = RecaptchaField(validators=[upload_recaptcha_validator_shim])
 
-        def _validate_recaptcha(form, field):
-            if not flask.g.user:
-                return UploadForm._recaptcha_validator(form, field)
-
-        recaptcha = RecaptchaField(validators=[_validate_recaptcha])
-
-    # category = SelectField('Category')
     category = DisabledSelectField('Category')
 
     def validate_category(form, field):
@@ -293,6 +344,8 @@ class UploadForm(FlaskForm):
     description = TextAreaField('Description', [
         Length(max=10 * 1024, message='Description must be at most %(max)d characters long.')
     ])
+
+    ratelimit = HiddenField()
 
     def validate_torrent_file(form, field):
         # Decode and ensure data is bencoded data
@@ -385,6 +438,7 @@ class ReportActionForm(FlaskForm):
 
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
+    assert announce is not None, 'no tracker in torrent'
     announce_string = _validate_bytes(announce, 'announce', test_decode='utf-8')
 
     tracker_found = tracker_to_check_for and (

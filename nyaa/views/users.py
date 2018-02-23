@@ -1,5 +1,8 @@
+import binascii
 import math
+import time
 from ipaddress import ip_address
+from itertools import chain
 
 import flask
 from flask_paginate import Pagination
@@ -10,7 +13,7 @@ from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
-from nyaa.utils import chain_get
+from nyaa.utils import chain_get, sha1_hash
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -100,6 +103,38 @@ def view_user(user_name):
         flask.flash(flask.Markup('User has been successfully {0}.'.format(action)), 'success')
         return flask.redirect(url)
 
+    if flask.request.method == 'POST' and ban_form and ban_form.nuke.data:
+        if flask.g.user.is_superadmin:
+            nyaa_banned = 0
+            sukebei_banned = 0
+            for t in chain(user.nyaa_torrents, user.sukebei_torrents):
+                t.deleted = True
+                t.banned = True
+                db.session.add(t)
+                if isinstance(t, models.NyaaTorrent):
+                    db.session.add(models.NyaaTrackerApi(t.info_hash, 'remove'))
+                    nyaa_banned += 1
+                else:
+                    db.session.add(models.SukebeiTrackerApi(t.info_hash, 'remove'))
+                    sukebei_banned += 1
+
+            for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
+                                     (models.SukebeiAdminLog, sukebei_banned)):
+                if num > 0:
+                    log = "Nuked {0} torrents of [{1}]({2})".format(num,
+                                                                    user.username,
+                                                                    url)
+                    adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
+                    db.session.add(adminlog)
+
+            db.session.commit()
+            flask.flash('Torrents of {0} have been nuked.'.format(user.username),
+                        'success')
+            return flask.redirect(url)
+        else:
+            flask.flash('Insufficient permissions to nuke.', 'danger')
+            return flask.redirect(url)
+
     req_args = flask.request.args
 
     search_term = chain_get(req_args, 'q', 'term')
@@ -188,6 +223,33 @@ def view_user(user_name):
                                      ipbanned=ipbanned)
 
 
+@bp.route('/user/<user_name>/comments')
+def view_user_comments(user_name):
+    user = models.User.by_username(user_name)
+
+    if not user:
+        flask.abort(404)
+
+    # Only moderators get to see all comments for now
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page_number = flask.request.args.get('p')
+    try:
+        page_number = max(1, int(page_number))
+    except (ValueError, TypeError):
+        page_number = 1
+
+    comments_per_page = 100
+
+    comments_query = (models.Comment.query.filter(models.Comment.user == user)
+                                          .order_by(models.Comment.created_time.desc()))
+    comments_query = comments_query.paginate_faste(page_number, per_page=comments_per_page, step=5)
+    return flask.render_template('user_comments.html',
+                                 comments_query=comments_query,
+                                 user=user)
+
+
 @bp.route('/user/activate/<payload>')
 def activate_user(payload):
     if app.config['MAINTENANCE_MODE']:
@@ -202,15 +264,23 @@ def activate_user(payload):
 
     user = models.User.by_id(user_id)
 
-    if not user:
+    # Only allow activating inactive users
+    if not user or user.status != models.UserStatusType.INACTIVE:
         flask.abort(404)
 
+    # Set user active
     user.status = models.UserStatusType.ACTIVE
-
     db.session.add(user)
     db.session.commit()
 
-    return flask.redirect(flask.url_for('account.login'))
+    # Log user in
+    flask.g.user = user
+    flask.session['user_id'] = user.id
+    flask.session.permanent = True
+    flask.session.modified = True
+
+    flask.flash(flask.Markup("You've successfully verified your account!"), 'success')
+    return flask.redirect(flask.url_for('main.home'))
 
 
 def _create_user_class_choices(user):
@@ -243,3 +313,13 @@ def get_activation_link(user):
     s = get_serializer()
     payload = s.dumps(user.id)
     return flask.url_for('users.activate_user', payload=payload, _external=True)
+
+
+def get_password_reset_link(user):
+    # This mess to not to have static password reset links
+    # Maybe not the best idea? But this should not be a security risk, and it works.
+    password_hash_hash = binascii.hexlify(sha1_hash(user.password_hash.hash)).decode()
+
+    s = get_serializer()
+    payload = s.dumps((time.time(), password_hash_hash, user.id))
+    return flask.url_for('account.password_reset', payload=payload, _external=True)
