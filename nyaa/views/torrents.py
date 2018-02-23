@@ -293,6 +293,19 @@ def _delete_torrent(torrent, form, banform):
             db.session.add(adminlog)
 
     if action:
+        # Send notification on torrent moderation
+        if not torrent.anonymous and flask.g.user is not torrent.user:
+            notification_body = 'One of your torrents has been {} [{}]({})'.format(
+                action,
+                torrent.display_name,
+                flask.url_for('torrents.view', torrent_id=torrent.id))
+            notification = models.Notification(
+                user_id=torrent.user.id,
+                torrent_id=torrent.id,
+                body=notification_body,
+                type='torrentModeration')
+            db.session.add(notification)
+
         db.session.commit()
         flask.flash(flask.Markup('Torrent has been successfully {0}.'.format(action)), 'success')
 
