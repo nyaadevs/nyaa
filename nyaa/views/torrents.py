@@ -105,6 +105,24 @@ def edit_torrent(torrent_id):
         ban_form = forms.BanForm()
 
     if flask.request.method == 'POST' and form.submit.data and form.validate():
+        # Send notification PM if mod is hiding torrent.
+        if torrent.hidden != form.is_hidden.data and editor.is_moderator and \
+                torrent.user is not editor:
+            if form.is_hidden.data:
+                is_hidden_str, hidden_type = 'hidden', 'TorrentHidden'
+            else:
+                is_hidden_str, hidden_type = 'unhidden', 'TorrentUnhidden'
+            notification_body = 'Your upload ([{}]({})) has been {} by a staff member.'.format(
+                torrent.display_name,
+                flask.url_for('torrents.view', torrent_id=torrent.id),
+                is_hidden_str)
+            notification = models.Notification(
+                user_id=torrent.user.id,
+                torrent_id=torrent.id,
+                body=notification_body,
+                type=hidden_type)
+            db.session.add(notification)
+
         # Form has been sent, edit torrent with data.
         torrent.main_category_id, torrent.sub_category_id = \
             form.category.parsed_data.get_category_ids()
