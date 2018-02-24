@@ -98,51 +98,52 @@ def view_reports():
             report.status = 1
         else:
             log = 'Report #{}: {} [#{}]({}), reported by [{}]({})'
-            if action == 'delete':
-                torrent.deleted = True
-                report.status = 1
-                log = log.format(report_id, 'Deleted', torrent_id,
-                                 flask.url_for('torrents.view', torrent_id=torrent_id),
-                                 report_user.username,
-                                 flask.url_for('users.view_user', user_name=report_user.username))
-                notification_body = 'Your torrent ({}) was deleted by a staff member.'.format(
-                    torrent.display_name)
-                notification = models.Notification(
-                    user_id=torrent.user.id,
-                    torrent_id=torrent_id,
-                    type='torrentDeletion',
-                    body=notification_body)
-                db.session.add(notification)
-            elif action == 'hide':
-                log = log.format(report_id, 'Hid', torrent_id,
-                                 flask.url_for('torrents.view', torrent_id=torrent_id),
-                                 report_user.username,
-                                 flask.url_for('users.view_user', user_name=report_user.username))
-                torrent.hidden = True
-                report.status = 1
-                notification_body = 'Your upload ([{}]({})) was hidden by a staff member.'.format(
-                    torrent.display_name,
-                    flask.url_for('torrents.view', torrent_id=torrent_id))
-                notification = models.Notification(
-                    user_id=torrent.user.id,
-                    body=notification_body,
-                    torrent_id=torrent.id,
-                    type='torrentHidden')
-                db.session.add(notification)
-            else:
-                log = log.format(report_id, 'Closed', torrent_id,
-                                 flask.url_for('torrents.view', torrent_id=torrent_id),
-                                 report_user.username,
-                                 flask.url_for('users.view_user', user_name=report_user.username))
-                report.status = 2
 
-            adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
-            db.session.add(adminlog)
+        if action == 'delete':
+            torrent.deleted = True
+            report.status = 1
+            log = log.format(report_id, 'Deleted', torrent_id,
+                             flask.url_for('torrents.view', torrent_id=torrent_id),
+                             report_user.username,
+                             flask.url_for('users.view_user', user_name=report_user.username))
+            notification_body = 'Your torrent ({}) was deleted by a staff member.'.format(
+                torrent.display_name)
+            notification = models.Notification(
+                user_id=torrent.user.id,
+                torrent_id=torrent_id,
+                type='torrentDeletion',
+                body=notification_body)
+            db.session.add(notification)
+        elif action == 'hide':
+            log = log.format(report_id, 'Hid', torrent_id,
+                             flask.url_for('torrents.view', torrent_id=torrent_id),
+                             report_user.username,
+                             flask.url_for('users.view_user', user_name=report_user.username))
+            torrent.hidden = True
+            report.status = 1
+            notification_body = 'Your upload ([{}]({})) was hidden by a staff member.'.format(
+                torrent.display_name,
+                flask.url_for('torrents.view', torrent_id=torrent_id))
+            notification = models.Notification(
+                user_id=torrent.user.id,
+                body=notification_body,
+                torrent_id=torrent.id,
+                type='torrentHidden')
+            db.session.add(notification)
+        else:
+            log = log.format(report_id, 'Closed', torrent_id,
+                             flask.url_for('torrents.view', torrent_id=torrent_id),
+                             report_user.username,
+                             flask.url_for('users.view_user', user_name=report_user.username))
+            report.status = 2
 
-            models.Report.remove_reviewed(torrent_id)
-            db.session.commit()
-            flask.flash('Closed report #{}'.format(report.id), 'success')
-            return flask.redirect(flask.url_for('admin.reports'))
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
+
+        models.Report.remove_reviewed(torrent_id)
+        db.session.commit()
+        flask.flash('Closed report #{}'.format(report.id), 'success')
+        return flask.redirect(flask.url_for('admin.reports'))
 
     return flask.render_template('reports.html',
                                  reports=reports,
