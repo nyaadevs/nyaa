@@ -227,7 +227,7 @@ def _delete_torrent(torrent, form, banform):
         url = flask.url_for('torrents.view', torrent_id=torrent.id)
         if editor is not uploader:
             log = "Torrent [#{0}]({1}) has been {2}".format(torrent.id, url, action)
-            if deletion_reason:
+            if isinstance(deletion_reason, str) and deletion_reason.strip():
                 log += " for the following reason: {}".format(deletion_reason)
             log += '.'
             adminlog = models.AdminLog(log=log, admin_id=editor.id)
@@ -240,7 +240,7 @@ def _delete_torrent(torrent, form, banform):
                 torrent.display_name,
                 flask.url_for('torrents.view', torrent_id=torrent.id),
                 action)
-            if deletion_reason:
+            if isinstance(deletion_reason, str) and deletion_reason.strip():
                 notification_body += ' for the following reason: {}'.format(deletion_reason)
             notification_body += '.'
 
