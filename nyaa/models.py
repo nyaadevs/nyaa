@@ -811,14 +811,6 @@ class NotificationBase(DeclarativeHelperBase):
         return (self.created_time - UTC_EPOCH).total_seconds()
 
     @classmethod
-    def get_torrent_comments(cls, user_id, torrent_id):
-        return cls.query.filter_by(
-            user_id=user_id,
-            torrent_id=torrent_id,
-            type='torrentComment',
-            read=False).first()
-
-    @classmethod
     def get_notifications(cls, user_id, page):
         notifications = cls.query.filter_by(
             user_id=user_id).order_by(cls.created_time.desc()).paginate(page=page, per_page=20)
