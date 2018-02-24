@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Upload Torrent :: {{ config.SITE_NAME }}{% endblock %}
-{% block metatags %}
+{% block title %}Upload Torrent :: {{ config.SITE_NAME }}{% endblock %} {% block metatags %}
 <meta property="og:description" content="Upload a torrent to {{ config.SITE_NAME }}">
 {% endblock %}
 {% block body %}
@@ -102,7 +101,6 @@
 			{{ render_markdown_editor(upload_form.description, field_name='description') }}
 		</div>
 	</div>
-
 	{% if config.USE_RECAPTCHA and (not g.user or g.user.age < config['ACCOUNT_RECAPTCHA_AGE']) %}
 	<div class="row">
 		<div class="col-md-4">

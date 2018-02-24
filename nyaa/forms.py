@@ -280,6 +280,13 @@ class DeleteForm(FlaskForm):
     undelete = SubmitField("Undelete")
     unban = SubmitField("Unban")
 
+    deletion_reason = TextAreaField('Deletion reason', [
+        Length(max=1024, message='Deletion reason must be at most %(max)d characters long.')
+    ])
+    undeletion_reason = TextAreaField('Undeletion reason', [
+        Length(max=1024, message='Undeletion reason must be at most %(max)d characters long.')
+    ])
+
 
 class BanForm(FlaskForm):
     ban_user = SubmitField("Delete & Ban and Ban User")

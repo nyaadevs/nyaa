@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Notifications :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+	<div class="table-responsive">
+		<table class="table table-hover table-striped">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Date</th>
+				<th>Body</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for notification in notifications.items %}
+			{% if notification.read %}
+			<tr>
+			{% else %}
+			<tr style="font-weight: bold;">
+			{% endif %}
+				<td style="width: 5%">{{ loop.index }}</td>
+				<td style="width: 15%">{{ notification.created_time }}</td>
+				<td><div markdown-text-inline>{{ notification.body }}</div></td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class=pagination>
+		{% from "bootstrap/pagination.html" import render_pagination %}
+		{{ render_pagination(notifications) }}
+	</div>
+{% endblock %}
