@@ -116,7 +116,6 @@ class TorrentBase(DeclarativeHelperBase):
     filesize = db.Column(db.BIGINT, default=0, nullable=False, index=True)
     encoding = db.Column(db.String(length=32), nullable=False)
     flags = db.Column(db.Integer, default=0, nullable=False, index=True)
-    notifications = db.Column(db.Boolean, nullable=False, default=False)
 
     @declarative.declared_attr
     def uploader_id(cls):
