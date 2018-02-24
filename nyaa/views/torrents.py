@@ -254,11 +254,15 @@ def _delete_torrent(torrent, form, banform):
 
     if form.delete.data and not torrent.deleted:
         action = 'deleted'
+        notification_type = 'TorrentDeletion'
+        deletion_reason = form.deletion_reason.data
         torrent.deleted = True
         db.session.add(torrent)
 
     elif ban_torrent and not torrent.banned and editor.is_moderator:
         action = 'banned'
+        notification_type = 'TorrentBan'
+        deletion_reason = form.deletion_reason.data
         torrent.banned = True
         if not torrent.deleted:
             torrent.deleted = True
@@ -268,6 +272,8 @@ def _delete_torrent(torrent, form, banform):
 
     elif form.undelete.data and torrent.deleted:
         action = 'undeleted'
+        notification_type = 'TorrentUndeletion'
+        deletion_reason = form.undeletion_reason.data
         torrent.deleted = False
         if torrent.banned:
             action = 'undeleted and unbanned'
@@ -277,6 +283,8 @@ def _delete_torrent(torrent, form, banform):
 
     elif form.unban.data and torrent.banned:
         action = 'unbanned'
+        notification_type = 'TorrentUnban'
+        deletion_reason = form.undeletion_reason.data
         torrent.banned = False
         db.session.add(models.TrackerApi(torrent.info_hash, 'insert'))
         db.session.add(torrent)
@@ -289,21 +297,27 @@ def _delete_torrent(torrent, form, banform):
         url = flask.url_for('torrents.view', torrent_id=torrent.id)
         if editor is not uploader:
             log = "Torrent [#{0}]({1}) has been {2}".format(torrent.id, url, action)
+            if deletion_reason:
+                log += " for the following reason: {}".format(deletion_reason)
             adminlog = models.AdminLog(log=log, admin_id=editor.id)
             db.session.add(adminlog)
 
     if action:
         # Send notification on torrent moderation
         if not torrent.anonymous and flask.g.user is not torrent.user:
-            notification_body = 'One of your torrents has been {} [{}]({})'.format(
-                action,
+            notification_body = 'Your upload ([{}]({})) has been {} by {}'.format(
                 torrent.display_name,
-                flask.url_for('torrents.view', torrent_id=torrent.id))
+                flask.url_for('torrents.view', torrent_id=torrent.id),
+                action,
+                editor.username)
+            if deletion_reason:
+                notification_body += ' for the following reason: {}'.format(deletion_reason)
+
             notification = models.Notification(
                 user_id=torrent.user.id,
                 torrent_id=torrent.id,
                 body=notification_body,
-                type='torrentModeration')
+                type=notification_type)
             db.session.add(notification)
 
         db.session.commit()

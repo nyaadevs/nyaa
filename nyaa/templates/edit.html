@@ -125,24 +125,19 @@
 {% if not torrent.deleted %}
 					<p class="lead">
 						Delete torrent.
+						{% if g.user.is_moderator %}
+							{{ delete_form.ban(class="btn btn-danger pull-right", style="margin-left: 10px") }}
+						{% endif %}
 						{{ delete_form.delete(class="btn btn-danger pull-right") }}
 					</p>
 					<p>
-						Deleted torrents are retained for backup purposes.<br>
-						You (or someone else) will be able to reupload the torrent.
+						Deleted torrents are retained for backup purposes.
+						If deleted, you (or someone else) will be able to reupload the torrent.
+						{% if g.user.is_moderator %}
+						<br /><br />(Mod+ only) Banning a torrent disallows reuploading it.
+						{% endif %}
 					</p>
-
-					{% if g.user.is_moderator %}
-					<hr>
-					<p class="lead">
-						Delete and ban torrent.
-						{{ delete_form.ban(class="btn btn-danger pull-right") }}
-					</p>
-					<p>
-						Soft deletes the torrent.<br>
-						Bans it from the tracker and disallows reuploading it.
-					</p>
-					{% endif %}
+					{{ render_field(delete_form.deletion_reason, class_='form-control', placeholder='Deletion reason') }}
 {% else %} {# if torrent.deleted #}
 					<p class="lead">
 						Undelete{% if torrent.banned %} and unban{% endif %} torrent.
@@ -155,6 +150,8 @@
 					<p>
 						Undeletes{% if torrent.banned %} and unbans{% endif %} this torrent.
 					</p>
+					{{ render_field(delete_form.undeletion_reason, class_='form-control', placeholder='Deletion reason') }}
+
 
 					{% if torrent.banned %}
 					<hr>
