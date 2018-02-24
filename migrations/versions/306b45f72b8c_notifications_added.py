@@ -1,7 +1,7 @@
 """Notifications added
 
 Revision ID: 306b45f72b8c
-Revises: 500117641608
+Revises: 6cc823948c5a
 Create Date: 2017-09-19 11:49:33.831214
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
 revision = '306b45f72b8c'
-down_revision = '500117641608'
+down_revision = '6cc823948c5a'
 branch_labels = None
 depends_on = None
 
