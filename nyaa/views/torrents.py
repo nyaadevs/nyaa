@@ -124,7 +124,7 @@ def edit_torrent(torrent_id):
         if editor.is_moderator and locked_changed:
             log = "Torrent [#{0}]({1}) marked as {2}".format(
                 torrent.id, url,
-                "comment locked" if torrent.comment_locked else "comment unlocked")
+                "comments locked" if torrent.comment_locked else "comments unlocked")
             adminlog = models.AdminLog(log=log, admin_id=editor.id)
             db.session.add(adminlog)
 
