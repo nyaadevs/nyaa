@@ -221,7 +221,8 @@ class TorrentBase(DeclarativeHelperBase):
             invalid_url_characters = '<>"'
             # Check if url contains invalid characters
             if not any(c in url for c in invalid_url_characters):
-                return '<a href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url)))
+                return('<a rel="noopener noreferrer nofollow" '
+                       'href="{0}">{1}</a>'.format(url, escape_markup(unquote_url(url))))
         # Escaped
         return escape_markup(self.information)
 
