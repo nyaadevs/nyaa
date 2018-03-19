@@ -284,7 +284,6 @@ class DeleteForm(FlaskForm):
 class BanForm(FlaskForm):
     ban_user = SubmitField("Delete & Ban and Ban User")
     ban_userip = SubmitField("Delete & Ban and Ban User+IP")
-    nuke = SubmitField("Delete & Ban all torrents")
     unban = SubmitField("Unban")
 
     _validator = DataRequired()
@@ -297,6 +296,10 @@ class BanForm(FlaskForm):
         _validate_reason,
         Length(max=1024, message='Reason must be at most %(max)d characters long.')
     ])
+
+
+class NukeForm(FlaskForm):
+    nuke_torrents = SubmitField("\U0001F4A3 Nuke Torrents")
 
 
 class UploadForm(FlaskForm):
