@@ -78,13 +78,13 @@
 						{% if user.is_banned or bans %}
 						<div class="row">
 							<div class="col-md-12">
-								<p>
+								<ul>
 									{% for ban in bans %}
-									#{{ ban.id }}
+									<li>#{{ ban.id }}
 									by <a href="{{ url_for('users.view_user', user_name=ban.admin.username) }}">{{ ban.admin.username }}</a>
-									for <span markdown-text-inline>{{ ban.reason }}</span>
+									for <span markdown-text-inline>{{ ban.reason }}</span></li>
 									{% endfor %}
-								</p>
+								</ul>
 							</div>
 						</div>
 						<div class="row">
