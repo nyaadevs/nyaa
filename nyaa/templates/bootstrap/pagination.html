@@ -27,7 +27,11 @@
   <ul class="pagination{% if size %} pagination-{{size}}{% endif %}"{{kwargs|xmlattr}}>
   {# prev and next are only show if a symbol has been passed. #}
   {% if prev != None -%}
-    <li{% if not pagination.has_prev %} class="disabled"{% endif %}><a href="{{_arg_url_for(endpoint, url_args, p=pagination.prev_num) if pagination.has_prev else '#'}}">{{prev}}</a></li>
+    {% if pagination.has_prev %}
+    <li><a rel="prev" href="{{_arg_url_for(endpoint, url_args, p=pagination.prev_num)}}">{{prev}}</a></li>
+    {% else %}
+    <li class="disabled"><a href="#">{{prev}}</a></li>
+    {% endif %}
   {%- endif -%}
 
   {%- for page in pagination.iter_pages(left_edge=2, left_current=6, right_current=6, right_edge=0) %}
@@ -43,7 +47,11 @@
   {%- endfor %}
 
   {% if next != None -%}
-    <li{% if not pagination.has_next %} class="disabled"{% endif %}><a href="{{_arg_url_for(endpoint, url_args, p=pagination.next_num) if pagination.has_next else '#'}}">{{next}}</a></li>
+    {% if pagination.has_next %}
+    <li><a rel="next" href="{{_arg_url_for(endpoint, url_args, p=pagination.next_num)}}">{{next}}</a></li>
+    {% else %}
+    <li class="disabled"><a href="#">{{next}}</a></li>
+    {% endif %}
   {%- endif -%}
   </ul>
 </nav>
