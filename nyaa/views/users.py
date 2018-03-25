@@ -13,7 +13,7 @@ from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
-from nyaa.utils import chain_get, sha1_hash
+from nyaa.utils import admin_only, chain_get, sha1_hash
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -30,6 +30,7 @@ def view_user(user_name):
     ban_form = None
     bans = None
     ipbanned = None
+    nuke_form = None
     if flask.g.user and flask.g.user.is_moderator and flask.g.user.level > user.level:
         admin_form = forms.UserForm()
         default, admin_form.user_class.choices = _create_user_class_choices(user)
@@ -37,6 +38,7 @@ def view_user(user_name):
             admin_form.user_class.data = default
 
         ban_form = forms.BanForm()
+        nuke_form = forms.NukeForm()
         if flask.request.method == 'POST':
             doban = (ban_form.ban_user.data or ban_form.unban.data or ban_form.ban_userip.data)
         bans = models.Ban.banned(user.id, user.last_login_ip).all()
@@ -102,38 +104,6 @@ def view_user(user_name):
 
         flask.flash(flask.Markup('User has been successfully {0}.'.format(action)), 'success')
         return flask.redirect(url)
-
-    if flask.request.method == 'POST' and ban_form and ban_form.nuke.data:
-        if flask.g.user.is_superadmin:
-            nyaa_banned = 0
-            sukebei_banned = 0
-            for t in chain(user.nyaa_torrents, user.sukebei_torrents):
-                t.deleted = True
-                t.banned = True
-                db.session.add(t)
-                if isinstance(t, models.NyaaTorrent):
-                    db.session.add(models.NyaaTrackerApi(t.info_hash, 'remove'))
-                    nyaa_banned += 1
-                else:
-                    db.session.add(models.SukebeiTrackerApi(t.info_hash, 'remove'))
-                    sukebei_banned += 1
-
-            for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
-                                     (models.SukebeiAdminLog, sukebei_banned)):
-                if num > 0:
-                    log = "Nuked {0} torrents of [{1}]({2})".format(num,
-                                                                    user.username,
-                                                                    url)
-                    adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
-                    db.session.add(adminlog)
-
-            db.session.commit()
-            flask.flash('Torrents of {0} have been nuked.'.format(user.username),
-                        'success')
-            return flask.redirect(url)
-        else:
-            flask.flash('Insufficient permissions to nuke.', 'danger')
-            return flask.redirect(url)
 
     req_args = flask.request.args
 
@@ -219,6 +189,7 @@ def view_user(user_name):
                                      rss_filter=rss_query_string,
                                      admin_form=admin_form,
                                      ban_form=ban_form,
+                                     nuke_form=nuke_form,
                                      bans=bans,
                                      ipbanned=ipbanned)
 
@@ -281,6 +252,45 @@ def activate_user(payload):
 
     flask.flash(flask.Markup("You've successfully verified your account!"), 'success')
     return flask.redirect(flask.url_for('main.home'))
+
+
+@bp.route('/user/<user_name>/nuke/torrents', methods=['POST'])
+@admin_only
+def nuke_user_torrents(user_name):
+    user = models.User.by_username(user_name)
+    if not user:
+        flask.abort(404)
+
+    nuke_form = forms.NukeForm(flask.request.form)
+    if not nuke_form.validate():
+        flask.abort(401)
+    url = flask.url_for('users.view_user', user_name=user.username)
+    nyaa_banned = 0
+    sukebei_banned = 0
+    for t in chain(user.nyaa_torrents, user.sukebei_torrents):
+        t.deleted = True
+        t.banned = True
+        db.session.add(t)
+        if isinstance(t, models.NyaaTorrent):
+            db.session.add(models.NyaaTrackerApi(t.info_hash, 'remove'))
+            nyaa_banned += 1
+        else:
+            db.session.add(models.SukebeiTrackerApi(t.info_hash, 'remove'))
+            sukebei_banned += 1
+
+    for log_flavour, num in ((models.NyaaAdminLog, nyaa_banned),
+                             (models.SukebeiAdminLog, sukebei_banned)):
+        if num > 0:
+            log = "Nuked {0} torrents of [{1}]({2})".format(num,
+                                                            user.username,
+                                                            url)
+            adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
+            db.session.add(adminlog)
+
+    db.session.commit()
+    flask.flash('Torrents of {0} have been nuked.'.format(user.username),
+                'success')
+    return flask.redirect(url)
 
 
 def _create_user_class_choices(user):
