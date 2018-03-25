@@ -212,6 +212,13 @@ markdown.renderer.rules.table_open = function (tokens, idx) {
 	// Format tables nicer (bootstrap). Force auto-width (default is 100%)
 	return '<table class="table table-striped table-bordered" style="width: auto;">';
 }
+var defaultRender = markdown.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+	return self.renderToken(tokens, idx, options);
+};
+markdown.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+	tokens[idx].attrPush(['rel', 'noopener nofollow noreferrer']);
+	return defaultRender(tokens, idx, options, env, self);
+}
 
 // Initialise markdown editors on page
 document.addEventListener("DOMContentLoaded", function() {
