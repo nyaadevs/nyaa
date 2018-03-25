@@ -39,7 +39,8 @@ def view_torrent(torrent_id):
     if flask.request.method == 'POST':
         if not comment_form:
             flask.abort(403)
-        elif comment_form.validate():
+
+        if comment_form.validate():
             comment_text = (comment_form.comment.data or '').strip()
 
             comment = models.Comment(
