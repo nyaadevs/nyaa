@@ -33,11 +33,11 @@ def view_torrent(torrent_id):
         flask.abort(404)
 
     comment_form = None
-    if flask.g.user:
+    if flask.g.user and (not torrent.comment_locked or flask.g.user.is_moderator):
         comment_form = forms.CommentForm()
 
     if flask.request.method == 'POST':
-        if not flask.g.user:
+        if not comment_form:
             flask.abort(403)
 
         if comment_form.validate():
@@ -117,6 +117,18 @@ def edit_torrent(torrent_id):
         if editor.is_trusted:
             torrent.trusted = form.is_trusted.data
 
+        if editor.is_moderator:
+            locked_changed = torrent.comment_locked != form.is_comment_locked.data
+            torrent.comment_locked = form.is_comment_locked.data
+
+        url = flask.url_for('torrents.view', torrent_id=torrent.id)
+        if editor.is_moderator and locked_changed:
+            log = "Torrent [#{0}]({1}) marked as {2}".format(
+                torrent.id, url,
+                "comments locked" if torrent.comment_locked else "comments unlocked")
+            adminlog = models.AdminLog(log=log, admin_id=editor.id)
+            db.session.add(adminlog)
+
         db.session.commit()
 
         flask.flash(flask.Markup(
@@ -141,6 +153,7 @@ def edit_torrent(torrent_id):
             form.is_complete.data = torrent.complete
             form.is_anonymous.data = torrent.anonymous
             form.is_trusted.data = torrent.trusted
+            form.is_comment_locked.data = torrent.comment_locked
 
         ipbanned = None
         if editor.is_moderator:
@@ -331,6 +344,9 @@ def edit_comment(torrent_id, comment_id):
     if not comment.user.id == flask.g.user.id:
         flask.abort(403)
 
+    if torrent.comment_locked and not flask.g.user.is_moderator:
+        flask.abort(403)
+
     if comment.editing_limit_exceeded:
         flask.abort(flask.make_response(flask.jsonify(
             {'error': 'Editing time limit exceeded.'}), 400))
@@ -364,6 +380,9 @@ def delete_comment(torrent_id, comment_id):
 
     if torrent_id != comment.torrent_id:
         flask.abort(400)
+
+    if torrent.comment_locked and not flask.g.user.is_moderator:
+        flask.abort(403)
 
     db.session.delete(comment)
     db.session.flush()

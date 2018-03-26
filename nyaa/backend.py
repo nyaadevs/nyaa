@@ -218,6 +218,10 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     # To do, automatically mark trusted if user is trusted unless user specifies otherwise
     torrent.trusted = upload_form.is_trusted.data if can_mark_trusted else False
 
+    # Only allow mods to upload locked torrents
+    can_mark_locked = uploading_user and uploading_user.is_moderator
+    torrent.comment_locked = upload_form.is_comment_locked.data if can_mark_locked else False
+
     # Set category ids
     torrent.main_category_id, torrent.sub_category_id = \
         upload_form.category.parsed_data.get_category_ids()
