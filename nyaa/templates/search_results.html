@@ -18,6 +18,15 @@
 {% endif %}
 
 {% if (use_elastic and torrent_query.hits.total > 0) or (torrent_query.items) %}
+<div class="center">
+	{% if use_elastic %}
+	{{ pagination.info }}
+	{{ pagination.links }}
+	{% else %}
+	{% from "bootstrap/pagination.html" import render_pagination %}
+	{{ render_pagination(torrent_query) }}
+	{% endif %}
+</div>
 <div class="table-responsive">
 	<table class="table table-bordered table-hover table-striped torrent-list">
 		<thead>
