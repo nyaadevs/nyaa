@@ -162,7 +162,7 @@
 						{% if g.user.id == comment.user_id and not comment.editing_limit_exceeded and (not torrent.comment_locked or comment_form) %}
 						<button class="btn btn-xs edit-comment" title="Edit"{% if config.EDITING_TIME_LIMIT %} data-until="{{ comment.editable_until|int }}"{% endif %}>Edit</button>
 						{% endif %}
-						{% if g.user.is_superadmin or (g.user.id == comment.user_id and not torrent.comment_locked) %}
+						{% if g.user.is_superadmin or (g.user.id == comment.user_id and not torrent.comment_locked and not comment.editing_limit_exceeded) %}
 						<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 							<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
 						</form>

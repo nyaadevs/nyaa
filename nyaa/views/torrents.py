@@ -386,6 +386,9 @@ def delete_comment(torrent_id, comment_id):
     if torrent.comment_locked and not flask.g.user.is_moderator:
         flask.abort(403)
 
+    if comment.editing_limit_exceeded and not flask.g.user.is_superadmin:
+        flask.abort(403)
+
     db.session.delete(comment)
     db.session.flush()
     torrent.update_comment_count()
