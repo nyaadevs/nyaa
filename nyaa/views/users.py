@@ -171,6 +171,7 @@ def view_user(user_name):
                                      rss_filter=rss_query_string,
                                      admin_form=admin_form,
                                      ban_form=ban_form,
+                                     nuke_form=nuke_form,
                                      bans=bans,
                                      ipbanned=ipbanned)
     # Similar logic as home page
@@ -270,6 +271,8 @@ def nuke_user_torrents(user_name):
     for t in chain(user.nyaa_torrents, user.sukebei_torrents):
         t.deleted = True
         t.banned = True
+        t.stats.seed_count = 0
+        t.stats.leech_count = 0
         db.session.add(t)
         if isinstance(t, models.NyaaTorrent):
             db.session.add(models.NyaaTrackerApi(t.info_hash, 'remove'))

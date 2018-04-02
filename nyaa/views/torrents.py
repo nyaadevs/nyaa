@@ -203,6 +203,8 @@ def _delete_torrent(torrent, form, banform):
             torrent.deleted = True
             action = 'deleted and banned'
         db.session.add(models.TrackerApi(torrent.info_hash, 'remove'))
+        torrent.stats.seed_count = 0
+        torrent.stats.leech_count = 0
         db.session.add(torrent)
 
     elif form.undelete.data and torrent.deleted:
@@ -354,7 +356,7 @@ def edit_comment(torrent_id, comment_id):
     form = forms.CommentForm(flask.request.form)
 
     if not form.validate():
-        error_str = ' '.join(form.errors['comment'])
+        error_str = ' '.join(form.errors)
         flask.abort(flask.make_response(flask.jsonify({'error': error_str}), 400))
 
     comment.text = form.comment.data
