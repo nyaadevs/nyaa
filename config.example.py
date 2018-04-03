@@ -152,3 +152,7 @@ ES_INDEX_NAME = SITE_FLAVOR
 # Time limit for editing a comment after it has been posted (seconds)
 # Set to 0 to disable
 EDITING_TIME_LIMIT = 0
+
+# Whether to use Gravatar or just always use the default avatar
+# (Useful if run as development instance behind NAT/firewall)
+ENABLE_GRAVATAR = True

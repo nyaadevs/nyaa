@@ -517,19 +517,22 @@ class User(db.Model):
         return all(checks)
 
     def gravatar_url(self):
-        # from http://en.gravatar.com/site/implement/images/python/
-        params = {
-            # Image size (https://en.gravatar.com/site/implement/images/#size)
-            's': 120,
-            # Default image (https://en.gravatar.com/site/implement/images/#default-image)
-            'd': flask.url_for('static', filename='img/avatar/default.png', _external=True),
-            # Image rating (https://en.gravatar.com/site/implement/images/#rating)
-            # Nyaa: PG-rated, Sukebei: X-rated
-            'r': 'pg' if app.config['SITE_FLAVOR'] == 'nyaa' else 'x',
-        }
-        # construct the url
-        return 'https://www.gravatar.com/avatar/{}?{}'.format(
-            md5(self.email.encode('utf-8').lower()).hexdigest(), urlencode(params))
+        if app.config['ENABLE_GRAVATAR']:
+            # from http://en.gravatar.com/site/implement/images/python/
+            params = {
+                # Image size (https://en.gravatar.com/site/implement/images/#size)
+                's': 120,
+                # Default image (https://en.gravatar.com/site/implement/images/#default-image)
+                'd': flask.url_for('static', filename='img/avatar/default.png', _external=True),
+                # Image rating (https://en.gravatar.com/site/implement/images/#rating)
+                # Nyaa: PG-rated, Sukebei: X-rated
+                'r': 'pg' if app.config['SITE_FLAVOR'] == 'nyaa' else 'x',
+            }
+            # construct the url
+            return 'https://www.gravatar.com/avatar/{}?{}'.format(
+                md5(self.email.encode('utf-8').lower()).hexdigest(), urlencode(params))
+        else:
+            return flask.url_for('static', filename='img/avatar/default.png')
 
     @property
     def userlevel_str(self):
