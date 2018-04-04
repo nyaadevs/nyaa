@@ -81,6 +81,11 @@ def create_app(config):
 
     # Assets
     assets.init_app(app)
+    main_js = Bundle('js/main.js', filters='rjsmin', output='js/main.min.js')
+    bs_js = Bundle('js/bootstrap-select.js', filters='rjsmin',
+                   output='js/bootstrap-select.min.js')
+    assets.register('main_js', main_js)
+    assets.register('bs_js', bs_js)
     # css = Bundle('style.scss', filters='libsass',
     #             output='style.css', depends='**/*.scss')
     # assets.register('style_all', css)
