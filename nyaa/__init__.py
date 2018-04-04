@@ -81,6 +81,7 @@ def create_app(config):
 
     # Assets
     assets.init_app(app)
+    assets._named_bundles = {}  # Hack to fix state carrying over in tests
     main_js = Bundle('js/main.js', filters='rjsmin', output='js/main.min.js')
     bs_js = Bundle('js/bootstrap-select.js', filters='rjsmin',
                    output='js/bootstrap-select.min.js')
