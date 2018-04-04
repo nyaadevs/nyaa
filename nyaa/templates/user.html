@@ -123,7 +123,7 @@
 					</form>
 					{% if g.user.is_superadmin %}
 					<hr>
-					<form method="POST" onsubmit="return prompt('Please type {{ user.username }} to confirm').toLowerCase() == '{{ user.username }}'.toLowerCase()">
+					<form method="POST" onsubmit="return prompt('Please type {{ user.username }} to confirm') == '{{ user.username }}'">
 						{{ nuke_form.csrf_token }}
 						<div class="row">
 							<div class="col-md-6 text-left">
