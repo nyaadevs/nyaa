@@ -94,5 +94,76 @@ def upgrade():
 
 
 def downgrade():
-    print("downgrade not supported")
-    sys.exit(1)
+    #op.add_column('nyaa_torrents', sa.Column('flags', mysql.INTEGER(display_width=11), autoincrement=False, nullable=False))
+
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 1 WHERE anonymous;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 2 WHERE hidden;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 4 WHERE trusted;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 8 WHERE remake;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 16 WHERE complete;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 32 WHERE deleted;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 64 WHERE banned;')
+    op.execute('UPDATE nyaa_torrents SET flags = flags | 128 WHERE comment_locked;')
+
+    op.create_index('nyaa_uploader_flag_idx', 'nyaa_torrents', ['uploader_id', 'flags'], unique=False)
+    op.create_index('ix_nyaa_torrents_flags', 'nyaa_torrents', ['flags'], unique=False)
+
+#    op.drop_index(op.f('ix_nyaa_torrents_uploader_id'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_trusted'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_remake'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_hidden'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_deleted'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_complete'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_comment_locked'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_banned'), table_name='nyaa_torrents')
+#    op.drop_index(op.f('ix_nyaa_torrents_anonymous'), table_name='nyaa_torrents')
+#    op.drop_index('ix_nyaa_super', table_name='nyaa_torrents')
+#
+#    op.execute(
+#        "ALTER TABLE nyaa_torrents "
+#        "DROP COLUMN anonymous BOOL NOT NULL, "
+#        "DROP COLUMN banned BOOL NOT NULL, "
+#        "DROP COLUMN comment_locked BOOL NOT NULL, "
+#        "DROP COLUMN complete BOOL NOT NULL, "
+#        "DROP COLUMN deleted BOOL NOT NULL, "
+#        "DROP COLUMN hidden BOOL NOT NULL, "
+#        "DROP COLUMN remake BOOL NOT NULL, "
+#        "DROP COLUMN trusted BOOL NOT NULL;"
+#    )
+
+    #op.add_column('sukebei_torrents', sa.Column('flags', mysql.INTEGER(display_width=11), autoincrement=False, nullable=False))
+
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 1 WHERE anonymous;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 2 WHERE hidden;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 4 WHERE trusted;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 8 WHERE remake;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 16 WHERE complete;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 32 WHERE deleted;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 64 WHERE banned;')
+    op.execute('UPDATE sukebei_torrents SET flags = flags | 128 WHERE comment_locked;')
+
+    op.create_index('sukebei_uploader_flag_idx', 'sukebei_torrents', ['uploader_id', 'flags'], unique=False)
+    op.create_index('ix_sukebei_torrents_flags', 'sukebei_torrents', ['flags'], unique=False)
+
+#    op.drop_index(op.f('ix_sukebei_torrents_uploader_id'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_trusted'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_remake'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_hidden'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_deleted'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_complete'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_comment_locked'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_banned'), table_name='sukebei_torrents')
+#    op.drop_index(op.f('ix_sukebei_torrents_anonymous'), table_name='sukebei_torrents')
+#    op.drop_index('ix_sukebei_super', table_name='sukebei_torrents')
+#
+#    op.execute(
+#        "ALTER TABLE sukebei_torrents "
+#        "DROP COLUMN anonymous BOOL NOT NULL, "
+#        "DROP COLUMN banned BOOL NOT NULL, "
+#        "DROP COLUMN comment_locked BOOL NOT NULL, "
+#        "DROP COLUMN complete BOOL NOT NULL, "
+#        "DROP COLUMN deleted BOOL NOT NULL, "
+#        "DROP COLUMN hidden BOOL NOT NULL, "
+#        "DROP COLUMN remake BOOL NOT NULL, "
+#        "DROP COLUMN trusted BOOL NOT NULL;"
+#    )
