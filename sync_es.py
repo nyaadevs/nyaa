@@ -34,7 +34,6 @@ from elasticsearch.helpers import bulk, BulkIndexError
 from pymysqlreplication import BinLogStreamReader
 from pymysqlreplication.row_event import UpdateRowsEvent, DeleteRowsEvent, WriteRowsEvent
 from datetime import datetime
-from nyaa.models import TorrentFlags
 import sys
 import json
 import time
@@ -79,7 +78,6 @@ def pad_bytes(in_bytes, size):
 def reindex_torrent(t, index_name):
     # XXX annoyingly different from import_to_es, and
     # you need to keep them in sync manually.
-    f = t['flags']
     doc = {
         "id": t['id'],
         "display_name": t['display_name'],
@@ -94,16 +92,15 @@ def reindex_torrent(t, index_name):
         "main_category_id": t['main_category_id'],
         "sub_category_id": t['sub_category_id'],
         "comment_count": t['comment_count'],
-        # XXX all the bitflags are numbers
-        "anonymous": bool(f & TorrentFlags.ANONYMOUS),
-        "trusted": bool(f & TorrentFlags.TRUSTED),
-        "remake": bool(f & TorrentFlags.REMAKE),
-        "complete": bool(f & TorrentFlags.COMPLETE),
+        "anonymous": bool(t['anonymous']),
+        "trusted": bool(t['trusted']),
+        "remake": bool(t['remake']),
+        "complete": bool(t['complete']),
         # TODO instead of indexing and filtering later
         # could delete from es entirely. Probably won't matter
         # for at least a few months.
-        "hidden": bool(f & TorrentFlags.HIDDEN),
-        "deleted": bool(f & TorrentFlags.DELETED),
+        "hidden": bool(t['hidden']),
+        "deleted": bool(t['deleted']),
         "has_torrent": bool(t['has_torrent']),
     }
     # update, so we don't delete the stats if present
