@@ -84,7 +84,7 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def uploader_id(cls):
         # Even though this is same for both tables, declarative requires this
-        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
 
     uploader_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
     has_torrent = db.Column(db.Boolean, nullable=False, default=False)
@@ -94,6 +94,15 @@ class TorrentBase(DeclarativeHelperBase):
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow, nullable=False)
     updated_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow,
                              onupdate=datetime.utcnow, nullable=False)
+
+    anonymous = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    hidden = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    deleted = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    banned = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    trusted = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    remake = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    complete = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    comment_locked = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     @declarative.declared_attr
     def main_category_id(cls):
@@ -110,6 +119,9 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def __table_args__(cls):
         return (
+            Index('ix_' + cls._table_prefix('super'), 'id', 'uploader_id',
+                  'main_category_id', 'sub_category_id',
+                  'anonymous', 'hidden', 'deleted', 'banned', 'trusted', 'remake', 'complete'),
             ForeignKeyConstraint(
                 ['main_category_id', 'sub_category_id'],
                 [cls._table_prefix('sub_categories.main_category_id'),
@@ -212,17 +224,6 @@ class TorrentBase(DeclarativeHelperBase):
     def uploader_ip_string(self):
         if self.uploader_ip:
             return str(ip_address(self.uploader_ip))
-
-    # Flag properties below
-
-    anonymous = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    hidden = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    deleted = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    banned = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    trusted = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    remake = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    complete = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    comment_locked = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     # Class methods
 

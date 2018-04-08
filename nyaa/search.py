@@ -399,11 +399,16 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
                     item, models.TorrentNameSearch, FullTextMode.NATURAL))
 
     query, count_query = qpc.items
+    super_index = 'ix_' + models.Torrent._table_prefix('super')
     # Sort and order
     if sort_column.class_ != models.Torrent:
         index_name = _get_index_name(sort_column)
         query = query.join(sort_column.class_)
         query = query.with_hint(sort_column.class_, 'USE INDEX ({0})'.format(index_name))
+    else:
+        query = query.with_hint(models.Torrent, 'USE INDEX ({0})'.format(super_index))
+
+    count_query = count_query.with_hint(models.Torrent, 'USE INDEX ({0})'.format(super_index))
 
     query = query.order_by(getattr(sort_column, order)())
 

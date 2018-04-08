@@ -42,6 +42,7 @@ def upgrade():
     op.drop_index('ix_nyaa_torrents_flags', table_name='nyaa_torrents')
     op.create_index(op.f('ix_nyaa_torrents_uploader_id'), 'nyaa_torrents', ['uploader_id'], unique=False)
     op.drop_index('uploader_flag_idx', table_name='nyaa_torrents')
+    op.create_index('ix_nyaa_super', 'nyaa_torrents', ['id', 'uploader_id', 'main_category_id', 'sub_category_id', 'anonymous', 'hidden', 'deleted', 'banned', 'trusted', 'remake', 'complete'], unique=False)
 
     op.execute('UPDATE nyaa_torrents SET anonymous = TRUE WHERE flags & 1 IS TRUE;')
     op.execute('UPDATE nyaa_torrents SET hidden = TRUE WHERE flags & 2 IS TRUE;')
@@ -52,7 +53,7 @@ def upgrade():
     op.execute('UPDATE nyaa_torrents SET banned = TRUE WHERE flags & 64 IS TRUE;')
     op.execute('UPDATE nyaa_torrents SET comment_locked = TRUE WHERE flags & 128 IS TRUE;')
 
-    op.drop_column('nyaa_torrents', 'flags')
+    #op.drop_column('nyaa_torrents', 'flags')
 
     op.execute(
         "ALTER TABLE sukebei_torrents "
@@ -78,6 +79,7 @@ def upgrade():
     op.drop_index('ix_sukebei_torrents_flags', table_name='sukebei_torrents')
     op.create_index(op.f('ix_sukebei_torrents_uploader_id'), 'sukebei_torrents', ['uploader_id'], unique=False)
     op.drop_index('uploader_flag_idx', table_name='sukebei_torrents')
+    op.create_index('ix_sukebei_super', 'sukebei_torrents', ['id', 'uploader_id', 'main_category_id', 'sub_category_id', 'anonymous', 'hidden', 'deleted', 'banned', 'trusted', 'remake', 'complete'], unique=False)
 
     op.execute('UPDATE sukebei_torrents SET anonymous = TRUE WHERE flags & 1 IS TRUE;')
     op.execute('UPDATE sukebei_torrents SET hidden = TRUE WHERE flags & 2 IS TRUE;')
@@ -88,7 +90,7 @@ def upgrade():
     op.execute('UPDATE sukebei_torrents SET banned = TRUE WHERE flags & 64 IS TRUE;')
     op.execute('UPDATE sukebei_torrents SET comment_locked = TRUE WHERE flags & 128 IS TRUE;')
 
-    op.drop_column('sukebei_torrents', 'flags')
+    #op.drop_column('sukebei_torrents', 'flags')
 
 
 def downgrade():
