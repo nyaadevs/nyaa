@@ -8,7 +8,6 @@ import sqlalchemy
 import sqlalchemy_fulltext.modes as FullTextMode
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
-from sqlalchemy.sql.expression import false
 from sqlalchemy_fulltext import FullTextSearch
 
 from nyaa import models
@@ -295,9 +294,9 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
     filter_keys = {
         '0': None,
-        '1': (models.Torrent.remake, False),
-        '2': (models.Torrent.trusted, True),
-        '3': (models.Torrent.complete, True)
+        '1': (models.TorrentFlags.REMAKE, False),
+        '2': (models.TorrentFlags.TRUSTED, True),
+        '3': (models.TorrentFlags.COMPLETE, True)
     }
 
     sentinel = object()
@@ -357,7 +356,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
         if not admin:
             # Hide all DELETED torrents if regular user
-            qpc.filter(models.Torrent.deleted == false())
+            qpc.filter(models.Torrent.flags.op('&')(
+                int(models.TorrentFlags.DELETED)).is_(False))
             # If logged in user is not the same as the user being viewed,
             # show only torrents that aren't hidden or anonymous
             #
@@ -367,21 +367,24 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
             # On RSS pages in user view,
             # show only torrents that aren't hidden or anonymous no matter what
             if not same_user or rss:
-                qpc.filter((models.Torrent.hidden == false()) &
-                           (models.Torrent.anonymous == false()))
+                qpc.filter(models.Torrent.flags.op('&')(
+                    int(models.TorrentFlags.HIDDEN | models.TorrentFlags.ANONYMOUS)).is_(False))
     # General view (homepage, general search view)
     else:
         if not admin:
             # Hide all DELETED torrents if regular user
-            qpc.filter(models.Torrent.deleted == false())
+            qpc.filter(models.Torrent.flags.op('&')(
+                int(models.TorrentFlags.DELETED)).is_(False))
             # If logged in, show all torrents that aren't hidden unless they belong to you
             # On RSS pages, show all public torrents and nothing more.
             if logged_in_user and not rss:
-                qpc.filter((models.Torrent.hidden == false()) |
-                           (models.Torrent.uploader_id == logged_in_user.id))
+                qpc.filter(
+                    (models.Torrent.flags.op('&')(int(models.TorrentFlags.HIDDEN)).is_(False)) |
+                    (models.Torrent.uploader_id == logged_in_user.id))
             # Otherwise, show all torrents that aren't hidden
             else:
-                qpc.filter(models.Torrent.hidden == false())
+                qpc.filter(models.Torrent.flags.op('&')(
+                    int(models.TorrentFlags.HIDDEN)).is_(False))
 
     if main_category:
         qpc.filter(models.Torrent.main_category_id == main_cat_id)
@@ -390,7 +393,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
                    (models.Torrent.sub_category_id == sub_cat_id))
 
     if filter_tuple:
-        qpc.filter(filter_tuple[0] == filter_tuple[1])
+        qpc.filter(models.Torrent.flags.op('&')(
+            int(filter_tuple[0])).is_(filter_tuple[1]))
 
     if term:
         for item in shlex.split(term, posix=False):
@@ -399,16 +403,11 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
                     item, models.TorrentNameSearch, FullTextMode.NATURAL))
 
     query, count_query = qpc.items
-    super_index = 'ix_' + models.Torrent._table_prefix('super')
     # Sort and order
     if sort_column.class_ != models.Torrent:
         index_name = _get_index_name(sort_column)
         query = query.join(sort_column.class_)
         query = query.with_hint(sort_column.class_, 'USE INDEX ({0})'.format(index_name))
-    else:
-        query = query.with_hint(models.Torrent, 'USE INDEX ({0})'.format(super_index))
-
-    count_query = count_query.with_hint(models.Torrent, 'USE INDEX ({0})'.format(super_index))
 
     query = query.order_by(getattr(sort_column, order)())
 

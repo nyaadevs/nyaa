@@ -67,6 +67,42 @@ class DeclarativeHelperBase(object):
         return cls._table_prefix(cls.__tablename_base__)
 
 
+class FlagProperty(object):
+    ''' This class will act as a wrapper between the given flag and the class's
+        flag collection. '''
+
+    def __init__(self, flag, flags_attr='flags'):
+        self._flag = flag
+        self._flags_attr_name = flags_attr
+
+    def _get_flags(self, instance):
+        return getattr(instance, self._flags_attr_name)
+
+    def _set_flags(self, instance, value):
+        return setattr(instance, self._flags_attr_name, value)
+
+    def __get__(self, instance, owner_class):
+        if instance is None:
+            raise AttributeError()
+        return bool(self._get_flags(instance) & self._flag)
+
+    def __set__(self, instance, value):
+        new_flags = (self._get_flags(instance) & ~self._flag) | (bool(value) and self._flag)
+        self._set_flags(instance, new_flags)
+
+
+class TorrentFlags(IntEnum):
+    NONE = 0
+    ANONYMOUS = 1
+    HIDDEN = 2
+    TRUSTED = 4
+    REMAKE = 8
+    COMPLETE = 16
+    DELETED = 32
+    BANNED = 64
+    COMMENT_LOCKED = 128
+
+
 class TorrentBase(DeclarativeHelperBase):
     __tablename_base__ = 'torrents'
 
@@ -80,11 +116,12 @@ class TorrentBase(DeclarativeHelperBase):
 
     filesize = db.Column(db.BIGINT, default=0, nullable=False, index=True)
     encoding = db.Column(db.String(length=32), nullable=False)
+    flags = db.Column(db.Integer, default=0, nullable=False, index=True)
 
     @declarative.declared_attr
     def uploader_id(cls):
         # Even though this is same for both tables, declarative requires this
-        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
+        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
     uploader_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
     has_torrent = db.Column(db.Boolean, nullable=False, default=False)
@@ -94,15 +131,6 @@ class TorrentBase(DeclarativeHelperBase):
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow, nullable=False)
     updated_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow,
                              onupdate=datetime.utcnow, nullable=False)
-
-    anonymous = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    hidden = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    deleted = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    banned = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    trusted = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    remake = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    complete = db.Column(db.Boolean, nullable=False, default=False, index=True)
-    comment_locked = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     @declarative.declared_attr
     def main_category_id(cls):
@@ -119,9 +147,7 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def __table_args__(cls):
         return (
-            Index('ix_' + cls._table_prefix('super'), 'id', 'uploader_id',
-                  'main_category_id', 'sub_category_id',
-                  'anonymous', 'hidden', 'deleted', 'banned', 'trusted', 'remake', 'complete'),
+            Index(cls._table_prefix('uploader_flag_idx'), 'uploader_id', 'flags'),
             ForeignKeyConstraint(
                 ['main_category_id', 'sub_category_id'],
                 [cls._table_prefix('sub_categories.main_category_id'),
@@ -224,6 +250,17 @@ class TorrentBase(DeclarativeHelperBase):
     def uploader_ip_string(self):
         if self.uploader_ip:
             return str(ip_address(self.uploader_ip))
+
+    # Flag properties below
+
+    anonymous = FlagProperty(TorrentFlags.ANONYMOUS)
+    hidden = FlagProperty(TorrentFlags.HIDDEN)
+    deleted = FlagProperty(TorrentFlags.DELETED)
+    banned = FlagProperty(TorrentFlags.BANNED)
+    trusted = FlagProperty(TorrentFlags.TRUSTED)
+    remake = FlagProperty(TorrentFlags.REMAKE)
+    complete = FlagProperty(TorrentFlags.COMPLETE)
+    comment_locked = FlagProperty(TorrentFlags.COMMENT_LOCKED)
 
     # Class methods
 
