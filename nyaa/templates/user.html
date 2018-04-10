@@ -42,14 +42,21 @@
 				</div>
 			</div>
 			{% if admin_form %}
-			<div class="row">
-				<div class="col-md-6">
-					<form method="POST">
-						{{ admin_form.csrf_token }}
+			<form method="POST">
+				{{ admin_form.csrf_token }}
+				<div class="row">
+					<div class="col-md-6">
 						{{ render_menu_with_button(admin_form.user_class) }}
-					</form>
+					</div>
 				</div>
-			</div>
+				{% if not user.is_active %}
+				<div class="row">
+					<div class="col-md-6">
+						{{ admin_form.activate_user(class="btn btn-primary") }}
+					</div>
+				</div>
+				{% endif %}
+			</form>
 			<br>
 			{% endif %}
 		</div>

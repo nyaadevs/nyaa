@@ -612,6 +612,10 @@ class User(db.Model):
         return self.status == UserStatusType.BANNED
 
     @property
+    def is_active(self):
+        return self.status != UserStatusType.INACTIVE
+
+    @property
     def age(self):
         '''Account age in seconds'''
         return (datetime.utcnow() - self.created_time).total_seconds()
