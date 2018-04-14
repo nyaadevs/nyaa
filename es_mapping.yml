@@ -23,6 +23,11 @@ settings:
           - my_ngram
           - word_delimit
           - trim_zero
+      # For exact matching - simple lowercase + whitespace delimiter
+      exact_analyzer:
+        tokenizer: whitespace
+        filter:
+          - lowercase
       # For matching full words longer than the ngram limit (15 chars)
       my_fullword_index_analyzer:
         type: custom
@@ -32,13 +37,19 @@ settings:
         filter:
           - lowercase
           - word_delimit
-          # These should be enough, as my_index_analyzer will match the rest
+          # Skip tokens shorter than N characters,
+          # since they're already indexed in the main field
+          - fullword_min
 
     filter:
       my_ngram:
         type: edgeNGram
         min_gram: 1
         max_gram: 15
+      fullword_min:
+        type: length
+        # Remember to change this if you change the max_gram below!
+        min: 16
       resolution:
         type: pattern_capture
         patterns: ["(\\d+)[xX](\\d+)"]
@@ -85,6 +96,10 @@ mappings:
           fullword:
             type: text
             analyzer: my_fullword_index_analyzer
+          # Stored for exact phrase matching
+          exact:
+            type: text
+            analyzer: exact_analyzer
       created_time:
         type: date
         # Only in the ES index for generating magnet links
