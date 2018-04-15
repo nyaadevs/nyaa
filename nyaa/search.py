@@ -70,7 +70,18 @@ def _generate_query_string(term, category, filter, user):
 
 
 # For preprocessing ES search terms in _parse_es_search_terms
-QUOTED_LITERAL_REGEX = re.compile(r'(?i)(-)?"(.*?)"')
+QUOTED_LITERAL_REGEX = re.compile(r'(?i)(-)?"(.+?)"')
+QUOTED_LITERAL_GROUP_REGEX = re.compile(r'''
+    (?i)
+    (-)? # Negate entire group at once
+    (
+        ".+?" # First literal
+        (?:
+            \|    # OR
+            ".+?" # Second literal
+        )+        # repeating
+    )
+    ''', re.X)
 
 
 def _es_name_exact_phrase(literal):
@@ -98,7 +109,30 @@ def _parse_es_search_terms(search, search_terms):
     must_set = set()
     must_not_set = set()
 
-    def literal_matcher(match):
+    must_or_groups = []
+    must_not_or_groups = []
+
+    def must_group_matcher(match):
+        ''' Grabs [-]"foo"|"bar"[|"baz"...] groups from the search terms '''
+        negated = bool(match.group(1))
+        literal_group = match.group(2)
+
+        literals = QUOTED_LITERAL_REGEX.findall(literal_group)
+        group_query = Q(
+            'bool',
+            should=[_es_name_exact_phrase(lit_m[1]) for lit_m in literals]
+        )
+
+        if negated:
+            must_not_or_groups.append(group_query)
+        else:
+            must_or_groups.append(group_query)
+
+        # Remove the parsed group from search terms
+        return ''
+
+    def must_matcher(match):
+        ''' Grabs [-]"foo" literals from the search terms '''
         negated = bool(match.group(1))
         literal = match.group(2)
 
@@ -111,11 +145,12 @@ def _parse_es_search_terms(search, search_terms):
         return ''
 
     # Remove quoted parts (optionally prepended with -) and store them in the sets
-    parsed_search_terms = QUOTED_LITERAL_REGEX.sub(literal_matcher, search_terms).strip()
+    parsed_search_terms = QUOTED_LITERAL_GROUP_REGEX.sub(must_group_matcher, search_terms).strip()
+    parsed_search_terms = QUOTED_LITERAL_REGEX.sub(must_matcher, parsed_search_terms).strip()
 
     # Create phrase matches (if any)
-    must_queries = [_es_name_exact_phrase(lit) for lit in must_set]
-    must_not_queries = [_es_name_exact_phrase(lit) for lit in must_not_set]
+    must_queries = [_es_name_exact_phrase(lit) for lit in must_set] + must_or_groups
+    must_not_queries = [_es_name_exact_phrase(lit) for lit in must_not_set] + must_not_or_groups
 
     if parsed_search_terms:
         # Normal text search without the quoted parts

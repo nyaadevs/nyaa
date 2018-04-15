@@ -38,21 +38,25 @@
 </div>
 <div>
 	You can combine search terms with the <kbd>|</kbd> operator, such as
-	<kbd>horrible|cartel</kbd>.
+	<kbd>foo|bar</kbd>, to match any of the words instead all of them.
 </div>
 <div>
 	To exclude results matching a certain word, prefix them with <kbd>-</kbd>,
-	e.g. <kbd>FFF -memesubs</kbd>, which will return torrents with <em>FFF</em> in the
-	name, but not those which have <em>memesubs</em> in the name as well.
+	e.g. <kbd>foo -bar</kbd>, which will return torrents with <em>foo</em> in the
+	name, but not those which have <em>bar</em> in the name as well.
 </div>
 <div>
 	If you want to search for a several-word expression in its entirety, you can
 	surround searches with <kbd>"</kbd> (double quotes), such as
 	<kbd>"foo bar"</kbd>, which would match torrents named <em>foo bar</em> but not
-	those named <em>bar foo</em>.
+	those named <em>bar foo</em>. You may also use the aforementioned <kbd>|</kbd> to group
+	phrases together: <kbd>"foo bar"|"foo baz"</kbd>. You can negate the entire
+	group with <kbd>-</kbd> (e.g. <kbd>-"foo bar"|"foo baz"</kbd>), but not single items.
 </div>
 <div>
-	You can also use <kbd>(</kbd> and <kbd>)</kbd> to signify precedence.
+	You can also use <kbd>(</kbd> and <kbd>)</kbd> to signify precedence, but quoted strings do
+	not honor this. Using <kbd>(hello world) "foo bar"</kbd> is fine, but quoted strings inside
+	the parentheses will lead to unexpected results.
 </div>
 
 {{ linkable_header("Reporting Torrents", "reporting") }}
