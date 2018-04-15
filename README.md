@@ -77,18 +77,6 @@ Continue below to learn about database migrations and enabling the advanced sear
 - Run `curl -XGET 'localhost:9200'` and make sure ES is running
     - Optional: install [Kibana](https://www.elastic.co/products/kibana) as a search debug frontend for ES
 
-### Setting up ES
-- Run `./create_es.sh` to create the indices for the torrents: `nyaa` and `sukebei`
-    - The output should show `acknowledged: true` twice
-- Stop the Nyaa app if you haven't already
-- Run `python import_to_es.py` to import all the torrents (on nyaa and sukebei) into the ES indices.
-    - This may take some time to run if you have plenty of torrents in your database.
-
-Enable the `USE_ELASTIC_SEARCH` flag in `config.py` and (re)start the application.   
-Elasticsearch should now be functional! The ES indices won't be updated "live" with the current setup, continue below for instructions on how to hook Elasticsearch up to MySQL binlog.   
-
-However, take note that binglog is not necessary for simple ES testing and development; you can simply run `import_to_es.py` from time to time to reindex all the torrents.
-
 ### Enabling MySQL Binlogging
 - Edit your MariaDB/MySQL server configuration and add the following under `[mariadb]`:
     ```
@@ -102,6 +90,18 @@ However, take note that binglog is not necessary for simple ES testing and devel
 - Connect to mysql as root
     - Verify that the result of `SHOW VARIABLES LIKE 'binlog_format';` is `ROW`
     - Execute `GRANT REPLICATION SLAVE ON *.* TO 'username'@'localhost';` to allow your configured user access to the binlog
+
+### Setting up ES
+- Run `./create_es.sh` to create the indices for the torrents: `nyaa` and `sukebei`
+    - The output should show `acknowledged: true` twice
+- Stop the Nyaa app if you haven't already
+- Run `python import_to_es.py` to import all the torrents (on nyaa and sukebei) into the ES indices.
+    - This may take some time to run if you have plenty of torrents in your database.
+
+Enable the `USE_ELASTIC_SEARCH` flag in `config.py` and (re)start the application.   
+Elasticsearch should now be functional! The ES indices won't be updated "live" with the current setup, continue below for instructions on how to hook Elasticsearch up to MySQL binlog.   
+
+However, take note that binglog is not necessary for simple ES testing and development; you can simply run `import_to_es.py` from time to time to reindex all the torrents.
 
 
 ### Setting up sync_es.py
