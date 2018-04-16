@@ -37,6 +37,18 @@
 	</div>
 	{% endif %}
 
+	{% if upload_form.rangebanned.errors %}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="alert alert-danger" role="alert">
+				{% for error in upload_form.rangebanned.errors %}
+				<p>{{ error }}</p>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
 	<div class="row">
 		<div class="col-md-12">
 		{{ render_upload(upload_form.torrent_file, accept=".torrent") }}

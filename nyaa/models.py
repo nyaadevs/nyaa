@@ -13,6 +13,7 @@ from markupsafe import escape as escape_markup
 
 from sqlalchemy import ForeignKeyConstraint, Index
 from sqlalchemy.ext import declarative
+from sqlalchemy.sql import expression
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 
@@ -769,6 +770,38 @@ class TrackerApiBase(DeclarativeHelperBase):
     def __init__(self, info_hash, method):
         self.info_hash = info_hash
         self.method = method
+
+
+class RangeBan(db.Model):
+    __tablename__ = 'rangebans'
+
+    _cidr_string = db.Column(db.String(length=18), nullable=False)
+    masked_cidr = db.Column(db.BigInteger, nullable=False,
+                            primary_key=True)
+    mask = db.Column(db.BigInteger, nullable=False)
+    enabled = db.Column(db.Boolean, nullable=False, default=True)
+    # If this rangeban may be automatically cleared once it becomes
+    # out of date, set this field to True.
+    temporary_tor = db.Column(db.Boolean, nullable=False, default=False)
+
+    @property
+    def cidr_string(self):
+        return self._cidr_string
+
+    @cidr_string.setter
+    def cidr_string(self, s):
+        subnet, masked_bits = s.split('/')
+        subnet_b = ip_address(subnet).packed
+        self.mask = 0xffffffff << (32 - int(masked_bits))
+        self.masked_cidr = int.from_bytes(subnet_b, 'big') & self.mask
+        self._cidr_string = s
+
+    @classmethod
+    def is_rangebanned(cls, ip):
+        ip_int = int.from_bytes(ip, 'big')
+        q = cls.query.filter(cls.masked_cidr <= ip_int,
+                             cls.mask.__and__(expression.literal(ip_int)) == cls.masked_cidr)
+        return True if q is not None else False
 
 
 # Actually declare our site-specific classes
