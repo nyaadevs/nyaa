@@ -22,7 +22,12 @@ __pycache__
 # Application
 /install/*
 /config.py
+/es_sync_config.json
 /test_torrent_batch
+
+# Build Output
+nyaa/static/js/bootstrap-select.min.js
+nyaa/static/js/main.min.js
 
 # Other
 *.swp
