@@ -544,6 +544,26 @@ body.dark .panel-deleted > .panel-heading {
 	.search-container > .search-bar {
 		margin-top: 15px;
 	}
+
+	.torrent-list .hdr-date,
+	.torrent-list .hdr-downloads,
+	.torrent-list td: nth-of-type(5),
+	.torrent-list td:nth-of-type(8) {
+		display: none;
+	}
+
+	.table-responsive > .table > tbody > tr > td:nth-of-type(2) {
+		white-space: unset;
+		word-break: break-all;
+	}
+	
+	.container {
+		width: unset;
+	}
+
+	.container > .row {
+		margin: unset;
+	}
 }
 
 @media (min-width: 992px) {
@@ -573,6 +593,10 @@ td.report-action-column {
 	/* Collapse navbar search form so it doesn't wrap to a new line */
 	.search-container {
 		width: 400px;
+	}
+
+	.table-responsive > .table > tbody > tr > td:nth-of-type(2) {
+		white-space: unset;
 	}
 }
 
