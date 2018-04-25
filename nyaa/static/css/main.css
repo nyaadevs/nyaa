@@ -605,3 +605,48 @@ td.report-action-column {
 blockquote {
 	font-size: inherit;
 }
+
+/* Hide and resize some things on tiny screens to improve usability. */
+@media (max-width: 767px) {
+	.hdr-size, .hdr-date, .hdr-downloads,
+	table.torrent-list > tbody > tr > td:nth-child(4),
+	table.torrent-list > tbody > tr > td:nth-child(5),
+	table.torrent-list > tbody > tr > td:nth-child(8) {
+		display: none;
+	}
+
+	table.torrent-list > tbody > tr > td:nth-child(7) {
+		border-right: 0;
+	}
+
+	.table thead > tr > th {
+		border-right: none;
+	}
+
+	table.torrent-list > tbody > tr > td:nth-child(3) > a {
+		display: block;
+	}
+
+	.hdr-link {
+		width: 32px !important;
+	}
+
+	.hdr-seeders, .hdr-leechers {
+		width: 48px !important;
+	}
+
+	.hdr-category {
+		width: 20px !important;
+		overflow: hidden;
+		text-indent: -9999px;
+	}
+
+	table.torrent-list > tbody > tr > td:first-child {
+		overflow: hidden;
+	}
+
+	table.torrent-list > tbody > tr > td:first-child img {
+		width: 50px;
+		height: auto;
+	}
+}
