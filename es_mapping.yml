@@ -20,9 +20,10 @@ settings:
         filter:
           - resolution
           - lowercase
-          - my_ngram
           - word_delimit
+          - my_ngram
           - trim_zero
+          - unique
       # For exact matching - simple lowercase + whitespace delimiter
       exact_analyzer:
         tokenizer: whitespace
@@ -40,6 +41,7 @@ settings:
           # Skip tokens shorter than N characters,
           # since they're already indexed in the main field
           - fullword_min
+          - unique
 
     filter:
       my_ngram:
