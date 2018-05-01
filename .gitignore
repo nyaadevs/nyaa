@@ -29,5 +29,8 @@ __pycache__
 nyaa/static/js/bootstrap-select.min.js
 nyaa/static/js/main.min.js
 
+# Unit Tests
+/tests/*.log
+
 # Other
 *.swp
