@@ -20,7 +20,8 @@ bp = flask.Blueprint('main', __name__)
 
 @bp.app_errorhandler(404)
 def not_found(error):
-    return flask.render_template('404.html'), 404
+    return flask.render_template('404.html'), 404, \
+        {'Cache-Control': 'no-cache, no-store, must-revalidate'}
 
 
 @bp.before_app_request
