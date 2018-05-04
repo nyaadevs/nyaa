@@ -34,3 +34,6 @@
 *.woff2			binary
 *.eot			binary
 *.otf			binary
+
+# Diagrams
+*.dia			binary

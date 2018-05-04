@@ -4,6 +4,12 @@ __pycache__
 
 # Virtual Environments
 /venv
+/bin
+/lib
+/lib64
+/share
+pyvenv.cfg
+pip-selfcheck.json
 
 # Coverage
 .coverage

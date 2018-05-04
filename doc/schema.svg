@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="73cm" height="78cm" viewBox="53 71 1455 1560" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g>
+    <rect style="fill: #ffffff" x="538" y="71" width="195.4" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="538" y="71" width="195.4" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="635.7" y="85">alembic_version</text>
+    <rect style="fill: #ffffff" x="538" y="89" width="195.4" height="20"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="538" y="89" width="195.4" height="20"/>
+    <polygon style="fill: #000000" points="541,99 543,102 545,99 543,96 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="547" y="105">version_num</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="641.7" y="105">varchar(32)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="547" y1="106.6" x2="726.4" y2="106.6"/>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="539" y="148" width="241.6" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="539" y="148" width="241.6" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="659.8" y="162">nyaa_torrents</text>
+    <rect style="fill: #ffffff" x="539" y="166" width="241.6" height="292"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="539" y="166" width="241.6" height="292"/>
+    <polygon style="fill: #000000" points="542,176 544,179 546,176 544,173 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="182">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="182">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="548" y1="183.6" x2="735.1" y2="183.6"/>
+    <ellipse style="fill: #000000" cx="544" cy="192" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="198">info_hash</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="198">binary(20)</text>
+    <ellipse style="fill: #000000" cx="544" cy="208" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="214">display_name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="214">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="544" cy="224" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="230">torrent_name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="230">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="544" cy="240" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="246">information</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="246">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="544" cy="256" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="262">description</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="262">text</text>
+    <ellipse style="fill: #000000" cx="544" cy="272" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="278">filesize</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="278">bigint(20)</text>
+    <ellipse style="fill: #000000" cx="544" cy="288" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="294">encoding</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="294">varchar(32)</text>
+    <ellipse style="fill: #000000" cx="544" cy="304" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="310">flags</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="310">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="544" cy="320" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="326">uploader_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="326">int(11)</text>
+    <ellipse style="fill: #000000" cx="544" cy="336" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="342">hastorrent</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="342">tinyint(1)</text>
+    <ellipse style="fill: #000000" cx="544" cy="352" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="358">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="358">datetime</text>
+    <ellipse style="fill: #000000" cx="544" cy="368" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="374">updated_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="374">datetime</text>
+    <ellipse style="fill: #000000" cx="544" cy="384" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="390">main_category_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="390">int(11)</text>
+    <ellipse style="fill: #000000" cx="544" cy="400" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="406">sub_category_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="406">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="544" cy="416" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="422">redirect</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="422">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="544" cy="432" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="438">uploader_ip</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="438">tinyblob</text>
+    <ellipse style="fill: #000000" cx="544" cy="448" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="548" y="454">comment_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="681.2" y="454">int(11)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="539,416 498,416 498,176 534.528,176 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="526.764,181 536.764,176 526.764,171 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="412">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="1359" y="235.5" width="149" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="1359" y="235.5" width="149" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1433.5" y="249.5">nyaa_main_categories</text>
+    <rect style="fill: #ffffff" x="1359" y="253.5" width="149" height="36"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="1359" y="253.5" width="149" height="36"/>
+    <polygon style="fill: #000000" points="1362,263.5 1364,266.5 1366,263.5 1364,260.5 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1368" y="269.5">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1408.8" y="269.5">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="1368" y1="271.1" x2="1462.7" y2="271.1"/>
+    <ellipse style="fill: #000000" cx="1364" cy="279.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1368" y="285.5">name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1408.8" y="285.5">varchar(64)</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="1047.7" y="150" width="233.9" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="1047.7" y="150" width="233.9" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1164.65" y="164">nyaa_sub_categories</text>
+    <rect style="fill: #ffffff" x="1047.7" y="168" width="233.9" height="52"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="1047.7" y="168" width="233.9" height="52"/>
+    <polygon style="fill: #000000" points="1050.7,178 1052.7,181 1054.7,178 1052.7,175 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1056.7" y="184">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1189.9" y="184">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="1056.7" y1="185.6" x2="1243.8" y2="185.6"/>
+    <polygon style="fill: #000000" points="1050.7,194 1052.7,197 1054.7,194 1052.7,191 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1056.7" y="200">main_category_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1189.9" y="200">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="1056.7" y1="201.6" x2="1243.8" y2="201.6"/>
+    <ellipse style="fill: #000000" cx="1052.7" cy="210" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1056.7" y="216">name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1189.9" y="216">varchar(64)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1281.6,194 1320.3,194 1320.3,263.5 1354.53,263.5 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1346.76,268.5 1356.76,263.5 1346.76,258.5 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1285.6" y="190">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="1355" y="259.5">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="780.6,384 914.15,384 914.15,194 1043.23,194 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1035.46,199 1045.46,194 1035.46,189 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="784.6" y="380">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="1043.7" y="190">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="780.6,400 878,400 878,178 1043.23,178 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1035.46,183 1045.46,178 1035.46,173 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="784.6" y="396">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="1043.7" y="174">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="780.6,384 1320,384 1320,263.5 1359,263.5 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="784.6" y="380">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="1355" y="259.5">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="943" y="495" width="249.3" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="943" y="495" width="249.3" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1067.65" y="509">users</text>
+    <rect style="fill: #ffffff" x="943" y="513" width="249.3" height="148"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="943" y="513" width="249.3" height="148"/>
+    <polygon style="fill: #000000" points="946,523 948,526 950,523 948,520 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="529">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="529">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="952" y1="530.6" x2="1131.4" y2="530.6"/>
+    <ellipse style="fill: #000000" cx="948" cy="539" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="545">username</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="545">varchar(32)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="948" cy="555" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="561">email</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="561">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="948" cy="571" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="577">password_hash</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="577">varbinary(255)</text>
+    <ellipse style="fill: #000000" cx="948" cy="587" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="593">status</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="593">int(11)</text>
+    <ellipse style="fill: #000000" cx="948" cy="603" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="609">level</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="609">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="948" cy="619" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="625">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="625">datetime</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="948" cy="635" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="641">last_login_date</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="641">datetime</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="948" cy="651" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="952" y="657">last_login_ip</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1077.5" y="657">tinyblob</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="780.6,320 838,320 838,523 938.528,523 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="930.764,528 940.764,523 930.764,518 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="784.6" y="316">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="939" y="519">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="54" y="109.75" width="203.1" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="54" y="109.75" width="203.1" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="155.55" y="123.75">nyaa_torrents_filelist</text>
+    <rect style="fill: #ffffff" x="54" y="127.75" width="203.1" height="36"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="54" y="127.75" width="203.1" height="36"/>
+    <polygon style="fill: #000000" points="57,137.75 59,140.75 61,137.75 59,134.75 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="63" y="143.75">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="173.1" y="143.75">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="63" y1="145.35" x2="227" y2="145.35"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="59" cy="153.75" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="63" y="159.75">filelist_blob</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="173.1" y="159.75">mediumblob</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="55.85" y="212" width="180" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="55.85" y="212" width="180" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="145.85" y="226">nyaa_torrents_info</text>
+    <rect style="fill: #ffffff" x="55.85" y="230" width="180" height="36"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="55.85" y="230" width="180" height="36"/>
+    <polygon style="fill: #000000" points="58.85,240 60.85,243 62.85,240 60.85,237 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="64.85" y="246">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="151.85" y="246">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="64.85" y1="247.6" x2="205.75" y2="247.6"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="60.85" cy="256" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="64.85" y="262">info_dict</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="151.85" y="262">mediumblob</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="235.85,240 385,240 385,176 539,176 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="239.85" y="236">1</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="257.1,137.75 385,137.75 385,176 539,176 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="261.1" y="133.75">1</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="957" y="859.5" width="180" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="957" y="859.5" width="180" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1047" y="873.5">trackers</text>
+    <rect style="fill: #ffffff" x="957" y="877.5" width="180" height="52"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="957" y="877.5" width="180" height="52"/>
+    <polygon style="fill: #000000" points="960,887.5 962,890.5 964,887.5 962,884.5 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="966" y="893.5">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1037.6" y="893.5">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="966" y1="895.1" x2="1091.5" y2="895.1"/>
+    <ellipse style="fill: #000000" cx="962" cy="903.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="966" y="909.5">uri</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1037.6" y="909.5">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="962" cy="919.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="966" y="925.5">disabled</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1037.6" y="925.5">tinyint(1)</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="65.85" y="778" width="156.9" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="65.85" y="778" width="156.9" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="144.3" y="792">nyaa_torrent_trackers</text>
+    <rect style="fill: #ffffff" x="65.85" y="796" width="156.9" height="52"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="65.85" y="796" width="156.9" height="52"/>
+    <polygon style="fill: #000000" points="68.85,806 70.85,809 72.85,806 70.85,803 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="74.85" y="812">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="161.85" y="812">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="74.85" y1="813.6" x2="215.75" y2="813.6"/>
+    <polygon style="fill: #000000" points="68.85,822 70.85,825 72.85,822 70.85,819 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="74.85" y="828">tracker_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="161.85" y="828">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="74.85" y1="829.6" x2="215.75" y2="829.6"/>
+    <ellipse style="fill: #000000" cx="70.85" cy="838" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="74.85" y="844">order</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="161.85" y="844">int(11)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="222.75,806 385,806 385,176 539,176 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="226.75" y="802">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="222.75,822 455,822 455,887.5 952.528,887.5 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="944.764,892.5 954.764,887.5 944.764,882.5 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="226.75" y="818">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="953" y="883.5">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="60" y="323" width="195.4" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="60" y="323" width="195.4" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="157.7" y="337">nyaa_statistics</text>
+    <rect style="fill: #ffffff" x="60" y="341" width="195.4" height="84"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="60" y="341" width="195.4" height="84"/>
+    <polygon style="fill: #000000" points="63,351 65,354 67,351 65,348 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="69" y="357">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="186.8" y="357">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="69" y1="358.6" x2="240.7" y2="358.6"/>
+    <ellipse style="fill: #000000" cx="65" cy="367" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="69" y="373">seed_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="186.8" y="373">int(11)</text>
+    <ellipse style="fill: #000000" cx="65" cy="383" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="69" y="389">leech_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="186.8" y="389">int(11)</text>
+    <ellipse style="fill: #000000" cx="65" cy="399" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="69" y="405">download_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="186.8" y="405">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="65" cy="415" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="69" y="421">last_updated</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="186.8" y="421">datetime</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="255.4,351 385,351 385,176 539,176 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="259.4" y="347">1</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="58" y="443.25" width="210.8" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="58" y="443.25" width="210.8" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="163.4" y="457.25">nyaa_reports</text>
+    <rect style="fill: #ffffff" x="58" y="461.25" width="210.8" height="100"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="58" y="461.25" width="210.8" height="100"/>
+    <polygon style="fill: #000000" points="61,471.25 63,474.25 65,471.25 63,468.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="67" y="477.25">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="169.4" y="477.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="67" y1="478.85" x2="223.3" y2="478.85"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="63" cy="487.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="67" y="493.25">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="169.4" y="493.25">datetime</text>
+    <ellipse style="fill: #000000" cx="63" cy="503.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="67" y="509.25">reason</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="169.4" y="509.25">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="63" cy="519.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="67" y="525.25">status</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="169.4" y="525.25">int(11)</text>
+    <ellipse style="fill: #000000" cx="63" cy="535.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="67" y="541.25">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="169.4" y="541.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="63" cy="551.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="67" y="557.25">user_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="169.4" y="557.25">int(11)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="268.8,535.25 385,535.25 385,176 539,176 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="272.8" y="531.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="268.8,551.25 838,551.25 838,523 943,523 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="272.8" y="547.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="939" y="519">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="61" y="609.25" width="210.8" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="61" y="609.25" width="210.8" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="166.4" y="623.25">nyaa_comments</text>
+    <rect style="fill: #ffffff" x="61" y="627.25" width="210.8" height="84"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="61" y="627.25" width="210.8" height="84"/>
+    <polygon style="fill: #000000" points="64,637.25 66,640.25 68,637.25 66,634.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70" y="643.25">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="172.4" y="643.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="70" y1="644.85" x2="226.3" y2="644.85"/>
+    <ellipse style="fill: #000000" cx="66" cy="653.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70" y="659.25">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="172.4" y="659.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="66" cy="669.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70" y="675.25">user_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="172.4" y="675.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="66" cy="685.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70" y="691.25">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="172.4" y="691.25">datetime</text>
+    <ellipse style="fill: #000000" cx="66" cy="701.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70" y="707.25">text</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="172.4" y="707.25">varchar(255)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="271.8,653.25 385,653.25 385,176 539,176 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="275.8" y="649.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="535" y="172">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="271.8,669.25 838,669.25 838,523 943,523 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="275.8" y="665.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="939" y="519">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="513.85" y="1003.25" width="241.6" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="513.85" y="1003.25" width="241.6" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="634.65" y="1017.25">sukebei_torrents</text>
+    <rect style="fill: #ffffff" x="513.85" y="1021.25" width="241.6" height="292"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="513.85" y="1021.25" width="241.6" height="292"/>
+    <polygon style="fill: #000000" points="516.85,1031.25 518.85,1034.25 520.85,1031.25 518.85,1028.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1037.25">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1037.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="522.85" y1="1038.85" x2="709.95" y2="1038.85"/>
+    <ellipse style="fill: #000000" cx="518.85" cy="1047.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1053.25">info_hash</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1053.25">binary(20)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1063.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1069.25">display_name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1069.25">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1079.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1085.25">torrent_name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1085.25">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1095.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1101.25">information</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1101.25">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1111.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1117.25">description</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1117.25">text</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1127.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1133.25">filesize</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1133.25">bigint(20)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1143.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1149.25">encoding</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1149.25">varchar(32)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1159.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1165.25">flags</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1165.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="518.85" cy="1175.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1181.25">uploader_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1181.25">int(11)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1191.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1197.25">hastorrent</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1197.25">tinyint(1)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1207.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1213.25">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1213.25">datetime</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1223.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1229.25">updated_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1229.25">datetime</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1239.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1245.25">main_category_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1245.25">int(11)</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1255.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1261.25">sub_category_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1261.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="518.85" cy="1271.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1277.25">redirect</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1277.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="518.85" cy="1287.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1293.25">uploader_ip</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1293.25">tinyblob</text>
+    <ellipse style="fill: #000000" cx="518.85" cy="1303.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="522.85" y="1309.25">comment_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="656.05" y="1309.25">int(11)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="755.45,1175.25 838,1175.25 838,523 938.528,523 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="930.764,528 940.764,523 930.764,518 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="759.45" y="1171.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="939" y="519">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="59.85" y="925" width="203.1" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="59.85" y="925" width="203.1" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="161.4" y="939">sukebei_torrents_filelist</text>
+    <rect style="fill: #ffffff" x="59.85" y="943" width="203.1" height="36"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="59.85" y="943" width="203.1" height="36"/>
+    <polygon style="fill: #000000" points="62.85,953 64.85,956 66.85,953 64.85,950 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="68.85" y="959">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.95" y="959">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="68.85" y1="960.6" x2="232.85" y2="960.6"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="64.85" cy="969" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="68.85" y="975">filelist_blob</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.95" y="975">mediumblob</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="61.7" y="1027.25" width="180" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="61.7" y="1027.25" width="180" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="151.7" y="1041.25">sukebei_torrents_info</text>
+    <rect style="fill: #ffffff" x="61.7" y="1045.25" width="180" height="36"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="61.7" y="1045.25" width="180" height="36"/>
+    <polygon style="fill: #000000" points="64.7,1055.25 66.7,1058.25 68.7,1055.25 66.7,1052.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70.7" y="1061.25">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="157.7" y="1061.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="70.7" y1="1062.85" x2="211.6" y2="1062.85"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="66.7" cy="1071.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="70.7" y="1077.25">info_dict</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="157.7" y="1077.25">mediumblob</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="78.7" y="1560.25" width="166.9" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="78.7" y="1560.25" width="166.9" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="162.15" y="1574.25">sukebei_torrent_trackers</text>
+    <rect style="fill: #ffffff" x="78.7" y="1578.25" width="166.9" height="52"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="78.7" y="1578.25" width="166.9" height="52"/>
+    <polygon style="fill: #000000" points="81.7,1588.25 83.7,1591.25 85.7,1588.25 83.7,1585.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="87.7" y="1594.25">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="174.7" y="1594.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="87.7" y1="1595.85" x2="228.6" y2="1595.85"/>
+    <polygon style="fill: #000000" points="81.7,1604.25 83.7,1607.25 85.7,1604.25 83.7,1601.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="87.7" y="1610.25">tracker_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="174.7" y="1610.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="87.7" y1="1611.85" x2="228.6" y2="1611.85"/>
+    <ellipse style="fill: #000000" cx="83.7" cy="1620.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="87.7" y="1626.25">order</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="174.7" y="1626.25">int(11)</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="64.85" y="1121.25" width="195.4" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="64.85" y="1121.25" width="195.4" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="162.55" y="1135.25">sukebei_statistics</text>
+    <rect style="fill: #ffffff" x="64.85" y="1139.25" width="195.4" height="84"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="64.85" y="1139.25" width="195.4" height="84"/>
+    <polygon style="fill: #000000" points="67.85,1149.25 69.85,1152.25 71.85,1149.25 69.85,1146.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="73.85" y="1155.25">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="191.65" y="1155.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="73.85" y1="1156.85" x2="245.55" y2="1156.85"/>
+    <ellipse style="fill: #000000" cx="69.85" cy="1165.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="73.85" y="1171.25">seed_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="191.65" y="1171.25">int(11)</text>
+    <ellipse style="fill: #000000" cx="69.85" cy="1181.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="73.85" y="1187.25">leech_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="191.65" y="1187.25">int(11)</text>
+    <ellipse style="fill: #000000" cx="69.85" cy="1197.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="73.85" y="1203.25">download_count</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="191.65" y="1203.25">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="69.85" cy="1213.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="73.85" y="1219.25">last_updated</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="191.65" y="1219.25">datetime</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="63.85" y="1258.5" width="210.8" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="63.85" y="1258.5" width="210.8" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="169.25" y="1272.5">sukebei_reports</text>
+    <rect style="fill: #ffffff" x="63.85" y="1276.5" width="210.8" height="100"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="63.85" y="1276.5" width="210.8" height="100"/>
+    <polygon style="fill: #000000" points="66.85,1286.5 68.85,1289.5 70.85,1286.5 68.85,1283.5 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="72.85" y="1292.5">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="175.25" y="1292.5">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="72.85" y1="1294.1" x2="229.15" y2="1294.1"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="68.85" cy="1302.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="72.85" y="1308.5">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="175.25" y="1308.5">datetime</text>
+    <ellipse style="fill: #000000" cx="68.85" cy="1318.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="72.85" y="1324.5">reason</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="175.25" y="1324.5">varchar(255)</text>
+    <ellipse style="fill: #000000" cx="68.85" cy="1334.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="72.85" y="1340.5">status</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="175.25" y="1340.5">int(11)</text>
+    <ellipse style="fill: #000000" cx="68.85" cy="1350.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="72.85" y="1356.5">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="175.25" y="1356.5">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="68.85" cy="1366.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="72.85" y="1372.5">user_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="175.25" y="1372.5">int(11)</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="66.85" y="1424.5" width="210.8" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="66.85" y="1424.5" width="210.8" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="172.25" y="1438.5">sukebei_comments</text>
+    <rect style="fill: #ffffff" x="66.85" y="1442.5" width="210.8" height="84"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="66.85" y="1442.5" width="210.8" height="84"/>
+    <polygon style="fill: #000000" points="69.85,1452.5 71.85,1455.5 73.85,1452.5 71.85,1449.5 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="75.85" y="1458.5">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.25" y="1458.5">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="75.85" y1="1460.1" x2="232.15" y2="1460.1"/>
+    <ellipse style="fill: #000000" cx="71.85" cy="1468.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="75.85" y="1474.5">torrent_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.25" y="1474.5">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="71.85" cy="1484.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="75.85" y="1490.5">user_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.25" y="1490.5">int(11)</text>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 0.2; stroke: #000000" cx="71.85" cy="1500.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="75.85" y="1506.5">created_time</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.25" y="1506.5">datetime</text>
+    <ellipse style="fill: #000000" cx="71.85" cy="1516.5" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="75.85" y="1522.5">text</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="178.25" y="1522.5">varchar(255)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="262.95,953 413,953 413,1031.25 509.378,1031.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="501.614,1036.25 511.614,1031.25 501.614,1026.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="266.95" y="949">1</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="241.7,1055.25 413,1055.25 413,1031.25 509.378,1031.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="501.614,1036.25 511.614,1031.25 501.614,1026.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="245.7" y="1051.25">1</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="1330.85" y="1117.75" width="167.45" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="1330.85" y="1117.75" width="167.45" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1414.58" y="1131.75">sukebei_main_categories</text>
+    <rect style="fill: #ffffff" x="1330.85" y="1135.75" width="167.45" height="36"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="1330.85" y="1135.75" width="167.45" height="36"/>
+    <polygon style="fill: #000000" points="1333.85,1145.75 1335.85,1148.75 1337.85,1145.75 1335.85,1142.75 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1339.85" y="1151.75">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1380.65" y="1151.75">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="1339.85" y1="1153.35" x2="1434.55" y2="1153.35"/>
+    <ellipse style="fill: #000000" cx="1335.85" cy="1161.75" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1339.85" y="1167.75">name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1380.65" y="1167.75">varchar(64)</text>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="996.55" y="1007.25" width="233.9" height="18"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="996.55" y="1007.25" width="233.9" height="18"/>
+    <text font-size="11.2" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="1113.5" y="1021.25">sukebei_sub_categories</text>
+    <rect style="fill: #ffffff" x="996.55" y="1025.25" width="233.9" height="52"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="996.55" y="1025.25" width="233.9" height="52"/>
+    <polygon style="fill: #000000" points="999.55,1035.25 1001.55,1038.25 1003.55,1035.25 1001.55,1032.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1005.55" y="1041.25">id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1138.75" y="1041.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="1005.55" y1="1042.85" x2="1192.65" y2="1042.85"/>
+    <polygon style="fill: #000000" points="999.55,1051.25 1001.55,1054.25 1003.55,1051.25 1001.55,1048.25 "/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1005.55" y="1057.25">main_category_id</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1138.75" y="1057.25">int(11)</text>
+    <line style="fill: none; fill-opacity:0; stroke-width: 1; stroke: #000000" x1="1005.55" y1="1058.85" x2="1192.65" y2="1058.85"/>
+    <ellipse style="fill: #000000" cx="1001.55" cy="1067.25" rx="2" ry="2"/>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1005.55" y="1073.25">name</text>
+    <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1138.75" y="1073.25">varchar(64)</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="260.25,1149.25 413,1149.25 413,1031.25 509.378,1031.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="501.614,1036.25 511.614,1031.25 501.614,1026.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="264.25" y="1145.25">1</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="274.65,1350.5 413,1350.5 413,1031.25 509.378,1031.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="501.614,1036.25 511.614,1031.25 501.614,1026.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="278.65" y="1346.5">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="277.65,1468.5 413,1468.5 413,1031.25 509.378,1031.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="501.614,1036.25 511.614,1031.25 501.614,1026.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="281.65" y="1464.5">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="245.6,1588.25 413,1588.25 413,1031.25 509.378,1031.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="501.614,1036.25 511.614,1031.25 501.614,1026.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="249.6" y="1584.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="755.45,1255.25 904.85,1255.25 904.85,1035.25 992.078,1035.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="984.314,1040.25 994.314,1035.25 984.314,1030.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="759.45" y="1251.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="992.55" y="1031.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="755.45,1239.25 962.7,1239.25 962.7,1051.25 992.078,1051.25 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="984.314,1056.25 994.314,1051.25 984.314,1046.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="759.45" y="1235.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="992.55" y="1047.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="755.45,1239.25 1295,1239.25 1295,1145.75 1326.38,1145.75 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1318.61,1150.75 1328.61,1145.75 1318.61,1140.75 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="759.45" y="1235.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="1326.85" y="1141.75">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1230.45,1051.25 1295,1051.25 1295,1145.75 1326.38,1145.75 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="1318.61,1150.75 1328.61,1145.75 1318.61,1140.75 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="1234.45" y="1047.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="1326.85" y="1141.75">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="513.85,1271.25 488,1271.25 488,1031.25 513.85,1031.25 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1267.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="509.85" y="1027.25">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="245.6,1604.25 455,1604.25 455,887.5 957,887.5 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="249.6" y="1600.25">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="953" y="883.5">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="274.65,1366.5 838,1366.5 838,523 938.528,523 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="930.764,528 940.764,523 930.764,518 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="278.65" y="1362.5">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="939" y="519">1</text>
+  </g>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="277.65,1484.5 838,1484.5 838,523 938.528,523 "/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="930.764,528 940.764,523 930.764,518 "/>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:start;font-family:monospace;font-style:normal;font-weight:normal" x="281.65" y="1480.5">n</text>
+    <text font-size="9.59961" style="fill: #000000;text-anchor:end;font-family:monospace;font-style:normal;font-weight:normal" x="939" y="519">1</text>
+  </g>
+</svg>
