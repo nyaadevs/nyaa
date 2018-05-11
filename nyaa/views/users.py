@@ -47,20 +47,24 @@ def view_user(user_name):
     url = flask.url_for('users.view_user', user_name=user.username)
     if flask.request.method == 'POST' and admin_form and not doban and admin_form.validate():
         selection = admin_form.user_class.data
-        log = None
-        if selection == 'regular':
-            user.level = models.UserLevelType.REGULAR
-            log = "[{}]({}) changed to regular user".format(user_name, url)
-        elif selection == 'trusted':
-            user.level = models.UserLevelType.TRUSTED
-            log = "[{}]({}) changed to trusted user".format(user_name, url)
-        elif selection == 'moderator':
-            user.level = models.UserLevelType.MODERATOR
-            log = "[{}]({}) changed to moderator user".format(user_name, url)
+        mapping = {'regular': models.UserLevelType.REGULAR,
+                   'trusted': models.UserLevelType.TRUSTED,
+                   'moderator': models.UserLevelType.MODERATOR}
 
-        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        if mapping[selection] != user.level:
+            user.level = mapping[selection]
+            log = "[{}]({}) changed to {} user".format(user_name, url, selection)
+            adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+            db.session.add(adminlog)
+
+        if admin_form.activate_user.data and not user.is_banned:
+            user.status = models.UserStatusType.ACTIVE
+            adminlog = models.AdminLog("[{}]({}) was manually activated"
+                                       .format(user_name, url),
+                                       admin_id=flask.g.user.id)
+            db.session.add(adminlog)
+
         db.session.add(user)
-        db.session.add(adminlog)
         db.session.commit()
 
         return flask.redirect(url)

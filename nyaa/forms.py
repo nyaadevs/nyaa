@@ -408,6 +408,7 @@ class UploadForm(FlaskForm):
 
 class UserForm(FlaskForm):
     user_class = SelectField('Change User Class')
+    activate_user = SubmitField('Activate User')
 
     def validate_user_class(form, field):
         if not field.data:
