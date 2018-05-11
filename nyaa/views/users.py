@@ -59,10 +59,10 @@ def view_user(user_name):
 
         if admin_form.activate_user.data and not user.is_banned:
             user.status = models.UserStatusType.ACTIVE
-            adminlog2 = models.AdminLog("[{}]({}) was manually activated"
+            adminlog = models.AdminLog("[{}]({}) was manually activated"
                                         .format(user_name, url),
                                         admin_id=flask.g.user.id)
-            db.session.add(adminlog2)
+            db.session.add(adminlog)
 
         db.session.add(user)
         db.session.commit()
