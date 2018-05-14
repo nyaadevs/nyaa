@@ -122,7 +122,7 @@ class RegisterForm(FlaskForm):
         DataRequired(),
         Length(min=3, max=32),
         stop_on_validation_error(_username_validator),
-        Unique(User, User.username, 'Username not availiable')
+        Unique(User, User.username, 'Username not available')
     ])
 
     email = StringField('Email address', [
