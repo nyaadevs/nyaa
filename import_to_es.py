@@ -18,7 +18,7 @@ from nyaa import create_app, models
 from nyaa.extensions import db
 
 app = create_app('config')
-es = Elasticsearch(timeout=30)
+es = Elasticsearch(hosts=app.config['ES_HOSTS'], timeout=30)
 ic = IndicesClient(es)
 
 def pad_bytes(in_bytes, size):

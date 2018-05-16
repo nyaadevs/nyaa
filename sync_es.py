@@ -34,7 +34,11 @@ from elasticsearch.helpers import bulk, BulkIndexError
 from pymysqlreplication import BinLogStreamReader
 from pymysqlreplication.row_event import UpdateRowsEvent, DeleteRowsEvent, WriteRowsEvent
 from datetime import datetime
+
+from nyaa import create_app, db, models
 from nyaa.models import TorrentFlags
+app = create_app('config')
+
 import sys
 import json
 import time
@@ -262,7 +266,7 @@ class EsPoster(ExitingThread):
         self.flush_interval = flush_interval
 
     def run_happy(self):
-        es = Elasticsearch(timeout=30)
+        es = Elasticsearch(hosts=app.config['ES_HOSTS'], timeout=30)
 
         last_save = time.time()
         since_last = 0
