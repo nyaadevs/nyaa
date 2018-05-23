@@ -164,7 +164,7 @@ def password_reset(payload=None):
 @bp.route('/profile', methods=['GET', 'POST'])
 def profile():
     if not flask.g.user:
-        # so we dont get stuck in infinite loop when signing out
+        # so we don't get stuck in infinite loop when signing out
         return flask.redirect(flask.url_for('main.home'))
 
     form = forms.ProfileForm(flask.request.form)

@@ -16,7 +16,7 @@ class NyaaTestCase(unittest.TestCase):
         app.config['TESTING'] = True
         cls.app_context = app.app_context()
 
-        # Use a seperate database for testing
+        # Use a separate database for testing
         # if USE_MYSQL:
         #     cls.db_name = 'nyaav2_tests'
         #     db_uri = 'mysql://root:@localhost/{}?charset=utf8mb4'.format(cls.db_name)
@@ -24,7 +24,7 @@ class NyaaTestCase(unittest.TestCase):
         #     cls.db_name = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test.db')
         #     db_uri = 'sqlite:///{}?check_same_thread=False'.format(cls.db_name)
 
-        # if not os.environ.get('TRAVIS'):  # Travis doesn't need a seperate DB
+        # if not os.environ.get('TRAVIS'):  # Travis doesn't need a separate DB
         #     app.config['USE_MYSQL'] = USE_MYSQL
         #     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
