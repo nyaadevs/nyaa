@@ -801,8 +801,9 @@ class RangeBan(db.Model):
     def is_rangebanned(cls, ip):
         ip_int = int.from_bytes(ip, 'big')
         q = cls.query.filter(cls.masked_cidr <= ip_int,
-                             cls.mask.__and__(expression.literal(ip_int)) == cls.masked_cidr)
-        return True if q is not None else False
+                             cls.mask.op('&')(ip_int) == cls.masked_cidr,
+                             cls.enabled == True)
+        return q.count() > 0
 
 
 # Actually declare our site-specific classes
