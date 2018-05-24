@@ -39,19 +39,19 @@ def rangeban():
 
 
 @rangeban.command()
-@click.option('--tor/--no-tor', help='Mark this entry as one that may be '
+@click.option('--temp/--no-temp', help='Mark this entry as one that may be '
               'cleaned out occasionally.', default=False)
 @click.argument('cidrrange')
-def ban(tor, cidrrange):
+def ban(temp, cidrrange):
     if not is_cidr_valid(cidrrange):
         click.secho('{} is not of the format xxx.xxx.xxx.xxx/xx.'
                     .format(cidrrange), err=True, fg='red')
         sys.exit(1)
     with app.app_context():
-        ban = models.RangeBan(cidr_string=cidrrange, temporary_tor=tor)
+        ban = models.RangeBan(cidr_string=cidrrange, temp=temp)
         db.session.add(ban)
         db.session.commit()
-        click.echo('Added {} for {}.'.format('tor ban' if tor else 'ban',
+        click.echo('Added {} for {}.'.format('temp ban' if temp else 'ban',
                                              cidrrange))
 
 
@@ -82,12 +82,12 @@ def list():
         if len(bans) == 0:
             click.echo('No bans. :(')
         else:
-            click.secho('CIDR Range         Enabled Tor', bold=True)
+            click.secho('ID     CIDR Range         Enabled Temp', bold=True)
             for b in bans:
-                click.echo('{0: <18} {1: <7} {2: <3}'
-                           .format(b.cidr_string,
+                click.echo('{0: <6} {1: <18} {2: <7} {3: <4}'
+                           .format(b.id, b.cidr_string,
                                    check_str(b.enabled),
-                                   check_str(b.temporary_tor)))
+                                   check_str(b.temp)))
 
 
 if __name__ == '__main__':
