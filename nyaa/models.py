@@ -13,7 +13,6 @@ from markupsafe import escape as escape_markup
 
 from sqlalchemy import ForeignKeyConstraint, Index
 from sqlalchemy.ext import declarative
-from sqlalchemy.sql import expression
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 
@@ -806,7 +805,7 @@ class RangeBan(db.Model):
         ip_int = int.from_bytes(ip, 'big')
         q = cls.query.filter(cls.masked_cidr <= ip_int,
                              cls.mask.op('&')(ip_int) == cls.masked_cidr,
-                             cls.enabled == True)
+                             cls.enabled)
         return q.count() > 0
 
 
