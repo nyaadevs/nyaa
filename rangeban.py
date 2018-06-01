@@ -91,9 +91,9 @@ def list():
                                    check_str(b.temp)))
 
 @rangeban.command()
-@click.argument('id', type=int)
+@click.argument('banid', type=int)
 @click.argument('status')
-def enabled(id, status):
+def enabled(banid, status):
     yeses = ['true', '1', 'yes', '\u2713']
     noses = ['false', '0', 'no', '\u2717']
     if status.lower() in yeses:
@@ -105,16 +105,16 @@ def enabled(id, status):
                     .format(yeses, noses), err=True, fg='red')
         sys.exit(1)
     with app.app_context():
-        ban = models.RangeBan.query.get(id)
+        ban = models.RangeBan.query.get(banid)
         if not ban:
             click.secho('No ban with id {} found.'
-                        .format(id), err=True, fg='red')
+                        .format(banid), err=True, fg='red')
             sys.exit(1)
         ban.enabled = set_to
         db.session.add(ban)
         db.session.commit()
         click.echo('{} ban {} on {}.'.format('Enabled' if set_to else 'Disabled',
-                                             id, ban._cidr_string))
+                                             banid, ban._cidr_string))
 
 
 
