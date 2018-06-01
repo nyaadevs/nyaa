@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import sys
 
 import click
@@ -49,7 +50,7 @@ def ban(temp, cidrrange):
                     .format(cidrrange), err=True, fg='red')
         sys.exit(1)
     with app.app_context():
-        ban = models.RangeBan(cidr_string=cidrrange, temp=temp)
+        ban = models.RangeBan(cidr_string=cidrrange, temp=datetime.utcnow() if temp else None)
         db.session.add(ban)
         db.session.commit()
         click.echo('Added {} for {}.'.format('temp ban' if temp else 'ban',
@@ -88,7 +89,7 @@ def list():
                 click.echo('{0: <6} {1: <18} {2: <7} {3: <4}'
                            .format(b.id, b.cidr_string,
                                    check_str(b.enabled),
-                                   check_str(b.temp)))
+                                   check_str(b.temp is not None)))
 
 @rangeban.command()
 @click.argument('banid', type=int)

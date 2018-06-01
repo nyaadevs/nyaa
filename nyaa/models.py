@@ -775,14 +775,15 @@ class RangeBan(db.Model):
     __tablename__ = 'rangebans'
 
     id = db.Column(db.Integer, primary_key=True)
-    _cidr_string = db.Column(db.String(length=18), nullable=False)
+    _cidr_string = db.Column('cidr_string', db.String(length=18), nullable=False)
     masked_cidr = db.Column(db.BigInteger, nullable=False,
                             index=True)
     mask = db.Column(db.BigInteger, nullable=False, index=True)
     enabled = db.Column(db.Boolean, nullable=False, default=True)
     # If this rangeban may be automatically cleared once it becomes
-    # out of date, set this field to True.
-    temp = db.Column(db.Boolean, nullable=False, default=False)
+    # out of date, set this column to the creation time of the ban.
+    # None (or NULL in the db) is understood as the ban being permanent.
+    temp = db.Column(db.DateTime(timezone=False), nullable=True, default=None)
 
     @property
     def cidr_string(self):
