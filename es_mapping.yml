@@ -24,9 +24,9 @@ settings:
           - my_ngram
           - trim_zero
           - unique
-      # For exact matching - simple lowercase + whitespace delimiter
+      # For exact matching - separate each character for substring matching + lowercase
       exact_analyzer:
-        tokenizer: whitespace
+        tokenizer: exact_tokenizer
         filter:
           - lowercase
       # For matching full words longer than the ngram limit (15 chars)
@@ -42,6 +42,13 @@ settings:
           # since they're already indexed in the main field
           - fullword_min
           - unique
+
+    tokenizer:
+      # Splits input into characters, for exact substring matching
+      exact_tokenizer:
+        type: pattern
+        pattern: "(.)"
+        group: 1
 
     filter:
       my_ngram:
