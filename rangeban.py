@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
+from ipaddress import ip_address
 import sys
 
 import click
@@ -18,14 +19,9 @@ def is_cidr_valid(c):
     if int(mask) < 1 or int(mask) > 32:
         return False
     try:
-        bs = subnet.split('.')
+        ip = ip_address(subnet)
     except ValueError:
         return False
-    if len(bs) != 4:
-        return False
-    for b in bs:
-        if int(b) > 255 or int(b) < 0:
-            return False
     return True
 
 
