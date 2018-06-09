@@ -793,7 +793,7 @@ class RangeBan(db.Model):
     def cidr_string(self, s):
         subnet, masked_bits = s.split('/')
         subnet_b = ip_address(subnet).packed
-        self.mask = 0xffffffff << (32 - int(masked_bits))
+        self.mask = (1 << 32) - (1 << (32 - int(masked_bits)))
         self.masked_cidr = int.from_bytes(subnet_b, 'big') & self.mask
         self._cidr_string = s
 
@@ -804,8 +804,7 @@ class RangeBan(db.Model):
         elif len(ip) < 4:
             raise ValueError("That's no IP address.")
         ip_int = int.from_bytes(ip, 'big')
-        q = cls.query.filter(cls.masked_cidr <= ip_int,
-                             cls.mask.op('&')(ip_int) == cls.masked_cidr,
+        q = cls.query.filter(cls.mask.op('&')(ip_int) == cls.masked_cidr,
                              cls.enabled)
         return q.count() > 0
 
