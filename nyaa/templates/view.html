@@ -178,6 +178,23 @@
 						<div class="form-group">
 							<textarea class="form-control" name="comment" autofocus>{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</textarea>
 						</div>
+						{% if config.USE_RECAPTCHA and g.user.age < config['ACCOUNT_RECAPTCHA_AGE'] %}
+						<div class="row">
+							<div class="col-md-4">
+								{% if comment_form.recaptcha.errors %}
+								<div class="alert alert-danger">
+									<p><strong>CAPTCHA error:</strong></p>
+									<ul>
+										{% for error in comment_form.recaptcha.errors %}
+										<li>{{ error }}</li>
+										{% endfor %}
+									</ul>
+								</div>
+								{% endif %}
+								{{ comment_form.recaptcha }}
+							</div>
+						</div>
+						{% endif %}
 						<input type="submit" value="Submit" class="btn btn-success btn-sm">
 						<button class="btn btn-sm edit-comment" title="Cancel">Cancel</button>
 						<span class="edit-error text-danger"></span>

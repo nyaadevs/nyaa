@@ -118,6 +118,9 @@ $(document).ready(function() {
 			$errorStatus.text(error);
 		}).always(function() {
 			$submitButton.removeAttr('disabled');
+			if (grecaptcha) {
+				grecaptcha.reset();
+			}
 			$waitIndicator.hide();
 		});
 	})
