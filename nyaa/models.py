@@ -800,9 +800,9 @@ class RangeBan(db.Model):
     @classmethod
     def is_rangebanned(cls, ip):
         if len(ip) > 4:
-            raise NotImplementedError("We don't do IPv6 around these parts, kid.")
+            raise NotImplementedError("IPv6 is unsupported.")
         elif len(ip) < 4:
-            raise ValueError("That's no IP address.")
+            raise ValueError("Not an IP address.")
         ip_int = int.from_bytes(ip, 'big')
         q = cls.query.filter(cls.mask.op('&')(ip_int) == cls.masked_cidr,
                              cls.enabled)

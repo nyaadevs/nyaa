@@ -90,7 +90,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         if models.RangeBan.is_rangebanned(user.last_login_ip):
-            flask.flash(flask.Markup('Your IP range is blocked from creating new accounts. '
+            flask.flash(flask.Markup('Your IP is blocked from creating new accounts. '
                                      'Please <a href="{}">ask a moderator</a> to manually '
                                      'activate your account <a href="{}">\'{}\'</a>.'
                                      .format(flask.url_for('site.help') + '#irchelp',

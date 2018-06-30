@@ -66,7 +66,7 @@ def unban(cidrrange):
         bans = models.RangeBan.query.filter(
             models.RangeBan._cidr_string == cidrrange).all()
         if len(bans) == 0:
-            click.echo('Couldn\'t find that ban. :(')
+            click.echo('Ban not found.')
         for b in bans:
             click.echo('Unbanned {}'.format(b.cidr_string))
             db.session.delete(b)
@@ -78,7 +78,7 @@ def list():
     with app.app_context():
         bans = models.RangeBan.query.all()
         if len(bans) == 0:
-            click.echo('No bans. :(')
+            click.echo('No bans.')
         else:
             click.secho('ID     CIDR Range         Enabled Temp', bold=True)
             for b in bans:
