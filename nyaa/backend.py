@@ -158,6 +158,12 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
             upload_form.ratelimit.errors = ["You've gone over the upload ratelimit."]
             raise TorrentExtraValidationException()
 
+    if not uploading_user:
+        if models.RangeBan.is_rangebanned(ip_address(flask.request.remote_addr).packed):
+            upload_form.rangebanned.errors = ["Your IP is banned from "
+                                              "uploading anonymously."]
+            raise TorrentExtraValidationException()
+
     # Delete existing torrent which is marked as deleted
     if torrent_data.db_id is not None:
         old_torrent = models.Torrent.by_id(torrent_data.db_id)

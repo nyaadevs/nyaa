@@ -775,6 +775,44 @@ class TrackerApiBase(DeclarativeHelperBase):
         self.method = method
 
 
+class RangeBan(db.Model):
+    __tablename__ = 'rangebans'
+
+    id = db.Column(db.Integer, primary_key=True)
+    _cidr_string = db.Column('cidr_string', db.String(length=18), nullable=False)
+    masked_cidr = db.Column(db.BigInteger, nullable=False,
+                            index=True)
+    mask = db.Column(db.BigInteger, nullable=False, index=True)
+    enabled = db.Column(db.Boolean, nullable=False, default=True)
+    # If this rangeban may be automatically cleared once it becomes
+    # out of date, set this column to the creation time of the ban.
+    # None (or NULL in the db) is understood as the ban being permanent.
+    temp = db.Column(db.DateTime(timezone=False), nullable=True, default=None)
+
+    @property
+    def cidr_string(self):
+        return self._cidr_string
+
+    @cidr_string.setter
+    def cidr_string(self, s):
+        subnet, masked_bits = s.split('/')
+        subnet_b = ip_address(subnet).packed
+        self.mask = (1 << 32) - (1 << (32 - int(masked_bits)))
+        self.masked_cidr = int.from_bytes(subnet_b, 'big') & self.mask
+        self._cidr_string = s
+
+    @classmethod
+    def is_rangebanned(cls, ip):
+        if len(ip) > 4:
+            raise NotImplementedError("IPv6 is unsupported.")
+        elif len(ip) < 4:
+            raise ValueError("Not an IP address.")
+        ip_int = int.from_bytes(ip, 'big')
+        q = cls.query.filter(cls.mask.op('&')(ip_int) == cls.masked_cidr,
+                             cls.enabled)
+        return q.count() > 0
+
+
 # Actually declare our site-specific classes
 
 # Torrent

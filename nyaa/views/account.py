@@ -89,19 +89,27 @@ def register():
         user.last_login_ip = ip_address(flask.request.remote_addr).packed
         db.session.add(user)
         db.session.commit()
-
-        if app.config['USE_EMAIL_VERIFICATION']:  # force verification, enable email
-            send_verification_email(user)
-            return flask.render_template('waiting.html')
-        else:  # disable verification, set user as active and auto log in
-            user.status = models.UserStatusType.ACTIVE
-            db.session.add(user)
-            db.session.commit()
-            flask.g.user = user
-            flask.session['user_id'] = user.id
-            flask.session.permanent = True
-            flask.session.modified = True
-            return flask.redirect(redirect_url())
+        if models.RangeBan.is_rangebanned(user.last_login_ip):
+            flask.flash(flask.Markup('Your IP is blocked from creating new accounts. '
+                                     'Please <a href="{}">ask a moderator</a> to manually '
+                                     'activate your account <a href="{}">\'{}\'</a>.'
+                                     .format(flask.url_for('site.help') + '#irchelp',
+                                             flask.url_for('users.view_user',
+                                                           user_name=user.username),
+                                             user.username)), 'warning')
+        else:
+            if app.config['USE_EMAIL_VERIFICATION']:  # force verification, enable email
+                send_verification_email(user)
+                return flask.render_template('waiting.html')
+            else:  # disable verification, set user as active and auto log in
+                user.status = models.UserStatusType.ACTIVE
+                db.session.add(user)
+                db.session.commit()
+                flask.g.user = user
+                flask.session['user_id'] = user.id
+                flask.session.permanent = True
+                flask.session.modified = True
+                return flask.redirect(redirect_url())
 
     return flask.render_template('register.html', form=form)
 

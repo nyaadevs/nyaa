@@ -349,6 +349,7 @@ class UploadForm(FlaskForm):
     ])
 
     ratelimit = HiddenField()
+    rangebanned = HiddenField()
 
     def validate_torrent_file(form, field):
         # Decode and ensure data is bencoded data
