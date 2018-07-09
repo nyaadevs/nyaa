@@ -487,6 +487,7 @@ class User(db.Model):
     created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
     last_login_date = db.Column(db.DateTime(timezone=False), default=None, nullable=True)
     last_login_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
+    registration_ip = db.Column(db.Binary(length=16), default=None, nullable=True)
 
     nyaa_torrents = db.relationship('NyaaTorrent', back_populates='user', lazy='dynamic')
     nyaa_comments = db.relationship('NyaaComment', back_populates='user', lazy='dynamic')
@@ -572,6 +573,11 @@ class User(db.Model):
     def ip_string(self):
         if self.last_login_ip:
             return str(ip_address(self.last_login_ip))
+
+    @property
+    def reg_ip_string(self):
+        if self.registration_ip:
+            return str(ip_address(self.registration_ip))
 
     @classmethod
     def by_id(cls, id):

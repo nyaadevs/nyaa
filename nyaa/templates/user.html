@@ -36,7 +36,9 @@
 						<dd>{{ user.userstatus_str }}</dt>
 						{%- if g.user.is_superadmin -%}
 						<dt>Last login IP:</dt>
-						<dd>{{ user.ip_string }}</dd><br>
+						<dd>{{ user.ip_string }}</dd>
+						<dt>Registration IP:</dt>
+						<dd>{{ user.reg_ip_string }}</dd>
 						{%- endif -%}
 					</dl>
 				</div>
