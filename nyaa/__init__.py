@@ -96,4 +96,10 @@ def create_app(config):
     app.register_blueprint(api_blueprint)
     register_views(app)
 
+    # Pregenerate some URLs to avoid repeat url_for calls
+    if 'SERVER_NAME' in app.config and app.config['SERVER_NAME']:
+        with app.app_context():
+            url = flask.url_for('static', filename='img/avatar/default.png', _external=True)
+            app.config['DEFAULT_GRAVATAR_URL'] = url
+
     return app
