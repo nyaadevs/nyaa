@@ -6,7 +6,7 @@ import flask
 from flask_assets import Bundle  # noqa F401
 
 from nyaa.api_handler import api_blueprint
-from nyaa.extensions import assets, db, fix_paginate, toolbar
+from nyaa.extensions import assets, cache, db, fix_paginate, toolbar
 from nyaa.template_utils import bp as template_utils_bp
 from nyaa.utils import random_string
 from nyaa.views import register_views
@@ -101,5 +101,8 @@ def create_app(config):
         with app.app_context():
             url = flask.url_for('static', filename='img/avatar/default.png', _external=True)
             app.config['DEFAULT_GRAVATAR_URL'] = url
+
+    # Cache
+    cache.init_app(app)
 
     return app

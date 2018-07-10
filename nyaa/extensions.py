@@ -3,12 +3,14 @@ import os.path
 from flask import abort
 from flask.config import Config
 from flask_assets import Environment
+from flask_caching import Cache
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import BaseQuery, Pagination, SQLAlchemy
 
 assets = Environment()
 db = SQLAlchemy()
 toolbar = DebugToolbarExtension()
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
 def fix_paginate():
