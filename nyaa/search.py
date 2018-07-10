@@ -185,7 +185,7 @@ def search_elastic(term='', user=None, sort='id', order='desc',
     if page > 4294967295:
         flask.abort(404)
 
-    es_client = Elasticsearch()
+    es_client = Elasticsearch(hosts=app.config['ES_HOSTS'])
 
     es_sort_keys = {
         'id': 'id',
