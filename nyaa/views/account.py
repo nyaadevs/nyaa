@@ -86,10 +86,11 @@ def register():
     if flask.request.method == 'POST' and form.validate():
         user = models.User(username=form.username.data.strip(),
                            email=form.email.data.strip(), password=form.password.data)
-        user.last_login_ip = ip_address(flask.request.remote_addr).packed
+        user.registration_ip = ip_address(flask.request.remote_addr).packed
+        user.last_login_ip = user.registration_ip
         db.session.add(user)
         db.session.commit()
-        if models.RangeBan.is_rangebanned(user.last_login_ip):
+        if models.RangeBan.is_rangebanned(user.registration_ip):
             flask.flash(flask.Markup('Your IP is blocked from creating new accounts. '
                                      'Please <a href="{}">ask a moderator</a> to manually '
                                      'activate your account <a href="{}">\'{}\'</a>.'
