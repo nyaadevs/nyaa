@@ -1,0 +1,16 @@
+{# Update this to a larger timestamp if you change your announcement #}
+{# A value of 0 disables the announcements altogether #}
+{% set info_ts = 0 %}
+{% if info_ts > 0 %}
+<div class="alert alert-info alert-dismissible" id="infobubble" data-ts='{{ info_ts }}' hidden>
+	{% include 'infobubble_content.html' %}
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<noscript>
+<div class="alert alert-info" id="infobubble-noscript">
+	{% include 'infobubble_content.html' %}
+</div>
+</noscript>
+{% endif %}

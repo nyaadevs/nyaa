@@ -260,6 +260,16 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 });
 
+// Info bubble stuff
+document.addEventListener("DOMContentLoaded", function() {
+	var bubble = document.getElementById('infobubble');
+	if (Number(localStorage.getItem('infobubble_dismiss_ts')) < Number(bubble.dataset.ts)) {
+		bubble.removeAttribute('hidden');
+	}
+	$('#infobubble').on('close.bs.alert', function () {
+		localStorage.setItem('infobubble_dismiss_ts', bubble.dataset.ts);
+	})
+});
 
 // Decode HTML entities (&gt; etc), used for decoding comment markdown from escaped text
 function htmlDecode(input){
