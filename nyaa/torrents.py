@@ -1,6 +1,6 @@
 import base64
 import os
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 import flask
 from flask import current_app as app
@@ -88,7 +88,7 @@ def create_magnet(torrent, max_trackers=5, trackers=None):
         magnet_parts.append(('tr', tracker))
 
     b32_info_hash = base64.b32encode(torrent.info_hash).decode('utf-8')
-    return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts)
+    return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts, quote_via=quote)
 
 
 def create_default_metadata_base(torrent, trackers=None, webseeds=None):
