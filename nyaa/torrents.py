@@ -1,6 +1,6 @@
 import base64
 import os
-from urllib.parse import urlencode, quote
+from urllib.parse import quote, urlencode
 
 import flask
 from flask import current_app as app

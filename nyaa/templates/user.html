@@ -151,6 +151,9 @@
 <div class="row">
 	<h3>
 		Browsing <span class="text-{{ user.userlevel_color }}" data-toggle="tooltip" title="{{ user.userlevel_str }}">{{ user.username }}</span>'{{ '' if user.username[-1] == 's' else 's' }} torrents
+		{% if torrent_query.total is number and not search.term: %}
+		 ({{ torrent_query.total  }})
+		{% endif %}
 	</h3>
 
 {% include "search_results.html" %}
