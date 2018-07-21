@@ -12,7 +12,7 @@
 				{% if torrent.has_torrent and not magnet_links %}
 				<link>{{ url_for('torrents.download', torrent_id=torrent.meta.id, _external=True) }}</link>
 				{% else %}
-				<link>{{ create_magnet_from_es_info(torrent.display_name, torrent.info_hash) }}</link>
+				<link>{{ create_magnet_from_es_torrent(torrent) }}</link>
 				{% endif %}
 				<guid isPermaLink="true">{{ url_for('torrents.view', torrent_id=torrent.meta.id, _external=True) }}</guid>
 				<pubDate>{{ torrent.created_time|rfc822_es }}</pubDate>

@@ -1,4 +1,3 @@
-import base64
 import os
 from urllib.parse import quote, urlencode
 
@@ -84,11 +83,21 @@ def create_magnet(torrent, max_trackers=5, trackers=None):
     magnet_parts = [
         ('dn', torrent.display_name)
     ]
-    for tracker in trackers[:max_trackers]:
-        magnet_parts.append(('tr', tracker))
+    magnet_parts.extend(
+        ('tr', tracker_url)
+        for tracker_url in trackers[:max_trackers]
+    )
 
-    b32_info_hash = base64.b32encode(torrent.info_hash).decode('utf-8')
-    return 'magnet:?xt=urn:btih:' + b32_info_hash + '&' + urlencode(magnet_parts, quote_via=quote)
+    # Since we accept both models.Torrents and ES objects,
+    # we need to make sure the info_hash is a hex string
+    info_hash = torrent.info_hash
+    if isinstance(info_hash, (bytes, bytearray)):
+        info_hash = info_hash.hex()
+
+    return ''.join([
+        'magnet:?xt=urn:btih:', info_hash,
+        '&', urlencode(magnet_parts, quote_via=quote)
+    ])
 
 
 def create_default_metadata_base(torrent, trackers=None, webseeds=None):
