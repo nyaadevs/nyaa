@@ -178,34 +178,47 @@ def profile():
 
     form = forms.ProfileForm(flask.request.form)
 
-    if flask.request.method == 'POST' and form.validate():
-        user = flask.g.user
-        new_email = form.email.data.strip()
-        new_password = form.new_password.data
+    if flask.request.method == 'POST':
+        if form.authorized_submit and form.validate():
+            user = flask.g.user
+            new_email = form.email.data.strip()
+            new_password = form.new_password.data
 
-        if new_email:
-            # enforce password check on email change too
-            if form.current_password.data != user.password_hash:
+            if new_email:
+                if form.current_password.data != user.password_hash:
+                    flask.flash(flask.Markup(
+                        '<strong>Email change failed!</strong> Incorrect password.'), 'danger')
+                    return flask.redirect('/profile')
+                user.email = form.email.data
                 flask.flash(flask.Markup(
-                    '<strong>Email change failed!</strong> Incorrect password.'), 'danger')
-                return flask.redirect('/profile')
-            user.email = form.email.data
-            flask.flash(flask.Markup(
-                '<strong>Email successfully changed!</strong>'), 'success')
-        if new_password:
-            if form.current_password.data != user.password_hash:
+                    '<strong>Email successfully changed!</strong>'), 'success')
+
+            if new_password:
+                if form.current_password.data != user.password_hash:
+                    flask.flash(flask.Markup(
+                        '<strong>Password change failed!</strong> Incorrect password.'), 'danger')
+                    return flask.redirect('/profile')
+                user.password_hash = form.new_password.data
                 flask.flash(flask.Markup(
-                    '<strong>Password change failed!</strong> Incorrect password.'), 'danger')
-                return flask.redirect('/profile')
-            user.password_hash = form.new_password.data
+                    '<strong>Password successfully changed!</strong>'), 'success')
+            db.session.add(user)
+            db.session.commit()
+            flask.g.user = user
+            return flask.redirect('/profile')
+
+        elif form.submit_settings:
+            user = flask.g.user
+            if user.preferences is None:
+                preferences = models.UserPreferences(user.id)
+                db.session.add(preferences)
+                db.session.commit()
+            user.preferences.hide_comments = form.hide_comments.data
             flask.flash(flask.Markup(
-                '<strong>Password successfully changed!</strong>'), 'success')
-
-        db.session.add(user)
-        db.session.commit()
-
-        flask.g.user = user
-        return flask.redirect('/profile')
+                '<strong>Preferences successfully changed!</strong>'), 'success')
+            db.session.add(user)
+            db.session.commit()
+            flask.g.user = user
+            return flask.redirect('/profile')
 
     return flask.render_template('profile.html', form=form)
 

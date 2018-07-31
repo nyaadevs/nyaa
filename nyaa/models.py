@@ -498,6 +498,9 @@ class User(db.Model):
 
     bans = db.relationship('Ban', uselist=True, foreign_keys='Ban.user_id')
 
+    preferences = db.relationship('UserPreferences',
+                                  back_populates='user', uselist=False, lazy='joined')
+
     def __init__(self, username, email, password):
         self.username = username
         self.email = email
@@ -639,6 +642,22 @@ class User(db.Model):
     def created_utc_timestamp(self):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
+
+
+class UserPreferences(db.Model):
+    __tablename__ = 'user_preferences'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+
+    def __init__(self, user_id):
+        self.user_id = user_id
+
+    def __repr__(self):
+        return '<UserPreferences %r>' % self.id
+
+    user = db.relationship('User', back_populates='preferences')
+    hide_comments = db.Column(db.Boolean, nullable=False, default=False)
 
 
 class AdminLogBase(DeclarativeHelperBase):
