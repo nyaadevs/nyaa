@@ -204,6 +204,10 @@ class ProfileForm(FlaskForm):
     ])
 
     password_confirm = PasswordField('Repeat New Password')
+    hide_comments = BooleanField('Hide comments by default')
+
+    authorized_submit = SubmitField('Update')
+    submit_settings = SubmitField('Update')
 
 
 # Classes for a SelectField that can be set to disable options (id, name, disabled)

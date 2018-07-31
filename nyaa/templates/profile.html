@@ -6,16 +6,16 @@
 <h2 style="margin-bottom: 20px;">Profile of <strong class="text-{{ g.user.userlevel_color }}">{{ g.user.username }}</strong></h2>
 
 <div class="row" style="margin-bottom: 20px;">
-	<div class="col-sm-2" style="max-width: 150px;">
-		<img class="avatar" src="{{ g.user.gravatar_url() }}">
-	</div>
-	<div class="col-sm-10">
-		<dl class="row" style="margin: 20px 0 15px 0;">
-			<dt class="col-sm-2">User ID:</dt><dd class="col-sm-10">{{ g.user.id }}</dd>
-			<dt class="col-sm-2">User Class:</dt><dd class="col-sm-10">{{ g.user.userlevel_str }}</dd>
-			<dt class="col-sm-2">User Created on:</dt><dd class="col-sm-10">{{ g.user.created_time }}</dd>
-		</dl>
-	</div>
+    <div class="col-sm-2" style="max-width: 150px;">
+        <img class="avatar" src="{{ g.user.gravatar_url() }}">
+    </div>
+    <div class="col-sm-10">
+        <dl class="row" style="margin: 20px 0 15px 0;">
+            <dt class="col-sm-2">User ID:</dt><dd class="col-sm-10">{{ g.user.id }}</dd>
+            <dt class="col-sm-2">User Class:</dt><dd class="col-sm-10">{{ g.user.userlevel_str }}</dd>
+            <dt class="col-sm-2">User Created on:</dt><dd class="col-sm-10">{{ g.user.created_time }}</dd>
+        </dl>
+    </div>
 </div>
 
 <ul class="nav nav-tabs" id="profileTabs" role="tablist">
@@ -24,6 +24,9 @@
     </li>
     <li role="presentation">
         <a href="#email-change" id="email-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Email</a>
+    </li>
+    <li role="presentation">
+        <a href="#preferences-change" id="preferences-change-tab" role="tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">Preferences</a>
     </li>
 </ul>
 
@@ -48,7 +51,7 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <input type="submit" value="Update" class="btn btn-primary">
+                    {{ form.authorized_submit(class_='btn btn-primary') }}
                 </div>
             </div>
         </form>
@@ -74,9 +77,29 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <input type="submit" value="Update" class="btn btn-primary">
+                    {{ form.authorized_submit(class_='btn btn-primary') }}
                 </div>
             </div>
+        </form>
+    </div>
+    <div class="tab-pane fade" role="tabpanel" id="preferences-change" aria-labelledby="preferences-change-tab">
+        <form method="POST">
+            {{ form.csrf_token }}
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        {% if g.user.preferences.hide_comments %}
+                            {{ form.hide_comments(checked='') }}
+                        {% else %}
+                            {{ form.hide_comments }}
+                        {% endif %}
+                            {{ form.hide_comments.label }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form.submit_settings(class_='btn btn-primary') }}
+                    </div>
+                </div>
         </form>
     </div>
 </div>
