@@ -14,6 +14,9 @@ from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, 
 from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
 from wtforms.widgets import HTMLString, html_params  # For DisabledSelectField
 
+import dns.exception
+import dns.resolver
+
 from nyaa import bencode, models, utils
 from nyaa.extensions import config
 from nyaa.models import User
@@ -69,7 +72,7 @@ def upload_recaptcha_validator_shim(form, field):
         return True
 
 
-def register_email_validator(form, field):
+def register_email_blacklist_validator(form, field):
     email_blacklist = app.config.get('EMAIL_BLACKLIST', [])
     email = field.data.strip()
     validation_exception = StopValidation('Blacklisted email provider')
@@ -83,6 +86,42 @@ def register_email_validator(form, field):
                 raise validation_exception
         else:
             raise Exception('Unexpected email validator type {!r} ({!r})'.format(type(item), item))
+    return True
+
+
+def register_email_server_validator(form, field):
+    server_blacklist = app.config.get('EMAIL_SERVER_BLACKLIST', [])
+    if not server_blacklist:
+        return True
+
+    validation_exception = StopValidation('Blacklisted email provider')
+    email = field.data.strip()
+    email_domain = email.split('@', 1)[-1]
+
+    try:
+        # Query domain MX records
+        mx_records = list(dns.resolver.query(email_domain, 'MX'))
+
+    except dns.exception.DNSException:
+        app.logger.error('Unable to query MX records for email: %s - ignoring',
+                         email, exc_info=False)
+        return True
+
+    for mx_record in mx_records:
+        try:
+            # Query mailserver A records
+            a_records = list(dns.resolver.query(mx_record.exchange))
+            for a_record in a_records:
+                # Check for address in blacklist
+                if a_record.address in server_blacklist:
+                    app.logger.warning('Rejected email %s due to blacklisted mailserver (%s, %s)',
+                                       email, a_record.address, mx_record.exchange)
+                    raise validation_exception
+
+        except dns.exception.DNSException:
+            app.logger.warning('Failed to query A records for mailserver: %s (%s) - ignoring',
+                               mx_record.exchange, email, exc_info=False)
+
     return True
 
 
@@ -129,8 +168,9 @@ class RegisterForm(FlaskForm):
         Email(),
         DataRequired(),
         Length(min=5, max=128),
-        register_email_validator,
-        Unique(User, User.email, 'Email already in use by another account')
+        register_email_blacklist_validator,
+        Unique(User, User.email, 'Email already in use by another account'),
+        register_email_server_validator
     ])
 
     password = PasswordField('Password', [

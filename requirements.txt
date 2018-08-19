@@ -6,6 +6,7 @@ blinker==1.4
 cffi==1.10.0
 click==6.7
 dominate==2.3.1
+dnspython==1.15.0
 elasticsearch==5.3.0
 elasticsearch-dsl==5.2.0
 flake8==3.3.0
