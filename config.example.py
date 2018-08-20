@@ -59,6 +59,11 @@ EMAIL_BLACKLIST = (
     re.compile(r'(?i)@(msn\.com|passport\.(com|net))'),
     # '@dodgydomain.tk'
 )
+EMAIL_SERVER_BLACKLIST = (
+    # Bad mailserver IPs here (MX server.com -> A mail.server.com > 11.22.33.44)
+    # '1.2.3.4', '11.22.33.44'
+)
+
 
 
 # Recaptcha keys (https://www.google.com/recaptcha)
