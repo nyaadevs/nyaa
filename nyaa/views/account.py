@@ -211,14 +211,22 @@ def profile():
 
 
 def redirect_url():
-    home_url = flask.url_for('main.home')
+    next_url = flask.request.args.get('next', '')
+    referrer = flask.request.referrer or ''
 
-    url = flask.request.args.get('next') or \
-        flask.request.referrer or \
-        home_url
-    if url == flask.request.url:
-        return home_url
-    return url
+    target_url = (
+        # Use ?next= param if it's a local (/foo/bar) path
+        (next_url.startswith('/') and next_url) or
+        # Use referrer if it's on our own host
+        (referrer.startswith(flask.request.host_url) and referrer)
+    )
+
+    # Return the target, avoiding infinite loops
+    if target_url and target_url != flask.request.url:
+        return target_url
+
+    # Default to index
+    return flask.url_for('main.home')
 
 
 def send_verification_email(user):
