@@ -216,8 +216,10 @@ def redirect_url():
     url = flask.request.args.get('next') or \
         flask.request.referrer or \
         home_url
-    if url == flask.request.url:
+
+    if url == flask.request.url or not flask.request.host in url:
         return home_url
+
     return url
 
 

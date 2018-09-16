@@ -2,6 +2,9 @@
 __pycache__
 /nyaa/static/.webassets-cache
 
+# Byte Code
+*.pyc
+
 # Virtual Environments
 /venv
 
