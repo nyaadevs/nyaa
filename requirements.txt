@@ -19,8 +19,8 @@ flask-paginate==0.4.5
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.2
 Flask-WTF==0.14.2
-gevent==1.2.1
-greenlet==0.4.12
+gevent==1.3.7
+greenlet==0.4.15
 isort==4.2.15
 itsdangerous==0.24
 Jinja2==2.9.6
@@ -29,7 +29,7 @@ Mako==1.0.6
 MarkupSafe==1.0
 mysql-replication==0.13
 mysqlclient==1.3.10
-orderedset==2.0
+orderedset==2.0.1
 packaging==16.8
 passlib==1.7.1
 progressbar33==2.4
