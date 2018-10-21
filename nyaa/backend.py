@@ -14,6 +14,21 @@ from nyaa.extensions import db
 
 app = flask.current_app
 
+# Blacklists for _validate_torrent_filenames
+# TODO: consider moving to config.py?
+CHARACTER_BLACKLIST = [
+    '\u202E',  # RIGHT-TO-LEFT OVERRIDE
+]
+FILENAME_BLACKLIST = [
+    # Windows reserved filenames
+    'con',
+    'nul',
+    'prn',
+    'aux',
+    'com0', 'com1', 'com2', 'com3', 'com4', 'com5', 'com6', 'com7', 'com8', 'com9',
+    'lpt0', 'lpt1', 'lpt2', 'lpt3', 'lpt4', 'lpt5', 'lpt6', 'lpt7', 'lpt8', 'lpt9',
+]
+
 
 class TorrentExtraValidationException(Exception):
     def __init__(self, errors={}):
@@ -62,16 +77,14 @@ def _recursive_dict_iterator(source):
 
 
 def _validate_torrent_filenames(torrent):
-    ''' Checks path parts of a torrent's filetree against blacklisted characters,
-        returning False on rejection '''
-    # TODO Move to config.py
-    character_blacklist = [
-        '\u202E',  # RIGHT-TO-LEFT OVERRIDE
-    ]
+    ''' Checks path parts of a torrent's filetree against blacklisted characters
+        and filenames, returning False on rejection '''
     file_tree = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
     for path_part, value in _recursive_dict_iterator(file_tree):
-        if any(True for c in character_blacklist if c in path_part):
+        if path_part.rsplit('.', 1)[0].lower() in FILENAME_BLACKLIST:
+            return False
+        if any(True for c in CHARACTER_BLACKLIST if c in path_part):
             return False
 
     return True
