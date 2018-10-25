@@ -208,7 +208,7 @@ def view_user_comments(user_name):
         flask.abort(404)
 
     # Only moderators get to see all comments for now
-    if user == flask.g.user: 
+    if user == flask.g.user:
         pass
     elif not flask.g.user or not flask.g.user.is_moderator:
         flask.abort(403)
@@ -228,9 +228,11 @@ def view_user_comments(user_name):
                                  comments_query=comments_query,
                                  user=user)
 
+
 @bp.route('/profile/comments')
 def view_own_comments():
     return view_user_comments(flask.g.user.username)
+
 
 @bp.route('/user/activate/<payload>')
 def activate_user(payload):
