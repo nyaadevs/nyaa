@@ -40,6 +40,7 @@
 			<nyaa:categoryId>{{- cat_id }}</nyaa:categoryId>
 			<nyaa:category>  {{- category_name(cat_id) }}</nyaa:category>
 			<nyaa:size>      {{- torrent.filesize | filesizeformat(True) }}</nyaa:size>
+			<nyaa:comments>  {{- torrent.comment_count }}</nyaa:comments>
 			{% set torrent_id = use_elastic and torrent.meta.id or torrent.id %}
 			<description><![CDATA[<a href="{{ url_for('torrents.view', torrent_id=torrent_id, _external=True) }}">#{{ torrent_id }} | {{ torrent.display_name }}</a> | {{ torrent.filesize | filesizeformat(True) }} | {{ category_name(cat_id) }} | {{ use_elastic and torrent.info_hash or torrent.info_hash_as_hex | upper }}]]></description>
 		</item>
