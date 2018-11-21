@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% from "_formhelpers.html" import render_field %}
+{% block title %}Apply for Trusted :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+<div class="content">
+	{% if trusted_form %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>You are eligible to apply for trusted status</h1>
+		</div>
+	</div>
+	<form class="trusted-form" method="POST">
+		{{ trusted_form.csrf_token }}
+		<div class="row">
+			<div class="col-md-6">
+				{{ render_field(trusted_form.why_give_trusted, class_='form-control') }}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				{{ render_field(trusted_form.why_want_trusted, class_='form-control') }}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<input type="submit" value="Submit" class="btn btn-success btn-sm">
+			</div>
+		</div>
+	</form>
+	{% else %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>You are currently not eligible to apply for trusted status</h1>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<p>
+				You currently are not eligible to apply for trusted status for the following
+				reason{% if deny_reasons|length > 1 %}s{% endif %}:
+			</p>
+			<ul>
+				{% for reason in deny_reasons %}
+				<li>{{ reason }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}

@@ -176,3 +176,15 @@ EDITING_TIME_LIMIT = 0
 # Whether to use Gravatar or just always use the default avatar
 # (Useful if run as development instance behind NAT/firewall)
 ENABLE_GRAVATAR = True
+
+##########################
+## Trusted Requirements ##
+##########################
+
+# Minimum number of uploads the user needs to have in order to apply for trusted
+TRUSTED_MIN_UPLOADS = 10
+# Minimum number of cumulative downloads the user needs to have across their
+# torrents in order to apply for trusted
+TRUSTED_MIN_DOWNLOADS = 10000
+# Number of days an applicant needs to wait before re-applying
+TRUSTED_REAPPLY_COOLDOWN = 90

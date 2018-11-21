@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% from "_formhelpers.html" import render_field, render_menu_with_button %}
+{%- macro review_class(rec) -%}
+{%- if rec.name == 'ACCEPT' -%}
+{{ 'panel-success' -}}
+{%- elif rec.name == 'REJECT' -%}
+{{ 'panel-danger' -}}
+{%- elif rec.name == 'ABSTAIN' -%}
+{{ 'panel-default' -}}
+{%- endif -%}
+{%- endmacro -%}
+{% block title %}{{ app.submitter.username }}'s Application :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">{{ app.submitter.username }}'s Application</h3>
+	</div>
+	<div class="panel-body">
+		<div class="row">
+			<dl>
+				<div class="col-xs-4 col-sm-2 col-md-2">
+					<dt>Submitter</dt>
+					<dd>
+						<a href="{{ url_for('users.view_user', user_name=app.submitter.username) }}">
+							{{ app.submitter.username }}
+						</a>
+					</dd>
+				</div>
+				<div class="col-xs-4 col-sm-2 col-md-2">
+					<dt>Submitted on</dt>
+					<dd data-timestamp="{{ app.created_utc_timestamp | int }}">
+						{{ app.created_time.strftime('%Y-%m-%d %H:%M') }}
+					</dd>
+				</div>
+				<div class="col-xs-4 col-sm-2 col-md-2">
+					<dt>Status</dt>
+					<dd>{{ app.status.name.capitalize() }}</dd>
+				</div>
+			</dl>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-md-12">
+				<h4>Why do you think you should be given trusted status?</h4>
+				<div class="panel panel-default">
+					<div class="panel-body" markdown-text markdown-no-images>
+						{{- app.why_give | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<h4>Why do you want to become a trusted user?</h4>
+				<div class="panel panel-default">
+					<div class="panel-body" markdown-text markdown-no-images>
+						{{- app.why_want | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{%- if decision_form -%}
+	<div class="panel-footer">
+		<form method="POST">
+			{{ decision_form.csrf_token }}
+			<div class="btn-group" role="group" aria-label="Decision">
+				{{ decision_form.reject(class="btn btn-danger") }}
+				{{ decision_form.accept(class="btn btn-success") }}
+			</div>
+		</form>
+	</div>
+	{%- endif -%}
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">Reviews - {{ app.reviews | length }}</h3>
+	</div>
+	<div class="panel-body">
+		{% for rev in app.reviews %}
+		<div class="panel {{ review_class(rev.recommendation) -}}">
+			<div class="panel-heading">
+				<h3 class="panel-title">{{ rev.reviewer.username }}'s Review</h3>
+			</div>
+			<div class="panel-body">
+				<div markdown-text>
+					{{- rev.comment | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}
+				</div>
+			</div>
+			<div class="panel-footer">
+				{%- if rev.recommendation.name == 'ABSTAIN' -%}
+				{{ rev.reviewer.username }} does not give an explicit recommendation.
+				{%- else -%}
+				{{ rev.reviewer.username }} recommends to <strong>{{ rev.recommendation.name.lower() }}</strong> this application.
+				{%- endif -%}
+			</div>
+		</div>
+		{% endfor %}
+		<form method="POST">
+			{{ review_form.csrf_token }}
+			<div class="row">
+				<div class="col-xs-12 col-md-8 col-sm-10">
+					{{ render_field(review_form.comment, class_="form-control") }}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-3">
+					{{ render_menu_with_button(review_form.recommendation, 'Submit') }}
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}
