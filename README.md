@@ -1,6 +1,23 @@
 # NyaaV2 [![Build Status](https://travis-ci.org/nyaadevs/nyaa.svg?branch=master)](https://travis-ci.org/nyaadevs/nyaa)
 
 ## Setting up for development
+### Vagrant
+
+The easiest way to start developing is by using Vagrant. Install Vagrant and Virtualbox, and then `cd` into the project directory and run `vagrant up`. This will create and configure a virtual machine. To start the server run:
+
+1. `vagrant ssh` - connect to the virtual machine
+
+2. `su` and enter a blank password for root - login as root
+3. `cd /vagrant` - change directory to the project directory
+4. `pyenv activate nyaa` - activate the virtual environment for python
+5. `python run.py` - run the server
+
+When you finish developing, simply Control + C to stop the server, then `exit` to close ssh connection and then `vagrant halt` to shutdown the virtual machine. To start it again, `cd` into the project directory and run `vagrant up`. 
+
+Note: currently elasticsearch is not supported out of the box.
+
+### Manual
+
 This project uses Python 3.6. There are features used that do not exist in 3.5, so make sure to use Python 3.6.   
 This guide also assumes you 1) are using Linux and 2) are somewhat capable with the commandline.   
 It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that.

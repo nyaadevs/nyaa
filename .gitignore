@@ -1,9 +1,14 @@
 # Cache
 __pycache__
 /nyaa/static/.webassets-cache
+/nyaa/*.pyc
 
 # Virtual Environments
 /venv
+
+# Vagrant
+/.vagrant
+ubuntu-bionic-18.04-cloudimg-console.log
 
 # Coverage
 .coverage
