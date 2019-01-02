@@ -172,7 +172,11 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
             raise TorrentExtraValidationException()
 
     if not uploading_user:
-        if models.RangeBan.is_rangebanned(ip_address(flask.request.remote_addr).packed):
+        if app.config['RAID_MODE_LIMIT_UPLOADS']:
+            # XXX TODO: rename rangebanned to something more generic
+            upload_form.rangebanned.errors = [app.config['RAID_MODE_UPLOADS_MESSAGE']]
+            raise TorrentExtraValidationException()
+        elif models.RangeBan.is_rangebanned(ip_address(flask.request.remote_addr).packed):
             upload_form.rangebanned.errors = ["Your IP is banned from "
                                               "uploading anonymously."]
             raise TorrentExtraValidationException()
