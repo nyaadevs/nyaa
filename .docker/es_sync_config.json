@@ -1,0 +1,11 @@
+{
+    "save_loc": "/elasticsearch-sync/pos.json",
+    "mysql_host": "mariadb",
+    "mysql_port": 3306,
+    "mysql_user": "nyaadev",
+    "mysql_password": "ZmtB2oihHFvc39JaEDoF",
+    "database": "nyaav2",
+    "internal_queue_depth": 10000,
+    "es_chunk_size": 10000,
+    "flush_interval": 5
+}
