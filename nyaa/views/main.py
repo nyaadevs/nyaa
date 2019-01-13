@@ -18,6 +18,12 @@ app = flask.current_app
 bp = flask.Blueprint('main', __name__)
 
 
+# Invalid RSS characters stripper.
+_illegal_xml_chars_RE = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+def escape_xml_illegal_chars(val, replacement='?'):
+    return _illegal_xml_chars_RE.sub(replacement, val)
+
+
 @bp.app_errorhandler(404)
 def not_found(error):
     return flask.render_template('404.html'), 404
@@ -204,6 +210,10 @@ def home(rss):
 
 
 def render_rss(label, query, use_elastic, magnet_links=False):
+    # Strip invalid XML characters from title.
+    for item in query :
+        item.display_name = escape_xml_illegal_chars(item.display_name)
+
     rss_xml = flask.render_template('rss.xml',
                                     use_elastic=use_elastic,
                                     magnet_links=magnet_links,
