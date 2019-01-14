@@ -31,6 +31,10 @@ The environment includes:
 MariaDB, ElasticSearch, the sync process, and uploaded torrents will
 persistently store their data in volumes which makes future start ups faster.
 
+The docker environment includes 2 pre-created users:
+  - testadmin:testadmin (id=1)
+  - testuser:testuser (id=2)
+
 To make it more useful to develop with, you can copy `.docker/full-stack.yml` and
 edit the copy and uncomment the `- "${NYAA_SRC_DIR}:/nyaa"` line, then
 `export NYAA_SRC_DIR=$(pwd)` and start up the environment using the new compose
