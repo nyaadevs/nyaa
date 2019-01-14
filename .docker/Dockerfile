@@ -1,5 +1,4 @@
 FROM ubuntu:18.04
-MAINTAINER Alex Headley <aheadley@waysaboutstuff.com>
 
 ENV LANG=en_US.utf-8 LC_ALL=en_US.utf-8 DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update
