@@ -13,5 +13,5 @@ if app.config['DEBUG']:
 
 if __name__ == '__main__':
     import gevent.pywsgi
-    gevent_server = gevent.pywsgi.WSGIServer(("0.0.0.0", 5000), app.wsgi_app)
+    gevent_server = gevent.pywsgi.WSGIServer(("localhost", 5000), app.wsgi_app)
     gevent_server.serve_forever()
