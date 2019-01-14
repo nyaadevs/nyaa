@@ -11,6 +11,7 @@ services:
       - '../nyaa/static:/nyaa-static:ro'
     depends_on:
       - nyaa-flask
+      - kibana
 
   nyaa-flask:
     image: local/nyaa:devel
@@ -23,7 +24,6 @@ services:
     depends_on:
       - mariadb
       - elasticsearch
-      - chihaya
     build:
       context: ../
       dockerfile: ./.docker/Dockerfile
@@ -32,7 +32,7 @@ services:
     image: local/nyaa:devel
     volumes:
       - 'nyaa-sync-data:/elasticsearch-sync'
-    command: /usr/bin/python3 /nyaa/sync_es.py /nyaa/.docker/es_sync_config.json
+    command: /nyaa/.docker/entrypoint-sync.sh
     depends_on:
       - mariadb
       - elasticsearch
@@ -63,11 +63,6 @@ services:
       - './kibana.config.yml:/usr/share/kibana/config/kibana.yml:ro'
     depends_on:
       - elasticsearch
-
-  chihaya:
-    image: quay.io/jzelinskie/chihaya-git:latest
-    volumes:
-      - './chihaya.config.yaml:/etc/chihaya.yaml:ro'
 
 volumes:
   nyaa-torrents:

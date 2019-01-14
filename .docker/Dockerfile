@@ -4,7 +4,7 @@ ENV LANG=en_US.utf-8 LC_ALL=en_US.utf-8 DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update
 
 COPY ./ /nyaa/
-COPY ./.docker/config.py /nyaa/config.py
+RUN cat /nyaa/config.example.py /nyaa/.docker/nyaa-config-partial.py > /nyaa/config.py
 
 # Requirements for running the Flask app
 RUN apt-get -y install build-essential git python3 python3-pip libmysqlclient-dev curl
