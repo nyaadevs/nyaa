@@ -16,7 +16,8 @@ services:
     image: local/nyaa:devel
     volumes:
       - 'nyaa-torrents:/nyaa-torrents'
-      ## Uncomment this section to have to mount the local dir to the running
+      - 'nyaa-sync-data:/elasticsearch-sync'
+      ## Uncomment this line to have to mount the local dir to the running
       ## instance for live changes (after setting NYAA_SRC_DIR env var)
       # - "${NYAA_SRC_DIR}:/nyaa"
     depends_on:
@@ -41,7 +42,8 @@ services:
     image: mariadb:10.0
     volumes:
       - './mariadb-init-sql:/docker-entrypoint-initdb.d:ro'
-      # - 'mariadb-data:/var/lib/mysql'
+      - '../configs/my.cnf:/etc/mysql/conf.d/50-binlog.cnf:ro'
+      - 'mariadb-data:/var/lib/mysql'
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_USER=nyaadev
@@ -50,8 +52,8 @@ services:
 
   elasticsearch:
     image: elasticsearch:6.5.4
-    # volumes:
-    #   - elasticsearch-data:/usr/share/elasticsearch/data
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     depends_on:
       - mariadb
 
