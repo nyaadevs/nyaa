@@ -1,0 +1,9 @@
+---
+
+server.name: kibana
+server.host: 'kibana'
+server.basePath: /kibana
+# server.rewriteBasePath: true
+# server.defaultRoute: /kibana/app/kibana
+elasticsearch.url: http://elasticsearch:9200
+xpack.monitoring.ui.container.elasticsearch.enabled: true

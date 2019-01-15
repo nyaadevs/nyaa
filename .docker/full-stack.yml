@@ -1,0 +1,71 @@
+---
+
+version: "3"
+services:
+  nginx:
+    image: nginx:1.15-alpine
+    ports:
+      - '8080:80'
+    volumes:
+      - './nginx.conf:/etc/nginx/nginx.conf:ro'
+      - '../nyaa/static:/nyaa-static:ro'
+    depends_on:
+      - nyaa-flask
+      - kibana
+
+  nyaa-flask:
+    image: local/nyaa:devel
+    volumes:
+      - 'nyaa-torrents:/nyaa-torrents'
+      - 'nyaa-sync-data:/elasticsearch-sync'
+      ## Uncomment this line to have to mount the local dir to the running
+      ## instance for live changes (after setting NYAA_SRC_DIR env var)
+      # - "${NYAA_SRC_DIR}:/nyaa"
+    depends_on:
+      - mariadb
+      - elasticsearch
+    build:
+      context: ../
+      dockerfile: ./.docker/Dockerfile
+
+  nyaa-sync:
+    image: local/nyaa:devel
+    volumes:
+      - 'nyaa-sync-data:/elasticsearch-sync'
+    command: /nyaa/.docker/entrypoint-sync.sh
+    depends_on:
+      - mariadb
+      - elasticsearch
+    restart: on-failure
+
+  mariadb:
+    image: mariadb:10.0
+    volumes:
+      - './mariadb-init-sql:/docker-entrypoint-initdb.d:ro'
+      - '../configs/my.cnf:/etc/mysql/conf.d/50-binlog.cnf:ro'
+      - 'mariadb-data:/var/lib/mysql'
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_USER=nyaadev
+      - MYSQL_PASSWORD=ZmtB2oihHFvc39JaEDoF
+      - MYSQL_DATABASE=nyaav2
+
+  elasticsearch:
+    image: elasticsearch:6.5.4
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    depends_on:
+      - mariadb
+
+  kibana:
+    image: kibana:6.5.4
+    volumes:
+      - './kibana.config.yml:/usr/share/kibana/config/kibana.yml:ro'
+    depends_on:
+      - elasticsearch
+
+volumes:
+  nyaa-torrents:
+  nyaa-sync-data:
+  mariadb-data:
+  elasticsearch-data:
