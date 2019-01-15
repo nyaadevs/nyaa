@@ -106,9 +106,9 @@ def edit_torrent(torrent_id):
         # Form has been sent, edit torrent with data.
         torrent.main_category_id, torrent.sub_category_id = \
             form.category.parsed_data.get_category_ids()
-        torrent.display_name = (form.display_name.data or '').strip()
-        torrent.information = (form.information.data or '').strip()
-        torrent.description = (form.description.data or '').strip()
+        torrent.display_name = backend.sanitize_string((form.display_name.data or '').strip())
+        torrent.information = backend.sanitize_string((form.information.data or '').strip())
+        torrent.description = backend.sanitize_string((form.description.data or '').strip())
 
         torrent.hidden = form.is_hidden.data
         torrent.remake = form.is_remake.data

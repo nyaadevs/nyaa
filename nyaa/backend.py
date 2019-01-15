@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from ipaddress import ip_address
 
@@ -28,6 +29,14 @@ FILENAME_BLACKLIST = [
     'com0', 'com1', 'com2', 'com3', 'com4', 'com5', 'com6', 'com7', 'com8', 'com9',
     'lpt0', 'lpt1', 'lpt2', 'lpt3', 'lpt4', 'lpt5', 'lpt6', 'lpt7', 'lpt8', 'lpt9',
 ]
+
+# Invalid RSS characters regex, used to sanitize some strings
+ILLEGAL_XML_CHARS_RE = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+
+
+def sanitize_string(string, replacement='\uFFFD'):
+    ''' Simply replaces characters based on a regex '''
+    return ILLEGAL_XML_CHARS_RE.sub(replacement, string)
 
 
 class TorrentExtraValidationException(Exception):
@@ -199,6 +208,11 @@ def handle_torrent_upload(upload_form, uploading_user=None, fromAPI=False):
     display_name = upload_form.display_name.data.strip() or info_dict['name'].decode('utf8').strip()
     information = (upload_form.information.data or '').strip()
     description = (upload_form.description.data or '').strip()
+
+    # Sanitize fields
+    display_name = sanitize_string(display_name)
+    information = sanitize_string(information)
+    description = sanitize_string(description)
 
     torrent_filesize = info_dict.get('length') or sum(
         f['length'] for f in info_dict.get('files'))
