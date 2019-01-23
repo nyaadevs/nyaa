@@ -93,7 +93,7 @@
 	</div>
 </div>
 
-{% cache 3600, "filelist", torrent.info_hash_as_hex %}
+{% cache 86400, "filelist", torrent.info_hash_as_hex %}
 {% if files and files.__len__() <= config.MAX_FILES_VIEW %}
 <div class="panel panel-default">
 	<div class="panel-heading">
