@@ -26,6 +26,9 @@ def login():
             return flask.redirect(flask.url_for('account.login'))
 
         username = form.username.data.strip()
+        if not username.isascii():
+            flask.flash('Invalid characters in username.', 'danger')
+            return flask.redirect(flask.url_for('account.login'))
         password = form.password.data
         user = models.User.by_username(username)
 
