@@ -175,7 +175,7 @@
 				<div class="row">
 					{# Escape newlines into html entities because CF strips blank newlines #}
 					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</div>
-					{% if g.user.id == comment.user_id %}
+					{% if g.user.id == comment.user_id and comment_form %}
 					<form class="edit-comment-box" action="{{ url_for('torrents.edit_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 						{{ comment_form.csrf_token }}
 						<div class="form-group">
