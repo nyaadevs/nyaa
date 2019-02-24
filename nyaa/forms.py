@@ -78,7 +78,7 @@ def register_email_blacklist_validator(form, field):
     validation_exception = StopValidation('Blacklisted email provider')
 
     for item in email_blacklist:
-        if isinstance(item, re._pattern_type):
+        if isinstance(item, re.Pattern):
             if item.search(email):
                 raise validation_exception
         elif isinstance(item, str):
