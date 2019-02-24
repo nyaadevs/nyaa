@@ -154,7 +154,7 @@ def password_reset(payload=None):
         s = get_serializer()
         try:
             request_timestamp, pw_hash, user_id = s.loads(payload)
-        except:
+        except Exception:
             return flask.abort(404)
 
         user = models.User.by_id(user_id)

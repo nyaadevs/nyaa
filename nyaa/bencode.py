@@ -67,7 +67,7 @@ def _bencode_decode(file_object, decode_keys_as_utf8=True):
             elif c == _B_END:
                 try:
                     return int(int_bytes.decode('utf8'))
-                except Exception as e:
+                except Exception:
                     raise create_ex('Unable to parse int')
 
             # not a digit OR '-' in the middle of the int
@@ -109,7 +109,7 @@ def _bencode_decode(file_object, decode_keys_as_utf8=True):
                 raise create_ex('Unexpected input while reading string length: ' + repr(c))
         try:
             str_len = int(str_len_bytes.decode())
-        except Exception as e:
+        except Exception:
             raise create_ex('Unable to parse bytestring length')
 
         bytestring = file_object.read(str_len)
