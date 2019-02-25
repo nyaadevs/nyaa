@@ -37,6 +37,16 @@ class TestBackend(unittest.TestCase):
         self.assertTrue(backend._replace_utf8_values(test_dict))
         self.assertDictEqual(test_dict, expected_dict)
 
+    def test_replace_invalid_xml_chars(self):
+        self.assertEqual(backend.sanitize_string('ayy\x08lmao'), 'ayy\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('ayy\x0clmao'), 'ayy\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('ayy\uD8FFlmao'), 'ayy\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('ayy\uFFFElmao'), 'ayy\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('\x08ayy\x0clmao'), '\uFFFDayy\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('ayy\x08\x0clmao'), 'ayy\uFFFD\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('ayy\x08\x08lmao'), 'ayy\uFFFD\uFFFDlmao')
+        self.assertEqual(backend.sanitize_string('ぼくのぴこ'), 'ぼくのぴこ')
+
     @unittest.skip('Not yet implemented')
     def test_handle_torrent_upload(self):
         pass
