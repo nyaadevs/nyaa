@@ -149,6 +149,9 @@ BACKUP_TORRENT_FOLDER = 'torrents'
 # How many results should a page contain. Applies to RSS as well.
 RESULTS_PER_PAGE = 75
 
+# How many pages we'll return at most
+MAX_PAGES = 100
+
 # Use better searching with ElasticSearch
 # See README.MD on setup!
 USE_ELASTIC_SEARCH = False
