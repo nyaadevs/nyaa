@@ -27,6 +27,8 @@ def fix_paginate():
             total_query_count = count_query.scalar()
         else:
             total_query_count = self.count()
+        if max_page:
+            total_query_count = min(total_query_count, max_page * per_page)
 
         # Grab items on current page
         items = self.limit(per_page).offset((page - 1) * per_page).all()

@@ -511,7 +511,6 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
             if len(item) >= 2:
                 qpc.filter(FullTextSearch(
                     item, models.TorrentNameSearch, FullTextMode.NATURAL))
-
     query, count_query = qpc.items
     # Sort and order
     if sort_column.class_ != models.Torrent:
