@@ -374,6 +374,14 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
     MAX_PAGES = app.config.get("MAX_PAGES", 0)
 
+    same_user = False
+    if logged_in_user:
+        same_user = logged_in_user.id == user
+
+    # Logged in users should always be able to view their full listing.
+    if same_user:
+        MAX_PAGES = 0
+
     if MAX_PAGES and page > MAX_PAGES:
         flask.abort(flask.Response("You've exceeded the maximum number of pages. Please "
                                    "make your search query less broad.", 403))
@@ -445,10 +453,6 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     if rss:
         sort_column = sort_keys['id']
         order = 'desc'
-
-    same_user = False
-    if logged_in_user:
-        same_user = logged_in_user.id == user
 
     model_class = models.TorrentNameSearch if term else models.Torrent
 
