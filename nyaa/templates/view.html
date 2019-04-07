@@ -140,7 +140,7 @@
 	<div class="panel-heading">
 		<a data-toggle="collapse" href="#collapse-comments" role="button" aria-expanded="{% if g.user and g.user.preferences.hide_comments %}false{% else %}true{% endif %}" aria-controls="collapse-comments">
 		<h3 class="panel-title">
-			Comments - {{ comments | length }}
+			Comments - {{ torrent.comment_count }}
 		</h3>
 		</a>
 	</div>

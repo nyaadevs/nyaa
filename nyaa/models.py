@@ -192,7 +192,7 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def comments(cls):
         return db.relationship(cls._flavor_prefix('Comment'), uselist=True,
-                               cascade="all, delete-orphan")
+                               cascade="all, delete-orphan", lazy='noload')
 
     def __repr__(self):
         return '<{0} #{1.id} \'{1.display_name}\' {1.filesize}b>'.format(type(self).__name__, self)
@@ -435,7 +435,7 @@ class CommentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def torrent(cls):
         return db.relationship(cls._flavor_prefix('Torrent'), uselist=False,
-                               back_populates='comments', lazy="joined")
+                               back_populates='comments', lazy="noload")
 
     def __repr__(self):
         return '<Comment %r>' % self.id
@@ -499,7 +499,7 @@ class User(db.Model):
     bans = db.relationship('Ban', uselist=True, foreign_keys='Ban.user_id')
 
     preferences = db.relationship('UserPreferences',
-                                  back_populates='user', uselist=False, lazy='joined')
+                                  back_populates='user', uselist=False, lazy='select')
 
     def __init__(self, username, email, password):
         self.username = username
