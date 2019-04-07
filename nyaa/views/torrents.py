@@ -21,10 +21,12 @@ def view_torrent(torrent_id):
         torrent = models.Torrent.by_id(torrent_id)
     else:
         torrent = models.Torrent.query \
-                                .options(joinedload('filelist'),
-                                         joinedload('comments')) \
+                                .options(joinedload('filelist')) \
                                 .filter_by(id=torrent_id) \
                                 .first()
+        comments = models.Comment.query \
+                                 .filter_by(torrent_id=torrent_id)
+
     if not torrent:
         flask.abort(404)
 
@@ -71,7 +73,7 @@ def view_torrent(torrent_id):
     return flask.render_template('view.html', torrent=torrent,
                                  files=files,
                                  comment_form=comment_form,
-                                 comments=torrent.comments,
+                                 comments=comments,
                                  can_edit=can_edit,
                                  report_form=report_form)
 
