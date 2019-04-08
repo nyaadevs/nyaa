@@ -13,6 +13,12 @@ toolbar = DebugToolbarExtension()
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
+class LimitedPagination(Pagination):
+    def __init__(self, actual_count, *args, **kwargs):
+        self.actual_count = actual_count
+        super().__init__(*args, **kwargs)
+
+
 def fix_paginate():
 
     def paginate_faste(self, page=1, per_page=50, max_page=None, step=5, count_query=None):
@@ -27,6 +33,7 @@ def fix_paginate():
             total_query_count = count_query.scalar()
         else:
             total_query_count = self.count()
+        actual_query_count = total_query_count
         if max_page:
             total_query_count = min(total_query_count, max_page * per_page)
 
@@ -36,7 +43,8 @@ def fix_paginate():
         if not items and page != 1:
             abort(404)
 
-        return Pagination(self, page, per_page, total_query_count, items)
+        return LimitedPagination(actual_query_count, self, page, per_page, total_query_count,
+                                 items)
 
     BaseQuery.paginate_faste = paginate_faste
 
