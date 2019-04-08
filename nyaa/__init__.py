@@ -8,8 +8,14 @@ from flask_assets import Bundle  # noqa F401
 from nyaa.api_handler import api_blueprint
 from nyaa.extensions import assets, cache, db, fix_paginate, toolbar
 from nyaa.template_utils import bp as template_utils_bp
+from nyaa.template_utils import caching_url_for
 from nyaa.utils import random_string
 from nyaa.views import register_views
+
+# Replace the Flask url_for with our cached version, since there's no real harm in doing so
+# (caching_url_for has stored a reference to the OG url_for, so we won't recurse)
+# Touching globals like this is a bit dirty, but nicer than replacing every url_for usage
+flask.url_for = caching_url_for
 
 
 def create_app(config):
@@ -85,6 +91,10 @@ def create_app(config):
     app.jinja_env.add_extension('jinja2.ext.do')
     app.jinja_env.lstrip_blocks = True
     app.jinja_env.trim_blocks = True
+
+    # The default jinja_env has the OG Flask url_for (from before we replaced it),
+    # so update the globals with our version
+    app.jinja_env.globals['url_for'] = flask.url_for
 
     # Database
     fix_paginate()  # This has to be before the database is initialized
