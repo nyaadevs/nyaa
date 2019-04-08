@@ -186,7 +186,7 @@ class TorrentBase(DeclarativeHelperBase):
     @declarative.declared_attr
     def trackers(cls):
         return db.relationship(cls._flavor_prefix('TorrentTrackers'), uselist=True,
-                               cascade="all, delete-orphan", lazy='select',
+                               cascade="all, delete-orphan",
                                order_by=cls._flavor_prefix('TorrentTrackers.order'))
 
     @declarative.declared_attr
@@ -498,8 +498,7 @@ class User(db.Model):
 
     bans = db.relationship('Ban', uselist=True, foreign_keys='Ban.user_id')
 
-    preferences = db.relationship('UserPreferences',
-                                  back_populates='user', uselist=False, lazy='select')
+    preferences = db.relationship('UserPreferences', back_populates='user', uselist=False)
 
     def __init__(self, username, email, password):
         self.username = username
