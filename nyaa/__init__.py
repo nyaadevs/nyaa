@@ -34,6 +34,19 @@ def create_app(config):
             request.headers['Expires'] = '0'
             return request
 
+        # Add a timer header to the requests when debugging
+        # This gives us a simple way to benchmark requests off-app
+        import time
+
+        @app.before_request
+        def timer_before_request():
+            flask.g.request_start_time = time.time()
+
+        @app.after_request
+        def timer_after_request(request):
+            request.headers['X-Timer'] = time.time() - flask.g.request_start_time
+            return request
+
     else:
         app.logger.setLevel(logging.WARNING)
 
