@@ -1,3 +1,4 @@
+import functools
 import os.path
 import re
 from datetime import datetime
@@ -24,6 +25,28 @@ def create_magnet_from_es_torrent():
 
 
 # ######################### TEMPLATE GLOBALS #########################
+
+flask_url_for = flask.url_for
+
+
+@functools.lru_cache(maxsize=1024*4)
+def _caching_url_for(endpoint, **values):
+    return flask_url_for(endpoint, **values)
+
+
+@bp.app_template_global()
+def caching_url_for(*args, **kwargs):
+    try:
+        # lru_cache requires the arguments to be hashable.
+        # Majority of the time, they are! But there are some small edge-cases,
+        # like our copypasted pagination, parameters can be lists.
+        # Attempt caching first:
+        return _caching_url_for(*args, **kwargs)
+    except TypeError:
+        # Then fall back to the original url_for.
+        # We could convert the lists to tuples, but the savings are marginal.
+        return flask_url_for(*args, **kwargs)
+
 
 @bp.app_template_global()
 def static_cachebuster(filename):
