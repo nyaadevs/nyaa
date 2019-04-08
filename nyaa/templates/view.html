@@ -10,7 +10,7 @@
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
 			{% if can_edit %}
-			<a href="{{ url_for('torrents.edit', torrent_id=torrent.id) }}" title="Edit torrent"><i class="fa fa-fw fa-pencil"></i></a>
+			<a href="/view/{{ torrent.id }}/edit" title="Edit torrent"><i class="fa fa-fw fa-pencil"></i></a>
 			{% endif %}
 			{{ torrent.display_name }}
 		</h3>
@@ -19,7 +19,7 @@
 		<div class="row">
 			<div class="col-md-1">Category:</div>
 			<div class="col-md-5">
-				<a href="{{ url_for('main.home', c=torrent.main_category.id_as_string) }}">{{ torrent.main_category.name }}</a> - <a href="{{ url_for('main.home', c=torrent.sub_category.id_as_string) }}">{{ torrent.sub_category.name }}</a>
+				<a href="/?c={{ torrent.main_category.id_as_string }}">{{ torrent.main_category.name }}</a> - <a href="/?c={{ torrent.sub_category.id_as_string }}">{{ torrent.sub_category.name }}</a>
 			</div>
 
 			<div class="col-md-1">Date:</div>
@@ -29,7 +29,7 @@
 		<div class="row">
 			<div class="col-md-1">Submitter:</div>
 			<div class="col-md-5">
-				{% set user_url = torrent.user and url_for('users.view_user', user_name=torrent.user.username) %}
+				{% set user_url = '/user/' + torrent.user.username %}
 				{%- if not torrent.anonymous and torrent.user -%}
 				<a class="text-{{ torrent.user.userlevel_color }}" href="{{ user_url }}" data-toggle="tooltip" title="{{ torrent.user.userlevel_str }}">{{ torrent.user.username }}</a>
 				{%- else -%}
@@ -73,7 +73,7 @@
 	</div><!--/.panel-body -->
 
 	<div class="panel-footer clearfix">
-		{% if torrent.has_torrent %}<a href="{{ url_for('torrents.download', torrent_id=torrent.id )}}"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
+		{% if torrent.has_torrent %}<a href="/download/{{ torrent.id }}.torrent"><i class="fa fa-download fa-fw"></i>Download Torrent</a> or {% endif %}<a href="{{ torrent.magnet_uri }}" class="card-footer-item"><i class="fa fa-magnet fa-fw"></i>Magnet</a>
 		{% if g.user and g.user.age > config['RATELIMIT_ACCOUNT_AGE'] %}
 		<button type="button" class="btn btn-xs btn-danger pull-right" data-toggle="modal" data-target="#reportModal">
 			Report
@@ -150,7 +150,7 @@
 		<div class="panel-body">
 			<div class="col-md-2">
 				<p>
-					<a class="text-{{ comment.user.userlevel_color }}" href="{{ url_for('users.view_user', user_name=comment.user.username) }}" data-toggle="tooltip" title="{{ comment.user.userlevel_str }}">{{ comment.user.username }}</a>
+					<a class="text-{{ comment.user.userlevel_color }}" href="/user/{{ comment.user.username }}" data-toggle="tooltip" title="{{ comment.user.userlevel_str }}">{{ comment.user.username }}</a>
 					{% if comment.user.id == torrent.uploader_id and not torrent.anonymous %}
 					(uploader)
 					{% endif %}
@@ -168,7 +168,7 @@
 						<button class="btn btn-xs edit-comment" title="Edit"{% if config.EDITING_TIME_LIMIT %} data-until="{{ comment.editable_until|int }}"{% endif %}>Edit</button>
 						{% endif %}
 						{% if g.user.is_superadmin or (g.user.id == comment.user_id and not torrent.comment_locked and not comment.editing_limit_exceeded) %}
-						<form class="delete-comment-form" action="{{ url_for('torrents.delete_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
+						<form class="delete-comment-form" action="/view/{{ torrent.id }}/comment/{{ comment.id }}/delete" method="POST">
 							<button name="submit" type="submit" class="btn btn-danger btn-xs" title="Delete">Delete</button>
 						</form>
 						{% endif %}
@@ -178,7 +178,7 @@
 					{# Escape newlines into html entities because CF strips blank newlines #}
 					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</div>
 					{% if g.user.id == comment.user_id and comment_form %}
-					<form class="edit-comment-box" action="{{ url_for('torrents.edit_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
+					<form class="edit-comment-box" action="/view/{{ torrent.id }}/comment/{{ comment.id }}/edit" method="POST">
 						{{ comment_form.csrf_token }}
 						<div class="form-group">
 							<textarea class="form-control" name="comment" autofocus>{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</textarea>
@@ -267,7 +267,7 @@
 			<div class="modal-body">
 				<div class="alert alert-warning" role="alert">
 					Before submitting a report, please check that the torrent
-					actually breaks <a href="{{ url_for('site.rules') }}">the
+					actually breaks <a href="/rules">the
 					rules</a>. Useless reports like "download is slow" or
 					"thanks" can get you banned from the site.
 				</div>

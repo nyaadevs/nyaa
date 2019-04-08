@@ -62,29 +62,29 @@
 				{% set cat_id = use_elastic and ((torrent.main_category_id|string) + '_' + (torrent.sub_category_id|string)) or torrent.sub_category.id_as_string %}
 				<td style="padding:0 4px;">
 				{% if use_elastic %}
-				<a href="{{ url_for('main.home', c=cat_id) }}" title="{{ category_name(cat_id) }}">
+				<a href="/?c={{ cat_id }}" title="{{ category_name(cat_id) }}">
 				{% else %}
-				<a href="{{ url_for('main.home', c=cat_id) }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
+				<a href="/?c={{ cat_id }}" title="{{ torrent.main_category.name }} - {{ torrent.sub_category.name }}">
 				{% endif %}
-					<img src="{{ url_for('static', filename='img/icons/%s/%s.png'|format(icon_dir, cat_id)) }}" alt="{{ category_name(cat_id) }}" style="width: 80px; height: 28px;">
+					<img src="/static/img/icons/{{ icon_dir }}/{{ cat_id }}.png" alt="{{ category_name(cat_id) }}" style="width: 80px; height: 28px;">
 				</a>
 				</td>
 				<td colspan="2">
 					{% set torrent_id = torrent.meta.id if use_elastic else torrent.id %}
 					{% set com_count = torrent.comment_count %}
 					{% if com_count %}
-					<a href="{{ url_for('torrents.view', torrent_id=torrent_id, _anchor='comments') }}" class="comments" title="{{ '{c} comment{s}'.format(c=com_count, s='s' if com_count > 1 else '') }}">
+					<a href="/view/{{ torrent_id }}#comments" class="comments" title="{{ '{c} comment{s}'.format(c=com_count, s='s' if com_count > 1 else '') }}">
 						<i class="fa fa-comments-o"></i>{{ com_count -}}
 					</a>
 					{% endif %}
 					{% if use_elastic %}
-					<a href="{{ url_for('torrents.view', torrent_id=torrent_id) }}" title="{{ torrent.display_name | escape }}">{%if "highlight" in torrent.meta %}{{ torrent.meta.highlight.display_name[0] | safe }}{% else %}{{torrent.display_name}}{%endif%}</a>
+					<a href="/view/{{ torrent_id }}" title="{{ torrent.display_name | escape }}">{%if "highlight" in torrent.meta %}{{ torrent.meta.highlight.display_name[0] | safe }}{% else %}{{torrent.display_name}}{%endif%}</a>
 					{% else %}
-					<a href="{{ url_for('torrents.view', torrent_id=torrent_id) }}" title="{{ torrent.display_name | escape }}">{{ torrent.display_name | escape }}</a>
+					<a href="/view/{{ torrent_id }}" title="{{ torrent.display_name | escape }}">{{ torrent.display_name | escape }}</a>
 					{% endif %}
 				</td>
 				<td class="text-center" style="white-space: nowrap;">
-					{% if torrent.has_torrent %}<a href="{{ url_for('torrents.download', torrent_id=torrent_id) }}"><i class="fa fa-fw fa-download"></i></a>{% endif %}
+					{% if torrent.has_torrent %}<a href="/download/{{ torrent_id }}.torrent"><i class="fa fa-fw fa-download"></i></a>{% endif %}
 					{% if use_elastic %}
 					<a href="{{ create_magnet_from_es_torrent(torrent) }}"><i class="fa fa-fw fa-magnet"></i></a>
 					{% else %}
