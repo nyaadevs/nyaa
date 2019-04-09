@@ -36,6 +36,11 @@ table.torrent-list thead th a {
 	filter: alpha(opacity=1);
 }
 
+.category-icon {
+	width: 80px;
+	height: 28px;
+}
+
 table.torrent-list thead th.sorting:after,
 table.torrent-list thead th.sorting_asc:after,
 table.torrent-list thead th.sorting_desc:after {
@@ -86,6 +91,19 @@ table.torrent-list tbody .comments {
 }
 table.torrent-list tbody .comments i {
 	padding-right: 2px;
+}
+
+table.torrent-list td:first-child {
+	padding: 0 4px;
+}
+table.torrent-list td:nth-child(4) {
+	white-space: nowrap;
+}
+table.torrent-list td:nth-child(6) {
+	color: green;
+}
+table.torrent-list td:nth-child(7) {
+	color: red;
 }
 
 #torrent-description img {
