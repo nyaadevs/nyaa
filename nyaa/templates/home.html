@@ -12,10 +12,7 @@
 {% block body %}
 
 {% if not search.term %}
-<div class="alert alert-info">
-	<p>We welcome you to provide feedback on IRC at <a href="irc://irc.rizon.net/nyaa-dev">#nyaa-dev@irc.rizon.net</a></p>
-	<p>Our GitHub: <a href="https://github.com/nyaadevs" target="_blank">https://github.com/nyaadevs</a> - creating <a href="https://github.com/nyaadevs/nyaa/issues">issues</a> for features and faults is recommended!</p>
-</div>
+{% include "infobubble.html" %}
 {% endif %}
 
 {% include "search_results.html" %}
