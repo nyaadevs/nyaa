@@ -275,6 +275,11 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 	margin-bottom: 10px;
 }
 
+/* workaround for Mozilla whitespace copypaste dumbfuckery */
+.comment-body {
+	-moz-user-select: text;
+}
+
 .comment-content {
 	overflow-wrap: break-word;
 }
