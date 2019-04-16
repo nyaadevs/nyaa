@@ -47,6 +47,7 @@ SQLAlchemy-Utils==0.34.1
 statsd==3.3.0
 urllib3==1.25.3
 uWSGI==2.0.18
+redis==3.2.1
 webassets==0.12.1
 Werkzeug==0.15.5
 WTForms==2.2.1

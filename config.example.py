@@ -188,3 +188,20 @@ TRUSTED_MIN_UPLOADS = 10
 TRUSTED_MIN_DOWNLOADS = 10000
 # Number of days an applicant needs to wait before re-applying
 TRUSTED_REAPPLY_COOLDOWN = 90
+
+###########
+## Cache ##
+###########
+
+# Interesting types include "simple", "redis" and "uwsgi"
+# See https://pythonhosted.org/Flask-Caching/#configuring-flask-caching
+CACHE_TYPE = "simple"
+
+# Maximum number of items the cache will store
+# Only applies to "simple" and "filesystem" cache types
+CACHE_THRESHOLD = 8192
+
+# If you want to use redis, try this
+# CACHE_TYPE = "redis"
+# CACHE_REDIS_HOST = "127.0.0.1"
+# CACHE_KEY_PREFIX = "catcache_"
