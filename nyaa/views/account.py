@@ -240,7 +240,7 @@ def request_trusted():
     trusted_form = None
     deny_reasons = []
     if flask.g.user.is_trusted:
-        deny_reasons.append('You already are trusted.')
+        deny_reasons.append('You are already trusted.')
     if not flask.g.user.satisfies_trusted_reqs:
         deny_reasons.append('You do not satisfy the minimum requirements.')
     if (models.TrustedApplication.query.
@@ -259,15 +259,16 @@ def request_trusted():
                                 .format(app.config['TRUSTED_REAPPLY_COOLDOWN']))
     if flask.request.method == 'POST':
         trusted_form = forms.TrustedForm(flask.request.form)
-        if trusted_form.validate() and len(deny_reasons) == 0:
+        if trusted_form.validate() and not deny_reasons:
             ta = models.TrustedApplication()
             ta.submitter_id = flask.g.user.id
             ta.why_want = trusted_form.why_want_trusted.data.rstrip()
             ta.why_give = trusted_form.why_give_trusted.data.rstrip()
             db.session.add(ta)
             db.session.commit()
-            flask.flash('Your trusted application has been submitted.', 'success')
-            return flask.redirect('/trusted')
+            flask.flash('Your trusted application has been submitted. '
+                        'You will receive an email when a decision has been made.', 'success')
+            return flask.redirect(flask.url_for('site.trusted'))
     else:
         if len(deny_reasons) == 0:
             trusted_form = forms.TrustedForm()

@@ -650,8 +650,8 @@ class User(db.Model):
         for ts_flavor, t_flavor in ((NyaaStatistic, NyaaTorrent),
                                     (SukebeiStatistic, SukebeiTorrent)):
             uploads = db.session.query(func.count(t_flavor.id)).\
-                    filter(t_flavor.user == self).\
-                    filter(t_flavor.flags.op('&')(int(TorrentFlags.REMAKE)).is_(False)).scalar()
+                filter(t_flavor.user == self).\
+                filter(t_flavor.flags.op('&')(int(TorrentFlags.REMAKE)).is_(False)).scalar()
             dls = db.session.query(func.sum(ts_flavor.download_count)).\
                 join(t_flavor).\
                 filter(t_flavor.user == self).\
