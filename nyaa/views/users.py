@@ -13,7 +13,7 @@ from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
-from nyaa.utils import admin_only, chain_get, sha1_hash, moderator_or_above
+from nyaa.utils import admin_only, chain_get, moderator_or_above, sha1_hash
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -39,12 +39,8 @@ def view_user(user_name):
 
         ban_form = forms.BanForm()
         nuke_form = forms.NukeForm()
-        if flask.request.method == 'POST':
-            doban = (ban_form.ban_user.data or ban_form.unban.data or ban_form.ban_userip.data)
         bans = models.Ban.banned(user.id, user.last_login_ip).all()
         ipbanned = list(filter(lambda b: b.user_ip == user.last_login_ip, bans))
-
-    url = flask.url_for('users.view_user', user_name=user.username)
 
     req_args = flask.request.args
 
@@ -202,17 +198,17 @@ def ban_user(user_name):
     user = models.User.by_username(user_name)
     if not user:
         flask.abort(404)
-    
+
     ban_form = forms.BanForm(flask.request.form)
     if not ban_form.validate():
         flask.abort(401)
-    
+
     url = flask.url_for('users.view_user', user_name=user.username)
 
     if (user.is_banned):
         flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
         return flask.redirect(url)
-    
+
     user_str = "[{0}]({1})".format(user.username, url)
 
     user.status = models.UserStatusType.BANNED
@@ -242,17 +238,17 @@ def unban_user(user_name):
     user = models.User.by_username(user_name)
     if not user:
         flask.abort(404)
-    
+
     ban_form = forms.BanForm(flask.request.form)
     if not ban_form.validate():
         flask.abort(401)
-    
+
     url = flask.url_for('users.view_user', user_name=user.username)
 
     if (not user.is_banned):
         flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
         return flask.redirect(url)
-    
+
     user_str = "[{0}]({1})".format(user.username, url)
 
     bans = models.Ban.banned(user.id, user.last_login_ip).all()
@@ -285,16 +281,16 @@ def change_user_level(user_name):
 
     admin_form = forms.UserForm()
     default, admin_form.user_class.choices = _create_user_class_choices(user)
-    
+
     if not admin_form.validate():
         flask.abort(401)
-    
+
     url = flask.url_for('users.view_user', user_name=user.username)
 
     selection = admin_form.user_class.data
     mapping = {'regular': models.UserLevelType.REGULAR,
-                'trusted': models.UserLevelType.TRUSTED,
-                'moderator': models.UserLevelType.MODERATOR}
+               'trusted': models.UserLevelType.TRUSTED,
+               'moderator': models.UserLevelType.MODERATOR}
 
     if mapping[selection] != user.level:
         user.level = mapping[selection]

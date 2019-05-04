@@ -3,9 +3,10 @@ import hashlib
 import random
 import string
 from collections import OrderedDict
-from nyaa import models
 
 import flask
+
+from nyaa import models
 
 
 def sha1_hash(input_bytes):
@@ -92,11 +93,12 @@ def admin_only(f):
             flask.abort(401)
     return wrapper
 
+
 def moderator_or_above(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        if flask.g.user and (flask.g.user.level == models.UserLevelType.MODERATOR or \
-                                flask.g.user.level == models.UserLevelType.SUPERADMIN):
+        if flask.g.user and (flask.g.user.level == models.UserLevelType.MODERATOR or
+                             flask.g.user.level == models.UserLevelType.SUPERADMIN):
             return f(*args, **kwargs)
         else:
             flask.abort(401)
