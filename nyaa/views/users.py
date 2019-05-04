@@ -252,7 +252,6 @@ def unban_user(user_name):
     user_str = "[{0}]({1})".format(user.username, url)
 
     bans = models.Ban.banned(user.id, user.last_login_ip).all()
-    ipbanned = list(filter(lambda b: b.user_ip == user.last_login_ip, bans))
 
     user.status = models.UserStatusType.ACTIVE
     db.session.add(user)
