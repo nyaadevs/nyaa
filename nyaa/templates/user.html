@@ -48,7 +48,34 @@
 				{{ admin_form.csrf_token }}
 				<div class="row">
 					<div class="col-md-6">
-						{{ render_menu_with_button(admin_form.user_class) }}
+					{% if admin_form.user_class.errors %}
+						<div class="form-group has-error">
+					{% else %}
+						<div class="form-group">
+					{% endif %}
+							{{ admin_form.user_class.label(class='control-label') }}
+							<div class="input-group input-group-sm">
+								{{ admin_form.user_class(title=admin_form.user_class.description, class_="form-control") | safe }}
+								<div class="input-group-btn">
+									{{ admin_form.sumbit_user_class(type="submit", value="Apply", class="btn btn-primary", formaction=url_for('users.change_user_level', user_name=user.username)) }}
+								</div>
+							</div>
+							{% if admin_form.user_class.errors %}
+								<div class="help-block">
+									{% if admin_form.user_class.errors|length < 2 %}
+										{% for error in admin_form.user_class.errors %}
+											{{ error }}
+										{% endfor %}
+									{% else %}
+										<ul>
+											{% for error in admin_form.user_class.errors %}
+												<li>{{ error }}</li>
+											{% endfor %}
+										</ul>
+									{% endif %}
+								</div>
+							{% endif %}
+						</div>
 					</div>
 				</div>
 				{% if not user.is_active %}

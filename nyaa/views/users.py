@@ -45,30 +45,6 @@ def view_user(user_name):
         ipbanned = list(filter(lambda b: b.user_ip == user.last_login_ip, bans))
 
     url = flask.url_for('users.view_user', user_name=user.username)
-    if flask.request.method == 'POST' and admin_form and not doban and admin_form.validate():
-        selection = admin_form.user_class.data
-        mapping = {'regular': models.UserLevelType.REGULAR,
-                   'trusted': models.UserLevelType.TRUSTED,
-                   'moderator': models.UserLevelType.MODERATOR}
-
-        if mapping[selection] != user.level:
-            user.level = mapping[selection]
-            log = "[{}]({}) changed to {} user".format(user_name, url, selection)
-            adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
-            db.session.add(adminlog)
-
-        if admin_form.activate_user.data and not user.is_banned:
-            if user.status != models.UserStatusType.ACTIVE:
-                user.status = models.UserStatusType.ACTIVE
-                adminlog = models.AdminLog("[{}]({}) was manually activated"
-                                           .format(user_name, url), admin_id=flask.g.user.id)
-                db.session.add(adminlog)
-                flask.flash('{} was manually activated'.format(user_name), 'success')
-
-        db.session.add(user)
-        db.session.commit()
-
-        return flask.redirect(url)
 
     req_args = flask.request.args
 
@@ -219,6 +195,7 @@ def activate_user(payload):
     flask.flash(flask.Markup("You've successfully verified your account!"), 'success')
     return flask.redirect(flask.url_for('main.home'))
 
+
 @bp.route('/user/<user_name>/ban', methods=['POST'])
 @moderator
 def ban_user(user_name):
@@ -258,6 +235,7 @@ def ban_user(user_name):
     flask.flash(flask.Markup('User has been successfully banned.'), 'success')
     return flask.redirect(url)
 
+
 @bp.route('/user/<user_name>/unban', methods=['POST'])
 @moderator
 def unban_user(user_name):
@@ -295,6 +273,37 @@ def unban_user(user_name):
     db.session.commit()
 
     flask.flash(flask.Markup('User has been successfully unbanned.'), 'success')
+    return flask.redirect(url)
+
+
+@bp.route('/user/<user_name>/level', methods=['POST'])
+@admin_only
+def change_user_level(user_name):
+    user = models.User.by_username(user_name)
+    if not user:
+        flask.abort(404)
+
+    admin_form = forms.UserForm()
+    default, admin_form.user_class.choices = _create_user_class_choices(user)
+    
+    if not admin_form.validate():
+        flask.abort(401)
+    
+    url = flask.url_for('users.view_user', user_name=user.username)
+
+    selection = admin_form.user_class.data
+    mapping = {'regular': models.UserLevelType.REGULAR,
+                'trusted': models.UserLevelType.TRUSTED,
+                'moderator': models.UserLevelType.MODERATOR}
+
+    if mapping[selection] != user.level:
+        user.level = mapping[selection]
+        log = "[{}]({}) changed to {} user".format(user_name, url, selection)
+        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+        db.session.add(adminlog)
+        db.session.add(user)
+        db.session.commit()
+
     return flask.redirect(url)
 
 

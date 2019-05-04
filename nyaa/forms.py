@@ -453,6 +453,7 @@ class UploadForm(FlaskForm):
 
 class UserForm(FlaskForm):
     user_class = SelectField('Change User Class')
+    sumbit_user_class = SubmitField('Apply')
     activate_user = SubmitField('Activate User')
 
     def validate_user_class(form, field):
