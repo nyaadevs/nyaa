@@ -3,6 +3,7 @@ import hashlib
 import random
 import string
 from collections import OrderedDict
+from nyaa import models
 
 import flask
 
@@ -86,6 +87,16 @@ def admin_only(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if flask.g.user and flask.g.user.is_superadmin:
+            return f(*args, **kwargs)
+        else:
+            flask.abort(401)
+    return wrapper
+
+def moderator(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if flask.g.user and (flask.g.user.level == models.UserLevelType.MODERATOR or \
+                                flask.g.user.level == models.UserLevelType.SUPERADMIN):
             return f(*args, **kwargs)
         else:
             flask.abort(401)
