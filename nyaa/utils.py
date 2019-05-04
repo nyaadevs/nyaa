@@ -92,7 +92,7 @@ def admin_only(f):
             flask.abort(401)
     return wrapper
 
-def moderator(f):
+def moderator_or_above(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if flask.g.user and (flask.g.user.level == models.UserLevelType.MODERATOR or \

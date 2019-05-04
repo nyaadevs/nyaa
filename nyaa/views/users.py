@@ -13,7 +13,7 @@ from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
-from nyaa.utils import admin_only, chain_get, sha1_hash, moderator
+from nyaa.utils import admin_only, chain_get, sha1_hash, moderator_or_above
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -197,7 +197,7 @@ def activate_user(payload):
 
 
 @bp.route('/user/<user_name>/ban', methods=['POST'])
-@moderator
+@moderator_or_above
 def ban_user(user_name):
     user = models.User.by_username(user_name)
     if not user:
@@ -237,7 +237,7 @@ def ban_user(user_name):
 
 
 @bp.route('/user/<user_name>/unban', methods=['POST'])
-@moderator
+@moderator_or_above
 def unban_user(user_name):
     user = models.User.by_username(user_name)
     if not user:
