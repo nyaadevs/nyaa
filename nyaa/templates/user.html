@@ -98,7 +98,7 @@
 						</div>
 						<div class="row">
 							<div class="col-md-12">
-								{{ ban_form.unban(class="btn btn-info") }}
+								{{ ban_form.unban(class="btn btn-info", formaction=url_for('users.unban_user', user_name=user.username)) }}
 							</div>
 						</div>
 						{% endif %}
@@ -115,14 +115,14 @@
 						<div class="row">
 							<div class="col-md-6 text-left">
 								{% if not user.is_banned %}
-								{{ ban_form.ban_user(value="Ban User", class="btn btn-danger") }}
+								{{ ban_form.ban_user(value="Ban User", class="btn btn-danger", formaction=url_for('users.ban_user', user_name=user.username)) }}
 								{% else %}
 								<button type="button" class="btn btn-danger disabled">Already banned</button>
 								{% endif %}
 							</div>
 							<div class="col-md-6 text-right">
 								{% if not ipbanned %}
-								{{ ban_form.ban_userip(value="Ban User+IP", class="btn btn-danger") }}
+								{{ ban_form.ban_userip(value="Ban User+IP", class="btn btn-danger", formaction=url_for('users.ban_user', user_name=user.username)) }}
 								{% else %}
 								<button type="button" class="btn btn-danger disabled">Already IP banned</button>
 								{% endif %}

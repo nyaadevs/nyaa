@@ -13,7 +13,7 @@ from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
                          _generate_query_string, search_db, search_elastic)
-from nyaa.utils import admin_only, chain_get, sha1_hash
+from nyaa.utils import admin_only, chain_get, sha1_hash, moderator
 
 app = flask.current_app
 bp = flask.Blueprint('users', __name__)
@@ -68,46 +68,6 @@ def view_user(user_name):
         db.session.add(user)
         db.session.commit()
 
-        return flask.redirect(url)
-
-    if flask.request.method == 'POST' and ban_form and doban and ban_form.validate():
-        if (ban_form.ban_user.data and user.is_banned) or \
-                (ban_form.ban_userip.data and ipbanned) or \
-                (ban_form.unban.data and not user.is_banned and not bans):
-            flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
-            return flask.redirect(url)
-
-        user_str = "[{0}]({1})".format(user.username, url)
-
-        if ban_form.unban.data:
-            action = "unbanned"
-            user.status = models.UserStatusType.ACTIVE
-            db.session.add(user)
-
-            for ban in bans:
-                if ban.user_ip:
-                    user_str += " IP({0})".format(ip_address(ban.user_ip))
-                db.session.delete(ban)
-        else:
-            action = "banned"
-            user.status = models.UserStatusType.BANNED
-            db.session.add(user)
-
-            ban = models.Ban(admin_id=flask.g.user.id, user_id=user.id, reason=ban_form.reason.data)
-            db.session.add(ban)
-
-            if ban_form.ban_userip.data:
-                ban.user_ip = ip_address(user.last_login_ip)
-                user_str += " IP({0})".format(ban.user_ip)
-                ban.user_ip = ban.user_ip.packed
-
-        log = "User {0} has been {1}.".format(user_str, action)
-        adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
-        db.session.add(adminlog)
-
-        db.session.commit()
-
-        flask.flash(flask.Markup('User has been successfully {0}.'.format(action)), 'success')
         return flask.redirect(url)
 
     req_args = flask.request.args
@@ -258,6 +218,84 @@ def activate_user(payload):
 
     flask.flash(flask.Markup("You've successfully verified your account!"), 'success')
     return flask.redirect(flask.url_for('main.home'))
+
+@bp.route('/user/<user_name>/ban', methods=['POST'])
+@moderator
+def ban_user(user_name):
+    user = models.User.by_username(user_name)
+    if not user:
+        flask.abort(404)
+    
+    ban_form = forms.BanForm(flask.request.form)
+    if not ban_form.validate():
+        flask.abort(401)
+    
+    url = flask.url_for('users.view_user', user_name=user.username)
+
+    if (user.is_banned):
+        flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
+        return flask.redirect(url)
+    
+    user_str = "[{0}]({1})".format(user.username, url)
+
+    user.status = models.UserStatusType.BANNED
+    db.session.add(user)
+
+    ban = models.Ban(admin_id=flask.g.user.id, user_id=user.id, reason=ban_form.reason.data)
+    db.session.add(ban)
+
+    if ban_form.ban_userip.data:
+        ban.user_ip = ip_address(user.last_login_ip)
+        user_str += " IP({0})".format(ban.user_ip)
+        ban.user_ip = ban.user_ip.packed
+
+    log = "User {0} has been {1}.".format(user_str, 'banned')
+    adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+    db.session.add(adminlog)
+
+    db.session.commit()
+
+    flask.flash(flask.Markup('User has been successfully banned.'), 'success')
+    return flask.redirect(url)
+
+@bp.route('/user/<user_name>/unban', methods=['POST'])
+@moderator
+def unban_user(user_name):
+    user = models.User.by_username(user_name)
+    if not user:
+        flask.abort(404)
+    
+    ban_form = forms.BanForm(flask.request.form)
+    if not ban_form.validate():
+        flask.abort(401)
+    
+    url = flask.url_for('users.view_user', user_name=user.username)
+
+    if (not user.is_banned):
+        flask.flash(flask.Markup('What the fuck are you doing?'), 'danger')
+        return flask.redirect(url)
+    
+    user_str = "[{0}]({1})".format(user.username, url)
+
+    bans = models.Ban.banned(user.id, user.last_login_ip).all()
+    ipbanned = list(filter(lambda b: b.user_ip == user.last_login_ip, bans))
+
+    user.status = models.UserStatusType.ACTIVE
+    db.session.add(user)
+
+    for ban in bans:
+        if ban.user_ip:
+            user_str += " IP({0})".format(ip_address(ban.user_ip))
+        db.session.delete(ban)
+
+    log = "User {0} has been {1}.".format(user_str, 'unbanned')
+    adminlog = models.AdminLog(log=log, admin_id=flask.g.user.id)
+    db.session.add(adminlog)
+
+    db.session.commit()
+
+    flask.flash(flask.Markup('User has been successfully unbanned.'), 'success')
+    return flask.redirect(url)
 
 
 @bp.route('/user/<user_name>/nuke/torrents', methods=['POST'])
