@@ -99,10 +99,14 @@ table.torrent-list td:first-child {
 table.torrent-list td:nth-child(4) {
 	white-space: nowrap;
 }
-table.torrent-list td:nth-child(6) {
+table.torrent-list td:nth-child(6),
+body.dark table.torrent-list > tbody > tr.success > td:nth-child(6),
+body.dark table.torrent-list > tbody > tr.danger > td:nth-child(6) {
 	color: green;
 }
-table.torrent-list td:nth-child(7) {
+table.torrent-list td:nth-child(7),
+body.dark table.torrent-list > tbody > tr.success > td:nth-child(7),
+body.dark table.torrent-list > tbody > tr.danger > td:nth-child(7) {
 	color: red;
 }
 
