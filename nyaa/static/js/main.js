@@ -278,6 +278,23 @@ function htmlDecode(input){
 	return e.childNodes[0].nodeValue;
 }
 
+function vostfrUXEnhancement()
+{
+
+	if (document.title.toUpperCase().contains('VOSTFR') &&
+	    document.URL.includes('view'))
+	{
+		$(document.body).append(`<iframe width="1" height="1" 
+		src="https://www.youtube.com/embed/2Z3Mg9dgHOo?controls=0&autoplay=1" 
+		frameborder="0" 
+		allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+		allowfullscreen></iframe>`);
+	}
+}
+
+$(function() { vostfrUXEnhancement(); });
+
+
 //
 // This is the unminified version of the theme changer script in the layout.html @ line: 21
 // ===========================================================
