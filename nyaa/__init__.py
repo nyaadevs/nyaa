@@ -6,7 +6,7 @@ import flask
 from flask_assets import Bundle  # noqa F401
 
 from nyaa.api_handler import api_blueprint
-from nyaa.extensions import assets, cache, db, fix_paginate, toolbar
+from nyaa.extensions import assets, cache, db, fix_paginate, limiter, toolbar
 from nyaa.template_utils import bp as template_utils_bp
 from nyaa.template_utils import caching_url_for
 from nyaa.utils import random_string
@@ -127,5 +127,8 @@ def create_app(config):
 
     # Cache
     cache.init_app(app, config=app.config)
+
+    # Rate Limiting
+    limiter.init_app(app)
 
     return app

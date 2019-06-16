@@ -6,7 +6,7 @@ from ipaddress import ip_address
 import flask
 
 from nyaa import email, forms, models
-from nyaa.extensions import db
+from nyaa.extensions import db, limiter
 from nyaa.utils import sha1_hash
 from nyaa.views.users import get_activation_link, get_password_reset_link, get_serializer
 
@@ -15,6 +15,8 @@ bp = flask.Blueprint('account', __name__)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit('6/hour', methods=['POST'],
+               error_message="You've tried logging in too many times, try again in an hour.")
 def login():
     if flask.g.user:
         return flask.redirect(redirect_url())
