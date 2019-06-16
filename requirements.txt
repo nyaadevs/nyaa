@@ -52,3 +52,4 @@ webassets==0.12.1
 Werkzeug==0.15.5
 WTForms==2.2.1
 Flask-Caching==1.7.2
+Flask-Limiter==1.0.1
