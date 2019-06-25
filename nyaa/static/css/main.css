@@ -224,7 +224,7 @@ body.dark table.torrent-list > tbody > tr.danger > td:nth-child(7) {
  fixed maximum height applied */
 .navbar-collapse.in {
 	overflow-y: visible;
-    max-height: none;
+	max-height: none;
 }
 
 /* Upload page drop zone */

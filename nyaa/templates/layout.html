@@ -40,8 +40,8 @@
 		<!-- Custom styles for this template -->
 		<link href="{{ static_cachebuster('css/main.css') }}" rel="stylesheet">
 
-        <!-- Toggles the navbar to be fixed or static -->
-        <script>function toggleFixedNav(){"fixed"===localStorage.getItem("nav")?setNavStatic():setNavFixed()}function setNavStatic(){localStorage.setItem("nav", "static"),document.body!==null&&(document.body.style.marginTop='');document.getElementById("bsNavbar")!==null&&(document.getElementById("bsNavbar").classList.remove('navbar-fixed-top'),document.getElementById("bsNavbar").classList.add('navbar-static-top'))}function setNavFixed(){localStorage.setItem("nav", "fixed");document.body!==null&&(document.body.style.marginTop="71px");document.getElementById("bsNavbar")!==null&&(document.getElementById("bsNavbar").classList.remove('navbar-static-top'),document.getElementById("bsNavbar").classList.add('navbar-fixed-top'))}</script>
+		<!-- Toggles the navbar to be fixed or static -->
+		<script>function toggleFixedNav(){"fixed"===localStorage.getItem("nav")?setNavStatic():setNavFixed()}function setNavStatic(){localStorage.setItem("nav", "static"),document.body!==null&&(document.body.style.marginTop='');document.getElementById("bsNavbar")!==null&&(document.getElementById("bsNavbar").classList.remove('navbar-fixed-top'),document.getElementById("bsNavbar").classList.add('navbar-static-top'))}function setNavFixed(){localStorage.setItem("nav", "fixed");document.body!==null&&(document.body.style.marginTop="71px");document.getElementById("bsNavbar")!==null&&(document.getElementById("bsNavbar").classList.remove('navbar-static-top'),document.getElementById("bsNavbar").classList.add('navbar-fixed-top'))}</script>
 
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
