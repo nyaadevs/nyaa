@@ -9,6 +9,19 @@ document.addEventListener("DOMContentLoaded", function(event) { // wait for cont
 });
 
 
+// Click event listener for the fixed navbar toggle link
+document.addEventListener("DOMContentLoaded", function(event) {
+    document.getElementById('navToggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleFixedNav();   // Toggle the navbar to be fixed to the top
+    });
+    // Sets the navbar to be fixed after the page has loaded
+    if (typeof (Storage) !== 'undefined' && localStorage.getItem('nav') === 'fixed') {
+        setNavFixed();
+    }
+});
+
+
 // Credit: https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
 // We can attach the `fileselect` event to all file inputs on the page
 $(document).on('change', ':file', function() {

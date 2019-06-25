@@ -40,6 +40,9 @@
 		<!-- Custom styles for this template -->
 		<link href="{{ static_cachebuster('css/main.css') }}" rel="stylesheet">
 
+        <!-- Toggles the navbar to be fixed or static -->
+        <script>function toggleFixedNav(){"fixed"===localStorage.getItem("nav")?setNavStatic():setNavFixed()}function setNavStatic(){localStorage.setItem("nav", "static"),document.body!==null&&(document.body.style.marginTop='');document.getElementById("bsNavbar")!==null&&(document.getElementById("bsNavbar").classList.remove('navbar-fixed-top'),document.getElementById("bsNavbar").classList.add('navbar-static-top'))}function setNavFixed(){localStorage.setItem("nav", "fixed");document.body!==null&&(document.body.style.marginTop="71px");document.getElementById("bsNavbar")!==null&&(document.getElementById("bsNavbar").classList.remove('navbar-static-top'),document.getElementById("bsNavbar").classList.add('navbar-fixed-top'))}</script>
+
 		<!-- Core JavaScript -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
@@ -66,7 +69,7 @@
 	</head>
 	<body>
 		<!-- Fixed navbar -->
-		<nav class="navbar navbar-default navbar-static-top navbar-inverse">
+		<nav class="navbar navbar-default navbar-static-top navbar-inverse" id="bsNavbar">
 			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -327,7 +330,7 @@
 		</div> <!-- /container -->
 
 		<footer style="text-align: center;">
-			<p>Dark Mode: <a href="#" id="themeToggle">Toggle</a></p>
+			<p>Dark Mode: <a href="#" id="themeToggle">Toggle</a> | Fixed Navbar: <a href="#" id="navToggle">Toggle</a></p>
 			{% if config.COMMIT_HASH %}
 			<p>Commit: <a href="https://github.com/nyaadevs/nyaa/tree/{{ config.COMMIT_HASH }}">{{ config.COMMIT_HASH[:7] }}</a></p>
 			{% endif %}

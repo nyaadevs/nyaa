@@ -220,9 +220,11 @@ body.dark table.torrent-list > tbody > tr.danger > td:nth-child(7) {
 }
 
 /* Allows the bootstrap selects on nav show outside the
- collapsible section of the navigation */
+ collapsible section of the navigation and removes any
+ fixed maximum height applied */
 .navbar-collapse.in {
 	overflow-y: visible;
+    max-height: none;
 }
 
 /* Upload page drop zone */
