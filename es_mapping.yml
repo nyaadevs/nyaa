@@ -83,59 +83,58 @@ settings:
 mappings:
   # disable elasticsearch's "helpful" autoschema
   dynamic: false
-  torrent:
-    properties:
-      id:
-        type: long
-      display_name:
-        # TODO could do a fancier tokenizer here to parse out the
-        # the scene convention of stuff in brackets, plus stuff like k-on
-        type: text
-        analyzer: my_index_analyzer
-        fielddata: true # Is this required?
-        fields:
-          # Multi-field for full-word matching (when going over ngram limits)
-          # Note: will have to be queried for, not automatic
-          fullword:
-            type: text
-            analyzer: my_fullword_index_analyzer
-          # Stored for exact phrase matching
-          exact:
-            type: text
-            analyzer: exact_analyzer
-      created_time:
-        type: date
-        # Only in the ES index for generating magnet links
-      info_hash:
-        enabled: false
-      filesize:
-        type: long
-      anonymous:
-        type: boolean
-      trusted:
-        type: boolean
-      remake:
-        type: boolean
-      complete:
-        type: boolean
-      hidden:
-        type: boolean
-      deleted:
-        type: boolean
-      has_torrent:
-        type: boolean
-      download_count:
-        type: long
-      leech_count:
-        type: long
-      seed_count:
-        type: long
-      comment_count:
-        type: long
-      # these ids are really only for filtering, thus keyword
-      uploader_id:
-        type: keyword
-      main_category_id:
-        type: keyword
-      sub_category_id:
-        type: keyword
+  properties:
+    id:
+      type: long
+    display_name:
+      # TODO could do a fancier tokenizer here to parse out the
+      # the scene convention of stuff in brackets, plus stuff like k-on
+      type: text
+      analyzer: my_index_analyzer
+      fielddata: true # Is this required?
+      fields:
+        # Multi-field for full-word matching (when going over ngram limits)
+        # Note: will have to be queried for, not automatic
+        fullword:
+          type: text
+          analyzer: my_fullword_index_analyzer
+        # Stored for exact phrase matching
+        exact:
+          type: text
+          analyzer: exact_analyzer
+    created_time:
+      type: date
+      # Only in the ES index for generating magnet links
+    info_hash:
+      enabled: false
+    filesize:
+      type: long
+    anonymous:
+      type: boolean
+    trusted:
+      type: boolean
+    remake:
+      type: boolean
+    complete:
+      type: boolean
+    hidden:
+      type: boolean
+    deleted:
+      type: boolean
+    has_torrent:
+      type: boolean
+    download_count:
+      type: long
+    leech_count:
+      type: long
+    seed_count:
+      type: long
+    comment_count:
+      type: long
+    # these ids are really only for filtering, thus keyword
+    uploader_id:
+      type: keyword
+    main_category_id:
+      type: keyword
+    sub_category_id:
+      type: keyword
