@@ -78,14 +78,13 @@ settings:
     # plus replicas don't really help either.
     number_of_shards: 1
     number_of_replicas : 0
-    mapper:
-      # disable elasticsearch's "helpful" autoschema
-      dynamic: false
     # since we disabled the _all field, default query the
     # name of the torrent.
     query:
       default_field: display_name
 mappings:
+  # disable elasticsearch's "helpful" autoschema
+  dynamic: false
   torrent:
     # don't want everything concatenated
     _all:
