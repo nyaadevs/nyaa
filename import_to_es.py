@@ -34,7 +34,6 @@ def pad_bytes(in_bytes, size):
 def mk_es(t, index_name):
     return {
         "_id": t.id,
-        "_type": "torrent",
         "_index": index_name,
         "_source": {
             # we're also indexing the id as a number so you can

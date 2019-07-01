@@ -104,9 +104,11 @@ mappings:
           analyzer: exact_analyzer
     created_time:
       type: date
-      # Only in the ES index for generating magnet links
+      #
+    # Only in the ES index for generating magnet links
     info_hash:
-      enabled: false
+      type: keyword
+      index: false
     filesize:
       type: long
     anonymous:

@@ -114,7 +114,6 @@ def reindex_torrent(t, index_name):
     return {
         '_op_type': 'update',
         '_index': index_name,
-        '_type': 'torrent',
         '_id': str(t['id']),
         "doc": doc,
         "doc_as_upsert": True
@@ -128,7 +127,6 @@ def reindex_stats(s, index_name):
     return {
         '_op_type': 'update',
         '_index': index_name,
-        '_type': 'torrent',
         '_id': str(s['torrent_id']),
         "doc": {
             "stats_last_updated": s["last_updated"],
@@ -141,7 +139,6 @@ def delet_this(row, index_name):
     return {
         "_op_type": 'delete',
         '_index': index_name,
-        '_type': 'torrent',
         '_id': str(row['values']['id'])}
 
 # we could try to make this script robust to errors from es or mysql, but since
