@@ -301,6 +301,50 @@ def nuke_user_torrents(user_name):
     return flask.redirect(url)
 
 
+@bp.route('/user/<user_name>/nuke/comments', methods=['POST'])
+@admin_only
+def nuke_user_comments(user_name):
+    user = models.User.by_username(user_name)
+    if not user:
+        flask.abort(404)
+
+    nuke_form = forms.NukeForm(flask.request.form)
+    if not nuke_form.validate():
+        flask.abort(401)
+    url = flask.url_for('users.view_user', user_name=user.username)
+    nyaa_deleted = 0
+    sukebei_deleted = 0
+    nyaa_torrents = set()
+    sukebei_torrents = set()
+    for c in chain(user.nyaa_comments, user.sukebei_comments):
+        nyaa_torrents.add(c.torrent_id)
+        sukebei_torrents.add(c.torrent_id)
+        db.session.delete(c)
+        if isinstance(c, models.NyaaComment):
+            nyaa_deleted += 1
+        else:
+            sukebei_deleted += 1
+
+    for tid in nyaa_torrents:
+        models.NyaaTorrent.update_comment_count_db(tid)
+    for tid in sukebei_torrents:
+        models.SukebeiTorrent.update_comment_count_db(tid)
+
+    for log_flavour, num in ((models.NyaaAdminLog, nyaa_deleted),
+                             (models.SukebeiAdminLog, sukebei_deleted)):
+        if num > 0:
+            log = "Nuked {0} comments of [{1}]({2})".format(num,
+                                                            user.username,
+                                                            url)
+            adminlog = log_flavour(log=log, admin_id=flask.g.user.id)
+            db.session.add(adminlog)
+
+    db.session.commit()
+    flask.flash('Comments of {0} have been nuked.'.format(user.username),
+                'success')
+    return flask.redirect(url)
+
+
 def _create_user_class_choices(user):
     choices = [('regular', 'Regular')]
     default = 'regular'

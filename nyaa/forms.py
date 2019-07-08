@@ -11,8 +11,8 @@ from wtforms import (BooleanField, HiddenField, PasswordField, SelectField, Stri
                      SubmitField, TextAreaField)
 from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, Regexp,
                                 StopValidation, ValidationError)
-from wtforms.widgets import HTMLString  # For DisabledSelectField
 from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
+from wtforms.widgets import HTMLString  # For DisabledSelectField
 from wtforms.widgets import html_params
 
 import dns.exception
@@ -346,6 +346,7 @@ class BanForm(FlaskForm):
 
 class NukeForm(FlaskForm):
     nuke_torrents = SubmitField("\U0001F4A3 Nuke Torrents")
+    nuke_comments = SubmitField("\U0001F4A3 Nuke Comments")
 
 
 class UploadForm(FlaskForm):
