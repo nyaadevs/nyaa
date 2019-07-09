@@ -11,8 +11,8 @@ from wtforms import (BooleanField, HiddenField, PasswordField, SelectField, Stri
                      SubmitField, TextAreaField)
 from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, Regexp,
                                 StopValidation, ValidationError)
-from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
 from wtforms.widgets import HTMLString  # For DisabledSelectField
+from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
 from wtforms.widgets import html_params
 
 import dns.exception

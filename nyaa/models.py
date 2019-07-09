@@ -205,10 +205,8 @@ class TorrentBase(DeclarativeHelperBase):
 
     @classmethod
     def update_comment_count_db(cls, torrent_id):
-        comment_count = db.session.query(func.count(Comment.id)).filter_by(
-            torrent_id=torrent_id).first()[0]
-        db.session.query(cls).filter_by(id=torrent_id).update({'comment_count': comment_count})
-        return comment_count
+        cls.query.filter_by(id=torrent_id).update({'comment_count': db.session.query(
+            func.count(Comment.id)).filter_by(torrent_id=torrent_id).as_scalar()}, False)
 
     @property
     def created_utc_timestamp(self):
