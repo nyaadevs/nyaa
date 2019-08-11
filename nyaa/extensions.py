@@ -10,7 +10,7 @@ from flask_sqlalchemy import BaseQuery, Pagination, SQLAlchemy
 assets = Environment()
 db = SQLAlchemy()
 toolbar = DebugToolbarExtension()
-cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache = Cache()
 
 
 class LimitedPagination(Pagination):

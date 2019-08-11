@@ -126,6 +126,6 @@ def create_app(config):
             app.config['DEFAULT_GRAVATAR_URL'] = url
 
     # Cache
-    cache.init_app(app)
+    cache.init_app(app, config=app.config)
 
     return app
