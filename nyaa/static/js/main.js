@@ -251,6 +251,11 @@ document.addEventListener("DOMContentLoaded", function() {
 		var target = markdownTargets[i];
 		var rendered;
 		var markdownSource = htmlDecode(target.innerHTML);
+		if (target.attributes["markdown-no-images"]) {
+			markdown.disable('image');
+		} else {
+			markdown.enable('image');
+		}
 		if (target.attributes["markdown-text-inline"]) {
 			rendered = markdown.renderInline(markdownSource);
 		} else {

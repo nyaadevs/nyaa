@@ -233,6 +233,49 @@ def profile():
     return flask.render_template('profile.html', form=form)
 
 
+@bp.route('/trusted/request', methods=['GET', 'POST'])
+def request_trusted():
+    if not flask.g.user:
+        return flask.redirect(flask.url_for('account.login'))
+    trusted_form = None
+    deny_reasons = []
+    if flask.g.user.is_trusted:
+        deny_reasons.append('You are already trusted.')
+    if not flask.g.user.satisfies_trusted_reqs:
+        deny_reasons.append('You do not satisfy the minimum requirements.')
+    if (models.TrustedApplication.query.
+            filter(models.TrustedApplication.submitter_id == flask.g.user.id).
+            filter_by(is_closed=False).first()):
+        deny_reasons.append('You already have an open application.')
+    last_app = models.TrustedApplication.query \
+        .filter(models.TrustedApplication.submitter_id == flask.g.user.id) \
+        .filter_by(is_rejected=True) \
+        .order_by(models.TrustedApplication.closed_time.desc()) \
+        .first()
+    if last_app:
+        if ((datetime.utcnow() - last_app.closed_time).days <
+                app.config['TRUSTED_REAPPLY_COOLDOWN']):
+            deny_reasons.append('Your last application was rejected less than {} days ago.'
+                                .format(app.config['TRUSTED_REAPPLY_COOLDOWN']))
+    if flask.request.method == 'POST':
+        trusted_form = forms.TrustedForm(flask.request.form)
+        if trusted_form.validate() and not deny_reasons:
+            ta = models.TrustedApplication()
+            ta.submitter_id = flask.g.user.id
+            ta.why_want = trusted_form.why_want_trusted.data.rstrip()
+            ta.why_give = trusted_form.why_give_trusted.data.rstrip()
+            db.session.add(ta)
+            db.session.commit()
+            flask.flash('Your trusted application has been submitted. '
+                        'You will receive an email when a decision has been made.', 'success')
+            return flask.redirect(flask.url_for('site.trusted'))
+    else:
+        if len(deny_reasons) == 0:
+            trusted_form = forms.TrustedForm()
+    return flask.render_template('trusted_form.html', trusted_form=trusted_form,
+                                 deny_reasons=deny_reasons)
+
+
 def redirect_url():
     next_url = flask.request.args.get('next', '')
     referrer = flask.request.referrer or ''

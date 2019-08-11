@@ -113,7 +113,7 @@
 	</div>
 {% endmacro %}
 
-{% macro render_menu_with_button(field) %}
+{% macro render_menu_with_button(field, button_label='Apply') %}
 {% if field.errors %}
 	<div class="form-group has-error">
 {% else %}
@@ -123,7 +123,7 @@
 		<div class="input-group input-group-sm">
 			{{ field(title=field.description, class_="form-control",**kwargs) | safe }}
 			<div class="input-group-btn">
-				<button type="submit" class="btn btn-primary">Apply</button>
+				<button type="submit" class="btn btn-primary">{{ button_label }}</button>
 			</div>
 		</div>
 		{% if field.errors %}

@@ -1,10 +1,12 @@
+from datetime import datetime
 from ipaddress import ip_address
 
 import flask
 
-from nyaa import forms, models
+from nyaa import email, forms, models
 from nyaa.extensions import db
 
+app = flask.current_app
 bp = flask.Blueprint('admin', __name__, url_prefix='/admin')
 
 
@@ -114,3 +116,84 @@ def view_reports():
     return flask.render_template('reports.html',
                                  reports=reports,
                                  report_action=report_action)
+
+
+@bp.route('/trusted/<list_filter>', endpoint='trusted', methods=['GET'])
+@bp.route('/trusted', endpoint='trusted', methods=['GET'])
+def view_trusted(list_filter=None):
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page = flask.request.args.get('p', flask.request.args.get('offset', 1, int), int)
+    q = db.session.query(models.TrustedApplication)
+    if list_filter == 'closed':
+        q = q.filter_by(is_closed=True)
+    else:
+        q = q.filter_by(is_closed=False)
+        if list_filter == 'new':
+            q = q.filter_by(is_new=True)
+        elif list_filter == 'reviewed':
+            q = q.filter_by(is_reviewed=True)
+        elif list_filter is not None:
+            flask.abort(404)
+    apps = q.order_by(models.TrustedApplication.created_time.desc()) \
+            .paginate(page=page, per_page=20)
+
+    return flask.render_template('admin_trusted.html', apps=apps,
+                                 list_filter=list_filter)
+
+
+@bp.route('/trusted/application/<int:app_id>', endpoint='trusted_application',
+          methods=['GET', 'POST'])
+def view_trusted_application(app_id):
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+    app = models.TrustedApplication.by_id(app_id)
+    if not app:
+        flask.abort(404)
+    decision_form = None
+    review_form = forms.TrustedReviewForm(flask.request.form)
+    if flask.g.user.is_superadmin and not app.is_closed:
+        decision_form = forms.TrustedDecisionForm()
+    if flask.request.method == 'POST':
+        do_decide = decision_form and (decision_form.accept.data or decision_form.reject.data)
+        if do_decide and decision_form.validate():
+            app.closed_time = datetime.utcnow()
+            if decision_form.accept.data:
+                app.status = models.TrustedApplicationStatus.ACCEPTED
+                app.submitter.level = models.UserLevelType.TRUSTED
+                flask.flash(flask.Markup('Application has been <b>accepted</b>.'), 'success')
+            elif decision_form.reject.data:
+                app.status = models.TrustedApplicationStatus.REJECTED
+                flask.flash(flask.Markup('Application has been <b>rejected</b>.'), 'success')
+            _send_trusted_decision_email(app.submitter, bool(decision_form.accept.data))
+            db.session.commit()
+            return flask.redirect(flask.url_for('admin.trusted_application', app_id=app_id))
+        elif review_form.comment.data and review_form.validate():
+            tr = models.TrustedReview()
+            tr.reviewer_id = flask.g.user.id
+            tr.app_id = app_id
+            tr.comment = review_form.comment.data
+            tr.recommendation = getattr(models.TrustedRecommendation,
+                                        review_form.recommendation.data.upper())
+            if app.status == models.TrustedApplicationStatus.NEW:
+                app.status = models.TrustedApplicationStatus.REVIEWED
+            db.session.add(tr)
+            db.session.commit()
+            flask.flash('Review successfully posted.', 'success')
+            return flask.redirect(flask.url_for('admin.trusted_application', app_id=app_id))
+
+    return flask.render_template('admin_trusted_view.html', app=app, review_form=review_form,
+                                 decision_form=decision_form)
+
+
+def _send_trusted_decision_email(user, is_accepted):
+    email_msg = email.EmailHolder(
+        subject='Your {} Trusted Application was {}.'.format(app.config['GLOBAL_SITE_NAME'],
+                                                             ('rejected', 'accepted')[is_accepted]),
+        recipient=user,
+        text=flask.render_template('email/trusted.txt', is_accepted=is_accepted),
+        html=flask.render_template('email/trusted.html', is_accepted=is_accepted),
+    )
+
+    email.send_email(email_msg)

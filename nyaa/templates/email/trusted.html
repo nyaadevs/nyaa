@@ -1,0 +1,14 @@
+<html>
+	<head>
+		<title>Your {{ config.GLOBAL_SITE_NAME }} Trusted Application was {{ 'accepted' if is_accepted else 'rejected' }}</title>
+	</head>
+	<body>
+		{% if is_accepted %}
+		<p>Congratulations! Your Trusted status application on {{ config.GLOBAL_SITE_NAME }} was accepted. You can now edit your torrents and set the Trusted flag on them.</p>
+		{% else %}
+		<p>We're sorry to inform you that we've rejected your Trusted status application on {{ config.GLOBAL_SITE_NAME }}. You can re-apply for Trusted status in {{ config.TRUSTED_REAPPLY_COOLDOWN }} days if you wish to do so.</p>
+		{% endif %}
+		<p>Regards<br/>
+		The {{ config.GLOBAL_SITE_NAME }} Moderation Team</p>
+	</body>
+</html>

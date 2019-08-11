@@ -11,8 +11,9 @@ from urllib.parse import urlencode
 import flask
 from markupsafe import escape as escape_markup
 
-from sqlalchemy import ForeignKeyConstraint, Index
+from sqlalchemy import ForeignKeyConstraint, Index, func
 from sqlalchemy.ext import declarative
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 
@@ -642,6 +643,24 @@ class User(db.Model):
         ''' Returns a UTC POSIX timestamp, as seconds '''
         return (self.created_time - UTC_EPOCH).total_seconds()
 
+    @property
+    def satisfies_trusted_reqs(self):
+        num_total = 0
+        downloads_total = 0
+        for ts_flavor, t_flavor in ((NyaaStatistic, NyaaTorrent),
+                                    (SukebeiStatistic, SukebeiTorrent)):
+            uploads = db.session.query(func.count(t_flavor.id)).\
+                filter(t_flavor.user == self).\
+                filter(t_flavor.flags.op('&')(int(TorrentFlags.REMAKE)).is_(False)).scalar()
+            dls = db.session.query(func.sum(ts_flavor.download_count)).\
+                join(t_flavor).\
+                filter(t_flavor.user == self).\
+                filter(t_flavor.flags.op('&')(int(TorrentFlags.REMAKE)).is_(False)).scalar()
+            num_total += uploads or 0
+            downloads_total += dls or 0
+        return (num_total >= config['TRUSTED_MIN_UPLOADS'] and
+                downloads_total >= config['TRUSTED_MIN_DOWNLOADS'])
+
 
 class UserPreferences(db.Model):
     __tablename__ = 'user_preferences'
@@ -843,6 +862,77 @@ class RangeBan(db.Model):
         q = cls.query.filter(cls.mask.op('&')(ip_int) == cls.masked_cidr,
                              cls.enabled)
         return q.count() > 0
+
+
+class TrustedApplicationStatus(IntEnum):
+    # If you change these, don't forget to change is_closed in TrustedApplication
+    NEW = 0
+    REVIEWED = 1
+    ACCEPTED = 2
+    REJECTED = 3
+
+
+class TrustedApplication(db.Model):
+    __tablename__ = 'trusted_applications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    submitter_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    closed_time = db.Column(db.DateTime(timezone=False))
+    why_want = db.Column(db.String(length=4000), nullable=False)
+    why_give = db.Column(db.String(length=4000), nullable=False)
+    status = db.Column(ChoiceType(TrustedApplicationStatus, impl=db.Integer()), nullable=False,
+                       default=TrustedApplicationStatus.NEW)
+    reviews = db.relationship('TrustedReview', backref='trusted_applications')
+    submitter = db.relationship('User', uselist=False, lazy='joined', foreign_keys=[submitter_id])
+
+    @hybrid_property
+    def is_closed(self):
+        # We can't use the attribute names from TrustedApplicationStatus in an or here because of
+        # SQLAlchemy jank. It'll generate the wrong query.
+        return self.status > 1
+
+    @hybrid_property
+    def is_new(self):
+        return self.status == TrustedApplicationStatus.NEW
+
+    @hybrid_property
+    def is_reviewed(self):
+        return self.status == TrustedApplicationStatus.REVIEWED
+
+    @hybrid_property
+    def is_rejected(self):
+        return self.status == TrustedApplicationStatus.REJECTED
+
+    @property
+    def created_utc_timestamp(self):
+        ''' Returns a UTC POSIX timestamp, as seconds '''
+        return (self.created_time - UTC_EPOCH).total_seconds()
+
+    @classmethod
+    def by_id(cls, id):
+        return cls.query.get(id)
+
+
+class TrustedRecommendation(IntEnum):
+    ACCEPT = 0
+    REJECT = 1
+    ABSTAIN = 2
+
+
+class TrustedReview(db.Model):
+    __tablename__ = 'trusted_reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    app_id = db.Column(db.Integer, db.ForeignKey('trusted_applications.id'), nullable=False)
+    created_time = db.Column(db.DateTime(timezone=False), default=datetime.utcnow)
+    comment = db.Column(db.String(length=4000), nullable=False)
+    recommendation = db.Column(ChoiceType(TrustedRecommendation, impl=db.Integer()),
+                               nullable=False)
+    reviewer = db.relationship('User', uselist=False, lazy='joined', foreign_keys=[reviewer_id])
+    application = db.relationship('TrustedApplication', uselist=False, lazy='joined',
+                                  foreign_keys=[app_id])
 
 
 # Actually declare our site-specific classes

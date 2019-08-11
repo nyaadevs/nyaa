@@ -485,6 +485,33 @@ class ReportActionForm(FlaskForm):
     report = HiddenField()
 
 
+class TrustedForm(FlaskForm):
+    why_give_trusted = TextAreaField('Why do you think you should be given trusted status?', [
+        Length(min=32, max=4000,
+               message='Please explain why you think you should be given trusted status in at '
+                       'least %(min)d but less than %(max)d characters.'),
+        DataRequired('Please fill out all of the fields in the form.')
+    ])
+    why_want_trusted = TextAreaField('Why do you want to become a trusted user?', [
+        Length(min=32, max=4000,
+               message='Please explain why you want to become a trusted user in at least %(min)d '
+                       'but less than %(max)d characters.'),
+        DataRequired('Please fill out all of the fields in the form.')
+    ])
+
+
+class TrustedReviewForm(FlaskForm):
+    comment = TextAreaField('Comment',
+                            [Length(min=8, max=4000, message='Please provide a comment')])
+    recommendation = SelectField(choices=[('abstain', 'Abstain'), ('reject', 'Reject'),
+                                          ('accept', 'Accept')])
+
+
+class TrustedDecisionForm(FlaskForm):
+    accept = SubmitField('Accept')
+    reject = SubmitField('Reject')
+
+
 def _validate_trackers(torrent_dict, tracker_to_check_for=None):
     announce = torrent_dict.get('announce')
     assert announce is not None, 'no tracker in torrent'

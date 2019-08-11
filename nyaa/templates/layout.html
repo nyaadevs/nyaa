@@ -90,6 +90,7 @@
 							<ul class="dropdown-menu">
 								<li {% if request.path == url_for('site.rules') %}class="active"{% endif %}><a href="{{ url_for('site.rules') }}">Rules</a></li>
 								<li {% if request.path == url_for('site.help') %}class="active"{% endif %}><a href="{{ url_for('site.help') }}">Help</a></li>
+								<li {% if request.path == url_for('site.trusted') %}class="active"{% endif %}><a href="{{ url_for('site.trusted') }}">Trusted</a></li>
 							</ul>
 						</li>
 						<li><a href="{% if rss_filter %}{{ url_for('main.home', page='rss', **rss_filter) }}{% else %}{{ url_for('main.home', page='rss') }}{% endif %}">RSS</a></li>
@@ -108,6 +109,7 @@
 								<li {% if request.path == url_for('admin.reports') %}class="active"{% endif %}><a href="{{ url_for('admin.reports') }}">Reports</a></li>
 								<li {% if request.path == url_for('admin.log') %}class="active"{% endif %}><a href="{{ url_for('admin.log') }}">Log</a></li>
 								<li {% if request.path == url_for('admin.bans') %}class="active"{% endif %}><a href="{{ url_for('admin.bans') }}">Bans</a></li>
+								<li {% if request.path == url_for('admin.trusted') %}class="active"{% endif %}><a href="{{ url_for('admin.trusted') }}">Trusted</a></li>
 							</ul>
 						</li>
 						{% endif %}

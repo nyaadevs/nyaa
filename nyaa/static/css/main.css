@@ -448,6 +448,9 @@ h6:hover .header-anchor {
 	visibility: visible;
 	display: inline-block;
 }
+.trusted-form textarea {
+	height:12em;
+}
 
 /* Dark theme */
 

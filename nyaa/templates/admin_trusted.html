@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% macro render_filter_tab(name) %}
+	<li class="nav-item{% if list_filter == name %} active{% endif %}">
+		<a class="nav-link{% if list_filter == name %} active{% endif %}" href="{{ url_for('admin.trusted', list_filter=name) }}">
+			{% if name %}
+				{{ name.capitalize() }}
+			{% else %}
+				Open
+			{% endif %}
+		</a>
+	</li>
+{% endmacro %}
+{% block title %}Trusted Applications :: {{ config.SITE_NAME }}{% endblock %}
+{% block body %}
+<ul class="nav nav-tabs" role="tablist">
+	{{ render_filter_tab(None) }}
+	{{ render_filter_tab('new') }}
+	{{ render_filter_tab('reviewed') }}
+	{{ render_filter_tab('closed') }}
+</ul>
+<div class="table">
+	<table class="table table-bordered table-hover table-striped table-condensed">
+		<caption>List of {{ list_filter or 'open' }} applications</caption>
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Submitter</th>
+				<th scope="col">Submitted on</th>
+				<th scope="col">Status</th>
+				<th scope="col"></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for app in apps.items %}
+			<tr class="reports-row">
+				<td>{{ app.id }}</td>
+				<td>
+					<a href="{{ url_for('users.view_user', user_name=app.submitter.username) }}">
+						{{ app.submitter.username }}
+					</a>
+				</td>
+				<td data-timestamp="{{ app.created_utc_timestamp | int }}">{{ app.created_time.strftime('%Y-%m-%d %H:%M') }}</td>
+				<td>{{ app.status.name.capitalize() }}</td>
+				<td><a class="btn btn-primary btn-sm" style="width:100%" href="{{ url_for('admin.trusted_application', app_id=app.id) }}" role="button">View</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+<div class=pagination>
+	{% from "bootstrap/pagination.html" import render_pagination %}
+	{{ render_pagination(apps) }}
+</div>
+{% endblock %}

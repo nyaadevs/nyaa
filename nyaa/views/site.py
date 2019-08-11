@@ -21,3 +21,8 @@ def help():
 @bp.route('/xmlns/nyaa', methods=['GET'])
 def xmlns_nyaa():
     return flask.render_template('xmlns.html')
+
+
+@bp.route('/trusted', methods=['GET'])
+def trusted():
+    return flask.render_template('trusted.html')
