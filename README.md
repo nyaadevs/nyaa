@@ -1,7 +1,7 @@
 # NyaaV2 [![Build Status](https://travis-ci.org/nyaadevs/nyaa.svg?branch=master)](https://travis-ci.org/nyaadevs/nyaa)
 
 ## Setting up for development
-This project uses Python 3.6. There are features used that do not exist in 3.5, so make sure to use Python 3.6.   
+This project uses Python 3.7. There are features used that do not exist in 3.6, so make sure to use Python 3.7.
 This guide also assumes you 1) are using Linux and 2) are somewhat capable with the commandline.   
 It's not impossible to run Nyaa on Windows, but this guide doesn't focus on that.
 
@@ -16,13 +16,13 @@ The `tests` folder contains tests for the the `nyaa` module and the webserver. T
 - Run `./dev.py test` while in the repository directory.
 
 ### Setting up Pyenv
-pyenv eases the use of different Python versions, and as not all Linux distros offer 3.6 packages, it's right up our alley.
+pyenv eases the use of different Python versions, and as not all Linux distros offer 3.7 packages, it's right up our alley.
 - Install dependencies https://github.com/pyenv/pyenv/wiki/Common-build-problems
 - Install `pyenv` https://github.com/pyenv/pyenv/blob/master/README.md#installation
 - Install `pyenv-virtualenv` https://github.com/pyenv/pyenv-virtualenv/blob/master/README.md
-- Install Python 3.6.1 with `pyenv` and create a virtualenv for the project:
-    - `pyenv install 3.6.1`
-    - `pyenv virtualenv 3.6.1 nyaa`
+- Install Python 3.7.2 with `pyenv` and create a virtualenv for the project:
+    - `pyenv install 3.7.2`
+    - `pyenv virtualenv 3.7.2 nyaa`
     - `pyenv activate nyaa`
 - Install dependencies with `pip install -r requirements.txt`
 - Copy `config.example.py` into `config.py`

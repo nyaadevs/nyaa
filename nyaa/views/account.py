@@ -26,6 +26,9 @@ def login():
             return flask.redirect(flask.url_for('account.login'))
 
         username = form.username.data.strip()
+        if not username.isascii():
+            flask.flash('Invalid characters in username.', 'danger')
+            return flask.redirect(flask.url_for('account.login'))
         password = form.password.data
         user = models.User.by_username(username)
 
@@ -151,7 +154,7 @@ def password_reset(payload=None):
         s = get_serializer()
         try:
             request_timestamp, pw_hash, user_id = s.loads(payload)
-        except:
+        except Exception:
             return flask.abort(404)
 
         user = models.User.by_id(user_id)

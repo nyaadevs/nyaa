@@ -29,7 +29,7 @@ def _maintenance_mode_hook():
                 flask.flash(flask.Markup(message), 'danger')
                 try:
                     target_url = flask.url_for(endpoint)
-                except:
+                except Exception:
                     # Non-GET-able endpoint, try referrer or default to home page
                     target_url = flask.request.referrer or flask.url_for('main.home')
                 return flask.redirect(target_url)

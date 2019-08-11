@@ -11,8 +11,9 @@ from wtforms import (BooleanField, HiddenField, PasswordField, SelectField, Stri
                      SubmitField, TextAreaField)
 from wtforms.validators import (DataRequired, Email, EqualTo, Length, Optional, Regexp,
                                 StopValidation, ValidationError)
+from wtforms.widgets import HTMLString  # For DisabledSelectField
 from wtforms.widgets import Select as SelectWidget  # For DisabledSelectField
-from wtforms.widgets import HTMLString, html_params  # For DisabledSelectField
+from wtforms.widgets import html_params
 
 import dns.exception
 import dns.resolver
@@ -78,7 +79,7 @@ def register_email_blacklist_validator(form, field):
     validation_exception = StopValidation('Blacklisted email provider')
 
     for item in email_blacklist:
-        if isinstance(item, re._pattern_type):
+        if isinstance(item, re.Pattern):
             if item.search(email):
                 raise validation_exception
         elif isinstance(item, str):
