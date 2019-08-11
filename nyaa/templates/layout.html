@@ -108,6 +108,7 @@
 								<li {% if request.path == url_for('admin.reports') %}class="active"{% endif %}><a href="{{ url_for('admin.reports') }}">Reports</a></li>
 								<li {% if request.path == url_for('admin.log') %}class="active"{% endif %}><a href="{{ url_for('admin.log') }}">Log</a></li>
 								<li {% if request.path == url_for('admin.bans') %}class="active"{% endif %}><a href="{{ url_for('admin.bans') }}">Bans</a></li>
+								<li {% if request.path == url_for('admin.comments') %}class="active"{% endif %}><a href="{{ url_for('admin.comments') }}">Comments</a></li>
 							</ul>
 						</li>
 						{% endif %}

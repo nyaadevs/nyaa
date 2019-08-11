@@ -114,3 +114,23 @@ def view_reports():
     return flask.render_template('reports.html',
                                  reports=reports,
                                  report_action=report_action)
+
+
+@bp.route('/comments', endpoint='comments', methods=['GET'])
+def view_comments():
+    if not flask.g.user or not flask.g.user.is_moderator:
+        flask.abort(403)
+
+    page_number = flask.request.args.get('p')
+    try:
+        page_number = max(1, int(page_number))
+    except (ValueError, TypeError):
+        page_number = 1
+
+    comments_per_page = 50
+
+    comments_query = (models.Comment.query.filter()
+                                          .order_by(models.Comment.created_time.desc()))
+    comments_query = comments_query.paginate_faste(page_number, per_page=comments_per_page, step=5)
+    return flask.render_template('comments.html',
+                                 comments_query=comments_query)
