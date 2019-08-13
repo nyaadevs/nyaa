@@ -346,6 +346,7 @@ class BanForm(FlaskForm):
 
 class NukeForm(FlaskForm):
     nuke_torrents = SubmitField("\U0001F4A3 Nuke Torrents")
+    nuke_comments = SubmitField("\U0001F4A3 Nuke Comments")
 
 
 class UploadForm(FlaskForm):

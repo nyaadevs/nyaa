@@ -138,6 +138,9 @@
 							<div class="col-md-6 text-left">
 								{{ nuke_form.nuke_torrents(class="btn btn-danger", formaction=url_for('users.nuke_user_torrents', user_name=user.username)) }}
 							</div>
+							<div class="col-md-6 text-right">
+								{{ nuke_form.nuke_comments(class="btn btn-danger", formaction=url_for('users.nuke_user_comments', user_name=user.username)) }}
+							</div>
 						</div>
 					</form>
 					{% endif %}

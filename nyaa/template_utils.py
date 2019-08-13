@@ -29,7 +29,7 @@ def create_magnet_from_es_torrent():
 flask_url_for = flask.url_for
 
 
-@functools.lru_cache(maxsize=1024*4)
+@functools.lru_cache(maxsize=1024 * 4)
 def _caching_url_for(endpoint, **values):
     return flask_url_for(endpoint, **values)
 
