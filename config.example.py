@@ -139,6 +139,10 @@ MINIMUM_ANONYMOUS_TORRENT_SIZE = 1 * 1024 * 1024
 # Relies on USE_RECAPTCHA. Set to 0 to disable.
 ACCOUNT_RECAPTCHA_AGE = 7 * 24 * 3600  # A week
 
+# Seconds after which an IP is allowed to register another account
+# (0 disables the limitation)
+PER_IP_ACCOUNT_COOLDOWN = 24 * 3600
+
 # Backup original .torrent uploads
 BACKUP_TORRENT_FOLDER = 'torrents'
 

@@ -1,6 +1,6 @@
 import binascii
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from ipaddress import ip_address
 
 import flask
@@ -80,6 +80,15 @@ def logout():
     return response
 
 
+def _check_for_multi_account(ip, cooldown):
+    if not cooldown:
+        return False
+    cooldown_timestamp = datetime.utcnow() - timedelta(seconds=cooldown)
+    q = models.User.query.filter(ip == models.User.registration_ip,
+                                 models.User.created_time > cooldown_timestamp)
+    return db.session.query(q.exists()).scalar()
+
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if flask.g.user:
@@ -87,10 +96,17 @@ def register():
 
     form = forms.RegisterForm(flask.request.form)
     if flask.request.method == 'POST' and form.validate():
+        ip = ip_address(flask.request.remote_addr).packed
+
+        if _check_for_multi_account(ip, app.config.get('PER_IP_ACCOUNT_COOLDOWN', 0)):
+            flask.flash('You or somebody else has already registered an account from this IP '
+                        'recently. You cannot register another one.', 'danger')
+            return flask.render_template('register.html', form=form)
+
         user = models.User(username=form.username.data.strip(),
                            email=form.email.data.strip(), password=form.password.data)
-        user.registration_ip = ip_address(flask.request.remote_addr).packed
-        user.last_login_ip = user.registration_ip
+        user.registration_ip = ip
+        user.last_login_ip = ip
         db.session.add(user)
         db.session.commit()
 
