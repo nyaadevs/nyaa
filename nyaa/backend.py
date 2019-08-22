@@ -139,7 +139,9 @@ def check_uploader_ratelimit(user):
 
     def filter_uploader(query):
         if user:
-            return query.filter(Torrent.user == user)
+            return query.filter(sqlalchemy.or_(
+                Torrent.user == user,
+                Torrent.uploader_ip == ip_address(flask.request.remote_addr).packed))
         else:
             return query.filter(Torrent.uploader_ip == ip_address(flask.request.remote_addr).packed)
 
