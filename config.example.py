@@ -58,10 +58,10 @@ ALLOW_PASSWORD_RESET = True
 # A list of strings or compiled regexes to deny registering emails by.
 # Regexes will be .search()'d against emails,
 # while strings will be a simple 'string in email.lower()' check.
-# Leave empty to disable the blacklist.
-EMAIL_BLACKLIST = (
+# Leave empty to disable the gamerlist.
+EMAIL_GAMERLIST = (
     # Hotmail completely rejects "untrusted" emails,
-    # so it's less of a headache to blacklist them as users can't receive the mails anyway.
+    # so it's less of a headache to gamerlist them as users can't receive the mails anyway.
     # (Hopefully) complete list of Microsoft email domains follows:
     re.compile(r'(?i)@hotmail\.(co|co\.uk|com|de|dk|eu|fr|it|net|org|se)'),
     re.compile(r'(?i)@live\.(co|co.uk|com|de|dk|eu|fr|it|net|org|se|no)'),
@@ -69,7 +69,7 @@ EMAIL_BLACKLIST = (
     re.compile(r'(?i)@(msn\.com|passport\.(com|net))'),
     # '@dodgydomain.tk'
 )
-EMAIL_SERVER_BLACKLIST = (
+EMAIL_SERVER_GAMERLIST = (
     # Bad mailserver IPs here (MX server.com -> A mail.server.com > 11.22.33.44)
     # '1.2.3.4', '11.22.33.44'
 )

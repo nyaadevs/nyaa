@@ -73,12 +73,12 @@ def upload_recaptcha_validator_shim(form, field):
         return True
 
 
-def register_email_blacklist_validator(form, field):
-    email_blacklist = app.config.get('EMAIL_BLACKLIST', [])
+def register_email_gamerlist_validator(form, field):
+    email_gamerlist = app.config.get('EMAIL_GAMERLIST', [])
     email = field.data.strip()
-    validation_exception = StopValidation('Blacklisted email provider')
+    validation_exception = StopValidation('Gamerlisted email provider')
 
-    for item in email_blacklist:
+    for item in email_gamerlist:
         if isinstance(item, re.Pattern):
             if item.search(email):
                 raise validation_exception
@@ -91,11 +91,11 @@ def register_email_blacklist_validator(form, field):
 
 
 def register_email_server_validator(form, field):
-    server_blacklist = app.config.get('EMAIL_SERVER_BLACKLIST', [])
-    if not server_blacklist:
+    server_gamerlist = app.config.get('EMAIL_SERVER_GAMERLIST', [])
+    if not server_gamerlist:
         return True
 
-    validation_exception = StopValidation('Blacklisted email provider')
+    validation_exception = StopValidation('Gamerlisted email provider')
     email = field.data.strip()
     email_domain = email.split('@', 1)[-1]
 
@@ -113,9 +113,9 @@ def register_email_server_validator(form, field):
             # Query mailserver A records
             a_records = list(dns.resolver.query(mx_record.exchange))
             for a_record in a_records:
-                # Check for address in blacklist
-                if a_record.address in server_blacklist:
-                    app.logger.warning('Rejected email %s due to blacklisted mailserver (%s, %s)',
+                # Check for address in gamerlist
+                if a_record.address in server_gamerlist:
+                    app.logger.warning('Rejected email %s due to gamerlisted mailserver (%s, %s)',
                                        email, a_record.address, mx_record.exchange)
                     raise validation_exception
 
@@ -169,7 +169,7 @@ class RegisterForm(FlaskForm):
         Email(),
         DataRequired(),
         Length(min=5, max=128),
-        register_email_blacklist_validator,
+        register_email_gamerlist_validator,
         Unique(User, User.email, 'Email already in use by another account'),
         register_email_server_validator
     ])

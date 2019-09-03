@@ -15,12 +15,12 @@ from nyaa.extensions import db
 
 app = flask.current_app
 
-# Blacklists for _validate_torrent_filenames
+# Gamerlists for _validate_torrent_filenames
 # TODO: consider moving to config.py?
-CHARACTER_BLACKLIST = [
+CHARACTER_GAMERLIST = [
     '\u202E',  # RIGHT-TO-LEFT OVERRIDE
 ]
-FILENAME_BLACKLIST = [
+FILENAME_GAMERLIST = [
     # Windows reserved filenames
     'con',
     'nul',
@@ -86,14 +86,14 @@ def _recursive_dict_iterator(source):
 
 
 def _validate_torrent_filenames(torrent):
-    ''' Checks path parts of a torrent's filetree against blacklisted characters
+    ''' Checks path parts of a torrent's filetree against gamerlisted characters
         and filenames, returning False on rejection '''
     file_tree = json.loads(torrent.filelist.filelist_blob.decode('utf-8'))
 
     for path_part, value in _recursive_dict_iterator(file_tree):
-        if path_part.rsplit('.', 1)[0].lower() in FILENAME_BLACKLIST:
+        if path_part.rsplit('.', 1)[0].lower() in FILENAME_GAMERLIST:
             return False
-        if any(True for c in CHARACTER_BLACKLIST if c in path_part):
+        if any(True for c in CHARACTER_GAMERLIST if c in path_part):
             return False
 
     return True
