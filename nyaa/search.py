@@ -379,7 +379,7 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
         same_user = logged_in_user.id == user
 
     # Logged in users should always be able to view their full listing.
-    if same_user:
+    if same_user or admin:
         MAX_PAGES = 0
 
     if MAX_PAGES and page > MAX_PAGES:
