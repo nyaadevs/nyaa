@@ -5,7 +5,7 @@
 <meta property="og:description" content="{{ category_name(torrent.sub_category.id_as_string) }} | {{ torrent.filesize | filesizeformat(True) }} | Uploaded by {{ uploader_name }} on {{ torrent.created_time.strftime('%Y-%m-%d') }}">
 {% endblock %}
 {% block body %}
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_field, render_markdown_editor %}
 <div class="panel panel-{% if torrent.deleted %}deleted{% elif torrent.remake %}danger{% elif torrent.trusted %}success{% else %}default{% endif %}">
 	<div class="panel-heading"{% if torrent.hidden %} style="background-color: darkgray;"{% endif %}>
 		<h3 class="panel-title">
@@ -177,7 +177,7 @@
 				<div class="row comment-body">
 					{# Escape newlines into html entities because CF strips blank newlines #}
 					<div markdown-text class="comment-content" id="torrent-comment{{ comment.id }}">{{- comment.text | escape | replace('\r\n', '\n') | replace('\n', '&#10;'|safe) -}}</div>
-					{% if g.user.id == comment.user_id and comment_form %}
+					{% if g.user.id == comment.user_id and comment_form and not comment.editing_limit_exceeded and (not torrent.comment_locked or g.user.is_moderator) %}
 					<form class="edit-comment-box" action="{{ url_for('torrents.edit_comment', torrent_id=torrent.id, comment_id=comment.id) }}" method="POST">
 						{{ comment_form.csrf_token }}
 						<div class="form-group">
@@ -225,7 +225,7 @@
 		{{ comment_form.csrf_token }}
 		<div class="row">
 			<div class="col-md-12">
-				{{ render_field(comment_form.comment, class_='form-control') }}
+				{{ render_markdown_editor(comment_form.comment) }}
 			</div>
 		</div>
 		{% if config.USE_RECAPTCHA and g.user.age < config['ACCOUNT_RECAPTCHA_AGE'] %}
