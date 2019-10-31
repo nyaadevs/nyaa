@@ -130,7 +130,7 @@ def view_user(user_name):
 
     query_args = {
         'term': search_term or '',
-        'user': user.id,
+        'user_ids': (user.id,),  # Tuple!
         'sort': sort_key or 'id',
         'order': sort_order or 'desc',
         'category': category or '0_0',
@@ -146,7 +146,7 @@ def view_user(user_name):
             query_args['admin'] = True
 
     # Use elastic search for term searching
-    rss_query_string = _generate_query_string(search_term, category, quality_filter, user_name)
+    rss_query_string = _generate_query_string(search_term, category, quality_filter, [user_name])
     use_elastic = app.config.get('USE_ELASTIC_SEARCH')
     if use_elastic and search_term:
         query_args['term'] = search_term

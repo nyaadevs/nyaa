@@ -3,6 +3,7 @@ import re
 import shlex
 import threading
 import time
+from urllib.parse import quote, urlencode
 
 import flask
 from flask_sqlalchemy import Pagination
@@ -60,17 +61,18 @@ def _get_index_name(column):
     return table_indexes.get(column.name)
 
 
-def _generate_query_string(term, category, filter, user):
-    params = {}
+def _generate_query_string(term, category, filter, user_names):
+    params = []
     if term:
-        params['q'] = str(term)
+        params.append(('q', str(term)))
     if category:
-        params['c'] = str(category)
+        params.append(('c', str(category)))
     if filter:
-        params['f'] = str(filter)
-    if user:
-        params['u'] = str(user)
-    return params
+        params.append(('f', str(filter)))
+    for name in user_names:
+        params.append(('u', name))
+
+    return urlencode(params, quote_via=quote)
 
 
 # For preprocessing ES search terms in _parse_es_search_terms
@@ -181,7 +183,7 @@ def _parse_es_search_terms(search, search_terms):
     return search
 
 
-def search_elastic(term='', user=None, sort='id', order='desc',
+def search_elastic(term='', user_ids=None, sort='id', order='desc',
                    category='0_0', quality_filter='0', page=1,
                    rss=False, admin=False, logged_in_user=None,
                    per_page=75, max_search_results=1000):
@@ -261,17 +263,9 @@ def search_elastic(term='', user=None, sort='id', order='desc',
                 if not main_category:
                     flask.abort(400)
 
-    # This might be useless since we validate users
-    # before coming into this method, but just to be safe...
-    if user:
-        user = models.User.by_id(user)
-        if not user:
-            flask.abort(404)
-        user = user.id
-
     same_user = False
     if logged_in_user:
-        same_user = user == logged_in_user.id
+        same_user = len(user_ids) == 1 and logged_in_user.id in user_ids
 
     s = Search(using=es_client, index=app.config.get('ES_INDEX_NAME'))  # todo, sukebei prefix
 
@@ -281,8 +275,8 @@ def search_elastic(term='', user=None, sort='id', order='desc',
         s = _parse_es_search_terms(s, term)
 
     # User view (/user/username)
-    if user:
-        s = s.filter('term', uploader_id=user)
+    if user_ids:
+        s = s.filter('terms', uploader_id=user_ids)
 
         if not admin:
             # Hide all DELETED torrents if regular user
@@ -370,7 +364,7 @@ class QueryPairCaller(object):
         return wrapper
 
 
-def search_db(term='', user=None, sort='id', order='desc', category='0_0',
+def search_db(term='', user_ids=None, sort='id', order='desc', category='0_0',
               quality_filter='0', page=1, rss=False, admin=False,
               logged_in_user=None, per_page=75):
     if page > 4294967295:
@@ -380,7 +374,7 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
 
     same_user = False
     if logged_in_user:
-        same_user = logged_in_user.id == user
+        same_user = len(user_ids) == 1 and logged_in_user.id in user_ids
 
     # Logged in users should always be able to view their full listing.
     if same_user or admin:
@@ -426,12 +420,6 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     if filter_tuple is sentinel:
         flask.abort(400)
 
-    if user:
-        user = models.User.by_id(user)
-        if not user:
-            flask.abort(404)
-        user = user.id
-
     main_category = None
     sub_category = None
     main_cat_id = 0
@@ -469,8 +457,8 @@ def search_db(term='', user=None, sort='id', order='desc', category='0_0',
     qpc = QueryPairCaller(query, count_query)
 
     # User view (/user/username)
-    if user:
-        qpc.filter(models.Torrent.uploader_id == user)
+    if user_ids:
+        qpc.filter(models.Torrent.uploader_id.in_(user_ids))
 
         if not admin:
             # Hide all DELETED torrents if regular user
@@ -610,7 +598,7 @@ BAKED_FILTER_LAMBDAS = {
 }
 
 
-def search_db_baked(term='', user=None, sort='id', order='desc', category='0_0',
+def search_db_baked(term='', user_ids=None, sort='id', order='desc', category='0_0',
                     quality_filter='0', page=1, rss=False, admin=False,
                     logged_in_user=None, per_page=75):
     if page > 4294967295:
@@ -630,12 +618,6 @@ def search_db_baked(term='', user=None, sort='id', order='desc', category='0_0',
     filter_lambda = BAKED_FILTER_LAMBDAS.get(quality_filter.lower(), sentinel)
     if filter_lambda is sentinel:
         flask.abort(400)
-
-    if user:
-        user = models.User.by_id(user)
-        if not user:
-            flask.abort(404)
-        user = user.id
 
     main_cat_id = 0
     sub_cat_id = 0
@@ -664,7 +646,7 @@ def search_db_baked(term='', user=None, sort='id', order='desc', category='0_0',
 
     same_user = False
     if logged_in_user:
-        same_user = logged_in_user.id == user
+        same_user = len(user_ids) == 1 and logged_in_user.id in user_ids
 
     if term:
         query = bakery(lambda session: session.query(models.TorrentNameSearch))
@@ -685,9 +667,9 @@ def search_db_baked(term='', user=None, sort='id', order='desc', category='0_0',
     baked_params = {}
 
     # User view (/user/username)
-    if user:
-        qpc += lambda q: q.filter(models.Torrent.uploader_id == bp('user'))
-        baked_params['user'] = user
+    if user_ids:
+        qpc += lambda q: q.filter(models.Torrent.uploader_id.in_(bp('user_ids', expanding=True)))
+        baked_params['user_ids'] = user_ids
 
         if not admin:
             # Hide all DELETED torrents if regular user
