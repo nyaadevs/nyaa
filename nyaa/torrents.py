@@ -1,3 +1,4 @@
+import functools
 import os
 from urllib.parse import quote, urlencode
 
@@ -75,29 +76,34 @@ def get_default_trackers():
     return list(trackers)
 
 
-def create_magnet(torrent, max_trackers=5, trackers=None):
+@functools.lru_cache(maxsize=1024*4)
+def _create_magnet(display_name, info_hash, max_trackers=5, trackers=None):
     # Unless specified, we just use default trackers
     if trackers is None:
         trackers = get_default_trackers()
 
     magnet_parts = [
-        ('dn', torrent.display_name)
+        ('dn', display_name)
     ]
     magnet_parts.extend(
         ('tr', tracker_url)
         for tracker_url in trackers[:max_trackers]
     )
 
+    return ''.join([
+        'magnet:?xt=urn:btih:', info_hash,
+        '&', urlencode(magnet_parts, quote_via=quote)
+    ])
+
+
+def create_magnet(torrent):
     # Since we accept both models.Torrents and ES objects,
     # we need to make sure the info_hash is a hex string
     info_hash = torrent.info_hash
     if isinstance(info_hash, (bytes, bytearray)):
         info_hash = info_hash.hex()
 
-    return ''.join([
-        'magnet:?xt=urn:btih:', info_hash,
-        '&', urlencode(magnet_parts, quote_via=quote)
-    ])
+    return _create_magnet(torrent.display_name, info_hash)
 
 
 def create_default_metadata_base(torrent, trackers=None, webseeds=None):

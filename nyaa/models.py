@@ -17,7 +17,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy_fulltext import FullText
 from sqlalchemy_utils import ChoiceType, EmailType, PasswordType
 
-from nyaa.extensions import cache, config, db
+from nyaa.extensions import config, db
 from nyaa.torrents import create_magnet
 
 app = flask.current_app
@@ -250,7 +250,6 @@ class TorrentBase(DeclarativeHelperBase):
         return self.info_hash.hex()
 
     @property
-    @cache.memoize(timeout=3600)
     def magnet_uri(self):
         return create_magnet(self)
 
