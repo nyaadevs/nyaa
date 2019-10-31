@@ -156,6 +156,13 @@ RESULTS_PER_PAGE = 75
 # How many pages we'll return at most
 MAX_PAGES = 100
 
+# How long and how many entries to cache for count queries
+COUNT_CACHE_SIZE = 256
+COUNT_CACHE_DURATION = 30
+
+# Use baked queries for database search
+USE_BAKED_SEARCH = False
+
 # Use better searching with ElasticSearch
 # See README.MD on setup!
 USE_ELASTIC_SEARCH = False

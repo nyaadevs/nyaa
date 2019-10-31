@@ -10,7 +10,7 @@ from flask_paginate import Pagination
 from nyaa import models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
-                         _generate_query_string, search_db, search_elastic)
+                         _generate_query_string, search_db, search_db_baked, search_elastic)
 from nyaa.utils import chain_get
 from nyaa.views.account import logout
 
@@ -186,7 +186,11 @@ def home(rss):
         else:  # Otherwise, use db search for everything
             query_args['term'] = search_term or ''
 
-        query = search_db(**query_args)
+        if app.config['USE_BAKED_SEARCH']:
+            query = search_db_baked(**query_args)
+        else:
+            query = search_db(**query_args)
+
         if render_as_rss:
             return render_rss('Home', query, use_elastic=False, magnet_links=use_magnet_links)
         else:
