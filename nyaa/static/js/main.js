@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", function(event) { // wait for cont
 		e.preventDefault(); // keep link from default action, which going to top of the page
 		toggleDarkMode();   // toggle theme
 	});
+	// if user bowswer support prefers-color-scheme: dark, set darkmode as default
+	if window.matchMedia('(prefers-color-scheme: dark)').matches
+		setThemeDark();
 	// needs to be done here as <body> is not available when the script in the head runs
 	if (typeof(Storage) !== 'undefined' && localStorage.getItem('theme') === 'dark')
 		document.body.classList.add('dark');
