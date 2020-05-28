@@ -51,7 +51,7 @@ settings:
 
     filter:
       my_ngram:
-        type: edgeNGram
+        type: edge_ngram
         min_gram: 1
         max_gram: 15
       fullword_min:
