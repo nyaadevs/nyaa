@@ -10,7 +10,6 @@ settings:
         char_filter:
           - my_char_filter
         filter:
-          - standard
           - lowercase
       my_index_analyzer:
         type: custom
@@ -66,9 +65,13 @@ settings:
         type: pattern_capture
         patterns: ["0*([0-9]*)"]
       word_delimit:
-        type: word_delimiter
+        type: word_delimiter_graph
         preserve_original: true
         split_on_numerics: false
+        # https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-word-delimiter-graph-tokenfilter.html#word-delimiter-graph-tokenfilter-configure-parms
+        # since we're using "trim" filters downstream, otherwise
+        # you get weird lucene errors about startOffset
+        adjust_offsets: false
     char_filter:
       my_char_filter:
         type: mapping
