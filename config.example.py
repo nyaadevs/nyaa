@@ -209,3 +209,12 @@ CACHE_THRESHOLD = 8192
 # CACHE_TYPE = "redis"
 # CACHE_REDIS_HOST = "127.0.0.1"
 # CACHE_KEY_PREFIX = "catcache_"
+
+
+###############
+## Ratelimit ##
+###############
+
+# To actually make this work across multiple worker processes, use redis
+# RATELIMIT_STORAGE_URL="redis://host:port"
+RATELIMIT_KEY_PREFIX="nyaaratelimit_"

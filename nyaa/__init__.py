@@ -128,7 +128,7 @@ def create_app(config):
     # Cache
     cache.init_app(app, config=app.config)
 
-    # Rate Limiting
+    # Rate Limiting, reads app.config itself
     limiter.init_app(app)
 
     return app
