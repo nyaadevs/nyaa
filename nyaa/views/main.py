@@ -10,7 +10,7 @@ from flask_paginate import Pagination
 from nyaa import models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
-                         _generate_query_string, search_db, search_elastic)
+                         _generate_query_string, search_db, search_db_baked, search_elastic)
 from nyaa.utils import chain_get
 from nyaa.views.account import logout
 
@@ -76,7 +76,7 @@ def home(rss):
     category = chain_get(req_args, 'c', 'cats')
     quality_filter = chain_get(req_args, 'f', 'filter')
 
-    user_name = chain_get(req_args, 'u', 'user')
+    user_names = set(req_args.getlist('u') + req_args.getlist('user'))
     page_number = chain_get(req_args, 'p', 'page', 'offset')
     try:
         page_number = max(1, int(page_number))
@@ -88,12 +88,16 @@ def home(rss):
 
     results_per_page = app.config.get('RESULTS_PER_PAGE', DEFAULT_PER_PAGE)
 
-    user_id = None
-    if user_name:
-        user = models.User.by_username(user_name)
-        if not user:
+    user_ids = []
+    if user_names:
+        for name in user_names:
+            user = models.User.by_username(name)
+            if user:
+                user_ids.append(user.id)
+        # If we have usernames to look up but find none, 404
+        if not user_ids:
             flask.abort(404)
-        user_id = user.id
+        user_ids = tuple(user_ids)
 
     special_results = {
         'first_word_user': None,
@@ -101,7 +105,7 @@ def home(rss):
         'infohash_torrent': None
     }
     # Add advanced features to searches (but not RSS or user searches)
-    if search_term and not render_as_rss and not user_id:
+    if search_term and not render_as_rss and not user_ids:
         # Check if the first word of the search is an existing user
         user_word_match = re.match(r'^([a-zA-Z0-9_-]+) *(.*|$)', search_term)
         if user_word_match:
@@ -122,7 +126,7 @@ def home(rss):
             special_results['infohash_torrent'] = matched_torrent
 
     query_args = {
-        'user': user_id,
+        'user_ids': user_ids,
         'sort': sort_key or 'id',
         'order': sort_order or 'desc',
         'category': category or '0_0',
@@ -166,7 +170,7 @@ def home(rss):
                 use_elastic=True, magnet_links=use_magnet_links)
         else:
             rss_query_string = _generate_query_string(
-                search_term, category, quality_filter, user_name)
+                search_term, category, quality_filter, user_names)
             max_results = min(max_search_results, query_results['hits']['total'])
             # change p= argument to whatever you change page_parameter to or pagination breaks
             pagination = Pagination(p=query_args['page'], per_page=results_per_page,
@@ -186,12 +190,16 @@ def home(rss):
         else:  # Otherwise, use db search for everything
             query_args['term'] = search_term or ''
 
-        query = search_db(**query_args)
+        if app.config['USE_BAKED_SEARCH']:
+            query = search_db_baked(**query_args)
+        else:
+            query = search_db(**query_args)
+
         if render_as_rss:
             return render_rss('Home', query, use_elastic=False, magnet_links=use_magnet_links)
         else:
             rss_query_string = _generate_query_string(
-                search_term, category, quality_filter, user_name)
+                search_term, category, quality_filter, user_names)
             # Use elastic is always false here because we only hit this section
             # if we're browsing without a search term (which means we default to DB)
             # or if ES is disabled

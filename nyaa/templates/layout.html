@@ -9,7 +9,7 @@
 		<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 		<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 		<link rel="mask-icon" href="{{ url_for('static', filename='pinned-tab.svg') }}" color="#3582F7">
-		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('main.home', page='rss', _external=True, **rss_filter) }}{% else %}{{ url_for('main.home', page='rss', _external=True) }}{% endif %}" />
+		<link rel="alternate" type="application/rss+xml" href="{% if rss_filter %}{{ url_for('main.home', page='rss', _external=True) + '&' + rss_filter }}{% else %}{{ url_for('main.home', page='rss', _external=True) }}{% endif %}" />
 
 		<meta property="og:site_name" content="{{ config.SITE_NAME }}">
 		<meta property="og:title" content="{{ self.title() }}">
@@ -93,7 +93,7 @@
 								<li {% if request.path == url_for('site.trusted') %}class="active"{% endif %}><a href="{{ url_for('site.trusted') }}">Trusted</a></li>
 							</ul>
 						</li>
-						<li><a href="{% if rss_filter %}{{ url_for('main.home', page='rss', **rss_filter) }}{% else %}{{ url_for('main.home', page='rss') }}{% endif %}">RSS</a></li>
+						<li><a href="{% if rss_filter %}{{ url_for('main.home', page='rss') + '&' + rss_filter }}{% else %}{{ url_for('main.home', page='rss') }}{% endif %}">RSS</a></li>
 						{% if config.SITE_FLAVOR == 'nyaa' %}
 						<li><a href="//{{ config.EXTERNAL_URLS['fap'] }}">Fap</a></li>
 						{% elif config.SITE_FLAVOR == 'sukebei' %}
