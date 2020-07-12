@@ -12,7 +12,7 @@ from itsdangerous import BadSignature, URLSafeSerializer
 from nyaa import forms, models
 from nyaa.extensions import db
 from nyaa.search import (DEFAULT_MAX_SEARCH_RESULT, DEFAULT_PER_PAGE, SERACH_PAGINATE_DISPLAY_MSG,
-                         _generate_query_string, search_db, search_elastic)
+                         _generate_query_string, search_db, search_db_baked, search_elastic)
 from nyaa.utils import admin_only, chain_get, sha1_hash
 
 app = flask.current_app
@@ -185,7 +185,10 @@ def view_user(user_name):
             query_args['term'] = ''
         else:
             query_args['term'] = search_term or ''
-        query = search_db(**query_args)
+        if app.config['USE_BAKED_SEARCH']:
+            query = search_db_baked(**query_args)
+        else:
+            query = search_db(**query_args)
         return flask.render_template('user.html',
                                      use_elastic=False,
                                      torrent_query=query,
