@@ -10,7 +10,6 @@ settings:
         char_filter:
           - my_char_filter
         filter:
-          - standard
           - lowercase
       my_index_analyzer:
         type: custom
@@ -52,7 +51,7 @@ settings:
 
     filter:
       my_ngram:
-        type: edgeNGram
+        type: edge_ngram
         min_gram: 1
         max_gram: 15
       fullword_min:
@@ -66,9 +65,13 @@ settings:
         type: pattern_capture
         patterns: ["0*([0-9]*)"]
       word_delimit:
-        type: word_delimiter
+        type: word_delimiter_graph
         preserve_original: true
         split_on_numerics: false
+        # https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-word-delimiter-graph-tokenfilter.html#word-delimiter-graph-tokenfilter-configure-parms
+        # since we're using "trim" filters downstream, otherwise
+        # you get weird lucene errors about startOffset
+        adjust_offsets: false
     char_filter:
       my_char_filter:
         type: mapping
@@ -78,70 +81,65 @@ settings:
     # plus replicas don't really help either.
     number_of_shards: 1
     number_of_replicas : 0
-    mapper:
-      # disable elasticsearch's "helpful" autoschema
-      dynamic: false
-    # since we disabled the _all field, default query the
-    # name of the torrent.
     query:
       default_field: display_name
 mappings:
-  torrent:
-    # don't want everything concatenated
-    _all:
-      enabled: false
-    properties:
-      id:
-        type: long
-      display_name:
-        # TODO could do a fancier tokenizer here to parse out the
-        # the scene convention of stuff in brackets, plus stuff like k-on
-        type: text
-        analyzer: my_index_analyzer
-        fielddata: true # Is this required?
-        fields:
-          # Multi-field for full-word matching (when going over ngram limits)
-          # Note: will have to be queried for, not automatic
-          fullword:
-            type: text
-            analyzer: my_fullword_index_analyzer
-          # Stored for exact phrase matching
-          exact:
-            type: text
-            analyzer: exact_analyzer
-      created_time:
-        type: date
-        # Only in the ES index for generating magnet links
-      info_hash:
-        enabled: false
-      filesize:
-        type: long
-      anonymous:
-        type: boolean
-      trusted:
-        type: boolean
-      remake:
-        type: boolean
-      complete:
-        type: boolean
-      hidden:
-        type: boolean
-      deleted:
-        type: boolean
-      has_torrent:
-        type: boolean
-      download_count:
-        type: long
-      leech_count:
-        type: long
-      seed_count:
-        type: long
-      comment_count:
-        type: long
-      # these ids are really only for filtering, thus keyword
-      uploader_id:
-        type: keyword
-      main_category_id:
-        type: keyword
-      sub_category_id:
-        type: keyword
+  # disable elasticsearch's "helpful" autoschema
+  dynamic: false
+  properties:
+    id:
+      type: long
+    display_name:
+      # TODO could do a fancier tokenizer here to parse out the
+      # the scene convention of stuff in brackets, plus stuff like k-on
+      type: text
+      analyzer: my_index_analyzer
+      fielddata: true # Is this required?
+      fields:
+        # Multi-field for full-word matching (when going over ngram limits)
+        # Note: will have to be queried for, not automatic
+        fullword:
+          type: text
+          analyzer: my_fullword_index_analyzer
+        # Stored for exact phrase matching
+        exact:
+          type: text
+          analyzer: exact_analyzer
+    created_time:
+      type: date
+      #
+    # Only in the ES index for generating magnet links
+    info_hash:
+      type: keyword
+      index: false
+    filesize:
+      type: long
+    anonymous:
+      type: boolean
+    trusted:
+      type: boolean
+    remake:
+      type: boolean
+    complete:
+      type: boolean
+    hidden:
+      type: boolean
+    deleted:
+      type: boolean
+    has_torrent:
+      type: boolean
+    download_count:
+      type: long
+    leech_count:
+      type: long
+    seed_count:
+      type: long
+    comment_count:
+      type: long
+    # these ids are really only for filtering, thus keyword
+    uploader_id:
+      type: keyword
+    main_category_id:
+      type: keyword
+    sub_category_id:
+      type: keyword

@@ -167,7 +167,7 @@ def home(rss):
         else:
             rss_query_string = _generate_query_string(
                 search_term, category, quality_filter, user_name)
-            max_results = min(max_search_results, query_results['hits']['total'])
+            max_results = min(max_search_results, query_results['hits']['total']['value'])
             # change p= argument to whatever you change page_parameter to or pagination breaks
             pagination = Pagination(p=query_args['page'], per_page=results_per_page,
                                     total=max_results, bs_version=3, page_parameter='p',
