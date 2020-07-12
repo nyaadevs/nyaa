@@ -58,6 +58,40 @@
 	not honor this. Using <kbd>(hello world) "foo bar"</kbd> is fine, but quoted strings inside
 	the parentheses will lead to unexpected results.
 </div>
+<table class="table">
+	<tr>
+		<th>Query</th>
+		<th>Result</th>
+	</tr>
+	<tr>
+		<td><kbd>foo</kbd></td>
+		<td>Torrents matching "foo" or a word starting with "foo"</td>
+	</tr>
+	<tr>
+		<td><kbd>foo -bar</kbd></td>
+		<td>Torrents matching "foo" (as above) but not "bar" (or a word starting with "bar")</td>
+	</tr>
+	<tr>
+		<td><kbd>foo bar</kbd></td>
+		<td>Torrents matching both "foo" and "bar", and not necessarily in that order</td>
+	</tr>
+	<tr>
+		<td><kbd>foo|bar</kbd></td>
+		<td>Torrents matching either "foo" or "bar"</td>
+	</tr>
+	<tr>
+		<td><kbd>(foo bar)|(boo baz)</kbd></td>
+		<td>Torrents matching either "foo" and "bar" or "boo" and "baz", but not "foo" and "boo" or "foo" and "baz", and so on.</td>
+	</tr>
+	<tr>
+		<td><kbd>"foo bar"</kbd></td>
+		<td>Torrents matching "foo bar" - literally, space included</td>
+	</tr>
+	<tr>
+		<td><kbd>"foo "|" foo"</kbd></td>
+		<td>Torrents matching "foo" as a single word (foo with a leading or trailing space) - compare against the first example</td>
+	</tr>
+</table>
 
 {{ linkable_header("Reporting Torrents", "reporting") }}
 <div>
