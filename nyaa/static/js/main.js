@@ -268,6 +268,9 @@ document.addEventListener("DOMContentLoaded", function() {
 // Info bubble stuff
 document.addEventListener("DOMContentLoaded", function() {
 	var bubble = document.getElementById('infobubble');
+	if (!bubble) {
+		return;
+	}
 	if (Number(localStorage.getItem('infobubble_dismiss_ts')) < Number(bubble.dataset.ts)) {
 		bubble.removeAttribute('hidden');
 	}

@@ -352,6 +352,7 @@ a.text-purple:hover, a.text-purple:active, a.text-purple:focus {
 
 #comment {
 	height: 8em;
+	min-height: 8em;
 }
 
 .avatar {
