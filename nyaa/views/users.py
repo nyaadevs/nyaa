@@ -210,8 +210,8 @@ def view_user_comments(user_name):
     if not user:
         flask.abort(404)
 
-    # Only moderators get to see all comments for now
-    if not flask.g.user or not flask.g.user.is_moderator:
+    # Only moderators and users themselves get to see the comments
+    if not flask.g.user or not (flask.g.user == user or flask.g.user.is_moderator):
         flask.abort(403)
 
     page_number = flask.request.args.get('p')
@@ -228,6 +228,11 @@ def view_user_comments(user_name):
     return flask.render_template('user_comments.html',
                                  comments_query=comments_query,
                                  user=user)
+
+
+@bp.route('/profile/comments')
+def view_own_comments():
+    return view_user_comments(flask.g.user.username)
 
 
 @bp.route('/user/activate/<payload>')
