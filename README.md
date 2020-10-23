@@ -24,6 +24,8 @@ pyenv eases the use of different Python versions, and as not all Linux distros o
     - `pyenv install 3.7.2`
     - `pyenv virtualenv 3.7.2 nyaa`
     - `pyenv activate nyaa`
+- Clone repository:
+    - `git clone https://github.com/nyaadevs/nyaa.git`
 - Install dependencies with `pip install -r requirements.txt`
 - Copy `config.example.py` into `config.py`
     - Change `SITE_FLAVOR` in your `config.py` depending on which instance you want to host
