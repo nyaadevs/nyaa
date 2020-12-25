@@ -73,7 +73,7 @@ Continue below to learn about database migrations and enabling the advanced sear
         - Enable the service:
             - `sudo systemctl enable elasticsearch.service`
             - `sudo systemctl start elasticsearch.service`
-    - or [simply extracting the archives and running the files](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html), if you don't feel like permantently installing ES
+    - or [simply extracting the archives and running the files](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html), if you don't feel like permanently installing ES
 - Run `curl -XGET 'localhost:9200'` and make sure ES is running
     - Optional: install [Kibana](https://www.elastic.co/products/kibana) as a search debug frontend for ES
 
