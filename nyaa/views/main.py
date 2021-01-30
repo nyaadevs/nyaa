@@ -218,4 +218,6 @@ def render_rss(label, query, use_elastic, magnet_links=False):
     response.headers['Content-Type'] = 'application/xml'
     # Cache for an hour
     response.headers['Cache-Control'] = 'max-age={}'.format(1 * 5 * 60)
+    # Allow cross origin access
+    response.headers['Access-Control-Allow-Origin'] = '*'
     return response
