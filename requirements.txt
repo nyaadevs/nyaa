@@ -22,7 +22,7 @@ gevent==1.4.0
 greenlet==0.4.15
 isort==4.3.21
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 Mako==1.1.0
 MarkupSafe==1.1.1
 mysql-replication==0.19
