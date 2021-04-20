@@ -31,7 +31,7 @@ orderedset==2.0.1
 packaging==19.1
 passlib==1.7.1
 progressbar33==2.4
-py==1.8.0
+py==1.10.0
 pycodestyle==2.5.0
 pycparser==2.19
 PyMySQL==0.9.3
