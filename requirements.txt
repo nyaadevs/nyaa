@@ -45,7 +45,7 @@ SQLAlchemy==1.3.6
 SQLAlchemy-FullText-Search==0.2.5
 SQLAlchemy-Utils==0.34.1
 statsd==3.3.0
-urllib3==1.25.3
+urllib3==1.26.5
 uWSGI==2.0.18
 redis==3.2.1
 webassets==0.12.1
