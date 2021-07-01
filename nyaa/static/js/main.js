@@ -4,8 +4,23 @@ document.addEventListener("DOMContentLoaded", function(event) { // wait for cont
 		toggleDarkMode();   // toggle theme
 	});
 	// needs to be done here as <body> is not available when the script in the head runs
-	if (typeof(Storage) !== 'undefined' && localStorage.getItem('theme') === 'dark')
+	if (typeof(Storage) !== 'undefined' && localStorage.getItem('theme') === 'dark') {
 		document.body.classList.add('dark');
+	} else if (window.matchMedia) {
+		const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+		if (darkMedia.matches)
+			document.body.classList.add('dark');
+		// Some operating systems switch to dark mode only during the evening/night:
+		darkMedia.addEventListener('change', function(event) {
+			// Do not overwrite if the user made a manual choice:
+			if (localStorage.getItem('theme') === null) {
+				if (event.matches)
+					document.body.classList.add('dark');
+				else
+					document.body.classList.remove('dark');
+			}
+		});
+	}
 });
 
 
