@@ -332,6 +332,8 @@ def download_torrent(torrent_id):
     resp.headers['Content-Type'] = 'application/x-bittorrent'
     resp.headers['Content-Disposition'] = disposition
     resp.headers['Content-Length'] = torrent_file_size
+    # Allow cross origin access
+    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
 
