@@ -23,7 +23,7 @@ greenlet==0.4.15
 isort==4.3.21
 itsdangerous==1.1.0
 Jinja2==2.10.1
-Mako==1.1.0
+Mako==1.2.2
 MarkupSafe==1.1.1
 mysql-replication==0.19
 mysqlclient==1.4.3
